@@ -1,0 +1,65 @@
+<html>
+<head>
+<title>Format</title>
+<!--link rel="stylesheet" href="../app.css"-->
+<script type="text/javascript" src="lib.js"></script>
+<script>
+
+const app = new formatClass();
+
+
+// toggle money conversion
+function money() {
+  // demo converting penneys to  $22,232.23 format
+  const a_money =  [1,12,145,134567,-3,];  // integers in penneys
+  let html = document.getElementById('money').innerHTML;
+  if (html.length === 0) {
+    a_money.forEach((penneys, i) => {
+      html += `<br>penneys ${penneys} - money format ${app.money(penneys)}`
+    });
+  } else {
+    html = "";
+  }
+
+  document.getElementById('money').innerHTML = html;
+}
+
+
+// view
+function updateViews(){
+  const txt=document.getElementById('input').value;
+  document.getElementById('escaped').value = app.escStringForJson(txt);
+  document.getElementById('html'   ).innerHTML = txt;
+}
+
+
+</script>
+
+</head>
+
+<body>
+<p>Formating data on reports and input</p>
+<p><b>text files:</b></p>
+<textarea id="input" rows="8" cols="50" onchange="updateViews()">
+{"data": "{}"
+}
+</textarea><br>
+
+<p><b>escaped</b></p>
+<textarea id="escaped" rows="8" cols="50">
+</textarea><br>
+
+
+<p><b>html</b></p>
+<div id="html" rows="8" cols="50">
+</div><br>
+
+
+<p>Formating money, input is in penneys
+<input type="button" value="run money()" onclick="money()">
+</p>
+<div id="money"></div>
+
+
+</body>
+</html>

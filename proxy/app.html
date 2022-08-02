@@ -1,0 +1,47 @@
+<html>
+<head>
+<title>Proxy</title>
+<link rel="stylesheet" href="/app.css">
+<script type="text/javascript" src="lib.js"></script>
+</head>
+
+<body>
+  <p>Test hitting webservers and bringing in pages<br>
+    URL <input type="text" id="url" size=100 value="tables.json"></p>
+    <input type="button" value="get URL" onclick="getURL()">
+  <p><b>JSON</b></p>
+  <p id="data"></p>
+
+  <p><b>File</b></p>
+  <pre id="file"></pre>
+
+  <p><b>Row</b></p>
+  <pre id="row"></pre>
+
+  <p><b>field</b></p>
+  <pre id="field"></pre>
+</body>
+
+</html>
+
+<script>
+const app = new proxyClass();
+
+async function getURL() {
+  let url = document.getElementById("url").value;
+
+  let j = await app.getJSON( url );
+
+  document.getElementById("data").innerHTML = JSON.stringify(j);
+  /*
+  document.getElementById("file").innerHTML = file;
+  document.getElementById("row").innerHTML  = JSON.stringify(j.balance[3]);
+  document.getElementById("field").innerHTML  = JSON.stringify(j.balance[3][getField(j,"n_credit")]);
+  */
+}
+
+function getField(table,fName) {
+  return table.balance[0].indexOf(fName);
+}
+
+</script>
