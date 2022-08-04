@@ -782,9 +782,10 @@ async processServerRefresh() {
   alert(JSON.stringify(resp));   // was it succussful
 
   // display new calendar graph
-  this.edgeToEvents();
-  this.buildTable();
-  this.tableUx.display();
+  // this.edgeToEvents();
+  // this.buildTable();
+  // this.tableUx.display();
+  location.reload();
   this.windowActive = false;
 }
 
