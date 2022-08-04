@@ -292,15 +292,13 @@ buildTable() {   // converts calendar data from graph to a table, uses
         style = ``;
       }
       let plusStyle = `
-        position:relative;
-        margin-right: auto;
-        margin-left: 80%;
-        margin-bottom: auto;
         cursor: pointer;
       `;
-      let html = `<h5  ${style}>${m}-${d}</h5>
-                    <p  style="${plusStyle}" onClick="app.calendar.createNewEvent(${start.getDate()},${start.getMonth()},${start.getFullYear()}, 1, 0)">+</p>
-                  <ol>`;   // put MM-DD at top of day
+      let html = `<h5  ${style}>
+                    <a style="${plusStyle}" onClick="app.calendar.createNewEvent(${start.getDate()},${start.getMonth()},${start.getFullYear()}, 1, 0)">+</a>
+                    ${m}-${d}
+                  </h5>
+                  <br>`;   // put MM-DD at top of day
 
       let eventList = this.events[m][d];
       eventList.forEach((k, i) => {
@@ -316,14 +314,14 @@ buildTable() {   // converts calendar data from graph to a table, uses
                 user = "&u=" + this.urlParams.get('u');
                 editButton = `
                   <p style="cursor:pointer;" onClick="app.calendar.createNewEvent(${start.getDate()},${start.getMonth()},${start.getFullYear()}, 2, ${nodeName})">
-                    E
-                  </p>
+                    ${i+1}
+                  
                 `;
               }
 
-              html += `<li>
-                ${editButton}
-                <a  href="/app.html?p=events&e=${k}&d=${app.format.getISO(start)}${user}" target="_blank">${this.graph.nodes[nodeName].text[0][2]}</a>`
+              html += `${editButton}
+                <a  href="/app.html?p=events&e=${k}&d=${app.format.getISO(start)}${user}" target="_blank">${this.graph.nodes[nodeName].text[0][2]}</a>
+                </p>`
           } else {
             // assume nodeName is an Object
             html += `<li><a  href="${nodeName.url}" target="_blank">${nodeName.text}</a>`
@@ -331,7 +329,7 @@ buildTable() {   // converts calendar data from graph to a table, uses
 
       });
 
-      row.push(html + "</ol>")
+      row.push(html + "</br>")
       start.setDate( start.getDate() + 1 ); // move to next day
     }
     t.appendRow(row);  // append row to table
