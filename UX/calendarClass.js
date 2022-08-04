@@ -689,7 +689,7 @@ async deleteEvent(editData) {
   delete this.graph.edges[editData];
   delete this.graph.nodes[editData];
 
-  this.processServerRefresh();
+  await this.processServerRefresh();
 }
 
 // edits existing event on the calendar
@@ -707,7 +707,7 @@ async editEvent(month,day,year, editData) {
   app.calendar.graph.edges[parseInt(editData)] = edge;
   app.calendar.graph.nodes[parseInt(editData)] = node;
 
-  this.processServerRefresh();
+  await this.processServerRefresh();
   // // save new graph
   // const msg = {
   //   "server":"web"
@@ -746,7 +746,7 @@ async addNewEvent(month, day, year) {
   app.calendar.graph.edgeNext += 1;
   app.calendar.graph.nodeNext += 1;
 
-  this.processServerRefresh();
+  await this.processServerRefresh();
   // save new graph
   // const msg = {
   //  "server":"web"
