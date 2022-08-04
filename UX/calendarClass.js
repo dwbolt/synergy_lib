@@ -99,7 +99,12 @@ async main(dom) {
   this.edgeName = this.urlParams.get('e');
   if (this.edgeName === null) {
     // display entire calendar
-    document.getElementById("heading").innerHTML += ` ${this.year}`;
+    if (document.getElementById("heading")) {
+      document.getElementById("heading").innerHTML += ` ${this.year}`;
+    } else {
+      // assume it is the main page
+      document.getElementById("heading1").innerHTML += ` ${this.year}`;
+    }
     this.tableUx.display();
     this.findToday();   // only need to do this is we are displaying the clander
   } else {
