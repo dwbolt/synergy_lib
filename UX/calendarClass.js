@@ -586,20 +586,19 @@ renderEndDateSelector(  // calendarClass  client-side
 
 
 createEventEdge( // calendarClass  client-side
-  // reads data in pop up form and creates node for app.calendar.graph data
-  month
-  ,day
-  ,year
-  ,edit
+  // reads data in pop up form and creates edge for app.calendar.graph data
 )   { // edit is array where first value is boolean of 0 if we are creating and 1 if we are editing. Second value of edit is the node number to store in edge
-  let doesRepeat = false;
-  let name = document.getElementById("eventName").value;                 // name of the event
-  let startTime = document.getElementById("eventStartTime").value;       // the start time of the event
-  let durationHour = document.getElementById("durationHour").value;      // hours portion how the duration
-  let durationMinute = document.getElementById("durationMinute").value;  // minutes portion of the duration
-  let repeat = document.getElementById("repeatType").value;              // chosen value of how often to repeat event
-  let offset = [];                                                       // for repeating events and their offset from first day
+  const name           = document.getElementById("eventName").value;       // name of the event
+  let e                = document.getElementById("timeZone");
+  const timeZone       = e.options[e.selectedIndex].value;
+  const startTime      = document.getElementById("eventStartTime").value;  // the start time of the event
+  const durationHour   = document.getElementById("durationHour").value;    // hours portion how the duration
+  const durationMinute = document.getElementById("durationMinute").value;  // minutes portion of the duration
+  const repeat         = document.getElementById("repeatType").value;      // chosen value of how often to repeat event
+  let offset         = [];                                               // for repeating events and their offset from first day
   let endDate;
+  let doesRepeat     = false;
+
   if (document.getElementById("endDate")) {
     endDate = document.getElementById("endDate").value;
     doesRepeat = true;
@@ -715,16 +714,8 @@ async save( // calendarClass  client-side
 async addNewEvent(// calendarClass  client-side
   // user click + to add a new event and now has click "add" button to save new event on server
   ) {
-
-  // get date from form
-  const value = document.getElementById('eventStartDate').value.split("-");
-  const year  = value[0];
-  const month = value[1];
-  const day   = value[2];
-
-
   // create edges from values in pop up form
-  let edge = this.createEventEdge(month,day,year,[0,-1]);
+  let edge = this.createEventEdge();
   let node = this.createEventNode();
 
   // find the numbers for the next node and edge
