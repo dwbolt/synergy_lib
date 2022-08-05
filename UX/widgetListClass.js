@@ -29,12 +29,12 @@ constructor(
   idDOM   // DOM id location to put the list
 ) {
     this.idDOM     = idDOM;
-    this.a_eval    = [];
+    this.a_eval    = [];     // ?
     this.json      = {};     // will load from data
 
     this.n_pic     = 0;      // incremented every 2 seconds and change picture
-    this.timer;
-    this.list ;
+    this.timer;              // ?
+    this.list ;              // ?
     this.selected;           // remember the button selected
 }
 
@@ -48,7 +48,7 @@ async HTMLfor(
 
   this.json.lists[list].forEach((nodeName, i) => {
     // build html for links like FaceBook, Ets, etc
-    html += await this.HTMLforNode(i,nodeName);
+    //html += await this.HTMLforNode(i,nodeName);
   });
   return html;
 }
@@ -241,7 +241,7 @@ async displayRow(
       this.a_eval.push(line[2]);
     } else if(line[0] === "load") {
       // load external html
-      text += await app.proxy.getText(line[2]);
+      //text += await app.proxy.getText(line[2]);
     } else if(line[0] === "") {
       // assume all HTML tags are included in line[2]
       text += line[2];
