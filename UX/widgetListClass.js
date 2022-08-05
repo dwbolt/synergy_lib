@@ -46,10 +46,12 @@ async HTMLfor(
   this.list = list;  // is this used?
   let html="";
 
-  this.json.lists[list].forEach((nodeName, i) => {
+  let l = this.json.lists[list];
+  //this.json.lists[list].forEach((nodeName, i) => {  can not use foreach with await
+  for(let i=0; i<l.length; i++) {
     // build html for links like FaceBook, Ets, etc
-    //html += await this.HTMLforNode(i,nodeName);
-  });
+    html += await this.HTMLforNode(i,l[i]);
+  };
   return html;
 }
 
@@ -114,14 +116,14 @@ async displayButton(    // called from button on page
 
 
   // set the of all sibbling buttons to mot selected
-//  if (dom) {
+  if (dom) {
     let e=dom.parentNode.firstChild;
     do {
       e.className="button";
     } while (e=e.nextSibling)
     dom.className = "selected";  //  set class to selected so we can see the button that is slected
     this.selected = dom;         // rememvber the selected button
-//  }
+  }
   await this.displayList(dom.id, html);
 }
 
@@ -139,7 +141,6 @@ async displayList(list, html=""){
   this.a_eval.forEach((item, i) => {
     eval(item);  // this seems like there maybe races conditions.
   });
-
 }
 
 
@@ -220,7 +221,9 @@ async displayRow(
   let page = urlParams.get('p')
 
   // walk the list of lines in text
-  r.text.forEach((line, i) => {
+  // r.text.forEach((line, i) => {  // can not use await in forEach(
+  for(let i=0; i<r.text.length ;i++) {
+    let line = r.text[i];
     if        (line[0] === "monthly") {
       //
       day =`${r.date.week} ${r.date.day}`;
@@ -241,7 +244,7 @@ async displayRow(
       this.a_eval.push(line[2]);
     } else if(line[0] === "load") {
       // load external html
-      //text += await app.proxy.getText(line[2]);
+      text += await app.proxy.getText(line[2]);
     } else if(line[0] === "") {
       // assume all HTML tags are included in line[2]
       text += line[2];
@@ -249,7 +252,7 @@ async displayRow(
       // assume line[0] is a html tag and surround with open close tags
       text += `<${line[0]}>${line[2]}</${line[0]}>`;
     }
-  });
+  }
 
   // create updated
   if (!page) {
