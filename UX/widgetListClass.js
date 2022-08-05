@@ -40,7 +40,7 @@ constructor(
 
 
 // widgetListClass - client-side
-HTMLfor(
+async HTMLfor(
   list  // attribute name with value array of section names to be displayed
 ) {
   this.list = list;  // is this used?
@@ -48,14 +48,14 @@ HTMLfor(
 
   this.json.lists[list].forEach((nodeName, i) => {
     // build html for links like FaceBook, Ets, etc
-    html += this.HTMLforNode(i,nodeName);
+    html += await this.HTMLforNode(i,nodeName);
   });
   return html;
 }
 
 
 // widgetListClass - client-side
-HTMLforNode(
+async HTMLforNode(
   i
   ,nodeName //  node name
 ) {
@@ -78,7 +78,7 @@ HTMLforNode(
     }
 
     // build html for row
-    html += this.displayRow(i,r,urls,nodeName);
+    html += await this.displayRow(i,r,urls,nodeName);
   } else {
     // the node does not exists, display place holder if viewing non-production
     if (localStorage.getItem('production')  === "false") {
@@ -94,7 +94,7 @@ HTMLforNode(
 
 
 // widgetListClass - client-side
-displayButton(    // called from button on page
+async displayButton(    // called from button on page
   dom  // DOM of button that was pushed
 //  ,list     // list that is being displayed
 //  ,heading  // optional heading for page
@@ -122,13 +122,13 @@ displayButton(    // called from button on page
     dom.className = "selected";  //  set class to selected so we can see the button that is slected
     this.selected = dom;         // rememvber the selected button
 //  }
-  this.displayList(dom.id, html);
+  await this.displayList(dom.id, html);
 }
 
 
-displayList(list, html=""){
+async displayList(list, html=""){
   this.list   = list;  // assume buttion id is same as list node name
-  html += this.HTMLfor(list);
+  html += await this.HTMLfor(list);
 
   document.getElementById(this.idDOM).innerHTML = html;
   this.updatePictures();
@@ -205,7 +205,7 @@ timeFormat(
 
 
 // widgetListClass - client-side
-displayRow(
+async displayRow(
   i      // row index
   ,r     // row object
   ,urls  // urls to be displayed
@@ -239,6 +239,9 @@ displayRow(
     } else if (line[0] === "eval") {
       // save javascript code to execute in array, run it after the DOM is loaded
       this.a_eval.push(line[2]);
+    } else if(line[0] === "load") {
+      // load external html
+      text += await app.proxy.getText(line[2]);
     } else if(line[0] === "") {
       // assume all HTML tags are included in line[2]
       text += line[2];
