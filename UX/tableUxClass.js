@@ -368,7 +368,7 @@ displayFooter(){  // put agg functions here
 // tableUxClass - client-side
 getTableDom(){
   const e=document.getElementById(this.DOMid);     // dom element where table is displayed
-  const table =     e.children[e.childElementCount-1]; // should be table
+  const table =     e.children[0]; // should be table - brittle code
   return table;
 }
 

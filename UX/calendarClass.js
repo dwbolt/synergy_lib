@@ -56,8 +56,7 @@ constructor( // calendarClass  client-side
     this.tableUx.setStatusLineData( [
       `<input type="button" id="todayButton" onClick="app.calendar.findToday()" value="Today" />`
       ,"nextPrev"
-      ,`<label for="chooseMonth">Month: </label>
-        <select name="months" id="months" onChange="app.calendar.chooseMonth()">
+      ,`<select name="months" id="months" onChange="app.calendar.chooseMonth()">
           <option value="nullMonth" selected>Choose Month</option>
           <option value="january">January</option>
           <option value="february">February</option>
@@ -262,28 +261,28 @@ buildTable(  // calendarClass  client-side
     let row = []; // init week
     for (let y=0; y<=6; y++) {
       // add days for week
-      let m=start.getMonth()+1;
-      let d=start.getDate();
+      let m = start.getMonth()+1;
+      let d = start.getDate();
       if (start<firstDate) {
         // day is before january 1st of this year
-        style = `data-parentAttribute="['style','font-size: 0']"`
+        style = `data-parentAttribute="['class','YearBefore']"`
       } else if (start.getFullYear()>this.year) {
         // day is after last day of year
-        style = `data-parentAttribute="['style','font-size: 0']"`
+        style = `data-parentAttribute="['style','YearAfter']"`
       } else if (start.getMonth() == today.getMonth() && start.getDate() == today.getDate() && start.getFullYear() == today.getFullYear()) {
         // change how the comparison works because the time of day will not match up from start and today
         // so just see if the month, day, and year are the same to compare
         // set backgroupd color for today
-        let dayArg = start.getDate();
+        let dayArg   = start.getDate();
         let monthArg = start.getMonth();
-        let yearArg = start.getFullYear();
-        style = `data-parentAttribute="['class','today']"`  // tableUxClass will put class='past' in the TD tag
+        let yearArg  = start.getFullYear();
+        style        = `data-parentAttribute="['class','today']"`  // tableUxClass will put class='today' in the TD tag
       } else if (start<today) {
         // set backgroupd color for past event
-        let dayArg = start.getDate();
+        let dayArg   = start.getDate();
         let monthArg = start.getMonth();
-        let yearArg = start.getFullYear();
-        style = `data-parentAttribute="['class','past']"`  // tableUxClass will put class='past' in the TD tag
+        let yearArg  = start.getFullYear();
+        style        = `data-parentAttribute="['class','past']"`  // tableUxClass will put class='past' in the TD tag
       } else {
         // set backgroupd color for future date
         let dayArg = start.getDate();
@@ -291,14 +290,15 @@ buildTable(  // calendarClass  client-side
         let yearArg = start.getFullYear();
         style = ``;
       }
-      let plusStyle = `
-        cursor: pointer;
-      `;
-      let html = `<h5  ${style}>
-                    <a style="${plusStyle}" onClick="app.calendar.createNewEvent(${start.getFullYear()}, ${start.getMonth()}, ${start.getDate()})">+</a>
-                    ${m}-${d}
-                  </h5>
-                  <br>`;   // put MM-DD at top of day
+      let plusStyle = `cursor: pointer;`;
+
+      let newEvent      = "";
+      if (this.urlParams.get('u') != null) {
+        // we are on a user calendar, so allow adding
+        newEvent = `<a style="${plusStyle}" onClick="app.calendar.createNewEvent(${start.getFullYear()}, ${start.getMonth()}, ${start.getDate()})">+</a>`
+      }
+
+      let html = `<h5 ${style}>${m}-${d} ${newEvent} </h5><ol>`;   // put MM-DD at top of day
 
       let eventList = this.events[m][d];
       eventList.forEach((k, i) => {
@@ -312,16 +312,11 @@ buildTable(  // calendarClass  client-side
               if (this.urlParams.get('u') != null) {
                 // we are on a user calendar
                 user = "&u=" + this.urlParams.get('u');
-                editButton = `
-                  <p style="cursor:pointer;" onClick="app.calendar.editEvent(${nodeName})">
-                    ${i+1}
-
-                `;
+                editButton = `<a onClick="app.calendar.editEvent(${nodeName})"> ${i+1}</a>`;
               }
 
-              html += `${editButton}
-                <a  href="/app.html?p=events&e=${k}&d=${app.format.getISO(start)}${user}" target="_blank">${this.graph.nodes[nodeName].text[0][2]}</a>
-                </p>`
+              html += `<li>${editButton}
+                <a href="/app.html?p=events&e=${k}&d=${app.format.getISO(start)}${user}" target="_blank">${this.graph.nodes[nodeName].text[0][2]}</a>`
           } else {
             // assume nodeName is an Object
             html += `<li><a  href="${nodeName.url}" target="_blank">${nodeName.text}</a>`
@@ -753,37 +748,25 @@ async processServerRefresh( // calendarClass  client-side
 
 
 moveToDate( // calendarClass  client-side
-  a  // Function to move to -- go from date 'a' to date 'b'
+  newDate  // move to newDate from current date displayed on calendar
 ) {
-  const today = new Date();
-  let timeBetweenDays;
-  let weeksBetweenDays;
-  let curDates = document.getElementsByTagName("td");       // grabs the table elements that hold the dates on calendar
-  const currMonthDay = curDates[0].textContent.split("-");  // grabs the first date at the top left of calendar table
+  let timeBetweenDays;  // in milliseconds from newDate to first date displayed in first row
+  let weeksBetweenDays; // number of rows need to move to make the newDate displayed in first row of calendar
+  const firstDayTD = document.getElementsByTagName("td")[0];       // grabs the table elements that hold the dates on calendar
+  const firstMonthDay = firstDayTD.textContent.split("-");  // grabs the first date at the top left of calendar table
 
-  // removes all characters that are not numbers
-  for (var i = currMonthDay[1].length; i >= 0; i--) {
-    if (currMonthDay[1][i] < '0' || currMonthDay[1][i] > '9') {
-      currMonthDay[1] = currMonthDay[1].substring(0, currMonthDay[1].length - 1);
-    }
-  }
+  // convert strings to integers
+  const firstMonth = parseInt(firstMonthDay[0]);
+  const firstDay   = parseInt(firstMonthDay[1])
 
   // first date of page we are on at the moment
-  var currentDate = new Date(today.getFullYear(), currMonthDay[0]-1, currMonthDay[1]);
+  var firstDate = new Date(this.year, firstMonth-1, firstDay);
 
-  // see if the date is before the beginning of current year
-  var isBeforeYear = false;
-  if (currentDate.getMonth() == 11) {
-    for (var i = 0; i < curDates.length; i++) {
-      // console.log(curDates[i].textContent[0]+curDates[i].textContent[1]);
-      if (curDates[i].textContent[0] == '1' && curDates[i].textContent[1] == '-') { isBeforeYear = true; break; }
-    }
-  }
-  var curYear = (isBeforeYear) ? (today.getFullYear()-1) : today.getFullYear();
-  currentDate.setFullYear(curYear);
+  var firstYear = (this.tableUx.paging.row ===0 && firstDayTD.className === "YearBefore") ? (this.year-1) : this.year;
+  firstDate.setFullYear(firstYear);
 
   // find difference in time between dates
-  timeBetweenDays = a.getTime() - currentDate.getTime(); // time between a and b in milliseconds
+  timeBetweenDays = newDate.getTime() - firstDate.getTime(); // time between a and b in milliseconds
 
   // turn difference in milliseconds to weeks
   weeksBetweenDays = Math.floor(timeBetweenDays / (1000 * (60 * 60) * 24 * 7));
@@ -797,11 +780,10 @@ moveToDate( // calendarClass  client-side
 chooseMonth(  // calendarClass  client-side
   // Goes to page that has first day of chosen month
 ) {
-  var today = new Date();                                   // get current date
   var myList = document.getElementById("months");           // grabs the month input selector
 
   // get date we want to jump to
-  var targetDate = new Date(today.getFullYear(), myList.selectedIndex-1, 1); // target date to jump to
+  var targetDate = new Date(this.year, myList.selectedIndex-1, 1); // target date to jump to
 
   this.moveToDate(targetDate);
   myList.selectedIndex = 0;
