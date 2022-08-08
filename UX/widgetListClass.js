@@ -29,33 +29,35 @@ constructor(
   idDOM   // DOM id location to put the list
 ) {
     this.idDOM     = idDOM;
-    this.a_eval    = [];
+    this.a_eval    = [];     // ?
     this.json      = {};     // will load from data
 
     this.n_pic     = 0;      // incremented every 2 seconds and change picture
-    this.timer;
-    this.list ;
+    this.timer;              // ?
+    this.list ;              // ?
     this.selected;           // remember the button selected
 }
 
 
 // widgetListClass - client-side
-HTMLfor(
+async HTMLfor(
   list  // attribute name with value array of section names to be displayed
 ) {
   this.list = list;  // is this used?
   let html="";
 
-  this.json.lists[list].forEach((nodeName, i) => {
+  let l = this.json.lists[list];
+  //this.json.lists[list].forEach((nodeName, i) => {  can not use foreach with await
+  for(let i=0; i<l.length; i++) {
     // build html for links like FaceBook, Ets, etc
-    html += this.HTMLforNode(i,nodeName);
-  });
+    html += await this.HTMLforNode(i,l[i]);
+  };
   return html;
 }
 
 
 // widgetListClass - client-side
-HTMLforNode(
+async HTMLforNode(
   i
   ,nodeName //  node name
 ) {
@@ -78,7 +80,7 @@ HTMLforNode(
     }
 
     // build html for row
-    html += this.displayRow(i,r,urls,nodeName);
+    html += await this.displayRow(i,r,urls,nodeName);
   } else {
     // the node does not exists, display place holder if viewing non-production
     if (localStorage.getItem('production')  === "false") {
@@ -94,7 +96,7 @@ HTMLforNode(
 
 
 // widgetListClass - client-side
-displayButton(    // called from button on page
+async displayButton(    // called from button on page
   dom  // DOM of button that was pushed
 //  ,list     // list that is being displayed
 //  ,heading  // optional heading for page
@@ -114,21 +116,21 @@ displayButton(    // called from button on page
 
 
   // set the of all sibbling buttons to mot selected
-//  if (dom) {
+  if (dom) {
     let e=dom.parentNode.firstChild;
     do {
       e.className="button";
     } while (e=e.nextSibling)
     dom.className = "selected";  //  set class to selected so we can see the button that is slected
     this.selected = dom;         // rememvber the selected button
-//  }
-  this.displayList(dom.id, html);
+  }
+  await this.displayList(dom.id, html);
 }
 
 
-displayList(list, html=""){
+async displayList(list, html=""){
   this.list   = list;  // assume buttion id is same as list node name
-  html += this.HTMLfor(list);
+  html += await this.HTMLfor(list);
 
   document.getElementById(this.idDOM).innerHTML = html;
   this.updatePictures();
@@ -139,7 +141,6 @@ displayList(list, html=""){
   this.a_eval.forEach((item, i) => {
     eval(item);  // this seems like there maybe races conditions.
   });
-
 }
 
 
@@ -205,7 +206,7 @@ timeFormat(
 
 
 // widgetListClass - client-side
-displayRow(
+async displayRow(
   i      // row index
   ,r     // row object
   ,urls  // urls to be displayed
@@ -220,7 +221,9 @@ displayRow(
   let page = urlParams.get('p')
 
   // walk the list of lines in text
-  r.text.forEach((line, i) => {
+  // r.text.forEach((line, i) => {  // can not use await in forEach(
+  for(let i=0; i<r.text.length ;i++) {
+    let line = r.text[i];
     if        (line[0] === "monthly") {
       //
       day =`${r.date.week} ${r.date.day}`;
@@ -239,6 +242,9 @@ displayRow(
     } else if (line[0] === "eval") {
       // save javascript code to execute in array, run it after the DOM is loaded
       this.a_eval.push(line[2]);
+    } else if(line[0] === "load") {
+      // load external html
+      text += await app.proxy.getText(line[2]);
     } else if(line[0] === "") {
       // assume all HTML tags are included in line[2]
       text += line[2];
@@ -246,7 +252,7 @@ displayRow(
       // assume line[0] is a html tag and surround with open close tags
       text += `<${line[0]}>${line[2]}</${line[0]}>`;
     }
-  });
+  }
 
   // create updated
   if (!page) {
