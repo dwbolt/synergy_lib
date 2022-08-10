@@ -44,6 +44,11 @@ constructor( // calendarClass  client-side
   	this.proxy      = new proxyClass();   // loads graph data from server
     this.urlParams  = new URLSearchParams( window.location.search );  // read params send in the URL
 
+    this.eventYear;  // year of event to edit or add
+    this.eventMonth; // month of event to edit or add
+    this.eventDay;   // day of event to edit or add
+    this.eventData;  // number to access node or edge in data
+
     // need for both sfc web site and the stand alone page
     this.db      = new dbClass();       // create empty database
     this.db.tableAdd("weekCal");        // create empty table in database, is where events for calendar will be displayed.
@@ -93,6 +98,40 @@ constructor( // calendarClass  client-side
         this.events[m][d] = [];
       }
     }
+}
+
+// Mutators
+setEventMonth(val) {
+  this.eventMonth = val;
+}
+
+setEventYear(val) {
+  this.eventYear = val;
+}
+
+setEventDay(val) {
+  this.eventDay = val;
+}
+
+setEventData(val) {
+  this.eventData = val;
+}
+
+// accessors
+getEventMonth() {
+  return this.eventMonth;
+}
+
+getEventYear() {
+  return this.eventYear;
+}
+
+getEventDay() {
+  return this.eventDay;
+}
+
+getEventData() {
+  return this.eventData;
 }
 
 
@@ -291,11 +330,8 @@ buildTable(  // calendarClass  client-side
         let yearArg = start.getFullYear();
         style = ``;
       }
-      let plusStyle = `
-        cursor: pointer;
-      `;
       let html = `<h5  ${style}>
-                    <a style="${plusStyle}" onClick="app.calendar.createNewEvent(${start.getFullYear()}, ${start.getMonth()}, ${start.getDate()})">+</a>
+                    <a class="editFormPlus" onClick="app.calendar.createNewEvent(${start.getFullYear()}, ${start.getMonth()}, ${start.getDate()})">+</a>
                     ${m}-${d}
                   </h5>
                   <br>`;   // put MM-DD at top of day
@@ -313,8 +349,8 @@ buildTable(  // calendarClass  client-side
                 // we are on a user calendar
                 user = "&u=" + this.urlParams.get('u');
                 editButton = `
-                  <p style="cursor:pointer;" onClick="app.calendar.editEvent(${nodeName})">
-                    ${i+1}
+                  <p>
+                    <a class="editFormBullet" onClick="app.calendar.editEvent(${start.getFullYear()},${start.getMonth()},${start.getDate()},${nodeName})"> ${i+1} </a>
 
                 `;
               }
@@ -344,7 +380,7 @@ fillFormFromData(  // calendarClass  client-side
   // fill in all selector values
 
   // fill in start date
-  let startDateSelector = document.getElementById("startDate");
+  let startDateSelector = document.getElementById("eventStartDate");
   startDateSelector.valueAsDate = new Date(this.graph.edges[editData].dateStart[0], this.graph.edges[editData].dateStart[1]-1, this.graph.edges[editData].dateStart[2]);
 
   // fill in how event repeats
@@ -369,6 +405,8 @@ fillFormFromData(  // calendarClass  client-side
     hour -= 4;
   }
   startTimeSelector.value = `${hour}:${startTimeValue[1]}`;
+  // Fri Aug 05 2022 18:16:00 GMT-0400 (Eastern Daylight Time)
+  // Sat Aug 06 2022 21:35:00 GMT-0400 (Eastern Daylight Time)
 
   // fill in duration of event
   let durTimeData = this.graph.edges[editData].timeDuration;
@@ -379,6 +417,7 @@ fillFormFromData(  // calendarClass  client-side
   durationMinuteSelector.value = parseInt(durTimeData[1]);
 
   // fill in end date of event
+  this.renderEndDateSelector();
   if (document.getElementById("endDate")) {
     let endDateSelector = document.getElementById("endDate");
     endDateSelector.valueAsDate = new Date(this.graph.edges[editData].dateEnd[0], this.graph.edges[editData].dateEnd[1]-1, this.graph.edges[editData].dateEnd[2]);
@@ -387,78 +426,31 @@ fillFormFromData(  // calendarClass  client-side
   // fill in description of event
   let editDescriptionText = document.getElementById("eventDescription");
   editDescriptionText.innerText = this.graph.nodes[editData].text[1][2];
+
 }
 
 
 createEditForm( // calendarClass  client-side
 ){
-  const buttonStyle = `
-    border-radius: 10px;
-    background-color: #E2E2E2;
-    border:none;
-    cursor: pointer;
-  `;
-
-  const submitStyle = `
-    border-radius: 10px;
-    background-color: #E2E2E2;
-    border: none;
-    cursor: pointer;
-  `;
-
-  const deleteStyle = `
-    height: 7%;
-    background-color: #D45A5A;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    bottom: 10px;
-    left: 50%;
-  `;
-
-  const formStyle = `
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-  `;
-
-  const labelStyle = `
-    margin-right: 3px;
-  `;
-
   const buttons = `
-    <button onClick="app.calendar.addNewEvent()"             style="${submitStyle}">Add Event</button>
-    <button onClick="app.calendar.save()"                    style="${submitStyle}">Save </button>
-    <button onClick="app.calendar.popUpFormVisible(false)"   style="${submitStyle}">Cancel </button>
-    <button onClick="app.calendar.deleteEvent(editData)"     style="${deleteStyle}">Delete </button>
-  `;
-
-  let create;
-  let deleteButton = "";
-
-  const cssForm = `
-    display: none;
-    width: 200px;
-    height: 560px;
-    background-color: #B5B5B5;
-    border-radius: 13px;
-    margin-left: 20px;
-
-    position: relative;
-    opacity: 60%;
+    <button onClick="app.calendar.addNewEvent()"            class="addSaveButton"       id="addEventButton"   > Add Event </button>
+    <button onClick="app.calendar.save()"                   class="addSaveButton"       id="saveEventButton"  > Save      </button>
+    <button onClick="app.calendar.popUpFormVisible(false)"  class="cancelEventButton"   id="cancelEventButton"> Cancel    </button>
+    <button onClick="app.calendar.deleteEvent()"    class="deleteEventButton"   id="deleteEventButton"> Delete    </button>
   `;
 
   const calendar = document.getElementById("weeks");
+  calendar.style = "display: flex;"
   calendar.innerHTML += `
-  <div style="${cssForm}" id="popUpForm">
+  <div class="popUpForm" id="popUpForm">
     <p id="popUpForm-add-edit"></p>
     <div style="display: flex; justify-content: center; margin: 5px;">
-      <label for="eventName" style="${labelStyle}">Name: </label>
+      <label for="eventName" class="popUpLabel">Name: </label>
       <input id="eventName" type="text" placeholder="Event Name..." />
     </div>
 
     <div style="display: flex; justify-content: center; margin: 5px;">
-      <label for="timeZone" style="${labelStyle}">Time Zone: </label>
+      <label for="timeZone" class="popUpLabel">Time Zone: </label>
       <select id="timeZone">
       <option value="ET">Eastern</option>
       <option value="CT">Centeral</option>
@@ -469,22 +461,22 @@ createEditForm( // calendarClass  client-side
 
 
     <div style="display: flex; justify-content: center; margin: 5px;">
-      <label for="eventStartDate" style="${labelStyle}">Start Date: </label>
+      <label for="eventStartDate" class="popUpLabel">Start Date: </label>
       <input id="eventStartDate" type="date" />
     </div>
 
     <div style="display: flex; justify-content: center; margin: 5px;">
-      <label for="eventStartTime" style="${labelStyle}">Start Time: </label>
+      <label for="eventStartTime" class="popUpLabel">Start Time: </label>
       <input id="eventStartTime" type="time" />
     </div>
 
     <div>
-      <label for="duration" style="${labelStyle}">Duration: </label>
+      <label for="duration" class="popUpLabel">Duration: </label>
       <input id="durationHour" type="number" min="0" max="8"/>:<input id="durationMinute" type="number" min="0" max="59"/>
     </div>
 
     <div style="display: flex; justify-content: center; margin: 5px;">
-      <label for="repeatType" style="${labelStyle}">Repeats: </label>
+      <label for="repeatType" class="popUpLabel">Repeats: </label>
       <select id="repeatType" onChange="app.calendar.renderEndDateSelector()">
         <option value="never" selected>Never</option>
         <option value="yearly">Yearly</option>
@@ -495,7 +487,7 @@ createEditForm( // calendarClass  client-side
 
     <div id="endDateDiv" style="display: flex; justify-content: center; margin: 5px;"></div>
     <div style="display: flex; flex-direction: column; margin-top: 5px; width: 80%; align-items: center;">
-      <label for="eventDescription" style="${labelStyle}">Description</label>
+      <label for="eventDescription" class="popUpLabel">Description</label>
       <textarea id="eventDescription" rows="11" cols="30" style="resize: none; border-radius: 5px;"></textarea>
     </div>
     ${buttons}
@@ -516,24 +508,54 @@ createNewEvent(  // calendarClass  client-side
     return;
   }
 
-  let date = new Date(year,month,day);
+  // set member variables for event year month and day
+  this.setEventYear(year);
+  this.setEventMonth(month);
+  this.setEventDay(day);
+
+  // Set correct buttons to display for creating new event
+  document.getElementById("saveEventButton"  ).style.display  = "none";
+  document.getElementById("deleteEventButton").style.display  = "none";;
+  document.getElementById("addEventButton"   ).style.display  = "inline-block";
+
+  // make form blank
+  this.createBlankForm();
+
+  // make popup vissible
+  this.popUpFormVisible(true);
+}
+
+// sets all input fields in pop up form to be default 
+createBlankForm() {
+  // fill in all selector values
+  // default repeat to 'never'
+  document.getElementById("repeatType").value = "never";
+
   // load with date they clicked on
+  let date = new Date(this.getEventYear(),this.getEventMonth(),this.getEventDay());
   document.getElementById('eventStartDate').value = date.toISOString().substring(0,10);
 
   // load time with current time
   date = new Date();
   document.getElementById('eventStartTime').value = date.toISOString().substring(11,16);
 
-  // load current time Zone, for now assume Eastern
-  //document.getElementById('eventStartTime')
+  // empty name field
+  document.getElementById("eventName").value = "";
 
-  // make popup vissible
-  this.popUpFormVisible(true);
+  // set default duration to one hour
+  document.getElementById("durationHour"  ).value = 1;
+  document.getElementById("durationMinute").value = 0;
+
+  // empty description field
+  document.getElementById("eventDescription").innerText = "";
 }
 
 
 editEvent(  // calendarClass  client-side
-   nodeName   //
+   year
+   ,month
+   ,day
+  ,nodeName   //
 ) {
   // determine if we are on user calendar or
   if (this.urlParams.get('u') === null) {
@@ -542,8 +564,23 @@ editEvent(  // calendarClass  client-side
     return;
   }
 
+  this.setEventDay(day);
+  this.setEventMonth(month);
+  this.setEventYear(year);
+  this.setEventData(nodeName);
+
+  let addEventButton = document.getElementById("addEventButton");
+  addEventButton.style.display = "none";
+
+  let saveEventButton = document.getElementById("saveEventButton");
+  saveEventButton.style.display = "inline-block";
+
+  let deleteEventButton = document.getElementById("deleteEventButton");
+  deleteEventButton.style.display = "inline-block";
+
   // load data
   //?
+  this.fillFormFromData(nodeName);
 
   // make popup vissible
   this.popUpFormVisible(true);
@@ -553,7 +590,7 @@ editEvent(  // calendarClass  client-side
 popUpFormVisible(  // calendarClass  client-side
   bool  // true =show it,  false -> hide it
 ) {
-  document.getElementById(`popUpForm`).style.display = bool ? '' : 'none';
+  document.getElementById(`popUpForm`).style.display = bool ? 'block' : 'none';
 }
 
 
@@ -585,19 +622,26 @@ renderEndDateSelector(  // calendarClass  client-side
 
 
 
-createEventEdge( // calendarClass  client-side
+loadEventEdge(
+  edge // name of edge we are loading
+  // edit
+  // calendarClass  client-side
   // reads data in pop up form and creates edge for app.calendar.graph data
 )   { // edit is array where first value is boolean of 0 if we are creating and 1 if we are editing. Second value of edit is the node number to store in edge
   const name           = document.getElementById("eventName").value;       // name of the event
   let e                = document.getElementById("timeZone");
   const timeZone       = e.options[e.selectedIndex].value;
   const startTime      = document.getElementById("eventStartTime").value;  // the start time of the event
-  const durationHour   = document.getElementById("durationHour").value;    // hours portion how the duration
-  const durationMinute = document.getElementById("durationMinute").value;  // minutes portion of the duration
+  let durationHour   = document.getElementById("durationHour").value;    // hours portion how the duration
+  let durationMinute = document.getElementById("durationMinute").value;  // minutes portion of the duration
   const repeat         = document.getElementById("repeatType").value;      // chosen value of how often to repeat event
   let offset         = [];                                               // for repeating events and their offset from first day
   let endDate;
   let doesRepeat     = false;
+
+  let year = this.getEventYear();
+  let month = this.getEventMonth();
+  let day = this.getEventDay();
 
   if (document.getElementById("endDate")) {
     endDate = document.getElementById("endDate").value;
@@ -620,15 +664,19 @@ createEventEdge( // calendarClass  client-side
   let startHourMin = parseInt(startHour[1],10);
 
   if (durationMinute.length < 2) durationMinute = "0" + durationMinute;
+  if (durationHour == "0" || durationHour == "") durationHour = "1";
 
-  let nodeNum
-  if (edit[0] == 0) {
-    // we are creating new edge
-    nodeNum = app.calendar.graph.nodeNext;
-  } else if (edit[0] == 1) {
-    // we are editing existing edge
-    nodeNum = edit[1];
-  }
+  let nodeNum;
+  // if (edit == 0) {
+  //   console.log("add");
+  //   // we are creating new edge
+  //   nodeNum = app.calendar.graph.nodeNext;
+  // } else if (edit == 1) {
+  //   // we are editing existing edge
+  //   console.log("edit");
+  //   nodeNum = this.getEventData();
+  // }
+  nodeNum = app.calendar.graph.nodeNext;
 
 
   // handle when to repeat event
@@ -649,27 +697,42 @@ createEventEdge( // calendarClass  client-side
     dateEnd = [year,month+1,day];
   }
 
-   let edge = {
-     "nR":`${nodeNum}`
-     ,"dateStart":[year,month+1,day,startHourNum,startHourMin]
-     ,"dateEnd":dateEnd
-     ,"timeZone":"ET"
-     ,"timeDuration":`${durationHour}:${durationMinute}`
-     ,"comments":`${name}`
-     ,"repeat": `${repeat}`
-     ,"daysOffset":offset
-   };
+
+  // saving form data to the edge
+  let g = this.graph.edges[edge] = {};
+  g.nR           = `${nodeNum}`;
+  g.dateStart    = [year,month+1,day,startHourNum,startHourMin];
+  g.dateEnd      = dateEnd;
+  g.timeZone     = "ET";
+  g.timeDuration = `${durationHour}:${durationMinute}`;
+  g.comments     = name;
+  g.repeat       = repeat;
+  g.daysOffset   = offset;
+
+  //  let edge = {
+  //    "nR":`${nodeNum}`
+  //    ,"dateStart":[year,month+1,day,startHourNum,startHourMin]
+  //    ,"dateEnd":dateEnd
+  //    ,"timeZone":"ET"
+  //    ,"timeDuration":`${durationHour}:${durationMinute}`
+  //    ,"comments":`${name}`
+  //    ,"repeat": `${repeat}`
+  //    ,"daysOffset":offset
+  //  };
 
    return edge;
 }
 
 
-createEventNode(  // calendarClass  client-side
+loadEventNode(
+  // calendarClass  client-side
   // reads data in pop up form and creates node for app.calendar.graph data
   // returns a node for app.calendar.graph data
 ) {
   let description = document.getElementById("eventDescription").value;   // description for the event
   let name = document.getElementById("eventName").value;                 // name of the event
+
+  let n = this.graph.nodes[node]
 
   let node = {
     "text":[
@@ -682,8 +745,8 @@ createEventNode(  // calendarClass  client-side
 
 
 async deleteEvent( // calendarClass  client-side
-  editData
 ) {
+  let editData = this.getEventData();
   delete this.graph.edges[editData];
   delete this.graph.nodes[editData];
 
@@ -691,18 +754,21 @@ async deleteEvent( // calendarClass  client-side
 }
 
 
-async save( // calendarClass  client-side
+async save(
+  // calendarClass  client-side
   // user clicked edits existing event, and now has clicked saved
 ) {
-  let edge = this.createEventEdge();
-  let node = this.createEventNode();
+  let editData = this.getEventData();
+  let edge = this.loadEventEdge(editData);
+  let node = this.loadEventNode();
 
-  // change start date if needed
-  let newStartDate = document.getElementById("startDate").value;
+  // save start date from form
+  let newStartDate = document.getElementById("eventStartDate").value;
   newStartDate = newStartDate.split('-');
   edge.dateStart[0] = parseInt(newStartDate[0]);
   edge.dateStart[1] = parseInt(newStartDate[1]);
   edge.dateStart[2] = parseInt(newStartDate[2]);
+  edge.nR = this.getEventData();
 
   app.calendar.graph.edges[parseInt(editData)] = edge;
   app.calendar.graph.nodes[parseInt(editData)] = node;
@@ -711,20 +777,34 @@ async save( // calendarClass  client-side
 }
 
 
-async addNewEvent(// calendarClass  client-side
+async addNewEvent( 
+  // calendarClass  client-side
   // user click + to add a new event and now has click "add" button to save new event on server
   ) {
   // create edges from values in pop up form
-  let edge = this.createEventEdge();
-  let node = this.createEventNode();
+  let edge = this.loadEventEdge(this.graph.edgeNext);
+  // let node = this.loadEventNode();
+  let description = document.getElementById("eventDescription").value;   // description for the event
+  let name = document.getElementById("eventName").value;                 // name of the event
+  let n = this.graph.nodes[this.graph.nodeNext] = {};
+  n.text = [
+    ["h3","",`${name}`]
+    ,["p","",`${description}`]
+  ];
+  // let node = {
+  //   "text":[
+  //     ["h3","",`${name}`]
+  //     ,["p","",`${description}`]
+  //   ]
+  // };
 
   // find the numbers for the next node and edge
-  let edgeNum = app.calendar.graph.edgeNext; // this should be the number of the edge
-  let nodeNum = app.calendar.graph.nodeNext;
+  // let edgeNum = app.calendar.graph.edgeNext; // this should be the number of the edge
+  // let nodeNum = app.calendar.graph.nodeNext;
 
   // add and node edge to graph
-  app.calendar.graph.edges[edgeNum] = edge;
-  app.calendar.graph.nodes[nodeNum] = node;
+  // app.calendar.graph.edges[edgeNum] = edge;
+  // app.calendar.graph.nodes[nodeNum] = node;
 
   // increment edge and node counters
   app.calendar.graph.edgeNext += 1;
