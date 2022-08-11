@@ -634,9 +634,8 @@ loadEventEdge( // calendarClass  client-side
 
 async deleteEvent( // calendarClass  client-side
 ) {
-  let editData = this.getEventData();
-  delete this.graph.edges[editData];
-  delete this.graph.nodes[editData];
+  delete this.graph.edges[this.getEventEdge()];
+  //delete this.graph.nodes[editData]; can only delete this if it is an orphan
 
   await this.processServerRefresh();
 }
@@ -660,21 +659,21 @@ async addNewEvent(  // calendarClass  client-side
   // user click + to add a new event and now has click "add" button to save new event on server
   ) {
   // move values in pop up form to graph edge
+  const edge = this.graph.edges[this.graph.edgeNext] = {};  // create new edge
+  edge.nR    = this.graph.nodeNext.toString();
   this.loadEventEdge(this.graph.edgeNext);
 
-  let description = document.getElementById("eventDescription").value;   // description for the event
-  let name        = document.getElementById("eventName"       ).value;   // name of the event
-  let n           = this.graph.nodes[this.graph.nodeNext] = {};
-  n.text = [
-     ["h3","",`${name}`]
-    ,["p" ,"",`${description}`]
+  const node = this.graph.nodes[this.graph.nodeNext] = {};  // create new node
+  node.text  = [
+     ["h3","",`${document.getElementById("eventName"       ).value}`]
+    ,["p" ,"",`${document.getElementById("eventDescription").value}`]
   ];
 
   // increment edge and node counters
   app.calendar.graph.edgeNext += 1;
   app.calendar.graph.nodeNext += 1;
 
-  await this.processServerRefresh();
+  await this.processServerRefresh();  // save the updated calendar
 }
 
 async processServerRefresh( // calendarClass  client-side
