@@ -44,6 +44,11 @@ constructor( // calendarClass  client-side
   	this.proxy      = new proxyClass();   // loads graph data from server
     this.urlParams  = new URLSearchParams( window.location.search );  // read params send in the URL
 
+    this.eventYear;  // year of event to edit or add
+    this.eventMonth; // month of event to edit or add
+    this.eventDay;   // day of event to edit or add
+    this.eventData;  // number to access node or edge in data
+
     // need for both sfc web site and the stand alone page
     this.db      = new dbClass();       // create empty database
     this.db.tableAdd("weekCal");        // create empty table in database, is where events for calendar will be displayed.
@@ -56,7 +61,8 @@ constructor( // calendarClass  client-side
     this.tableUx.setStatusLineData( [
       `<input type="button" id="todayButton" onClick="app.calendar.findToday()" value="Today" />`
       ,"nextPrev"
-      ,`<select name="months" id="months" onChange="app.calendar.chooseMonth()">
+      ,`<label for="chooseMonth">Month: </label>
+        <select name="months" id="months" onChange="app.calendar.chooseMonth()">
           <option value="nullMonth" selected>Choose Month</option>
           <option value="january">January</option>
           <option value="february">February</option>
@@ -92,6 +98,40 @@ constructor( // calendarClass  client-side
         this.events[m][d] = [];
       }
     }
+}
+
+// Mutators
+setEventMonth(val) {
+  this.eventMonth = val;
+}
+
+setEventYear(val) {
+  this.eventYear = val;
+}
+
+setEventDay(val) {
+  this.eventDay = val;
+}
+
+setEventData(val) {
+  this.eventData = val;
+}
+
+// accessors
+getEventMonth() {
+  return this.eventMonth;
+}
+
+getEventYear() {
+  return this.eventYear;
+}
+
+getEventDay() {
+  return this.eventDay;
+}
+
+getEventData() {
+  return this.eventData;
 }
 
 
@@ -204,7 +244,6 @@ addOneOf(  // calendarClass  client-side
 }
 
 
-
 addMonthly(  // calendarClass  client-side
   k  // this.graph.edges[k] returns the edge
 ) {
@@ -261,28 +300,28 @@ buildTable(  // calendarClass  client-side
     let row = []; // init week
     for (let y=0; y<=6; y++) {
       // add days for week
-      let m = start.getMonth()+1;
-      let d = start.getDate();
+      let m=start.getMonth()+1;
+      let d=start.getDate();
       if (start<firstDate) {
         // day is before january 1st of this year
-        style = `data-parentAttribute="['class','YearBefore']"`
+        style = `data-parentAttribute="['style','font-size: 0']"`
       } else if (start.getFullYear()>this.year) {
         // day is after last day of year
-        style = `data-parentAttribute="['style','YearAfter']"`
+        style = `data-parentAttribute="['style','font-size: 0']"`
       } else if (start.getMonth() == today.getMonth() && start.getDate() == today.getDate() && start.getFullYear() == today.getFullYear()) {
         // change how the comparison works because the time of day will not match up from start and today
         // so just see if the month, day, and year are the same to compare
         // set backgroupd color for today
-        let dayArg   = start.getDate();
+        let dayArg = start.getDate();
         let monthArg = start.getMonth();
-        let yearArg  = start.getFullYear();
-        style        = `data-parentAttribute="['class','today']"`  // tableUxClass will put class='today' in the TD tag
+        let yearArg = start.getFullYear();
+        style = `data-parentAttribute="['class','today']"`  // tableUxClass will put class='past' in the TD tag
       } else if (start<today) {
         // set backgroupd color for past event
-        let dayArg   = start.getDate();
+        let dayArg = start.getDate();
         let monthArg = start.getMonth();
-        let yearArg  = start.getFullYear();
-        style        = `data-parentAttribute="['class','past']"`  // tableUxClass will put class='past' in the TD tag
+        let yearArg = start.getFullYear();
+        style = `data-parentAttribute="['class','past']"`  // tableUxClass will put class='past' in the TD tag
       } else {
         // set backgroupd color for future date
         let dayArg = start.getDate();
@@ -290,15 +329,11 @@ buildTable(  // calendarClass  client-side
         let yearArg = start.getFullYear();
         style = ``;
       }
-      let plusStyle = `cursor: pointer;`;
-
-      let newEvent      = "";
-      if (this.urlParams.get('u') != null) {
-        // we are on a user calendar, so allow adding
-        newEvent = `<a style="${plusStyle}" onClick="app.calendar.createNewEvent(${start.getFullYear()}, ${start.getMonth()}, ${start.getDate()})">+</a>`
-      }
-
-      let html = `<h5 ${style}>${m}-${d} ${newEvent} </h5><ol>`;   // put MM-DD at top of day
+      let html = `<h5  ${style}>
+                    <a class="editFormPlus" onClick="app.calendar.createNewEvent(${start.getFullYear()}, ${start.getMonth()}, ${start.getDate()})">+</a>
+                    ${m}-${d}
+                  </h5>
+                  <br>`;   // put MM-DD at top of day
 
       let eventList = this.events[m][d];
       eventList.forEach((k, i) => {
@@ -312,11 +347,16 @@ buildTable(  // calendarClass  client-side
               if (this.urlParams.get('u') != null) {
                 // we are on a user calendar
                 user = "&u=" + this.urlParams.get('u');
-                editButton = `<a onClick="app.calendar.editEvent(${nodeName})"> ${i+1}</a>`;
+                editButton = `
+                  <p>
+                    <a class="editFormBullet" onClick="app.calendar.editEvent(${start.getFullYear()},${start.getMonth()},${start.getDate()},${nodeName})"> ${i+1} </a>
+
+                `;
               }
 
-              html += `<li>${editButton}
-                <a href="/app.html?p=events&e=${k}&d=${app.format.getISO(start)}${user}" target="_blank">${this.graph.nodes[nodeName].text[0][2]}</a>`
+              html += `${editButton}
+                <a  href="/app.html?p=events&e=${k}&d=${app.format.getISO(start)}${user}" target="_blank">${this.graph.nodes[nodeName].text[0][2]}</a>
+                </p>`
           } else {
             // assume nodeName is an Object
             html += `<li><a  href="${nodeName.url}" target="_blank">${nodeName.text}</a>`
@@ -334,126 +374,53 @@ buildTable(  // calendarClass  client-side
 
 fillFormFromData(  // calendarClass  client-side
   // fills in pop up form from the JSON data
-  editData
+  editData  //
 ) {
-  // fill in all selector values
-
-  // fill in start date
-  let startDateSelector = document.getElementById("startDate");
-  startDateSelector.valueAsDate = new Date(this.graph.edges[editData].dateStart[0], this.graph.edges[editData].dateStart[1]-1, this.graph.edges[editData].dateStart[2]);
-
-  // fill in how event repeats
-  let repeatSelector = document.getElementById("repeatType");
-  repeatSelector.value = this.graph.edges[editData].repeat;
-
-  // fill in name of event
-  let nameSelector = document.getElementById("eventName");
-  nameSelector.value = this.graph.edges[editData].comments;
-
-  // fill in time of event
-  let startTimeSelector = document.getElementById("eventStartTime");
-  let startTimeString = this.graph.edges[editData].startGMT.toISOString(); // turn datetime string to ISO string to parse from there
-  startTimeString = startTimeString.split("T"); // get just the time and not date of event
-  let startTimeSplit = startTimeString[1].split("."); // remove the trailing text past the time of event
-  let startTimeValue; // for parsing the time into parts
-  let hour;  // the hour of the event
-  if (this.graph.edges[editData].timeZone == "ET") {
-    // subtract 4 hours from GMT to get EST
-    startTimeValue = startTimeSplit[0].split(":"); // split time into hours and minutes
-    hour = parseInt(startTimeValue[0]);
-    hour -= 4;
-  }
-  startTimeSelector.value = `${hour}:${startTimeValue[1]}`;
+  const dateStart = this.graph.edges[editData].dateStart;
+  document.getElementById("eventStartDate").value = `${dateStart[0]}-${app.format.padZero(dateStart[1],2)}-${app.format.padZero(dateStart[2],2)}`
+  document.getElementById("repeatType"    ).value = this.graph.edges[editData].repeat;
+  document.getElementById("eventName"     ).value = this.graph.edges[editData].comments;
+  document.getElementById("eventStartTime").value = `${app.format.padZero(dateStart[3],2)}:${app.format.padZero(dateStart[4],2)}`;
 
   // fill in duration of event
-  let durTimeData = this.graph.edges[editData].timeDuration;
-  durTimeData = durTimeData.split(":");
-  let durationHourSelector = document.getElementById("durationHour");
-  let durationMinuteSelector = document.getElementById("durationMinute");
-  durationHourSelector.value = parseInt(durTimeData[0]);
-  durationMinuteSelector.value = parseInt(durTimeData[1]);
+  const durTimeData = this.graph.edges[editData].timeDuration.split(":");
+  document.getElementById("durationHour"  ).value = parseInt(durTimeData[0]);
+  document.getElementById("durationMinute").value = parseInt(durTimeData[1]);
 
   // fill in end date of event
+  this.renderEndDateSelector();
   if (document.getElementById("endDate")) {
-    let endDateSelector = document.getElementById("endDate");
-    endDateSelector.valueAsDate = new Date(this.graph.edges[editData].dateEnd[0], this.graph.edges[editData].dateEnd[1]-1, this.graph.edges[editData].dateEnd[2]);
+      document.getElementById("endDate").valueAsDate = new Date(
+        this.graph.edges[editData].dateEnd[0]
+      , this.graph.edges[editData].dateEnd[1]-1
+      , this.graph.edges[editData].dateEnd[2] );
   }
 
-  // fill in description of event
-  let editDescriptionText = document.getElementById("eventDescription");
-  editDescriptionText.innerText = this.graph.nodes[editData].text[1][2];
+  document.getElementById("eventDescription").innerText = this.graph.nodes[editData].text[1][2];
 }
 
 
 createEditForm( // calendarClass  client-side
 ){
-  const buttonStyle = `
-    border-radius: 10px;
-    background-color: #E2E2E2;
-    border:none;
-    cursor: pointer;
-  `;
-
-  const submitStyle = `
-    border-radius: 10px;
-    background-color: #E2E2E2;
-    border: none;
-    cursor: pointer;
-  `;
-
-  const deleteStyle = `
-    height: 7%;
-    background-color: #D45A5A;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    bottom: 10px;
-    left: 50%;
-  `;
-
-  const formStyle = `
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-  `;
-
-  const labelStyle = `
-    margin-right: 3px;
-  `;
-
   const buttons = `
-    <button onClick="app.calendar.addNewEvent()"             style="${submitStyle}">Add Event</button>
-    <button onClick="app.calendar.save()"                    style="${submitStyle}">Save </button>
-    <button onClick="app.calendar.popUpFormVisible(false)"   style="${submitStyle}">Cancel </button>
-    <button onClick="app.calendar.deleteEvent(editData)"     style="${deleteStyle}">Delete </button>
-  `;
-
-  let create;
-  let deleteButton = "";
-
-  const cssForm = `
-    display: none;
-    width: 200px;
-    height: 560px;
-    background-color: #B5B5B5;
-    border-radius: 13px;
-    margin-left: 20px;
-
-    position: relative;
-    opacity: 60%;
+    <button onClick="app.calendar.addNewEvent()"            class="addSaveButton"       id="addEventButton"   > Add Event </button>
+    <button onClick="app.calendar.save()"                   class="addSaveButton"       id="saveEventButton"  > Save      </button>
+    <button onClick="app.calendar.popUpFormVisible(false)"  class="cancelEventButton"   id="cancelEventButton"> Cancel    </button>
+    <button onClick="app.calendar.deleteEvent()"    class="deleteEventButton"   id="deleteEventButton"> Delete    </button>
   `;
 
   const calendar = document.getElementById("weeks");
+  calendar.style = "display: flex;"
   calendar.innerHTML += `
-  <div style="${cssForm}" id="popUpForm">
+  <div class="popUpForm" id="popUpForm">
     <p id="popUpForm-add-edit"></p>
     <div style="display: flex; justify-content: center; margin: 5px;">
-      <label for="eventName" style="${labelStyle}">Name: </label>
+      <label for="eventName" class="popUpLabel">Name: </label>
       <input id="eventName" type="text" placeholder="Event Name..." />
     </div>
 
     <div style="display: flex; justify-content: center; margin: 5px;">
-      <label for="timeZone" style="${labelStyle}">Time Zone: </label>
+      <label for="timeZone" class="popUpLabel">Time Zone: </label>
       <select id="timeZone">
       <option value="ET">Eastern</option>
       <option value="CT">Centeral</option>
@@ -464,22 +431,22 @@ createEditForm( // calendarClass  client-side
 
 
     <div style="display: flex; justify-content: center; margin: 5px;">
-      <label for="eventStartDate" style="${labelStyle}">Start Date: </label>
+      <label for="eventStartDate" class="popUpLabel">Start Date: </label>
       <input id="eventStartDate" type="date" />
     </div>
 
     <div style="display: flex; justify-content: center; margin: 5px;">
-      <label for="eventStartTime" style="${labelStyle}">Start Time: </label>
+      <label for="eventStartTime" class="popUpLabel">Start Time: </label>
       <input id="eventStartTime" type="time" />
     </div>
 
     <div>
-      <label for="duration" style="${labelStyle}">Duration: </label>
+      <label for="duration" class="popUpLabel">Duration: </label>
       <input id="durationHour" type="number" min="0" max="8"/>:<input id="durationMinute" type="number" min="0" max="59"/>
     </div>
 
     <div style="display: flex; justify-content: center; margin: 5px;">
-      <label for="repeatType" style="${labelStyle}">Repeats: </label>
+      <label for="repeatType" class="popUpLabel">Repeats: </label>
       <select id="repeatType" onChange="app.calendar.renderEndDateSelector()">
         <option value="never" selected>Never</option>
         <option value="yearly">Yearly</option>
@@ -490,7 +457,7 @@ createEditForm( // calendarClass  client-side
 
     <div id="endDateDiv" style="display: flex; justify-content: center; margin: 5px;"></div>
     <div style="display: flex; flex-direction: column; margin-top: 5px; width: 80%; align-items: center;">
-      <label for="eventDescription" style="${labelStyle}">Description</label>
+      <label for="eventDescription" class="popUpLabel">Description</label>
       <textarea id="eventDescription" rows="11" cols="30" style="resize: none; border-radius: 5px;"></textarea>
     </div>
     ${buttons}
@@ -511,44 +478,81 @@ createNewEvent(  // calendarClass  client-side
     return;
   }
 
-  let date = new Date(year,month,day);
+  // set member variables for event year month and day
+  this.setEventYear(year);
+  this.setEventMonth(month);
+  this.setEventDay(day);
+
+  // Set correct buttons to display for creating new event
+  document.getElementById("saveEventButton"  ).style.display  = "none";
+  document.getElementById("deleteEventButton").style.display  = "none";;
+  document.getElementById("addEventButton"   ).style.display  = "inline-block";
+
+  // make form blank
+  this.createBlankForm();
+
+  // make popup vissible
+  this.popUpFormVisible(true);
+}
+
+// sets all input fields in pop up form to be default
+createBlankForm() {
+  // fill in all selector values
+  // default repeat to 'never'
+  document.getElementById("repeatType").value = "never";
+
   // load with date they clicked on
+  let date = new Date(this.getEventYear(),this.getEventMonth(),this.getEventDay());
   document.getElementById('eventStartDate').value = date.toISOString().substring(0,10);
 
   // load time with current time
   date = new Date();
   document.getElementById('eventStartTime').value = date.toISOString().substring(11,16);
 
-  // load current time Zone, for now assume Eastern
-  //document.getElementById('eventStartTime')
+  // empty name field
+  document.getElementById("eventName").value = "";
 
-  // make popup vissible
-  this.popUpFormVisible(true);
+  // set default duration to one hour
+  document.getElementById("durationHour"  ).value = 1;
+  document.getElementById("durationMinute").value = 0;
+
+  // empty description field
+  document.getElementById("eventDescription").innerText = "";
 }
 
 
 editEvent(  // calendarClass  client-side
-   nodeName   //
+    year     // number
+   ,month    // number
+   ,day      // number
+  ,nodeName  // number
 ) {
-  // determine if we are on user calendar or
   if (this.urlParams.get('u') === null) {
     // not on user calendar
     alert('Error, not on user calendar');
     return;
   }
 
-  // load data
-  //?
+  // save for other methods
+  this.setEventDay(  day     );
+  this.setEventMonth(month   );
+  this.setEventYear( year    );
+  this.setEventData( nodeName);
 
-  // make popup vissible
-  this.popUpFormVisible(true);
+  // show/hide buttons
+  document.getElementById("addEventButton"   ).style.display = "none";             // Hide
+  document.getElementById("saveEventButton"  ).style.display = "inline-block";     // show ?
+  document.getElementById("deleteEventButton").style.display = "inline-block";     // show ?
+
+  this.fillFormFromData(nodeName);   // load data
+  this.popUpFormVisible(true    );   // make popup vissible
 }
 
 
 popUpFormVisible(  // calendarClass  client-side
   bool  // true =show it,  false -> hide it
 ) {
-  document.getElementById(`popUpForm`).style.display = bool ? '' : 'none';
+  document.getElementById(`popUpForm`).style.display = bool ? 'block' : 'none';
 }
 
 
@@ -579,55 +583,48 @@ renderEndDateSelector(  // calendarClass  client-side
 }
 
 
-
-createEventEdge( // calendarClass  client-side
-  // reads data in pop up form and creates edge for app.calendar.graph data
-)   { // edit is array where first value is boolean of 0 if we are creating and 1 if we are editing. Second value of edit is the node number to store in edge
+loadEventEdge( // calendarClass  client-side
+               // moves pop up form date to and creates edge for this.graph.edge[edge]
+  edge // name of edge we are loading
+)   {
+  // move data from form to variables
   const name           = document.getElementById("eventName").value;       // name of the event
+
   let e                = document.getElementById("timeZone");
   const timeZone       = e.options[e.selectedIndex].value;
-  const startTime      = document.getElementById("eventStartTime").value;  // the start time of the event
-  const durationHour   = document.getElementById("durationHour").value;    // hours portion how the duration
-  const durationMinute = document.getElementById("durationMinute").value;  // minutes portion of the duration
-  const repeat         = document.getElementById("repeatType").value;      // chosen value of how often to repeat event
-  let offset         = [];                                               // for repeating events and their offset from first day
-  let endDate;
-  let doesRepeat     = false;
 
+  let   durationHour   = document.getElementById("durationHour"  ).value;  // hours portion how the duration
+  let   durationMinute = document.getElementById("durationMinute").value;  // minutes portion of the duration
+  const repeat         = document.getElementById("repeatType"    ).value;  // chosen value of how often to repeat event
+
+  let endDate     = "";
+  let doesRepeat  = false
   if (document.getElementById("endDate")) {
-    endDate = document.getElementById("endDate").value;
+    endDate    = document.getElementById("endDate").value;
     doesRepeat = true;
-  } else {
-    endDate = "";
-    doesRepeat = false;
-  }  // date event should stop repeating
+  }
 
-  let startHour = startTime.split(":");
-  // let endHour = endTime.split(":");
+  const startTime  = document.getElementById("eventStartTime").value;  // the start time of the event
+  let startHour   = startTime.split(":");
   while (startHour[0][0] == "0") {
     startHour[0] = startHour[0].substring(1);
   }
 
   // parse year month day from end date
-  let endDateInfo = endDate.split("-");
-
+  let endDateInfo  = endDate.split("-");
   let startHourNum = parseInt(startHour[0],10);
   let startHourMin = parseInt(startHour[1],10);
 
-  if (durationMinute.length < 2) durationMinute = "0" + durationMinute;
+  // init duration
+  if (durationMinute.length < 2                ) {durationMinute = "0" + durationMinute;}
+  if (durationHour == "0" || durationHour == "") {durationHour = "1";}
 
-  let nodeNum
-  if (edit[0] == 0) {
-    // we are creating new edge
-    nodeNum = app.calendar.graph.nodeNext;
-  } else if (edit[0] == 1) {
-    // we are editing existing edge
-    nodeNum = edit[1];
-  }
-
-
-  // handle when to repeat event
+  // handle repeat events
+  let offset         = [];   // for repeating events and their offset from first day
   let dateEnd;
+  let year  = this.getEventYear();
+  let month = this.getEventMonth();
+  let day   = this.getEventDay();
   if (repeat == "weekly") {
     console.log("weekly")
     offset[0] = 0;
@@ -638,33 +635,33 @@ createEventEdge( // calendarClass  client-side
   } else if (repeat == "yearly") {
     offset = [];
     dateEnd = [parseInt(endDate,10),month+1,day];
-
   } else if (repeat == "never") {
     offset = [];
     dateEnd = [year,month+1,day];
   }
 
-   let edge = {
-     "nR":`${nodeNum}`
-     ,"dateStart":[year,month+1,day,startHourNum,startHourMin]
-     ,"dateEnd":dateEnd
-     ,"timeZone":"ET"
-     ,"timeDuration":`${durationHour}:${durationMinute}`
-     ,"comments":`${name}`
-     ,"repeat": `${repeat}`
-     ,"daysOffset":offset
-   };
-
-   return edge;
+  // saving form data to the edge
+  let g = this.graph.edges[edge] = {};
+  g.nR           = `${app.calendar.graph.nodeNext}`;
+  g.dateStart    = [year,month+1,day,startHourNum,startHourMin];
+  g.dateEnd      = dateEnd;
+  g.timeZone     = "ET";
+  g.timeDuration = `${durationHour}:${durationMinute}`;
+  g.comments     = name;
+  g.repeat       = repeat;
+  g.daysOffset   = offset;
 }
 
 
-createEventNode(  // calendarClass  client-side
+loadEventNode(
+  // calendarClass  client-side
   // reads data in pop up form and creates node for app.calendar.graph data
   // returns a node for app.calendar.graph data
 ) {
   let description = document.getElementById("eventDescription").value;   // description for the event
   let name = document.getElementById("eventName").value;                 // name of the event
+
+  let n = this.graph.nodes[node]
 
   let node = {
     "text":[
@@ -677,8 +674,8 @@ createEventNode(  // calendarClass  client-side
 
 
 async deleteEvent( // calendarClass  client-side
-  editData
 ) {
+  let editData = this.getEventData();
   delete this.graph.edges[editData];
   delete this.graph.nodes[editData];
 
@@ -686,18 +683,20 @@ async deleteEvent( // calendarClass  client-side
 }
 
 
-async save( // calendarClass  client-side
+async save(   // calendarClass  client-side
   // user clicked edits existing event, and now has clicked saved
 ) {
-  let edge = this.createEventEdge();
-  let node = this.createEventNode();
+  let editData = this.getEventData();
+  let edge = this.loadEventEdge(editData);
+  let node = this.loadEventNode();
 
-  // change start date if needed
-  let newStartDate = document.getElementById("startDate").value;
+  // save start date from form
+  let newStartDate = document.getElementById("eventStartDate").value;
   newStartDate = newStartDate.split('-');
   edge.dateStart[0] = parseInt(newStartDate[0]);
   edge.dateStart[1] = parseInt(newStartDate[1]);
   edge.dateStart[2] = parseInt(newStartDate[2]);
+  edge.nR = this.getEventData();
 
   app.calendar.graph.edges[parseInt(editData)] = edge;
   app.calendar.graph.nodes[parseInt(editData)] = node;
@@ -706,20 +705,19 @@ async save( // calendarClass  client-side
 }
 
 
-async addNewEvent(// calendarClass  client-side
+async addNewEvent(  // calendarClass  client-side
   // user click + to add a new event and now has click "add" button to save new event on server
   ) {
-  // create edges from values in pop up form
-  let edge = this.createEventEdge();
-  let node = this.createEventNode();
+  // move values in pop up form to graph edge
+  let edge = this.loadEventEdge(this.graph.edgeNext);
 
-  // find the numbers for the next node and edge
-  let edgeNum = app.calendar.graph.edgeNext; // this should be the number of the edge
-  let nodeNum = app.calendar.graph.nodeNext;
-
-  // add and node edge to graph
-  app.calendar.graph.edges[edgeNum] = edge;
-  app.calendar.graph.nodes[nodeNum] = node;
+  let description = document.getElementById("eventDescription").value;   // description for the event
+  let name        = document.getElementById("eventName").value;                 // name of the event
+  let n           = this.graph.nodes[this.graph.nodeNext] = {};
+  n.text = [
+    ["h3","",`${name}`]
+    ,["p","",`${description}`]
+  ];
 
   // increment edge and node counters
   app.calendar.graph.edgeNext += 1;
@@ -748,25 +746,37 @@ async processServerRefresh( // calendarClass  client-side
 
 
 moveToDate( // calendarClass  client-side
-  newDate  // move to newDate from current date displayed on calendar
+  a  // Function to move to -- go from date 'a' to date 'b'
 ) {
-  let timeBetweenDays;  // in milliseconds from newDate to first date displayed in first row
-  let weeksBetweenDays; // number of rows need to move to make the newDate displayed in first row of calendar
-  const firstDayTD = document.getElementsByTagName("td")[0];       // grabs the table elements that hold the dates on calendar
-  const firstMonthDay = firstDayTD.textContent.split("-");  // grabs the first date at the top left of calendar table
+  const today = new Date();
+  let timeBetweenDays;
+  let weeksBetweenDays;
+  let curDates = document.getElementsByTagName("td");       // grabs the table elements that hold the dates on calendar
+  const currMonthDay = curDates[0].textContent.split("-");  // grabs the first date at the top left of calendar table
 
-  // convert strings to integers
-  const firstMonth = parseInt(firstMonthDay[0]);
-  const firstDay   = parseInt(firstMonthDay[1])
+  // removes all characters that are not numbers
+  for (var i = currMonthDay[1].length; i >= 0; i--) {
+    if (currMonthDay[1][i] < '0' || currMonthDay[1][i] > '9') {
+      currMonthDay[1] = currMonthDay[1].substring(0, currMonthDay[1].length - 1);
+    }
+  }
 
   // first date of page we are on at the moment
-  var firstDate = new Date(this.year, firstMonth-1, firstDay);
+  var currentDate = new Date(today.getFullYear(), currMonthDay[0]-1, currMonthDay[1]);
 
-  var firstYear = (this.tableUx.paging.row ===0 && firstDayTD.className === "YearBefore") ? (this.year-1) : this.year;
-  firstDate.setFullYear(firstYear);
+  // see if the date is before the beginning of current year
+  var isBeforeYear = false;
+  if (currentDate.getMonth() == 11) {
+    for (var i = 0; i < curDates.length; i++) {
+      // console.log(curDates[i].textContent[0]+curDates[i].textContent[1]);
+      if (curDates[i].textContent[0] == '1' && curDates[i].textContent[1] == '-') { isBeforeYear = true; break; }
+    }
+  }
+  var curYear = (isBeforeYear) ? (today.getFullYear()-1) : today.getFullYear();
+  currentDate.setFullYear(curYear);
 
   // find difference in time between dates
-  timeBetweenDays = newDate.getTime() - firstDate.getTime(); // time between a and b in milliseconds
+  timeBetweenDays = a.getTime() - currentDate.getTime(); // time between a and b in milliseconds
 
   // turn difference in milliseconds to weeks
   weeksBetweenDays = Math.floor(timeBetweenDays / (1000 * (60 * 60) * 24 * 7));
@@ -780,10 +790,11 @@ moveToDate( // calendarClass  client-side
 chooseMonth(  // calendarClass  client-side
   // Goes to page that has first day of chosen month
 ) {
+  var today = new Date();                                   // get current date
   var myList = document.getElementById("months");           // grabs the month input selector
 
   // get date we want to jump to
-  var targetDate = new Date(this.year, myList.selectedIndex-1, 1); // target date to jump to
+  var targetDate = new Date(today.getFullYear(), myList.selectedIndex-1, 1); // target date to jump to
 
   this.moveToDate(targetDate);
   myList.selectedIndex = 0;

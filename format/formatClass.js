@@ -20,9 +20,19 @@ weekNumber(
     return str[number-1];
 }
 
+padZero(    // formatClass - client-side
+   number  // number to convert to string with leading zeros
+  ,length  // total length of string
+) {
+  let str = number.toString();
+  while (str.length<length) {
+    str = "0" + str;
+  }
+  return str;
+}
 
-// formatClass - client-side
-getDayOfWeek(
+
+getDayOfWeek( // formatClass - client-side
   numberDay   // 0->Sunday
 ){
   return( this.days[numberDay] );
@@ -85,8 +95,21 @@ escStringForJson(s_string) {
   return s_string
   .replace(/\"/g, '\\"')   // " ->\ "
   .replace(/\n/g, '\\n');   // newline -> \n
-
 }
+
+/*
+https://stackoverflow.com/questions/4253367/how-to-escape-a-json-string-containing-newline-characters-using-javascript
+  String.prototype.escapeSpecialChars = function() {
+    return this.replace(/\\n/g, "\\n")
+               .replace(/\\'/g, "\\'")
+               .replace(/\\"/g, '\\"')
+               .replace(/\\&/g, "\\&")
+               .replace(/\\r/g, "\\r")
+               .replace(/\\t/g, "\\t")
+               .replace(/\\b/g, "\\b")
+               .replace(/\\f/g, "\\f");
+};
+*/
 
 
 // formatClass - client-side
@@ -133,19 +156,7 @@ getDaysOfWeek(
 }
 
 
-/*
-https://stackoverflow.com/questions/4253367/how-to-escape-a-json-string-containing-newline-characters-using-javascript
-  String.prototype.escapeSpecialChars = function() {
-    return this.replace(/\\n/g, "\\n")
-               .replace(/\\'/g, "\\'")
-               .replace(/\\"/g, '\\"')
-               .replace(/\\&/g, "\\&")
-               .replace(/\\r/g, "\\r")
-               .replace(/\\t/g, "\\t")
-               .replace(/\\b/g, "\\b")
-               .replace(/\\f/g, "\\f");
-};
-*/
+
 
 
 // formatClass - client-side
