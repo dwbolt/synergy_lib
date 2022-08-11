@@ -351,7 +351,7 @@ buildTable(  // calendarClass  client-side
 
 fillFormFromData(  // calendarClass  client-side
   // fills in pop up form from the JSON data
-  edgeName  //
+  edgeName
 ) {
   // load from edge ------------
   const edge = this.graph.edges[edgeName];
@@ -436,6 +436,7 @@ createEditForm( // calendarClass  client-side
     </div>
 
     <div id="endDateDiv" style="display: flex; justify-content: center; margin: 5px;"></div>
+    <div id="repeatDiv"></div>
 
     <button onClick="app.calendar.addNewEvent()"            class="addSaveButton"       id="addEventButton"   > Add Event </button>
     <button onClick="app.calendar.save()"                   class="addSaveButton"       id="saveEventButton"  > Save      </button>
@@ -519,6 +520,9 @@ editEvent(  // calendarClass  client-side
   this.setEventMonth(month   );
   this.setEventYear( year    );
   this.setEventEdge( edgeName);
+  console.log(day); 
+  console.log(month);
+  console.log(year);
 
   // show/hide buttons
   document.getElementById("addEventButton"   ).style.display = "none";             // Hide
@@ -542,10 +546,12 @@ renderEndDateSelector(  // calendarClass  client-side
 ) {
   let repeatSelector = document.getElementById("repeatType");
   let endDateDiv     = document.getElementById("endDateDiv");
+  let weekPicker = document.getElementById("repeatDiv");
+
   if (repeatSelector.value == "never") {
     // do not display any selector when event does not repeat
-    endDateDiv = document.getElementById("endDateDiv");
     endDateDiv.innerHTML = "";
+    weekPicker.innerHTML = "";
   } else if (repeatSelector.value == "yearly") {
     // display only a number when selecting a year
     let endDate = `
@@ -553,13 +559,58 @@ renderEndDateSelector(  // calendarClass  client-side
       <input id="endDate" type="number" min="2022" max="2030" value="${this.year+1}"/>
     `;
     endDateDiv.innerHTML = endDate;
-  } else {
-    // weekly or monthly option is selected so we should display selector for end date
+    weekPicker.innerHTML = "";
+  } else if (repeatSelector.value == "weekly") {
+    // weekly option is selected so we should display selector for end date
+    // add options for what days to repeat on every week
+    let daysSelector = `
+      <div id="repeatSelectorTitle">Repeats on</div>
+      <div class="dayPicker">
+        <label class="pickDayContainer">
+          <input type="checkbox" value="sunday" class="repeatCheckbox">
+          <span class="checkmark">Su</span>
+        </label>
+        <label class="pickDayContainer">
+          <input type="checkbox" value="monday"class="repeatCheckbox">
+          <span class="checkmark">Mo</span>
+        </label>
+        <label class="pickDayContainer">
+          <input type="checkbox" value="tuesday" class="repeatCheckbox">
+          <span class="checkmark">Tu</span>
+        </label>
+        <label class="pickDayContainer">
+          <input type="checkbox" value="wednesday" class="repeatCheckbox">
+          <span class="checkmark">We</span>
+        </label>
+        <label class="pickDayContainer">
+          <input type="checkbox" value="thursday" class="repeatCheckbox">
+          <span class="checkmark">Tr</span>
+        </label>
+        <label class="pickDayContainer">
+          <input type="checkbox" value="friday" class="repeatCheckbox">
+          <span class="checkmark">Fr</span>
+        </label>
+        <label class="pickDayContainer">
+          <input type="checkbox" value="saturday" class="repeatCheckbox">
+          <span class="checkmark">Sa</span>
+        </label>
+      </div>
+    `;
+    weekPicker.innerHTML = daysSelector;
+    
     let endDate = `
       <label id="endDateLabel" for="endDate" style="margin-right: 3px;">End Date: </label>
       <input id="endDate" type="date" />
     `;
     endDateDiv.innerHTML = endDate;
+  } else if (repeatSelector.value == "monthly") {
+    // monthly option is chosen to repeat
+    let endDate = `
+      <label id="endDateLabel" for="endDate" style="margin-right: 3px;">End Date: </label>
+      <input id="endDate" type="date" />
+    `;
+    endDateDiv.innerHTML = endDate;
+    weekPicker.innerHTML = "";
   }
 }
 
@@ -603,9 +654,36 @@ loadEventEdge( // calendarClass  client-side
   let year  = this.getEventYear();
   let month = this.getEventMonth();
   let day   = this.getEventDay();
+
+  // handle different cases for types of repeating
   if (repeat == "weekly") {
-    offset[0] = 0;
+    // repeats weekly
+    // find offset for desired days
+    let d = new Date(year,month,day);
+    let dayIndex = d.getDay();
+    let repeatingDays = this.weeklyRepeatDays();
+    for (let i = 0; i < repeatingDays.length; i++) {
+      // walk through the days chosen to repeat on, and find distance between start day and chosen day
+      let dif = repeatingDays[i] - dayIndex;
+      if (dif < 0) {
+        // day should repeat on day that happens before chosen day but only after chosen day
+        // ex repeats on monday wednesday friday, but the event starts on wednesday, so first monday is after the first wednesday
+        repeatingDays[i] += 7;
+        offset.push(repeatingDays[i]-dayIndex);
+      } else {
+        // push the difference between indices into the offset
+        offset.push(dif);
+      }
+    }
+    if (repeatingDays.length == 0) {
+      // if user did not choose days to repeat on, assume that it will repeat on same day every week
+      offset = [0];
+    }
     dateEnd = [parseInt(endDateInfo[0],10),parseInt(endDateInfo[1],10),parseInt(endDateInfo[2],10)];
+    if (!document.getElementById("endDate").value) {
+      // if end date field is left empty, then assume event ends one week after start
+      dateEnd = [year,month+1,day+7];
+    }
   } else if (repeat == "monthly") {
     offset = [0];
     dateEnd = [parseInt(endDateInfo[0],10),parseInt(endDateInfo[1],10),parseInt(endDateInfo[2],10)];
@@ -640,6 +718,23 @@ async deleteEvent( // calendarClass  client-side
   await this.processServerRefresh();
 }
 
+// When user hits "add event" or "save"
+// Handles the days of week that the event should repeat on
+// Returns array where each item is an index of day of the week starting at 0
+// ex [0,2,4] is [sunday, tuesday, thursday]
+weeklyRepeatDays() {
+  // grab all checkboxes
+  let options = document.getElementsByClassName("repeatCheckbox");
+  let rv = [];
+
+  // go through all the checkboxes for the days and push back the index if they are checked
+  for (var i = 0; i < options.length; i++) {
+    if (options[i].checked == true) {
+      rv.push(i);
+    }
+  }
+  return rv;
+}
 
 async save(   // calendarClass  client-side
   // user clicked edits existing event, and now has clicked saved
