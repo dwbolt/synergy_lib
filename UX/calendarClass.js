@@ -12,8 +12,8 @@ addEvents()  creates all the repeating and non repeating events from the edge da
   addWeekly(
   addMonthly(
   addOneOf(
-display()    dislays the several weeks of the calendar or and events
-displayRow()   converts node to html for displayed
+
+displayRow()    converts node to html for displayed
 displayEvent()  // user has clicked on a clalender event, show the details of the
 
 createDate(    // crates starting or endingdate for an event edge
@@ -102,17 +102,17 @@ constructor( // calendarClass  client-side
 
 
 // Mutators
-setEventMonth(val) {this.eventMonth = val;}
-setEventYear( val) {this.eventYear  = val;}
-setEventDay(  val) {this.eventDay   = val;}
-setEventEdge( val) {this.eventEdge  = val;}
+setEventMonth(val) {this.eventMonth = val;}  // calendarClass  client-side
+setEventYear( val) {this.eventYear  = val;}  // calendarClass  client-side
+setEventDay(  val) {this.eventDay   = val;}  // calendarClass  client-side
+setEventEdge( val) {this.eventEdge  = val;}  // calendarClass  client-side
 
 
 // accessors
-getEventMonth() {return this.eventMonth;}
-getEventYear( ) {return this.eventYear ;}
-getEventDay(  ) {return this.eventDay  ;}
-getEventEdge( ) {return this.eventEdge ;}
+getEventMonth() {return this.eventMonth;}  // calendarClass  client-side
+getEventYear( ) {return this.eventYear ;}  // calendarClass  client-side
+getEventDay(  ) {return this.eventDay  ;}  // calendarClass  client-side
+getEventEdge( ) {return this.eventEdge ;}  // calendarClass  client-side
 
 
 async main( // calendarClass  client-side
@@ -742,21 +742,6 @@ findToday( // calendarClass  client-side
 }
 
 
-updatePictures( // calendarClass  client-side
-
-) {   // walk through each row and display the next picture
-  this.list.forEach((a_name, i) => {
-    let r = this.graph.nodes[a_name];
-    if (r && r.u_pictures && 0<r.u_pictures.length) {
-      // if the the array has urls of pictures, display one
-      let pic = this.n_pic % r.u_pictures.length;
-      document.getElementById(`pic_${this.idDOM}_${i}`).innerHTML =
-      `<img style="object-fit:contain; width:320px; height:200px;"  src="${"/synergyData/"+ r.u_pictures[pic][1]}">`
-    }
-  });
-  this.n_pic++;
-}
-
 
 displayEvent(  // calendarClass - client-side
 
@@ -791,7 +776,7 @@ displayEvent(  // calendarClass - client-side
   // now run script
 }
 
-
+//------------------------------------------------  can split all methods below off to display node class.
 HTMLforNode(  // calendarClass - client-side
   i  // to get row color
   ,nodeName  // nodeName to display
@@ -916,6 +901,20 @@ displayRow(      // calendarClass - client-side
   return html;
 }
 
+
+updatePictures( // calendarClass  client-side
+) {   // walk through each row and display the next picture
+  this.list.forEach((a_name, i) => {
+    let r = this.graph.nodes[a_name];
+    if (r && r.u_pictures && 0<r.u_pictures.length) {
+      // if the the array has urls of pictures, display one
+      let pic = this.n_pic % r.u_pictures.length;
+      document.getElementById(`pic_${this.idDOM}_${i}`).innerHTML =
+      `<img style="object-fit:contain; width:320px; height:200px;"  src="${"/synergyData/"+ r.u_pictures[pic][1]}">`
+    }
+  });
+  this.n_pic++;
+}
 
 // calendarClass  client-side
 } // end class

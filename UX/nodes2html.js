@@ -1,6 +1,6 @@
-class widgetListClass {
+class node2htmlClass {
 
-/* widgetList.js
+/* node2html.js
 
 used to display the wix equivalant of strips - widely used.
 must create one instance for each DOM element on page that widgetClass will be used
@@ -26,104 +26,16 @@ updatePictures()
 //                                  ---------public---------------
 // widgetListClass - client-side
 constructor(
-  idDOM   // DOM id location to put the list
 ) {
     this.idDOM     = idDOM;
     this.a_eval    = [];     // ?
-    this.json      = {};     // will load from data
+    this.nodes     = {};     // will load from data
 
     this.n_pic     = 0;      // incremented every 2 seconds and change picture
     this.timer;              // ?
     this.list ;              // ?
     this.selected;           // remember the button selected
-    this.nodes2html = new node2htmlClass();
 }
-
-
-// widgetListClass - client-side
-async displayButton(    // called from button on page
-  dom  // DOM of button that was pushed
-  ) {
-  this.a_eval = [];  // aray of evals to do after dom is updated,
-  let html=`<h3 id="heading">${dom.value}</h3>`  // make heading the same as button name
-
-  // set the of all sibbling buttons to mot selected
-  if (dom) {
-    let e=dom.parentNode.firstChild;
-    do {
-      e.className="button";
-    } while (e=e.nextSibling)
-    dom.className = "selected";  //  set class to selected so we can see the button that is slected
-    this.selected = dom;         // rememvber the selected button
-  }
-  await this.displayList(dom.id, html);
-}
-
-
-
-
-// widgetListClass - client-side
-setJSON(  // load json file to display
-  obj     //
-) {
-  this.json = obj;
-
-  // build button lists
-  let buttons="";
-  if(Array.isArray(this.json.buttons)) {
-    this.json.buttons.forEach((item, i) => {
-      buttons+=`<input class="button" type="button" value="${item.button}" id="${item.id}" onclick="${item.onclick}")>`;
-    });
-    if (localStorage.getItem('production')  === "false") {
-      // add extra buttons if not production
-      buttons+=`<input class="button" type="button" value="goto Button URL" id="display URL" onclick="app.buttonURL();")>`
-    }
-  }
-
-    // fill in document
-    document.getElementById("headTitle").innerHTML = this.json.headTitle;
-    document.getElementById("heading1" ).innerHTML = this.json.heading1;
-    document.getElementById("updated"  ).innerHTML = "updated " + this.json.updated;
-    document.getElementById("buttons"  ).innerHTML = buttons;
-}
-
-
-//                                  --------- private ---------------
-buttonURL() {  // widgetListClass - client-side
-  // goto url that will have the current button selected
-  const urlParams = new URLSearchParams( window.location.search );
-  let page="";
-  if (urlParams.get('p') != null) {
-    page =  "p=" +urlParams.get('p')+ "&";
-  }
-
-  window.location.href = encodeURI(`${window.location.origin}/app.html?${page}b=${this.selected.value}`);
-}
-
-
-timeFormat( // widgetListClass - client-side
-  d  // date string
-) {
-  const date = new Date(d);
-
-  // get date, return am pm timeout
-  let ampm    = "am";
-  let hours   = date.getHours();
-  let minutes = date.getMinutes();
-
-  // adjust hour for 12 hour time and add leading 0
-  if (12    <= hours) {ampm  = "pm";}
-  if (12    <  hours) {hours = hours - 12;}
-  if (hours < 10)     {hours = "0"+ hours;}
-
-  // add leading 0 to minutes if needed
-  if (minutes < 10)  {minutes = "0" + minutes;}
-
-  return hours + ":" + minutes + " " + ampm;
-}
-
-
-//------------------------------------------------------- split off
 
 async displayList(list, html=""){
   this.list   = list;  // assume buttion id is same as list node name
@@ -141,25 +53,9 @@ async displayList(list, html=""){
 }
 
 
-async HTMLfor(// widgetListClass - client-side
-  list  // attribute name with value array of section names to be displayed
-) {
-  this.list = list;  // is this used?
-  let html="";
-
-  let l = this.json.lists[list];
-  //this.json.lists[list].forEach((nodeName, i) => {  can not use foreach with await
-  for(let i=0; i<l.length; i++) {
-    // build html for links like FaceBook, Ets, etc
-    html += await this.HTMLforNode(i,l[i]);
-  };
-  return html;
-}
-
-
 async HTMLforNode(  // widgetListClass - client-side
   i
-  ,nodeName //  node name
+  ,node //  node name
 ) {
   let html="";
   let r = this.json.node[nodeName];
