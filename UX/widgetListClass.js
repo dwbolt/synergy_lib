@@ -31,12 +31,14 @@ constructor(
     this.idDOM     = idDOM;
     this.a_eval    = [];     // ?
     this.json      = {};     // will load from data
+    this.nodes      ;
+    this.list       ;
 
     this.n_pic     = 0;      // incremented every 2 seconds and change picture
     this.timer;              // ?
     this.list ;              // ?
     this.selected;           // remember the button selected
-    this.nodes2html = new node2htmlClass();
+    this.nodes2html = new nodes2htmlClass();
 }
 
 
@@ -56,7 +58,8 @@ async displayButton(    // called from button on page
     dom.className = "selected";  //  set class to selected so we can see the button that is slected
     this.selected = dom;         // rememvber the selected button
   }
-  await this.displayList(dom.id, html);
+  //await this.displayList(this.json.lists[dom.id], html);
+  await this.nodes2html.displayList(this.json.lists[dom.id], html);
 }
 
 
@@ -66,7 +69,8 @@ async displayButton(    // called from button on page
 setJSON(  // load json file to display
   obj     //
 ) {
-  this.json = obj;
+  this.json  = obj;
+  this.nodes = this.json.node;
 
   // build button lists
   let buttons="";
@@ -122,36 +126,28 @@ timeFormat( // widgetListClass - client-side
   return hours + ":" + minutes + " " + ampm;
 }
 
+async displayList(list, html=""){
+  await this.nodes2html.displayList(this.json.lists[list], html="");
+}
+
+async displayNode(node, html=""){
+  await this.nodes2html.displayList([this.json.node[node]], html="");
+}
 
 //------------------------------------------------------- split off
 
-async displayList(list, html=""){
-  this.list   = list;  // assume buttion id is same as list node name
-  html += await this.HTMLfor(list);
 
-  document.getElementById(this.idDOM).innerHTML = html;
-  this.updatePictures();
-  if (!this.timer) {
-    // only want to setInterval once per page load
-    this.timer = setInterval(this.updatePictures.bind(this), 2000);  // refress pictures every 2 seconds
-  }
-  this.a_eval.forEach((item, i) => {
-    eval(item);  // this seems like there maybe races conditions.
-  });
-}
-
+/*
 
 async HTMLfor(// widgetListClass - client-side
   list  // attribute name with value array of section names to be displayed
 ) {
-  this.list = list;  // is this used?
   let html="";
 
-  let l = this.json.lists[list];
   //this.json.lists[list].forEach((nodeName, i) => {  can not use foreach with await
-  for(let i=0; i<l.length; i++) {
+  for(let i=0; i<list.length; i++) {
     // build html for links like FaceBook, Ets, etc
-    html += await this.HTMLforNode(i,l[i]);
+    html += await this.HTMLforNode(i,list[i]);
   };
   return html;
 }
@@ -162,7 +158,7 @@ async HTMLforNode(  // widgetListClass - client-side
   ,nodeName //  node name
 ) {
   let html="";
-  let r = this.json.node[nodeName];
+  let r = this.nodes[nodeName];
   if (r) {
     // the node exists
     //  create list of urls
@@ -285,8 +281,8 @@ async displayRow(  // widgetListClass - client-side
 // widgetListClass - client-side
 updatePictures() {
   // walk through each row and display the next picture
-  this.json.lists[this.list].forEach((a_name, i) => {
-    let r = this.json.node[a_name];
+  this.list.forEach((a_name, i) => {
+    let r = this.nodes[a_name];
     if (r && r.u_pictures && 0<r.u_pictures.length) {
       // if the the array has urls of pictures, display one
       let pic = this.n_pic % r.u_pictures.length;
@@ -296,6 +292,6 @@ updatePictures() {
   });
   this.n_pic++;
 }
-
+*/
 
 } // end widgetListClass

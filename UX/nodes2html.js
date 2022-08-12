@@ -1,14 +1,17 @@
-class node2htmlClass {
+class nodes2htmlClass {
 
 /* node2html.js
 
 used to display the wix equivalant of strips - widely used.
-must create one instance for each DOM element on page that widgetClass will be used
+must create one instance for each DOM element on page that class will be used
 
 methods:
 
 ---------public
-constructor(idDOM)  // create object instance
+constructor()  // create object instance
+displayList()
+
+---------privite
 HTMLfor(list)       // display items in lists
 display(idDOM)      // called from button on pages
 setJSON(obj)        // display page
@@ -16,7 +19,7 @@ buttonURL()         // will goto url with current button selected, allow cut/pas
                        with current button selected
 timeFormat(dateStr)
 
----------privite
+
 displayRow(i,r,urls) - customize for each data structure
 updatePictures()
 //async getJSON(url)  - may need to replace with lib
@@ -24,10 +27,10 @@ updatePictures()
 
 
 //                                  ---------public---------------
-// widgetListClass - client-side
-constructor(
+constructor( // nodes2htmlClass - client-side
 ) {
-    this.idDOM     = idDOM;
+    this.idDOM     = null;   // my not need this
+    this.nodes;
     this.a_eval    = [];     // ?
     this.nodes     = {};     // will load from data
 
@@ -53,12 +56,26 @@ async displayList(list, html=""){
 }
 
 
-async HTMLforNode(  // widgetListClass - client-side
-  i
-  ,node //  node name
+async HTMLfor(// widgetListClass - client-side
+  list  // attribute name with value array of section names to be displayed
 ) {
   let html="";
-  let r = this.json.node[nodeName];
+
+  //this.json.lists[list].forEach((nodeName, i) => {  can not use foreach with await
+  for(let i=0; i<list.length; i++) {
+    // build html for links like FaceBook, Ets, etc
+    html += await this.HTMLforNode(i,list[i]);
+  };
+  return html;
+}
+
+
+async HTMLforNode(  // widgetListClass - client-side
+  i
+  ,nodeName //  node name
+) {
+  let html="";
+  let r = this.nodes[nodeName];
   if (r) {
     // the node exists
     //  create list of urls
@@ -181,8 +198,8 @@ async displayRow(  // widgetListClass - client-side
 // widgetListClass - client-side
 updatePictures() {
   // walk through each row and display the next picture
-  this.json.lists[this.list].forEach((a_name, i) => {
-    let r = this.json.node[a_name];
+  this.list.forEach((a_name, i) => {
+    let r = this.nodes[a_name];
     if (r && r.u_pictures && 0<r.u_pictures.length) {
       // if the the array has urls of pictures, display one
       let pic = this.n_pic % r.u_pictures.length;
