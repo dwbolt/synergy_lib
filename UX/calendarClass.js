@@ -467,6 +467,25 @@ createEditForm( // calendarClass  client-side
         <input id="endDateInput" type="date" />
       </div>
     </div>
+    <div id="monthlyEndDate" style="display: flex; justify-content: center; margin: 5px;"> 
+      <label>Repeats On:</label>
+      <select id="monthlyWeekSelect">
+        <option value="1" selected>1st</option>
+        <option value="2">2nd</option>
+        <option value="3">3rd</option>
+        <option value="4">4th</option>
+        <option value="5">5th</option>
+      </select>
+      <select id="monthlyDaySelect">
+        <option value="0" selected> Sunday
+        <option value="1">          Monday   </option>
+        <option value="2>           Tuesday  </option>
+        <option value="3">          Wednesday</option>
+        <option value="4">          Thursday </option>
+        <option value="5">          Friday   </option>
+        <option value="6">          Saturday </option>
+      </select>
+    </div>
     <div id="repeatDiv">
       <div id="daysOfWeekSelector">
         <div id="repeatSelectorTitle">Repeats on</div>
@@ -500,7 +519,7 @@ createEditForm( // calendarClass  client-side
             <span class="checkmark">Sa</span>
           </label>
         </div>
-    </div>
+      </div>
     </div>
 
     <button onClick="app.calendar.addNewEvent()"            class="addSaveButton"       id="addEventButton"   > Add Event </button>
@@ -567,6 +586,17 @@ createBlankForm() {
   document.getElementById("durationHour"  ).value = 1;
   document.getElementById("durationMinute").value = 0;
 
+  // fill the day in the month for monthly repeating events
+  let d = this.findDayInMonth(
+    new Date(
+       this.getEventYear()
+      ,this.getEventMonth()
+      ,this.getEventDay() 
+    )
+  );
+  document.getElementById("monthlyWeekSelect").value = d[1];
+  document.getElementById("monthlyDaySelect" ).value = d[0];
+
   // empty description field
   document.getElementById("eventDescription").innerText = "";
 }
@@ -617,18 +647,21 @@ renderEndDateSelector(  // calendarClass  client-side
     // do not display any selector when event does not repeat
     document.getElementById("yearlyEndDate"         ).style.display = 'none';
     document.getElementById("weeklyMonthlyEndDate"  ).style.display = 'none';
+    document.getElementById("monthlyEndDate"        ).style.display = 'none';
     document.getElementById("daysOfWeekSelector"    ).style.display = 'none';
 
   } else if (repeatSelector.value == "yearly") {
     // display only a number when selecting a year
     document.getElementById("yearlyEndDate"         ).style.display = 'inline';
     document.getElementById("weeklyMonthlyEndDate"  ).style.display = 'none';
+    document.getElementById("monthlyEndDate"        ).style.display = 'none';
     document.getElementById("daysOfWeekSelector"    ).style.display = 'none';
 
   } else if (repeatSelector.value == "weekly") {
     // weekly option is selected so we should display selector for end date
     // add options for what days to repeat on every week
     document.getElementById("yearlyEndDate"         ).style.display = 'none';
+    document.getElementById("monthlyEndDate"        ).style.display = 'none';
     document.getElementById("weeklyMonthlyEndDate"  ).style.display = 'inline';
     document.getElementById("daysOfWeekSelector"    ).style.display = 'inline';
 
@@ -636,6 +669,7 @@ renderEndDateSelector(  // calendarClass  client-side
     // monthly option is chosen to repeat
     document.getElementById("yearlyEndDate"         ).style.display = 'none';
     document.getElementById("weeklyMonthlyEndDate"  ).style.display = 'inline';
+    document.getElementById("monthlyEndDate"        ).style.display = 'inline';
     document.getElementById("daysOfWeekSelector"    ).style.display = 'none';
   }
 }
@@ -742,6 +776,18 @@ loadEventEdge( // calendarClass  client-side
   g.timeDuration = `${durationHour}:${durationMinute}`;
   g.repeat       = repeat;
   g.daysOffset   = offset;
+}
+
+findDayInMonth(
+  // This funciton returns an array with the first day being the index of the day in a week -- ex 0 for sunday and 1 for monday
+  // The second element in array is the index of week in the month -- ex 1 for first week 2 for second week
+  // EX: [2,4] would mean that the day is the 4th tuesday of the month
+  date
+) {
+  
+  let dayIndex = date.getDay();
+  let weekIndex = Math.ceil(date.getDate() / 7); 
+  return [dayIndex , weekIndex];
 }
 
 
