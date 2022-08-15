@@ -652,6 +652,10 @@ loadEventEdge( // calendarClass  client-side
   let   durationMinute = document.getElementById("durationMinute").value;  // minutes portion of the duration
   const repeat         = document.getElementById("repeatType"    ).value;  // chosen value of how often to repeat event
 
+  let year  = this.getEventYear();
+  let month = this.getEventMonth();
+  let day   = this.getEventDay();
+
   let endDate     = "";
   let doesRepeat  = false
   if (document.getElementById("endDateInput")) {
@@ -674,13 +678,12 @@ loadEventEdge( // calendarClass  client-side
   if (durationMinute.length < 2                ) {durationMinute = "0" + durationMinute;}
   if (durationHour == "0" || durationHour == "") {durationHour = "1";}
 
+  let startDate = [year, month+1, day, startHourNum,startHourMin];
+
   // handle repeat events
   let offset         = [];   // for repeating events and their offset from first day
   let days           = [];
   let dateEnd;
-  let year  = this.getEventYear();
-  let month = this.getEventMonth();
-  let day   = this.getEventDay();
 
   // handle different cases for types of repeating
   if (repeat == "weekly") {
@@ -718,6 +721,7 @@ loadEventEdge( // calendarClass  client-side
     let dayIndex = d.getDay();
     let weekIndex = Math.ceil(d.getDate() / 7); 
     days = [[dayIndex , weekIndex]];
+    startDate[2] = 1;
   } else if (repeat == "yearly") {
     offset = [];
     dateEnd = [parseInt(endDate,10),month+1,day];
@@ -729,7 +733,7 @@ loadEventEdge( // calendarClass  client-side
   // saving form data to the edge
   let g = this.graph.edges[edge];
   //g.nR           = `${app.calendar.graph.nodeNext}`;
-  g.dateStart    = [year,month+1,day,startHourNum,startHourMin];
+  g.dateStart    = startDate;
   g.dateEnd      = dateEnd;
 
   let e          = document.getElementById("timeZone");
