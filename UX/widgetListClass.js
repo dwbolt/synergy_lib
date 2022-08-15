@@ -38,7 +38,7 @@ constructor(
     this.timer;              // ?
     this.list ;              // ?
     this.selected;           // remember the button selected
-    this.nodes2html = new nodes2htmlClass();
+    this.nodes2html;         // = new nodes2htmlClass();
 }
 
 
@@ -63,14 +63,14 @@ async displayButton(    // called from button on page
 }
 
 
-
-
 // widgetListClass - client-side
-setJSON(  // load json file to display
+setJSON(
+  // load json file to display
   obj     //
 ) {
-  this.json  = obj;
-  this.nodes = this.json.node;
+  this.json       = obj;
+  this.nodes      = this.json.node;
+  this.nodes2html = new nodes2htmlClass(this.nodes, this.idDOM);
 
   // build button lists
   let buttons="";
@@ -126,12 +126,12 @@ timeFormat( // widgetListClass - client-side
   return hours + ":" + minutes + " " + ampm;
 }
 
-async displayList(list, html=""){
-  await this.nodes2html.displayList(this.json.lists[list], html="");
+async displayList(listName, html=""){
+  return await this.nodes2html.displayList(this.json.lists[listName], html="");
 }
 
-async displayNode(node, html=""){
-  await this.nodes2html.displayList([this.json.node[node]], html="");
+async displayNode(nodeName, html=""){
+  return await this.nodes2html.displayList([this.json.node[nodeName]], html="");
 }
 
 //------------------------------------------------------- split off

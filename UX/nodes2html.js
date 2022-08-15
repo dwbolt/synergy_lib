@@ -28,11 +28,11 @@ updatePictures()
 
 //                                  ---------public---------------
 constructor( // nodes2htmlClass - client-side
+  nodes,idDom
 ) {
-    this.idDOM     = null;   // my not need this
-    this.nodes;
+    this.idDOM     = idDom;   // my not need this
     this.a_eval    = [];     // ?
-    this.nodes     = {};     // will load from data
+    this.nodes     = nodes;  // will load from data
 
     this.n_pic     = 0;      // incremented every 2 seconds and change picture
     this.timer;              // ?
@@ -56,7 +56,7 @@ async displayList(list, html=""){
 }
 
 
-async HTMLfor(// widgetListClass - client-side
+async HTMLfor(// nodes2htmlClass - client-side
   list  // attribute name with value array of section names to be displayed
 ) {
   let html="";
@@ -70,7 +70,7 @@ async HTMLfor(// widgetListClass - client-side
 }
 
 
-async HTMLforNode(  // widgetListClass - client-side
+async HTMLforNode(  // nodes2htmlClass - client-side
   i
   ,nodeName //  node name
 ) {
@@ -106,7 +106,7 @@ async HTMLforNode(  // widgetListClass - client-side
 }
 
 
-async displayRow(  // widgetListClass - client-side
+async displayRow(  // nodes2htmlClass - client-side
   i      // row index
   ,r     // row object
   ,urls  // urls to be displayed
@@ -154,12 +154,6 @@ async displayRow(  // widgetListClass - client-side
     }
   }
 
-  // create updated
-  if (!page) {
-    // on homepage
-    page="event/2020";
-  }
-
   if (localStorage.getItem('production')  === "false") {
       // only show if production = false
       updated =`updated ${r.updated} <a href="/app.html?p=comment&pc=${page}&node=${encodeURI(a_name)}">add comment</a>`;
@@ -195,7 +189,7 @@ async displayRow(  // widgetListClass - client-side
 }
 
 
-// widgetListClass - client-side
+// nodes2htmlClass - client-side
 updatePictures() {
   // walk through each row and display the next picture
   this.list.forEach((a_name, i) => {
@@ -211,4 +205,4 @@ updatePictures() {
 }
 
 
-} // end widgetListClass
+} // end nodes2htmlClass
