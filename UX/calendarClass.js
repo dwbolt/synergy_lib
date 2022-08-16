@@ -374,7 +374,7 @@ fillFormFromData(  // calendarClass  client-side
   document.getElementById("endDateInput").valueAsDate = new Date(
       edge.dateEnd[0]
       ,edge.dateEnd[1]-1
-      ,edge.dateEnd[2]   
+      ,edge.dateEnd[2]
     );
 
   // fill in what days the event repeats on
@@ -467,7 +467,7 @@ createEditForm( // calendarClass  client-side
         <input id="endDateInput" type="date" />
       </div>
     </div>
-    <div id="monthlyEndDate" style="display: flex; justify-content: center; margin: 5px;"> 
+    <div id="monthlyEndDate" style="display: flex; justify-content: center; margin: 5px;">
       <label>Repeats On:</label>
       <select id="monthlyWeekSelect">
         <option value="1" selected>1st</option>
@@ -591,7 +591,7 @@ createBlankForm() {
     new Date(
        this.getEventYear()
       ,this.getEventMonth()
-      ,this.getEventDay() 
+      ,this.getEventDay()
     )
   );
   document.getElementById("monthlyWeekSelect").value = d[1];
@@ -753,7 +753,7 @@ loadEventEdge( // calendarClass  client-side
     dateEnd = [parseInt(endDateInfo[0],10),parseInt(endDateInfo[1],10),parseInt(endDateInfo[2],10)];
     let d = new Date(year,month,day);
     let dayIndex = d.getDay();
-    let weekIndex = Math.ceil(d.getDate() / 7); 
+    let weekIndex = Math.ceil(d.getDate() / 7);
     days = [[dayIndex , weekIndex]];
     startDate[2] = 1;
   } else if (repeat == "yearly") {
@@ -784,9 +784,9 @@ findDayInMonth(
   // EX: [2,4] would mean that the day is the 4th tuesday of the month
   date
 ) {
-  
+
   let dayIndex = date.getDay();
-  let weekIndex = Math.ceil(date.getDate() / 7); 
+  let weekIndex = Math.ceil(date.getDate() / 7);
   return [dayIndex , weekIndex];
 }
 
@@ -918,7 +918,20 @@ findToday( // calendarClass  client-side
 }
 
 
+async displayEvent()  // calendarClass - client-side
+{
+  const list     = [];         // will contain list of nodes to display
+  const nodeName = this.graph.edges[this.edgeName].nR; // get the main nodeName or object
+  const date     = this.urlParams.get('d')             // get YYYY-MM-DD from the URL
 
+  list.push(nodeName+date);    // push node for this date, display it first, this nodeName may not exist
+  list.push(nodeName);         // push the main node to display
+
+  const nodes2html = new nodes2htmlClass(this.graph.nodes, this.DOM);
+  await nodes2html.displayList(list);
+}
+
+/*
 displayEvent(  // calendarClass - client-side
 
 ) {  // user has clicked on a clalender event, show the details of the event on a seprate page
@@ -1091,6 +1104,6 @@ updatePictures( // calendarClass  client-side
   });
   this.n_pic++;
 }
+*/
 
-// calendarClass  client-side
-} // end class
+} // calendarClass  client-side  -end class

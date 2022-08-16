@@ -40,7 +40,7 @@ constructor( // nodes2htmlClass - client-side
     this.selected;           // remember the button selected
 }
 
-async displayList(list, html=""){
+async displayList(list, html=""){  // nodes2htmlClass - client-side
   this.list   = list;  // assume buttion id is same as list node name
   html += await this.HTMLfor(list);
 
@@ -121,8 +121,7 @@ async displayRow(  // nodes2htmlClass - client-side
   let page = urlParams.get('p')
 
   // walk the list of lines in text
-  // r.text.forEach((line, i) => {  // can not use await in forEach(
-  for(let i=0; i<r.text.length ;i++) {
+  for(let i=0; i<r.text.length ;i++) {  // can not use await in forEach(
     let line = r.text[i];
     if        (line[0] === "monthly") {
       //
