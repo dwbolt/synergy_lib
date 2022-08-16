@@ -330,7 +330,7 @@ buildTable(  // calendarClass  client-side
               if (this.urlParams.get('u') != null) {
                 // we are on a user calendar
                 user = "&u=" + this.urlParams.get('u');
-                editButton = `<a onClick="app.calendar.editEvent(${start.getFullYear()},${start.getMonth()},${start.getDate()},${edgeName})">${i+1}</a> `;
+                editButton = `<a onClick="app.calendar.editEvent(${edgeName})">${i+1}</a> `;
               }
 
               html += `<p>${editButton}<a  href="/app.html?p=events&e=${edgeName}&d=${app.format.getISO(start)}${user}" target="_blank">${this.graph.nodes[nodeName].text[0][2]}</a></p>`
@@ -351,7 +351,7 @@ buildTable(  // calendarClass  client-side
 
 fillFormFromData(  // calendarClass  client-side
   // fills in pop up form from the JSON data
-  edgeName  //
+  edgeName
 ) {
   // load from edge ------------
   const edge = this.graph.edges[edgeName];
@@ -371,14 +371,36 @@ fillFormFromData(  // calendarClass  client-side
 
   // fill in end date of event
   this.renderEndDateSelector();
-  if (document.getElementById("endDate")) {
-      document.getElementById("endDate").valueAsDate = new Date(
-        edge.dateEnd[0], edge.dateEnd[1]-1, edge.dateEnd[2] );
-  }
+  document.getElementById("endDateInput").valueAsDate = new Date(
+      edge.dateEnd[0]
+      ,edge.dateEnd[1]-1
+      ,edge.dateEnd[2]   
+    );
+
+  // fill in what days the event repeats on
+  this.fillRepeatdays();
 
   // load from node  ----------
   document.getElementById("eventName"       ).value     = this.graph.nodes[edge.nR].text[0][2];
   document.getElementById("eventDescription").innerText = this.graph.nodes[edge.nR].text[1][2];
+}
+
+fillRepeatdays(
+  // fills in the selector for what days of the week the event repeats on
+) {
+  let edgeName = this.getEventEdge();
+  // the edge exists already
+  let d = new Date(
+     this.graph.edges[edgeName].dateStart[0]
+    ,this.graph.edges[edgeName].dateStart[1]-1
+    ,this.graph.edges[edgeName].dateStart[2]
+  );
+  let dayIndex = d.getDay();
+  let r = this.graph.edges[edgeName].daysOffset;
+  let daysOfWeek = document.getElementsByClassName("repeatCheckbox");
+  for (let i = 0; i < r.length; i++) {
+    daysOfWeek[(r[i] + dayIndex) % 7].checked = true;
+  }
 }
 
 
@@ -435,7 +457,70 @@ createEditForm( // calendarClass  client-side
       </select>
     </div>
 
-    <div id="endDateDiv" style="display: flex; justify-content: center; margin: 5px;"></div>
+    <div id="endDateDiv" style="display: flex; justify-content: center; margin: 5px;">
+      <div id="yearlyEndDate">
+        <label id="endDateLabel" for="endDate" style="margin-right: 3px;">End Date: </label>
+        <input id="yearlyEndDateInput" type="number" min="2022" max="2030" value="${this.year+1}"/>
+      </div>
+      <div id="weeklyMonthlyEndDate">
+        <label id="endDateLabel" for="endDate" style="margin-right: 3px;">End Date: </label>
+        <input id="endDateInput" type="date" />
+      </div>
+    </div>
+    <div id="monthlyEndDate" style="display: flex; justify-content: center; margin: 5px;"> 
+      <label>Repeats On:</label>
+      <select id="monthlyWeekSelect">
+        <option value="1" selected>1st</option>
+        <option value="2">2nd</option>
+        <option value="3">3rd</option>
+        <option value="4">4th</option>
+        <option value="5">5th</option>
+      </select>
+      <select id="monthlyDaySelect">
+        <option value="0" selected> Sunday
+        <option value="1">          Monday   </option>
+        <option value="2>           Tuesday  </option>
+        <option value="3">          Wednesday</option>
+        <option value="4">          Thursday </option>
+        <option value="5">          Friday   </option>
+        <option value="6">          Saturday </option>
+      </select>
+    </div>
+    <div id="repeatDiv">
+      <div id="daysOfWeekSelector">
+        <div id="repeatSelectorTitle">Repeats on</div>
+        <div class="dayPicker">
+          <label class="pickDayContainer">
+            <input type="checkbox" value="sunday" class="repeatCheckbox" id="sunCheck">
+            <span class="checkmark">Su</span>
+          </label>
+          <label class="pickDayContainer">
+            <input type="checkbox" value="monday"class="repeatCheckbox" id="monCheck">
+            <span class="checkmark">Mo</span>
+          </label>
+          <label class="pickDayContainer">
+            <input type="checkbox" value="tuesday" class="repeatCheckbox" id="tueCheck">
+            <span class="checkmark">Tu</span>
+          </label>
+          <label class="pickDayContainer">
+            <input type="checkbox" value="wednesday" class="repeatCheckbox" id="wedCheck">
+            <span class="checkmark">We</span>
+          </label>
+          <label class="pickDayContainer">
+            <input type="checkbox" value="thursday" class="repeatCheckbox" id="thurCheck">
+            <span class="checkmark">Tr</span>
+          </label>
+          <label class="pickDayContainer">
+            <input type="checkbox" value="friday" class="repeatCheckbox" id="friCheck">
+            <span class="checkmark">Fr</span>
+          </label>
+          <label class="pickDayContainer">
+            <input type="checkbox" value="saturday" class="repeatCheckbox" id="satCheck">
+            <span class="checkmark">Sa</span>
+          </label>
+        </div>
+      </div>
+    </div>
 
     <button onClick="app.calendar.addNewEvent()"            class="addSaveButton"       id="addEventButton"   > Add Event </button>
     <button onClick="app.calendar.save()"                   class="addSaveButton"       id="saveEventButton"  > Save      </button>
@@ -481,6 +566,10 @@ createBlankForm() {
   // fill in all selector values
   // default repeat to 'never'
   document.getElementById("repeatType").value = "never";
+  this.renderEndDateSelector();
+  for (let i = 0; i < document.getElementsByClassName("repeatCheckbox").length; i++) {
+    document.getElementsByClassName("repeatCheckbox")[i].checked = false;
+  }
 
   // load with date they clicked on
   let date = new Date(this.getEventYear(),this.getEventMonth(),this.getEventDay());
@@ -497,16 +586,24 @@ createBlankForm() {
   document.getElementById("durationHour"  ).value = 1;
   document.getElementById("durationMinute").value = 0;
 
+  // fill the day in the month for monthly repeating events
+  let d = this.findDayInMonth(
+    new Date(
+       this.getEventYear()
+      ,this.getEventMonth()
+      ,this.getEventDay() 
+    )
+  );
+  document.getElementById("monthlyWeekSelect").value = d[1];
+  document.getElementById("monthlyDaySelect" ).value = d[0];
+
   // empty description field
   document.getElementById("eventDescription").innerText = "";
 }
 
 
 editEvent(  // calendarClass  client-side
-    year     // number
-   ,month    // number
-   ,day      // number
-  ,edgeName  // string
+  edgeName  // string
 ) {
   if (this.urlParams.get('u') === null) {
     // not on user calendar
@@ -515,10 +612,14 @@ editEvent(  // calendarClass  client-side
   }
 
   // save for other methods
-  this.setEventDay(  day     );
-  this.setEventMonth(month   );
-  this.setEventYear( year    );
-  this.setEventEdge( edgeName);
+  this.setEventDay(   this.graph.edges[edgeName].dateStart[2]     );
+  this.setEventMonth( this.graph.edges[edgeName].dateStart[1]-1     );
+  this.setEventYear(  this.graph.edges[edgeName].dateStart[0]     );
+  this.setEventEdge(  edgeName                                    );
+  console.log(this.eventDay);
+  console.log(this.eventMonth);
+  console.log(this.eventYear);
+
 
   // show/hide buttons
   document.getElementById("addEventButton"   ).style.display = "none";             // Hide
@@ -541,25 +642,35 @@ renderEndDateSelector(  // calendarClass  client-side
 // renders the end date selector based on chosen selected value from the repeat selector in pop up form
 ) {
   let repeatSelector = document.getElementById("repeatType");
-  let endDateDiv     = document.getElementById("endDateDiv");
+
   if (repeatSelector.value == "never") {
     // do not display any selector when event does not repeat
-    endDateDiv = document.getElementById("endDateDiv");
-    endDateDiv.innerHTML = "";
+    document.getElementById("yearlyEndDate"         ).style.display = 'none';
+    document.getElementById("weeklyMonthlyEndDate"  ).style.display = 'none';
+    document.getElementById("monthlyEndDate"        ).style.display = 'none';
+    document.getElementById("daysOfWeekSelector"    ).style.display = 'none';
+
   } else if (repeatSelector.value == "yearly") {
     // display only a number when selecting a year
-    let endDate = `
-      <label id="endDateLabel" for="endDate" style="margin-right: 3px;">End Date: </label>
-      <input id="endDate" type="number" min="2022" max="2030" value="${this.year+1}"/>
-    `;
-    endDateDiv.innerHTML = endDate;
-  } else {
-    // weekly or monthly option is selected so we should display selector for end date
-    let endDate = `
-      <label id="endDateLabel" for="endDate" style="margin-right: 3px;">End Date: </label>
-      <input id="endDate" type="date" />
-    `;
-    endDateDiv.innerHTML = endDate;
+    document.getElementById("yearlyEndDate"         ).style.display = 'inline';
+    document.getElementById("weeklyMonthlyEndDate"  ).style.display = 'none';
+    document.getElementById("monthlyEndDate"        ).style.display = 'none';
+    document.getElementById("daysOfWeekSelector"    ).style.display = 'none';
+
+  } else if (repeatSelector.value == "weekly") {
+    // weekly option is selected so we should display selector for end date
+    // add options for what days to repeat on every week
+    document.getElementById("yearlyEndDate"         ).style.display = 'none';
+    document.getElementById("monthlyEndDate"        ).style.display = 'none';
+    document.getElementById("weeklyMonthlyEndDate"  ).style.display = 'inline';
+    document.getElementById("daysOfWeekSelector"    ).style.display = 'inline';
+
+  } else if (repeatSelector.value == "monthly") {
+    // monthly option is chosen to repeat
+    document.getElementById("yearlyEndDate"         ).style.display = 'none';
+    document.getElementById("weeklyMonthlyEndDate"  ).style.display = 'inline';
+    document.getElementById("monthlyEndDate"        ).style.display = 'inline';
+    document.getElementById("daysOfWeekSelector"    ).style.display = 'none';
   }
 }
 
@@ -575,10 +686,14 @@ loadEventEdge( // calendarClass  client-side
   let   durationMinute = document.getElementById("durationMinute").value;  // minutes portion of the duration
   const repeat         = document.getElementById("repeatType"    ).value;  // chosen value of how often to repeat event
 
+  let year  = this.getEventYear();
+  let month = this.getEventMonth();
+  let day   = this.getEventDay();
+
   let endDate     = "";
   let doesRepeat  = false
-  if (document.getElementById("endDate")) {
-    endDate    = document.getElementById("endDate").value;
+  if (document.getElementById("endDateInput")) {
+    endDate    = document.getElementById("endDateInput").value;
     doesRepeat = true;
   }
 
@@ -597,18 +712,50 @@ loadEventEdge( // calendarClass  client-side
   if (durationMinute.length < 2                ) {durationMinute = "0" + durationMinute;}
   if (durationHour == "0" || durationHour == "") {durationHour = "1";}
 
+  let startDate = [year, month+1, day, startHourNum,startHourMin];
+
   // handle repeat events
   let offset         = [];   // for repeating events and their offset from first day
+  let days           = [];
   let dateEnd;
-  let year  = this.getEventYear();
-  let month = this.getEventMonth();
-  let day   = this.getEventDay();
+
+  // handle different cases for types of repeating
   if (repeat == "weekly") {
-    offset[0] = 0;
+    // repeats weekly
+    // find offset for desired days
+    let d = new Date(year,month,day);
+    let dayIndex = d.getDay();
+    let repeatingDays = this.weeklyRepeatDays();
+    for (let i = 0; i < repeatingDays.length; i++) {
+      // walk through the days chosen to repeat on, and find distance between start day and chosen day
+      let dif = repeatingDays[i] - dayIndex;
+      if (dif < 0) {
+        // day should repeat on day that happens before chosen day but only after chosen day
+        // ex repeats on monday wednesday friday, but the event starts on wednesday, so first monday is after the first wednesday
+        repeatingDays[i] += 7;
+        offset.push(repeatingDays[i]-dayIndex);
+      } else {
+        // push the difference between indices into the offset
+        offset.push(dif);
+      }
+    }
+    if (repeatingDays.length == 0) {
+      // if user did not choose days to repeat on, assume that it will repeat on same day every week
+      offset = [0];
+    }
     dateEnd = [parseInt(endDateInfo[0],10),parseInt(endDateInfo[1],10),parseInt(endDateInfo[2],10)];
+    if (!document.getElementById("endDateInput").value) {
+      // if end date field is left empty, then assume event ends one week after start
+      dateEnd = [year,month+1,day+7];
+    }
   } else if (repeat == "monthly") {
     offset = [0];
     dateEnd = [parseInt(endDateInfo[0],10),parseInt(endDateInfo[1],10),parseInt(endDateInfo[2],10)];
+    let d = new Date(year,month,day);
+    let dayIndex = d.getDay();
+    let weekIndex = Math.ceil(d.getDate() / 7); 
+    days = [[dayIndex , weekIndex]];
+    startDate[2] = 1;
   } else if (repeat == "yearly") {
     offset = [];
     dateEnd = [parseInt(endDate,10),month+1,day];
@@ -620,15 +767,27 @@ loadEventEdge( // calendarClass  client-side
   // saving form data to the edge
   let g = this.graph.edges[edge];
   //g.nR           = `${app.calendar.graph.nodeNext}`;
-  g.dateStart    = [year,month+1,day,startHourNum,startHourMin];
+  g.dateStart    = startDate;
   g.dateEnd      = dateEnd;
 
   let e          = document.getElementById("timeZone");
   g.timeZone     = e.options[e.selectedIndex].value;
-
+  g.days         = days;
   g.timeDuration = `${durationHour}:${durationMinute}`;
   g.repeat       = repeat;
   g.daysOffset   = offset;
+}
+
+findDayInMonth(
+  // This funciton returns an array with the first day being the index of the day in a week -- ex 0 for sunday and 1 for monday
+  // The second element in array is the index of week in the month -- ex 1 for first week 2 for second week
+  // EX: [2,4] would mean that the day is the 4th tuesday of the month
+  date
+) {
+  
+  let dayIndex = date.getDay();
+  let weekIndex = Math.ceil(date.getDate() / 7); 
+  return [dayIndex , weekIndex];
 }
 
 
@@ -640,6 +799,23 @@ async deleteEvent( // calendarClass  client-side
   await this.processServerRefresh();
 }
 
+// When user hits "add event" or "save"
+// Handles the days of week that the event should repeat on
+// Returns array where each item is an index of day of the week starting at 0
+// ex [0,2,4] is [sunday, tuesday, thursday]
+weeklyRepeatDays() {
+  // grab all checkboxes
+  let options = document.getElementsByClassName("repeatCheckbox");
+  let rv = [];
+
+  // go through all the checkboxes for the days and push back the index if they are checked
+  for (var i = 0; i < options.length; i++) {
+    if (options[i].checked == true) {
+      rv.push(i);
+    }
+  }
+  return rv;
+}
 
 async save(   // calendarClass  client-side
   // user clicked edits existing event, and now has clicked saved
