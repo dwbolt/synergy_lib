@@ -44,11 +44,13 @@ constructor( // calendarClass  client-side
   	this.format     = new formatClass();  // format time and dates
   	this.proxy      = new proxyClass();   // loads graph data from server
     this.urlParams  = new URLSearchParams( window.location.search );  // read params send in the URL
-
-    this.eventYear;  // year of event to edit or add
-    this.eventMonth; // month of event to edit or add
-    this.eventDay;   // day of event to edit or add
-    this.eventData;  // number to access node or edge in data
+ 
+    this.eventYear;         // year of event to edit or add
+    this.eventMonth;        // month of event to edit or add
+    this.eventDay;          // day of event to edit or add
+    this.eventData;         // number to access node or edge in data
+    this.popUpHeight;       // holds the height of the pop up form
+    this.numMonthDates = 4; // holds number of dates a monthly repeating date can repeat on per month
 
     // need for both sfc web site and the stand alone page
     this.db      = new dbClass();       // create empty database
@@ -102,17 +104,21 @@ constructor( // calendarClass  client-side
 
 
 // Mutators
-setEventMonth(val) {this.eventMonth = val;}
-setEventYear( val) {this.eventYear  = val;}
-setEventDay(  val) {this.eventDay   = val;}
-setEventEdge( val) {this.eventEdge  = val;}
+setEventMonth( val) {this.eventMonth  = val;}
+setEventYear(  val) {this.eventYear   = val;}
+setEventDay(   val) {this.eventDay    = val;}
+setEventEdge(  val) {this.eventEdge   = val;}
+setPopUpHeight(val) {this.popUpHeight = val;}
+setNumMonthDates(val) {this.numMonthDates = val;}
 
 
 // accessors
-getEventMonth() {return this.eventMonth;}
-getEventYear( ) {return this.eventYear ;}
-getEventDay(  ) {return this.eventDay  ;}
-getEventEdge( ) {return this.eventEdge ;}
+getEventMonth( ) {return this.eventMonth ;}
+getEventYear(  ) {return this.eventYear  ;}
+getEventDay(   ) {return this.eventDay   ;}
+getEventEdge(  ) {return this.eventEdge  ;}
+getPopUpHeight() {return this.popUpHeight;}
+getNumMonthDates() {return this.numMonthDates;}
 
 
 async main( // calendarClass  client-side
@@ -403,7 +409,6 @@ fillRepeatdays(
   }
 }
 
-
 createEditForm( // calendarClass  client-side
 ){
   const calendar = document.getElementById("weeks");
@@ -467,24 +472,29 @@ createEditForm( // calendarClass  client-side
         <input id="endDateInput" type="date" />
       </div>
     </div>
-    <div id="monthlyEndDate" style="display: flex; justify-content: center; margin: 5px;"> 
-      <label>Repeats On:</label>
-      <select id="monthlyWeekSelect">
-        <option value="1" selected>1st</option>
-        <option value="2">2nd</option>
-        <option value="3">3rd</option>
-        <option value="4">4th</option>
-        <option value="5">5th</option>
-      </select>
-      <select id="monthlyDaySelect">
-        <option value="0" selected> Sunday
-        <option value="1">          Monday   </option>
-        <option value="2>           Tuesday  </option>
-        <option value="3">          Wednesday</option>
-        <option value="4">          Thursday </option>
-        <option value="5">          Friday   </option>
-        <option value="6">          Saturday </option>
-      </select>
+    <div id="monthlyEndDate" style="display: flex; justify-content: center; margin: 5px; flex-direction: column;"> 
+      <div class="monthlyRepeatsLabel">
+        <label>Repeats On:</label>
+        <a class="addNewRepeatMonthly" onClick="app.calendar.addNewRepeatMonthy()">+</a>
+      </div>
+      <div class="monthlyRepeatInput">
+        <select id="monthlyWeekSelect-1">
+          <option value="1" selected>1st</option>
+          <option value="2">2nd</option>
+          <option value="3">3rd</option>
+          <option value="4">4th</option>
+          <option value="5">5th</option>
+        </select>
+        <select id="monthlyDaySelect-1">
+          <option value="0" selected> Sunday   </option>
+          <option value="1">          Monday   </option>
+          <option value="2">           Tuesday  </option>
+          <option value="3">          Wednesday</option>
+          <option value="4">          Thursday </option>
+          <option value="5">          Friday   </option>
+          <option value="6">          Saturday </option>
+        </select>
+      </div>
     </div>
     <div id="repeatDiv">
       <div id="daysOfWeekSelector">
@@ -530,6 +540,55 @@ createEditForm( // calendarClass  client-side
   </div>`;
 }
 
+addNewRepeatMonthy(
+  // This function is the onClick function for the '+' button on popupform when the 'monthly' repeating option is chosen
+  // This adds a new day in the month that the event can repeat on
+  // Currently maxing it at 3 dates it can repeat on
+) {
+  // Make sure we are not at maximum amount of dates
+  let dates = document.getElementsByClassName("monthlyRepeatInput");
+  if (dates.length <= 3){
+    // We need to expand how large the total pop up is to fit the new items
+    document.getElementById("popUpForm").style.height = `${document.getElementById("popUpForm").clientHeight + 35}px`;
+
+    // Append new selector to repeat on
+    let index = dates.length;
+    let selector = `
+      <div class="monthlyRepeatInput" id="monthlyRepeatInput-${index+1}">
+        <select id="monthlyWeekSelect-${index+1}">
+          <option value="1" selected>1st</option>
+          <option value="2">2nd</option>
+          <option value="3">3rd</option>
+          <option value="4">4th</option>
+          <option value="5">5th</option>
+        </select>
+        <select id="monthlyDaySelect-${index+1}">
+          <option value="0" selected> Sunday   </option>
+          <option value="1">          Monday   </option>
+          <option value="2">          Tuesday  </option>
+          <option value="3">          Wednesday</option>
+          <option value="4">          Thursday </option>
+          <option value="5">          Friday   </option>
+          <option value="6">          Saturday </option>
+        </select>
+        <a class="removeMonthlySelectorButton" onCLick="app.calendar.removeMonthlySelector(${index+1})">-</a>
+      </div>
+    `;
+    document.getElementById("monthlyEndDate").innerHTML += selector;
+  } else {
+    console.log("Maximum amount of dates");
+  }
+}
+
+removeMonthlySelector(
+  // This function is the onclick for the '-' that appears next to the selectors when user is choosing the monthly repeat option
+  // This removes the selector that it is attached to and resizes the pop up window
+  index
+) {
+  if (document.getElementById(`monthlyRepeatInput-${index}`)) document.getElementById(`monthlyRepeatInput-${index}`).remove();
+  document.getElementById("popUpForm").style.height = `${document.getElementById("popUpForm").clientHeight - 35}px`;
+}
+
 
 createNewEvent(  // calendarClass  client-side
   // user clicked + to add new event on a particular day
@@ -564,6 +623,13 @@ createNewEvent(  // calendarClass  client-side
 // sets all input fields in pop up form to be default
 createBlankForm() {
   // fill in all selector values
+
+  // ensure pop up form has original height
+  document.getElementById("popUpForm").style.height = "630px";
+
+  // remove all selectors for monthly repeating dates except for the first one
+  for (let i = this.getNumMonthDates(); i >= 1; i--) this.removeMonthlySelector(i);
+
   // default repeat to 'never'
   document.getElementById("repeatType").value = "never";
   this.renderEndDateSelector();
@@ -594,8 +660,8 @@ createBlankForm() {
       ,this.getEventDay() 
     )
   );
-  document.getElementById("monthlyWeekSelect").value = d[1];
-  document.getElementById("monthlyDaySelect" ).value = d[0];
+  document.getElementById("monthlyWeekSelect-1").value = `${d[1]}`;
+  document.getElementById("monthlyDaySelect-1").selectedIndex = d[0];
 
   // empty description field
   document.getElementById("eventDescription").innerText = "";
@@ -669,7 +735,7 @@ renderEndDateSelector(  // calendarClass  client-side
     // monthly option is chosen to repeat
     document.getElementById("yearlyEndDate"         ).style.display = 'none';
     document.getElementById("weeklyMonthlyEndDate"  ).style.display = 'inline';
-    document.getElementById("monthlyEndDate"        ).style.display = 'inline';
+    document.getElementById("monthlyEndDate"        ).style.display = 'flex';
     document.getElementById("daysOfWeekSelector"    ).style.display = 'none';
   }
 }
@@ -749,12 +815,16 @@ loadEventEdge( // calendarClass  client-side
       dateEnd = [year,month+1,day+7];
     }
   } else if (repeat == "monthly") {
+    // event is repeating monthly
     offset = [0];
     dateEnd = [parseInt(endDateInfo[0],10),parseInt(endDateInfo[1],10),parseInt(endDateInfo[2],10)];
-    let d = new Date(year,month,day);
-    let dayIndex = d.getDay();
-    let weekIndex = Math.ceil(d.getDate() / 7); 
-    days = [[dayIndex , weekIndex]];
+    
+    // read input from the drop down boxes
+    for (let i = 0; i < this.getNumMonthDates(); i++) {
+      if (document.getElementById(`monthlyDaySelect-${i}`)) {
+        days.push([document.getElementById(`monthlyDaySelect-${i}`).value,document.getElementById(`monthlyWeekSelect-${i}`).value]);
+      }
+    }
     startDate[2] = 1;
   } else if (repeat == "yearly") {
     offset = [];
