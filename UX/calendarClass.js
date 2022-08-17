@@ -45,12 +45,13 @@ constructor( // calendarClass  client-side
   	this.proxy      = new proxyClass();   // loads graph data from server
     this.urlParams  = new URLSearchParams( window.location.search );  // read params send in the URL
  
-    this.eventYear;         // year of event to edit or add
-    this.eventMonth;        // month of event to edit or add
-    this.eventDay;          // day of event to edit or add
-    this.eventData;         // number to access node or edge in data
-    this.popUpHeight;       // holds the height of the pop up form
-    this.numMonthDates = 4; // holds number of dates a monthly repeating date can repeat on per month
+    this.eventYear;          // year of event to edit or add
+    this.eventMonth;         // month of event to edit or add
+    this.eventDay;           // day of event to edit or add
+    this.eventData;          // number to access node or edge in data
+    this.popUpHeight;        // holds the height of the pop up form
+    this.numMonthDates = 4;  // holds number of dates a monthly repeating date can repeat on per month
+    this.openMonthDates = 1; // number of selectors visible when monthly repeating option is chosen
 
     // need for both sfc web site and the stand alone page
     this.db      = new dbClass();       // create empty database
@@ -110,6 +111,7 @@ setEventDay(   val) {this.eventDay    = val;}
 setEventEdge(  val) {this.eventEdge   = val;}
 setPopUpHeight(val) {this.popUpHeight = val;}
 setNumMonthDates(val) {this.numMonthDates = val;}
+setOpenMonthDates(val) {this.openMonthDates = val;}
 
 
 // accessors
@@ -119,6 +121,7 @@ getEventDay(   ) {return this.eventDay   ;}
 getEventEdge(  ) {return this.eventEdge  ;}
 getPopUpHeight() {return this.popUpHeight;}
 getNumMonthDates() {return this.numMonthDates;}
+getOpenMonthDates() {return this.openMonthDates;}
 
 
 async main( // calendarClass  client-side
@@ -495,6 +498,63 @@ createEditForm( // calendarClass  client-side
           <option value="6">          Saturday </option>
         </select>
       </div>
+      <div class="monthlyRepeatInput" id="monthlyRepeatInput-2" style="display: none">
+        <select id="monthlyWeekSelect-2">
+          <option value="1" selected>1st</option>
+          <option value="2">2nd</option>
+          <option value="3">3rd</option>
+          <option value="4">4th</option>
+          <option value="5">5th</option>
+        </select>
+        <select id="monthlyDaySelect-2">
+          <option value="0" selected> Sunday   </option>
+          <option value="1">          Monday   </option>
+          <option value="2">          Tuesday  </option>
+          <option value="3">          Wednesday</option>
+          <option value="4">          Thursday </option>
+          <option value="5">          Friday   </option>
+          <option value="6">          Saturday </option>
+        </select>
+        <a class="removeMonthlySelectorButton" onCLick="app.calendar.removeMonthlySelector(2)">-</a>
+      </div>
+      <div class="monthlyRepeatInput" id="monthlyRepeatInput-3" style="display: none">
+        <select id="monthlyWeekSelect-3">
+          <option value="1" selected>1st</option>
+          <option value="2">2nd</option>
+          <option value="3">3rd</option>
+          <option value="4">4th</option>
+          <option value="5">5th</option>
+        </select>
+        <select id="monthlyDaySelect-3">
+          <option value="0" selected> Sunday   </option>
+          <option value="1">          Monday   </option>
+          <option value="2">          Tuesday  </option>
+          <option value="3">          Wednesday</option>
+          <option value="4">          Thursday </option>
+          <option value="5">          Friday   </option>
+          <option value="6">          Saturday </option>
+        </select>
+        <a class="removeMonthlySelectorButton" onCLick="app.calendar.removeMonthlySelector(3)">-</a>
+      </div>
+      <div class="monthlyRepeatInput" id="monthlyRepeatInput-4" style="display: none">
+        <select id="monthlyWeekSelect-4">
+          <option value="1" selected>1st</option>
+          <option value="2">2nd</option>
+          <option value="3">3rd</option>
+          <option value="4">4th</option>
+          <option value="5">5th</option>
+        </select>
+        <select id="monthlyDaySelect-4">
+          <option value="0" selected> Sunday   </option>
+          <option value="1">          Monday   </option>
+          <option value="2">          Tuesday  </option>
+          <option value="3">          Wednesday</option>
+          <option value="4">          Thursday </option>
+          <option value="5">          Friday   </option>
+          <option value="6">          Saturday </option>
+        </select>
+        <a class="removeMonthlySelectorButton" onCLick="app.calendar.removeMonthlySelector(4)">-</a>
+      </div>
     </div>
     <div id="repeatDiv">
       <div id="daysOfWeekSelector">
@@ -546,35 +606,14 @@ addNewRepeatMonthy(
   // Currently maxing it at 3 dates it can repeat on
 ) {
   // Make sure we are not at maximum amount of dates
-  let dates = document.getElementsByClassName("monthlyRepeatInput");
-  if (dates.length <= 3){
+  console.log(this.getOpenMonthDates());
+  if (this.getOpenMonthDates() <= 3){
     // We need to expand how large the total pop up is to fit the new items
     document.getElementById("popUpForm").style.height = `${document.getElementById("popUpForm").clientHeight + 35}px`;
 
     // Append new selector to repeat on
-    let index = dates.length;
-    let selector = `
-      <div class="monthlyRepeatInput" id="monthlyRepeatInput-${index+1}">
-        <select id="monthlyWeekSelect-${index+1}">
-          <option value="1" selected>1st</option>
-          <option value="2">2nd</option>
-          <option value="3">3rd</option>
-          <option value="4">4th</option>
-          <option value="5">5th</option>
-        </select>
-        <select id="monthlyDaySelect-${index+1}">
-          <option value="0" selected> Sunday   </option>
-          <option value="1">          Monday   </option>
-          <option value="2">          Tuesday  </option>
-          <option value="3">          Wednesday</option>
-          <option value="4">          Thursday </option>
-          <option value="5">          Friday   </option>
-          <option value="6">          Saturday </option>
-        </select>
-        <a class="removeMonthlySelectorButton" onCLick="app.calendar.removeMonthlySelector(${index+1})">-</a>
-      </div>
-    `;
-    document.getElementById("monthlyEndDate").innerHTML += selector;
+    document.getElementById(`monthlyRepeatInput-${this.getOpenMonthDates()+1}`).style.display = "block";
+    this.setOpenMonthDates(this.getOpenMonthDates()+1);
   } else {
     console.log("Maximum amount of dates");
   }
@@ -585,8 +624,9 @@ removeMonthlySelector(
   // This removes the selector that it is attached to and resizes the pop up window
   index
 ) {
-  if (document.getElementById(`monthlyRepeatInput-${index}`)) document.getElementById(`monthlyRepeatInput-${index}`).remove();
+  document.getElementById(`monthlyRepeatInput-${index}`).style.display = "none";
   document.getElementById("popUpForm").style.height = `${document.getElementById("popUpForm").clientHeight - 35}px`;
+  this.setOpenMonthDates(this.getOpenMonthDates() - 1);
 }
 
 
@@ -627,8 +667,11 @@ createBlankForm() {
   // ensure pop up form has original height
   document.getElementById("popUpForm").style.height = "630px";
 
-  // remove all selectors for monthly repeating dates except for the first one
-  for (let i = this.getNumMonthDates(); i >= 1; i--) this.removeMonthlySelector(i);
+  // Ensure no monthly date selectors are open
+  for (let i = 2; i <= this.getOpenMonthDates(); i++) {
+    document.getElementById(`monthlyRepeatInput-${i}`).style.display = "none";
+  }
+  this.setOpenMonthDates(1);
 
   // default repeat to 'never'
   document.getElementById("repeatType").value = "never";
