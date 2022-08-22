@@ -60,55 +60,21 @@ sortList(
 }
 
 
+getValue(rowIndex,fieldName){return this.json.rows[rowIndex][this.json.field[fieldName]] ;} // tableClass - client-side
+getHeader()  {return this.json.header        ;} // tableClass - client-side
+getField() {return this.json.field           ;} // tableClass - client-side
+getRows()     {return this.json.rows         ;} // tableClass - client-side
+getRow(index) {return this.json.rows[index]  ;} // tableClass - client-side
+getRowsLength() {return this.json.rows.length;} // tableClass - client-side
+getJSON(      ) {return this.json            ;} // tableClass - client-side
 
-// tableClass - client-side
-// this is used in the display() method
-getHeader()  {return this.json.header;}
-setHeader(h) {this.json.header = h;}
+appendRow(a_row){this.json.rows.push(a_row)  ;} // tableClass - client-side
 
-getValue(rowIndex,fieldName){
-  return this.json.rows[rowIndex][this.json.field[fieldName]] ;
-}
-
-// tableClass - client-side
-// this is used in the display() method
-getField() {return this.json.field;}
+setHeader(a_header){this.json.header = a_header;} // tableClass - client-side
 
 
-// tableClass - client-side
-// this is used in the display() method
-getRows() {return this.json.rows;}
-
-
-// tableClass - client-side
-// this is used in the display() method
-getRow(index) {return this.json.rows[index];}
-
-
-// tableClass - client-side
-getRowsLength() {return this.json.rows.length;}
-
-
-// tableClass - client-side
-// this is used in the display() method
-//setDom(element, value) {this.dom[element] = value;}
-
-
-// tableClass - client-side
-getJSON() {return this.json;}
-
-
-// tableClass - client-side
-appendRow(a_row){this.json.rows.push(a_row);}
-
-
-// tableClass - client-side
-setHeader(a_header){this.json.header = a_header;
-}
-
-
-// tableClass - client-side
-genCSV() { // create a string in CSV of the table
+genCSV( // tableClass - client-side
+) { // create a string in CSV of the table
     // add a_header
     let csv = this.genCSVrow(this.json.header);
 
@@ -122,8 +88,8 @@ genCSV() { // create a string in CSV of the table
 }
 
 
-// tableClass - client-side
-genCSVrow(row) {
+genCSVrow( // tableClass - client-side
+  row) {
   // will only work for numbers, strings, boolean
   // Will not  work for dates, objects, etc...
   let line = JSON.stringify(row);
@@ -135,8 +101,8 @@ genCSVrow(row) {
 
 getRowBuffer(index) {return this.json.rowsBuffer[index];}
 
-// tableClass - client-side
-table2buffer(
+
+table2buffer(  // tableClass - client-side
   a_index  // a_index-> array of row numbers into
 ) {
   // clear the buffer
@@ -151,16 +117,15 @@ table2buffer(
 }
 
 
-// tableClass - client-side
-// is this used?
-bufferGet(s_field) {
+bufferGet( // tableClass - client-side
+  s_field  // is this used?
+) {
   return this.json.rowsBuffer;
 }
 
 
-// tableClass - client-side
-// convert all strings that should be numbers to numbers
-bufferSetType() {
+bufferSetType( // tableClass - client-side
+) { // convert all strings that should be numbers to numbers
   this.json.fieldA.forEach((column, i) => {
     if (column.startsWith("n_")) {
       // found a number column
@@ -173,8 +138,8 @@ bufferSetType() {
 }
 
 
-// tableClass - client-side
-bufferSave() {  // to table in memory
+bufferSave(  // tableClass - client-side
+) {  // to table in memory
   this.bufferSetType();
   this.json.rowsBuffer.forEach((item, i) => {
     // does not handle the case of growing or srinking the number of items in the buffer
@@ -183,8 +148,9 @@ bufferSave() {  // to table in memory
 }
 
 
-// tableClass - client-side
-bufferAppend() {  // to table in memory
+bufferAppend(  // tableClass - client-side
+
+) {  // to table in memory
   this.bufferSetType();
   this.json.rowsBuffer.forEach((item, i) => {
     this.json.rows.push( item[1]  );
@@ -192,9 +158,9 @@ bufferAppend() {  // to table in memory
 }
 
 
-// tableClass - client-side
-// move data from DOM to table buffer
-bufferInput2Json() {
+bufferInput2Json( // tableClass - client-side
+  // move data from DOM to table buffer
+) {
   let r,col;
   // a_rows ->  an array of rows of input buffer data
   const a_rows = document.getElementById(this.DOMid.buffer).firstChild.firstChild.children;
@@ -218,8 +184,9 @@ bufferInput2Json() {
 }
 
 
-// tableClass - client-side
-bufferAppendRow(row,i) {
+
+bufferAppendRow(  // tableClass - client-side
+  row,i) {
   let html = `<tr><td>${i+1}</td>`;
   let format;
 
@@ -237,9 +204,9 @@ bufferAppendRow(row,i) {
 }
 
 
-// tableClass - client-side
-// adding
-bufferCreateEmpty(n_rows) {
+bufferCreateEmpty(  // tableClass - client-side
+  n_rows  // adding
+) {
   this.json.rowsBuffer = [];
 
   let i,ii;
@@ -255,9 +222,8 @@ bufferCreateEmpty(n_rows) {
 }
 
 
-// tableClass - client-side
-// creating text file to save
-genRows() {
+genRows() {  // tableClass - client-side
+  // creating text file to save
   let txt="";
 
   this.json.rows.forEach((r, i) => {
@@ -270,8 +236,9 @@ genRows() {
 }
 
 
-// tableClass - client-side
-genTable(s_tableName) {
+genTable(  // tableClass - client-side
+  s_tableName
+) {
   let rows = this.genRows();
 
   return `"${s_tableName}": {
@@ -285,16 +252,14 @@ ${rows}]
 }
 
 
-// tableClass - client-side
-getColumnFormat(i) {
+getColumnFormat(i) { // tableClass - client-side
   let f = this.json.columnFormat[i];
   if (f === undefined) return "";
   return f;
 }
 
 
-// tableClass - client-side
-clearRows() {this.json.rows = [];}
+clearRows() {this.json.rows = [];}  // tableClass - client-side
 
 
 // tableClass - client-side
@@ -313,9 +278,8 @@ total(
 }
 
 
-// tableClass - client-side
-// return all the unique values in a table for the given field
-unique(s_field) {
+unique(s_field) {  // tableClass - client-side
+  // return all the unique values in a table for the given field
   const a=[];
   const f=this.json.field;
   this.json.rows.forEach((r) => {
@@ -329,8 +293,7 @@ unique(s_field) {
 }
 
 
-// tableClass - client-side
-select(
+select(   // tableClass - client-side
   f  // f is boolean function, returns true if we want the row included in the list
 ) {
   let a=[]  // return a list of indexes of table that match the selection criteria
@@ -349,16 +312,14 @@ select(
 }
 
 
-// tableClass - client-side
-filter(
+filter(  // tableClass - client-side
   f  // f is boolean function, returns true if we want the row included in the list
 ) {
   return this.json.rows.filter(f);
 }
 
 
-// tableClass - client-side
-setJSON(j) {
+setJSON(j) {  // tableClass - client-side
   // replace place holder of new table with data from loaded file
   Object.entries(j).forEach((item, i) => {
     this.json[item[0]] = item[1];  // replace default value with loaded value
@@ -366,15 +327,14 @@ setJSON(j) {
 }
 
 
-// tableClass - client-side
-f(fieldName) {
+f(fieldName) { // tableClass - client-side
   return this.json.field[fieldName];
 }
 
 
-// tableClass - client-side
-// create the field attribute from the fieldA
-field(fieldA) {
+field( // tableClass - client-side
+  fieldA   // create the field attribute from the fieldA
+) {
   if (fieldA) {
     // set the field Array
     this.json.fieldA = fieldA
@@ -387,5 +347,4 @@ field(fieldA) {
 }
 
 
-// tableClass - client-side
-} //  end
+} //  end  of // tableClass - client-side
