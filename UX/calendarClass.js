@@ -139,9 +139,9 @@ async main( // calendarClass  client-side
   // display event or calendar
   this.edgeName = this.urlParams.get('e');
   if (this.edgeName === null) {
-    this.buildTable();
-
     // display entire calendar
+    this.buildTable();  // convert edge data to table data that can be displayed
+
     if (document.getElementById("heading")) {
       document.getElementById("heading").innerHTML += ` ${this.year}`;
     } else {
@@ -820,7 +820,7 @@ loadEventEdge( // calendarClass  client-side
     // dateEnd = [parseInt(endDateInfo[0],10),parseInt(endDateInfo[1],10),parseInt(endDateInfo[2],10)];
     let endMonth = document.getElementById("monthlyEndDateSelect").value;
     dateEnd = [this.getEventYear(), parseInt(endMonth), 1];
-    
+
     // read input from the drop down boxes
     for (let i = 0; i < this.getNumMonthDates(); i++) {
       if (document.getElementById(`monthlyDaySelect-${i}`)) {
@@ -995,6 +995,7 @@ findToday( // calendarClass  client-side
 
 async displayEvent()  // calendarClass - client-side
 {
+  // display single event
   const list     = [];         // will contain list of nodes to display
   const nodeName = this.graph.edges[this.edgeName].nR; // get the main nodeName or object
   const date     = this.urlParams.get('d')             // get YYYY-MM-DD from the URL
@@ -1002,7 +1003,7 @@ async displayEvent()  // calendarClass - client-side
   list.push(nodeName+date);    // push node for this date, display it first, this nodeName may not exist
   list.push(nodeName);         // push the main node to display
 
-  const nodes2html = new nodes2htmlClass(this.graph.nodes, this.DOM);
+  const nodes2html = new nodes2htmlClass(this.graph.nodes, this.DOM, this.graph.edges[this.edgeName]);
   await nodes2html.displayList(list);
 
   // add date to heading

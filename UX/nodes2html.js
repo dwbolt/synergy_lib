@@ -28,12 +28,15 @@ updatePictures()
 
 //                                  ---------public---------------
 constructor( // nodes2htmlClass - client-side
-  nodes,idDom
+  nodes
+  ,idDom
+  ,edge=null  // this is to support calendar data structure, needs to go away at some point
 ) {
-    this.idDOM     = idDom;   // my not need this
-    this.a_eval    = [];     // ?
-    this.nodes     = nodes;  // will load from data
+    this.nodes  = nodes;   // will load from data
+    this.idDOM  = idDom;   // my not need this
+    this.edge   = edge;    // used for calddar events date details // will go away when date info is moved to node
 
+    this.a_eval    = [];     // ?
     this.n_pic     = 0;      // incremented every 2 seconds and change picture
     this.timer;              // ?
     this.list ;              // ?
@@ -120,25 +123,49 @@ async displayRow(  // nodes2htmlClass - client-side
   const urlParams = new URLSearchParams( window.location.search );
   let page = urlParams.get('p')
 
+  if (!this.edge) {
+    // see if date is with node
+    this.edge = r.date;
+  }
+
   // walk the list of lines in text
   for(let i=0; i<r.text.length ;i++) {  // can not use await in forEach(
     let line = r.text[i];
     if        (line[0] === "monthly") {
-      //
+      /*
       day =`${r.date.week} ${r.date.day}`;
       time=`<br>${this.timeFormat(r.date.start)} - ${this.timeFormat(r.date.end)}`;
       text +=  `<p>${day}${time}</p>`
+      */
+      let day   =  app.format.getDayOfWeek(this.edge.days[0][0]);
+      let start =  app.calendar.createDate(this.edge,false);
+      let end   =  app.calendar.createDate(this.edge,true);
+      let time  = `${app.format.timeRange(start, end)}`;
+      text +=  `<p><b>Day:</b> ${app.format.weekNumber(this.edge.days[0][1])} ${day} <br/><b>Time:</b> ${time}</p>`
     } else if (line[0] === "weekly") {
       // format date for weely event
-/*      day=`${r.date.daysOfWeek}`;
-			time=`<br>${this.timeFormat(r.date.start)} - ${this.timeFormat(r.date.end)}`;
+      /*
+      day=`${r.date.daysOfWeek}`;
+      time=`<br>${this.timeFormat(r.date.start)} - ${this.timeFormat(r.date.end)}`;
       text +=  `<p>${day}${time}</p>`
       */
+
+      // format date for weely event
+      let start =  app.calendar.createDate(this.edge,false);
+      let end   =  app.calendar.createDate(this.edge,true);
+      let days  =  app.format.getDaysOfWeek(start, this.edge.daysOffset);
+      let time  = `${app.format.timeRange(start, end)}`;
+      text +=  `<p><b>Day: </b>${days} <br/><b>Time:</b> ${time}</p>`
     } else if (line[0] === "yearly") {
-      //
+      /*
       let d = new Date(r.date.start);
       time = `<br>${this.timeFormat(r.date.start)} - ${this.timeFormat(r.date.end)}`;
       text += `<p>${d.toDateString()} ${time}</p>`
+      */
+      let start =  app.calendar.createDate(this.edge,false);
+      let end   =  app.calendar.createDate(this.edge,true);
+      let time  = `${app.format.timeRange(start, end)}`;
+      text += `<p><b>Date:</b> ${app.format.getISO(start)} <br/><b>Day:</b> ${app.format.getDayOfWeek(start.getDay())} <br/><b>Time: </b>${time}</p>`
     } else if (line[0] === "eval") {
       // save javascript code to execute in array, run it after the DOM is loaded
       this.a_eval.push(line[2]);
@@ -188,6 +215,13 @@ async displayRow(  // nodes2htmlClass - client-side
   return html;
 }
 
+datePage() {
+
+}
+
+dateCalendar() {
+
+}
 
 // nodes2htmlClass - client-side
 updatePictures() {
