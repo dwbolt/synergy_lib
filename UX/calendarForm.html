@@ -57,6 +57,23 @@
     </div>
   </div>
   <div id="monthlyEndDate" style="display: flex; justify-content: center; margin: 5px; flex-direction: column;"> 
+    <div id="monthlyEndDate">
+      <label id="endDateLabel">Last Month: </label>
+      <select id="monthlyEndDateSelect">
+        <option value="1">January</option>
+        <option value="2">February</option>
+        <option value="3">March</option>
+        <option value="4">April</option>
+        <option value="5">May</option>
+        <option value="6">June</option>
+        <option value="7">July</option>
+        <option value="8">August</option>
+        <option value="9">Septempber</option>
+        <option value="10">October</option>
+        <option value="11">November</option>
+        <option value="12">December</option>
+      </select>
+    </div>
     <div class="monthlyRepeatsLabel">
       <label>Repeats On:</label>
       <a class="addNewRepeatMonthly" onClick="app.calendar.addNewRepeatMonthy()">+</a>
@@ -68,7 +85,7 @@
         <option value="2">2nd</option>
         <option value="3">3rd</option>
         <option value="4">4th</option>
-        <option value="5">5th</option>
+        <option value="5">Last</option>
       </select>
       <select id="monthlyDaySelect-1">
         <option value="0" selected> Sunday   </option>
@@ -80,66 +97,6 @@
         <option value="6">          Saturday </option>
       </select>
     </div>
-<!--<div class="monthlyRepeatInput" id="monthlyRepeatInput-2" style="display: none">
-      <a>2</a>
-      <select id="monthlyWeekSelect-2">
-        <option value="1" selected>1st</option>
-        <option value="2">2nd</option>
-        <option value="3">3rd</option>
-        <option value="4">4th</option>
-        <option value="5">5th</option>
-      </select>
-      <select id="monthlyDaySelect-2">
-        <option value="0" selected> Sunday   </option>
-        <option value="1">          Monday   </option>
-        <option value="2">          Tuesday  </option>
-        <option value="3">          Wednesday</option>
-        <option value="4">          Thursday </option>
-        <option value="5">          Friday   </option>
-        <option value="6">          Saturday </option>
-      </select>
-      <a class="removeMonthlySelectorButton" onCLick="app.calendar.removeMonthlySelector(2)">-</a>
-    </div>
-    <div class="monthlyRepeatInput" id="monthlyRepeatInput-3" style="display: none">
-      <a>3</a>
-      <select id="monthlyWeekSelect-3">
-        <option value="1" selected>1st</option>
-        <option value="2">2nd</option>
-        <option value="3">3rd</option>
-        <option value="4">4th</option>
-        <option value="5">5th</option>
-      </select>
-      <select id="monthlyDaySelect-3">
-        <option value="0" selected> Sunday   </option>
-        <option value="1">          Monday   </option>
-        <option value="2">          Tuesday  </option>
-        <option value="3">          Wednesday</option>
-        <option value="4">          Thursday </option>
-        <option value="5">          Friday   </option>
-        <option value="6">          Saturday </option>
-      </select>
-      <a class="removeMonthlySelectorButton" onCLick="app.calendar.removeMonthlySelector(3)">-</a>
-    </div>
-    <div class="monthlyRepeatInput" id="monthlyRepeatInput-4" style="display: none">
-      <a>4</a>
-      <select id="monthlyWeekSelect-4">
-        <option value="1" selected>1st</option>
-        <option value="2">2nd</option>
-        <option value="3">3rd</option>
-        <option value="4">4th</option>
-        <option value="5">5th</option>
-      </select>
-      <select id="monthlyDaySelect-4">
-        <option value="0" selected> Sunday   </option>
-        <option value="1">          Monday   </option>
-        <option value="2">          Tuesday  </option>
-        <option value="3">          Wednesday</option>
-        <option value="4">          Thursday </option>
-        <option value="5">          Friday   </option>
-        <option value="6">          Saturday </option>
-      </select>
-      <a class="removeMonthlySelectorButton" onCLick="app.calendar.removeMonthlySelector(4)">-</a>
-    </div> -->
   </div>
   <div id="repeatDiv">
     <div id="daysOfWeekSelector">

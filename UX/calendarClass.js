@@ -249,7 +249,16 @@ addMonthly(  // calendarClass  client-side
       // find first target day of week in the the month
       let offset = day[0] - month.getDay(); // day[0] is the target day of week
       if (offset<0) {offset += 7;}          // target day of week in in the next week
-      offset += 7*(day[1]-1);               // move to correct on ie 1st, 2st, 3rd... day of week of the month
+      if (day[1] != 5) {
+        offset += 7*(day[1]-1);               // move to correct on ie 1st, 2st, 3rd... day of week of the month
+      } else {
+        // day repeats on last day of the month
+        // day is either on the 4th or 5th day for each month
+        let d = this.findDayInWeek(month.getMonth()+1,day[0]); // find the first day of the week of the next month
+        d.setDate(d.getDate() - 7);                            // subtract a week to get last day of week of this month
+        let n = this.findDayInMonth(d);                        // find if it is the 4th of 5th instance of day of the week in the month
+        offset += 7*(n[1]-1);                                  // calculate offset
+      }
       let eventDate = new Date(month.getTime() + offset*1000*60*60*24);
       this.events[eventDate.getMonth()+1][eventDate.getDate()].push(k);  // push key to edge associated with edge
     });
@@ -258,7 +267,22 @@ addMonthly(  // calendarClass  client-side
   }
 }
 
+findDayInWeek(
+  // Returns a Date object of the first instance of day of week in a month
+  // ex -- returns the first tuesday in january
+  month,
+  day
+) {
+  var d = new Date(this.year,month,1); // set day for first day in month
 
+  // walk until we find first instance of day of week in the month
+  while (d.getDay() != day) {
+    console.log('day ' + d.getDay());
+    d.setDate(d.getDate() + 1);
+  }
+
+  return d;
+}
 
 addWeekly( // calendarClass  client-side
   k  // this.graph.edges[k] returns the edge
@@ -374,9 +398,6 @@ fillFormFromData(  // calendarClass  client-side
   document.getElementById("eventStartTime").value = `${app.format.padZero(dateStart[3],2)}:${app.format.padZero(dateStart[4],2)}`;
 
   document.getElementById("repeatType"    ).value = edge.repeat;
-  // let e          = document.getElementById("repeatType");
-  // const w = (element) => element == edge.repeat;
-  // e.selectedIndex = e.option.findIndex(w);
 
   document.querySelector('#timeZone').value = edge.timeZone;
 
@@ -398,6 +419,7 @@ fillFormFromData(  // calendarClass  client-side
 
   // fill in days monthly events repeat on
   if (edge.repeat == "monthly") {
+    document.getElementById("monthlyEndDateSelect").value = edge.dateEnd[1]; // fill in end month selector
     for (let i = 0; i < edge.days.length; i++) {
       if (i > 0) this.addNewRepeatMonthy();
       document.getElementById(`monthlyWeekSelect-${i+1}`).value = edge.days[i][1];
@@ -593,6 +615,7 @@ createBlankForm() {
     document.getElementById(`monthlyRepeatInput-${i}`).remove();
   }
   this.setOpenMonthDates(1);
+  document.getElementById("monthlyEndDateSelect").value = this.getEventMonth()+2; // default the month the event will end on to the month after the one selected
 
   // Defaults event repeat type to 'never' repeating
   document.getElementById("repeatType").value = "never"; // default repeat to 'never'
@@ -693,7 +716,7 @@ renderEndDateSelector(  // calendarClass  client-side
   } else if (repeatSelector.value == "monthly") {
     // monthly option is chosen to repeat
     document.getElementById("yearlyEndDate"         ).style.display = 'none';
-    document.getElementById("weeklyMonthlyEndDate"  ).style.display = 'inline';
+    document.getElementById("weeklyMonthlyEndDate"  ).style.display = 'none';
     document.getElementById("monthlyEndDate"        ).style.display = 'flex';
     document.getElementById("daysOfWeekSelector"    ).style.display = 'none';
 
@@ -794,8 +817,10 @@ loadEventEdge( // calendarClass  client-side
   } else if (repeat == "monthly") {
     // event is repeating monthly
     offset = [0];
-    dateEnd = [parseInt(endDateInfo[0],10),parseInt(endDateInfo[1],10),parseInt(endDateInfo[2],10)];
-
+    // dateEnd = [parseInt(endDateInfo[0],10),parseInt(endDateInfo[1],10),parseInt(endDateInfo[2],10)];
+    let endMonth = document.getElementById("monthlyEndDateSelect").value;
+    dateEnd = [this.getEventYear(), parseInt(endMonth), 1];
+    
     // read input from the drop down boxes
     for (let i = 0; i < this.getNumMonthDates(); i++) {
       if (document.getElementById(`monthlyDaySelect-${i}`)) {
