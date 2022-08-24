@@ -130,9 +130,10 @@ async displayRow(  // nodes2htmlClass - client-side
       text +=  `<p>${day}${time}</p>`
     } else if (line[0] === "weekly") {
       // format date for weely event
-      day=`${r.date.daysOfWeek}`;
+/*      day=`${r.date.daysOfWeek}`;
 			time=`<br>${this.timeFormat(r.date.start)} - ${this.timeFormat(r.date.end)}`;
       text +=  `<p>${day}${time}</p>`
+      */
     } else if (line[0] === "yearly") {
       //
       let d = new Date(r.date.start);

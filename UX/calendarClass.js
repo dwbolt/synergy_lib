@@ -44,7 +44,7 @@ constructor( // calendarClass  client-side
   	this.format     = new formatClass();  // format time and dates
   	this.proxy      = new proxyClass();   // loads graph data from server
     this.urlParams  = new URLSearchParams( window.location.search );  // read params send in the URL
- 
+
     this.timezones = {"ET":-300, "CT":-360, "MT":-420, "PT":-480};
 
     this.eventYear;          // year of event to edit or add
@@ -132,15 +132,15 @@ getCanSubmit(     ) {return this.canSubmit;     }
 async main( // calendarClass  client-side
   dom
 ) {
-  this.DOM  = dom;
-
+  this.DOM  = dom;  // remember were to display
   // decide which calendar to load, users or main
   await this.loadEvents( `events/${this.year}/_graph.json` );
-  this.buildTable();
 
   // display event or calendar
   this.edgeName = this.urlParams.get('e');
   if (this.edgeName === null) {
+    this.buildTable();
+
     // display entire calendar
     if (document.getElementById("heading")) {
       document.getElementById("heading").innerHTML += ` ${this.year}`;
@@ -154,7 +154,7 @@ async main( // calendarClass  client-side
     document.getElementById("weeks").innerHTML += await app.proxy.getText("/_lib/UX/calendarForm.html");
   } else {
     // display event in calendar
-    this.displayEvent();
+    await this.displayEvent();
   }
 }
 
@@ -404,7 +404,7 @@ fillFormFromData(  // calendarClass  client-side
       document.getElementById(`monthlyDaySelect-${i+1}` ).value = edge.days[i][0];
     }
   }
-  
+
 
   // load from node  ----------
   document.getElementById("eventName"       ).value     = this.graph.nodes[edge.nR].text[0][2];
@@ -433,7 +433,7 @@ closeForm(
   // closes pop up window
 ) {
 
-  // ensure all monthly repeat selectors are deleted 
+  // ensure all monthly repeat selectors are deleted
   // so that when it is reopened there is no overlap
   document.getElementById("popUpForm").style.height = "630px";  // ensure pop up form has original height
   let monthlySelectors = document.getElementsByClassName("monthlyRepeatInput");
@@ -507,7 +507,7 @@ addNewRepeatMonthy(
     fragment.appendChild(container);
 
     document.getElementById("monthlyEndDate").appendChild(fragment);
-    
+
     this.setOpenMonthDates(this.getOpenMonthDates()+1);
   } else {
     console.log("Maximum amount of dates");
@@ -599,11 +599,11 @@ createBlankForm() {
   this.renderEndDateSelector(); // render details for type of repeating
 
   // set default for weekly repeating
-  for (let i = 0; i < document.getElementsByClassName("repeatCheckbox").length; i++) { 
+  for (let i = 0; i < document.getElementsByClassName("repeatCheckbox").length; i++) {
     // clear the checkboxes for weekly repeating events
     document.getElementsByClassName("repeatCheckbox")[i].checked = false;
   }
-  
+
   // set default monthly repeating
   // ex -- 4th wednesday
   let d = this.findDayInMonth(
@@ -616,7 +616,7 @@ createBlankForm() {
   document.getElementById("monthlyWeekSelect-1").value = `${d[1]}`;
   document.getElementById("monthlyDaySelect-1").selectedIndex = d[0];
 
-  // set default yearly repeating 
+  // set default yearly repeating
   document.getElementById("yearlyEndDateInput").value = `${this.year + 1}`;
 
   // set default duration to one hour
@@ -650,7 +650,7 @@ editEvent(  // calendarClass  client-side
   document.getElementById("addEventButton"   ).style.display = "none";             // Hide
   document.getElementById("saveEventButton"  ).style.display = "inline-block";     // show ?
   document.getElementById("deleteEventButton").style.display = "inline-block";     // show ?
-  
+
   this.popUpFormVisible(true    );   // make popup vissible
   this.fillFormFromData(edgeName);   // load data
 }
@@ -795,7 +795,7 @@ loadEventEdge( // calendarClass  client-side
     // event is repeating monthly
     offset = [0];
     dateEnd = [parseInt(endDateInfo[0],10),parseInt(endDateInfo[1],10),parseInt(endDateInfo[2],10)];
-    
+
     // read input from the drop down boxes
     for (let i = 0; i < this.getNumMonthDates(); i++) {
       if (document.getElementById(`monthlyDaySelect-${i}`)) {
@@ -898,8 +898,8 @@ async addNewEvent(  // calendarClass  client-side
   app.calendar.graph.nodeNext += 1;
 
   await this.processServerRefresh();  // save the updated calendar
-  
- 
+
+
 }
 
 async processServerRefresh( // calendarClass  client-side
@@ -979,6 +979,9 @@ async displayEvent()  // calendarClass - client-side
 
   const nodes2html = new nodes2htmlClass(this.graph.nodes, this.DOM);
   await nodes2html.displayList(list);
+
+  // add date to heading
+  document.getElementById('heading1').innerHTML = "SFC Event On: " + date ;
 }
 
 /*
