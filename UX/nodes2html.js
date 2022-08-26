@@ -131,41 +131,14 @@ async displayRow(  // nodes2htmlClass - client-side
   // walk the list of lines in text
   for(let i=0; i<r.text.length ;i++) {  // can not use await in forEach(
     let line = r.text[i];
-    if        (line[0] === "monthly") {
-      /*
-      day =`${r.date.week} ${r.date.day}`;
-      time=`<br>${this.timeFormat(r.date.start)} - ${this.timeFormat(r.date.end)}`;
-      text +=  `<p>${day}${time}</p>`
-      */
-      let day   =  app.format.getDayOfWeek(this.edge.days[0][0]);
-      let start =  app.calendar.createDate(this.edge,false);
-      let end   =  app.calendar.createDate(this.edge,true);
-      let time  = `${app.format.timeRange(start, end)}`;
-      text +=  `<p><b>Day:</b> ${app.format.weekNumber(this.edge.days[0][1])} ${day} <br/><b>Time:</b> ${time}</p>`
+    if        (line[0] === "date") {
+      text +=  this.dateNode(this.edge);
+    } else if  (line[0] === "monthly") {
+      text +=  this.dateNode([this.edge]);  // just so old data will not break
     } else if (line[0] === "weekly") {
-      // format date for weely event
-      /*
-      day=`${r.date.daysOfWeek}`;
-      time=`<br>${this.timeFormat(r.date.start)} - ${this.timeFormat(r.date.end)}`;
-      text +=  `<p>${day}${time}</p>`
-      */
-
-      // format date for weely event
-      let start =  app.calendar.createDate(this.edge,false);
-      let end   =  app.calendar.createDate(this.edge,true);
-      let days  =  app.format.getDaysOfWeek(start, this.edge.daysOffset);
-      let time  = `${app.format.timeRange(start, end)}`;
-      text +=  `<p><b>Day: </b>${days} <br/><b>Time:</b> ${time}</p>`
+      text +=  this.dateNode([this.edge])   // just so old data will not break
     } else if (line[0] === "yearly") {
-      /*
-      let d = new Date(r.date.start);
-      time = `<br>${this.timeFormat(r.date.start)} - ${this.timeFormat(r.date.end)}`;
-      text += `<p>${d.toDateString()} ${time}</p>`
-      */
-      let start =  app.calendar.createDate(this.edge,false);
-      let end   =  app.calendar.createDate(this.edge,true);
-      let time  = `${app.format.timeRange(start, end)}`;
-      text += `<p><b>Date:</b> ${app.format.getISO(start)} <br/><b>Day:</b> ${app.format.getDayOfWeek(start.getDay())} <br/><b>Time: </b>${time}</p>`
+      text +=  this.dateNode([this.edge])   // just so old data will not break
     } else if (line[0] === "eval") {
       // save javascript code to execute in array, run it after the DOM is loaded
       this.a_eval.push(line[2]);
@@ -215,13 +188,37 @@ async displayRow(  // nodes2htmlClass - client-side
   return html;
 }
 
-datePage() {
 
+dateNode(// nodes2htmlClass - client-side
+  a_date   // array of date generators
+) {
+  let text = "";
+
+  a_date.forEach((date, i) => {
+    if        (date.repeat === "monthly") {
+      let start =    app.calendar.createDate(date);
+      let end   =    app.calendar.createDate(date,true);
+      let day   =    app.format.getDayOfWeek(date.days[0][0]);
+      let time  = `${app.format.timeRange(start, end)}`;
+      text +=  `<p><b>Day:</b> ${app.format.weekNumber(date.days[0][1])} ${day} <br/><b>Time:</b> ${time}</p>`
+    } else if (date.repeat === "weekly") {
+      // format date for weely event
+      let start =  app.calendar.createDate(date,false);
+      let end   =  app.calendar.createDate(date,true);
+      let days  =  app.format.getDaysOfWeek(start, date.daysOffset);
+      let time  = `${app.format.timeRange(start, end)}`;
+      text +=  `<p><b>Day: </b>${days} <br/><b>Time:</b> ${time}</p>`
+    } else if (date.repeat === "yearly") {
+      let start =  app.calendar.createDate(date,false);
+      let end   =  app.calendar.createDate(date,true);
+      let time  = `${app.format.timeRange(start, end)}`;
+      text += `<p><b>Date:</b> ${app.format.getISO(start)} <br/><b>Day:</b> ${app.format.getDayOfWeek(start.getDay())} <br/><b>Time: </b>${time}</p>`
+    }
+  });
+
+  return text;
 }
 
-dateCalendar() {
-
-}
 
 // nodes2htmlClass - client-side
 updatePictures() {
