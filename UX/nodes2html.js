@@ -123,14 +123,13 @@ async displayRow(  // nodes2htmlClass - client-side
   const urlParams = new URLSearchParams( window.location.search );
   let page = urlParams.get('p')
 
-  if (!this.edge) {
-    // see if date is with node
-    this.edge = r.date;
-  }
-
   // walk the list of lines in text
   for(let i=0; i<r.text.length ;i++) {  // can not use await in forEach(
     let line = r.text[i];
+    if (r.date) {
+      // see if date is with node
+      this.edge = r.date;
+    }
     if        (line[0] === "date") {
       text +=  this.dateNode(this.edge);
     } else if  (line[0] === "monthly") {
