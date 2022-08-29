@@ -15,7 +15,6 @@ async displayList(listName, html=""){  // widgetListClass - client-side
 async displayNode(nodeName, html=""){ // widgetListClass - client-side
 async displayButton(   // widgetListClass - client-side
 
-
 */
 
 
@@ -50,7 +49,9 @@ setJSON(  // widgetListClass - client-side
   let buttons="";
   if(Array.isArray(this.json.buttons)) {
     this.json.buttons.forEach((item, i) => {
-      buttons+=`<input class="button" type="button" value="${item.button}" id="${item.id}" onclick="${item.onclick}")>`;
+      let htmlPre;
+      if (item.htmlPre) {htmlPre = item.htmlPre;} else {htmlPre="";}
+      buttons+=`${htmlPre}<input class="button" type="button" value="${item.button}" id="${item.id}" onclick="${item.onclick}")>`;
     });
   }
 
