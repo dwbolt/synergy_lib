@@ -55,6 +55,7 @@ constructor( // calendarClass  client-side
     this.numMonthDates = 4;  // holds number of dates a monthly repeating date can repeat on per month
     this.openMonthDates = 1; // number of selectors visible when monthly repeating option is chosen
     this.canSubmit = false;  // determines whether or not the form is ready to submit
+    this.formHeight = "680px";
 
     // need for both sfc web site and the stand alone page
     this.db      = new dbClass();       // create empty database
@@ -116,6 +117,7 @@ setPopUpHeight(   val) {this.popUpHeight = val;   }
 setNumMonthDates( val) {this.numMonthDates = val; }
 setOpenMonthDates(val) {this.openMonthDates = val;}
 setCanSubmit(     val) {this.canSubmmit = val;    }
+setFormHeight(    val) {this.formHeight = val;    }
 
 
 // accessors
@@ -127,6 +129,7 @@ getPopUpHeight(   ) {return this.popUpHeight;   }
 getNumMonthDates( ) {return this.numMonthDates; }
 getOpenMonthDates() {return this.openMonthDates;}
 getCanSubmit(     ) {return this.canSubmit;     }
+getFormHeight(    ) {return this.formHeight;    }
 
 
 async main( // calendarClass  client-side
@@ -457,7 +460,7 @@ closeForm(
 
   // ensure all monthly repeat selectors are deleted
   // so that when it is reopened there is no overlap
-  document.getElementById("popUpForm").style.height = "630px";  // ensure pop up form has original height
+  document.getElementById("popUpForm").style.height = this.getFormHeight();  // ensure pop up form has original height
   let monthlySelectors = document.getElementsByClassName("monthlyRepeatInput");
   for (let i = monthlySelectors.length; i > 1; i--) {
     document.getElementById(`monthlyRepeatInput-${i}`).remove();
@@ -586,6 +589,9 @@ createBlankForm() {
   // empty name field
   document.getElementById("eventName").value = "";
 
+  // empty URL field
+  document.getElementById("eventURL").value = "";
+
   // empty description field
   document.getElementById("eventDescription").innerText = "";
 
@@ -607,7 +613,7 @@ createBlankForm() {
   });
 
   // ensure pop up form has original height
-  document.getElementById("popUpForm").style.height = "630px";
+  document.getElementById("popUpForm").style.height = this.getFormHeight();
 
   // Ensure no monthly date selectors are open
   let monthlySelectors = document.getElementsByClassName("monthlyRepeatInput");
@@ -744,7 +750,9 @@ loadEventEdge( // calendarClass  client-side
   edge // name of edge we are loading
 )   {
   // move data from form to variables
+  const url           = document.getElementById("eventURL").value;         // url of the event
   const name           = document.getElementById("eventName").value;       // name of the event
+
 
   let   durationHour   = document.getElementById("durationHour"  ).value;  // hours portion how the duration
   let   durationMinute = document.getElementById("durationMinute").value;  // minutes portion of the duration
@@ -836,16 +844,47 @@ loadEventEdge( // calendarClass  client-side
 
   // saving form data to the edge
   let g = this.graph.edges[edge];
-  //g.nR           = `${app.calendar.graph.nodeNext}`;
-  g.dateStart    = startDate;
-  g.dateEnd      = dateEnd;
+  if (url == "") {
+    
+    //g.nR           = `${app.calendar.graph.nodeNext}`;
+    g.dateStart    = startDate;
+    g.dateEnd      = dateEnd;
 
-  let e          = document.getElementById("timeZone");
-  g.timeZone     = e.options[e.selectedIndex].value;
-  g.days         = days;
-  g.timeDuration = `${durationHour}:${durationMinute}`;
-  g.repeat       = repeat;
-  g.daysOffset   = offset;
+    let e          = document.getElementById("timeZone");
+    g.timeZone     = e.options[e.selectedIndex].value;
+    g.days         = days;
+    g.timeDuration = `${durationHour}:${durationMinute}`;
+    g.repeat       = repeat;
+    g.daysOffset   = offset;
+  } else {
+    /*"9": {
+      "nR":{
+        "text":"Market", "url":"/app.html?p=makers-market"
+      }       
+      , "dateStart":[2022,3,1,10,0]
+      , "dateEnd":[2022,12,15]
+      , "timeZone":"ET"
+      , "timeDuration":"4:0"
+      ,  "days":[[6,1]]
+      , "repeat":"monthly" 
+      , "comments":"Market"
+    }
+    */
+    let nR = {};
+    nR.text = name;
+    nR.url = url;
+    g.nR = nR;
+    g.dateStart    = startDate;
+    g.dateEnd      = dateEnd;
+
+    let e          = document.getElementById("timeZone");
+    g.timeZone     = e.options[e.selectedIndex].value;
+    g.days         = days;
+    g.timeDuration = `${durationHour}:${durationMinute}`;
+    g.repeat       = repeat;
+    g.daysOffset   = offset;
+  }
+  
 }
 
 findDayInMonth(
