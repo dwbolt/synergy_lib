@@ -363,22 +363,22 @@ buildTable(  // calendarClass  client-side
         // loop for all events for day [m][d]
           let year = start.getFullYear();
           let nodeName = this.graph.edges[edgeName].nR
-          if (typeof(nodeName) === "string") {
-              // assume node is an interal node
-              let user=""  // assume we are on main calendar
-              let editButton = `${i+1} `;
-              if (this.urlParams.get('u') != null) {
-                // we are on a user calendar
-                user = "&u=" + this.urlParams.get('u');
-                editButton = `<a onClick="app.calendar.editEvent(${edgeName})">${i+1}</a> `;
-              }
 
-              html += `<p>${editButton}<a  href="/app.html?p=events&e=${edgeName}&d=${app.format.getISO(start)}${user}" target="_blank">${this.graph.nodes[nodeName].text[0][2]}</a></p>`
-          } else {
-            // assume nodeName is an Object
-            html += `<p>${i+1} <a  href="${nodeName.url}" target="_blank">${nodeName.text}</a></p>`
+          let user=""  // assume we are on main calendar
+          let editButton = `${i+1} `;
+          if (this.urlParams.get('u') != null) {
+            // we are on a user calendar
+            user = "&u=" + this.urlParams.get('u');
+            editButton = `<a onClick="app.calendar.editEvent(${edgeName})">${i+1}</a> `;
           }
 
+          if (typeof(nodeName) === "string") {
+            // assume node is an interal node
+            html += `<p>${editButton}<a  href="/app.html?p=events&e=${edgeName}&d=${app.format.getISO(start)}${user}" target="_blank">${this.graph.nodes[nodeName].text[0][2]}</a></p>`
+          } else {
+            // assume nodeName is an Object
+            html += `<p>${editButton}<a  href="${nodeName.url}" target="_blank">${nodeName.text}</a></p>`
+          }
       });
 
       row.push(html + "</br>")
@@ -845,7 +845,7 @@ loadEventEdge( // calendarClass  client-side
   // saving form data to the edge
   let g = this.graph.edges[edge];
   if (url == "") {
-    
+
     //g.nR           = `${app.calendar.graph.nodeNext}`;
     g.dateStart    = startDate;
     g.dateEnd      = dateEnd;
@@ -860,13 +860,13 @@ loadEventEdge( // calendarClass  client-side
     /*"9": {
       "nR":{
         "text":"Market", "url":"/app.html?p=makers-market"
-      }       
+      }
       , "dateStart":[2022,3,1,10,0]
       , "dateEnd":[2022,12,15]
       , "timeZone":"ET"
       , "timeDuration":"4:0"
       ,  "days":[[6,1]]
-      , "repeat":"monthly" 
+      , "repeat":"monthly"
       , "comments":"Market"
     }
     */
@@ -884,7 +884,7 @@ loadEventEdge( // calendarClass  client-side
     g.repeat       = repeat;
     g.daysOffset   = offset;
   }
-  
+
 }
 
 findDayInMonth(

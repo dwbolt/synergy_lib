@@ -155,7 +155,30 @@ getDaysOfWeek(
   return str.slice(2);  // trim leading ", "
 }
 
+obj2String( // formatClass - client-side
+  obj,level=0  // to convert to string with each attribute on a newline - will make debugging saved json easy to read, each new attribute is on a seperate line, with intetion
+){
+  let str,pad;
 
+  if        (typeof(obj) === "string") {
+    str = `"${obj}"`;
+  } else if (typeof(obj) === "number") {
+    str = obj.toString();
+  } else if (typeof(obj) === "obj") {
+    str = "{\n";  // add new line for object
+    const keys = Object.keys(obj);
+    keys.forEach((key, index) => {
+      pad = "";    // init pad spacing
+      str += `${pad.padStart(level*3, " ")}"${key}" : ${this.obj2String(obj[key],level+1)}`
+    });
+    str +="}";
+  } else {
+    alert(`formatClass.obj2String() - error tupeof(obj)=${typeof(obj) }`);
+    str = obj.obj.toString();
+  }
+
+  return str;
+}
 
 
 
