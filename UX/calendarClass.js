@@ -973,7 +973,8 @@ async processServerRefresh( // calendarClass  client-side
   ,"msg":"uploadFile"
   ,"path":`/users/myWeb/events/${this.year}`
   ,"name":"_graph.json"
-  ,"data": app.calendar.graph
+//  ,"data": app.calendar.graph
+  ,"data": app.format.obj2string(app.calendar.graph)
   }
 
   const resp = await app.proxy.postJSON(JSON.stringify(msg));  // save
