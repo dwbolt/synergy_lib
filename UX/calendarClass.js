@@ -430,13 +430,13 @@ fillFormFromData(  // calendarClass  client-side
     }
   }
 
-
   // load from node  ----------
   document.getElementById("eventName"       ).value     = this.graph.nodes[edge.nR].text[0][2];
-  document.getElementById("eventDescription").innerText = this.graph.nodes[edge.nR].text[1][2];
+  document.getElementById("eventDescription").value = this.graph.nodes[edge.nR].text[1][2];
 }
 
-fillRepeatdays(
+
+fillRepeatdays(  // calendarClass  client-side
   // fills in the selector for what days of the week the event repeats on
 ) {
   let edgeName = this.getEventEdge();
@@ -454,7 +454,7 @@ fillRepeatdays(
   }
 }
 
-closeForm(
+closeForm(  // calendarClass  client-side
   // closes pop up window
 ) {
 
@@ -470,7 +470,7 @@ closeForm(
   this.popUpFormVisible(false);
 }
 
-addNewRepeatMonthy(
+addNewRepeatMonthy(  // calendarClass  client-side
   // This function is the onClick function for the '+' button on popupform when the 'monthly' repeating option is chosen
   // This adds a new day in the month that the event can repeat on
   // Currently maxing it at 3 dates it can repeat on
@@ -540,7 +540,7 @@ addNewRepeatMonthy(
   console.log(this.getOpenMonthDates());
 }
 
-removeMonthlySelector(
+removeMonthlySelector(  // calendarClass  client-side
   // This function is the onclick for the '-' that appears next to the selectors when user is choosing the monthly repeat option
   // This removes the selector that it is attached to and resizes the pop up window
   index
@@ -583,8 +583,10 @@ createNewEvent(  // calendarClass  client-side
   this.popUpFormVisible(true);
 }
 
-// sets all input fields in pop up form to be default
-createBlankForm() {
+
+createBlankForm(  // calendarClass  client-side
+  // sets all input fields in pop up form to be default
+) {
   // fill in all selector values
   // empty name field
   document.getElementById("eventName").value = "";
@@ -857,19 +859,6 @@ loadEventEdge( // calendarClass  client-side
     g.repeat       = repeat;
     g.daysOffset   = offset;
   } else {
-    /*"9": {
-      "nR":{
-        "text":"Market", "url":"/app.html?p=makers-market"
-      }
-      , "dateStart":[2022,3,1,10,0]
-      , "dateEnd":[2022,12,15]
-      , "timeZone":"ET"
-      , "timeDuration":"4:0"
-      ,  "days":[[6,1]]
-      , "repeat":"monthly"
-      , "comments":"Market"
-    }
-    */
     let nR = {};
     nR.text = name;
     nR.url = url;
