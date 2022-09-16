@@ -84,7 +84,7 @@ constructor( // calendarClass  client-side
           <option value="november">November</option>
           <option value="december">December</option>
         </select>`
-      ,`rows/page: <input type="number" min="1" max="10" size=3 value="${this.paging.lines}" onchange="app.calendar.tableUx.changePageSize(this)"/>`
+      ,`rows/page: <input type="number" min="1" max="10" size=3 value="${this.tableUx.paging.lines}" onchange="app.calendar.tableUx.changePageSize(this)"/>`
 
 
     ]);  // ,"tableName","rows","rows/page","download","tags", "firstLast"
