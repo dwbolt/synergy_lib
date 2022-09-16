@@ -41,15 +41,10 @@ constructor(
 
 
   this.dom       = {};       // saves attributes like onclick that will be added when html is rendered
+
   //this.dom.table = "";       // put in <table ${this.dom.table} during display - how is this used?
   //this.dom.row   = "";       // put in <tr ${this.dom.row} during display  - does not seem to be used
 
-
-}
-
-
-// tableUxClass - client-side
-groupBy() { // selected a column, then pressed the groupBy button
 
 }
 
@@ -316,7 +311,7 @@ statusLine(
     } else if (item === "tags") {
       html += `tags: ${this.genTags()}`
     } else if (item === "rows/page") {
-      html += `rows/page: <input type="number" min="1" max="10" size=3 value="${this.paging.lines}" onchange="app.calendar.tableUx.changePageSize(this)"/>`
+      html += `rows/page: <input type="number" min="1" max="999" value="${this.paging.lines}" onchange="${this.globalName}.changePageSize(this)"/>`
     } else if (item === "download") {
       html += `<input type="button" onclick="app.tableUx.export()" value="Download CSV"/> <a id='download_link'>ddd</a>`
     } else if (item === "groupBy") {

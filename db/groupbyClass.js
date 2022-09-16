@@ -30,28 +30,6 @@ groupBy(  // creates and saves this.groups
 
   let field = j.field;
   // walk through table list
-  /*
-  l.forEach((rowIndex, i) => {
-    // now see if there is alreay a GROUP
-    let attributeName = "";
-    a_gv.forEach((fieldIndex) => {
-      attributeName += `-+-${j.rows[rowIndex][fieldIndex]}`;  // -+- is a delimiter between fields
-    });
-    attributeName = attributeName.slice(3); // remove leading -+-
-
-    // see if group exists
-    if (typeof(this.groups[attributeName]) ==="undefined") {
-      // create new group
-      this.groups[attributeName] = {};
-      this.groups[attributeName].aggObj = {};
-      this.groups[attributeName].rowIndex = [rowIndex];
-    } else {
-      // add rowindex to existing group
-      this.groups[attributeName].rowIndex.push(rowIndex);
-    }
-  });
-  */
-
   table.json.rows.forEach((row, i) => {
     // now see if there is alreay a GROUP
     let attributeName = "";
