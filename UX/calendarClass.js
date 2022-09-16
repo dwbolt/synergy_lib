@@ -4,6 +4,7 @@ class calendarClass {
 
 High level methods are:
 
+//////////////////////////////// display methods
 main() is the starting point
 loadevents() loads the graph data and creates startGMT and endGMT attributes, and adds to this.events[mm][dd]
 buildTable() converts data from this.events[mm][dd] to table <this.db.getTable("weekCal")> for display in the weekly fromat
@@ -11,8 +12,8 @@ addEvents()  creates all the repeating and non repeating events from the edge da
   addWeekly(
   addMonthly(
   addOneOf(
-display()    dislays the several weeks of the calendar or and events
-displayRow()   converts node to html for displayed
+
+displayRow()    converts node to html for displayed
 displayEvent()  // user has clicked on a clalender event, show the details of the
 
 createDate(    // crates starting or endingdate for an event edge
@@ -21,14 +22,14 @@ HTMLforNode(  //
  A users will see the events in their timezone.
  This may not only change the time but also the day, month or year for the viewer of the events
 
- // edit methods
+ ///////////////////////////////////// edit methods
+ createNewEvent  -> addNewEvent(
+
+ editEvent -> save(
+  fillFormFromData  // move data from graph.json to form
+
 popUpFormVisible
- createEditForm(
- fillFormFromData(   // move data from graph.json to form
- createNewEvent( )   // user selected event to edit
-
-
-  save(               // save data from form to server
+ createEditForm
 */
 
 
@@ -43,6 +44,18 @@ constructor( // calendarClass  client-side
   	this.format     = new formatClass();  // format time and dates
   	this.proxy      = new proxyClass();   // loads graph data from server
     this.urlParams  = new URLSearchParams( window.location.search );  // read params send in the URL
+
+    this.timezones = {"ET":-300, "CT":-360, "MT":-420, "PT":-480};
+
+    this.eventYear;          // year of event to edit or add
+    this.eventMonth;         // month of event to edit or add
+    this.eventDay;           // day of event to edit or add
+    this.eventData;          // number to access node or edge in data
+    this.popUpHeight;        // holds the height of the pop up form
+    this.numMonthDates = 4;  // holds number of dates a monthly repeating date can repeat on per month
+    this.openMonthDates = 1; // number of selectors visible when monthly repeating option is chosen
+    this.canSubmit = false;  // determines whether or not the form is ready to submit
+    this.formHeight = "680px";
 
     // need for both sfc web site and the stand alone page
     this.db      = new dbClass();       // create empty database
@@ -95,19 +108,43 @@ constructor( // calendarClass  client-side
 }
 
 
+// Mutators
+setEventMonth(    val) {this.eventMonth  = val;   }
+setEventYear(     val) {this.eventYear   = val;   }
+setEventDay(      val) {this.eventDay    = val;   }
+setEventEdge(     val) {this.eventEdge   = val;   }
+setPopUpHeight(   val) {this.popUpHeight = val;   }
+setNumMonthDates( val) {this.numMonthDates = val; }
+setOpenMonthDates(val) {this.openMonthDates = val;}
+setCanSubmit(     val) {this.canSubmmit = val;    }
+setFormHeight(    val) {this.formHeight = val;    }
+
+
+// accessors
+getEventMonth(    ) {return this.eventMonth ;   }
+getEventYear(     ) {return this.eventYear  ;   }
+getEventDay(      ) {return this.eventDay   ;   }
+getEventEdge(     ) {return this.eventEdge  ;   }
+getPopUpHeight(   ) {return this.popUpHeight;   }
+getNumMonthDates( ) {return this.numMonthDates; }
+getOpenMonthDates() {return this.openMonthDates;}
+getCanSubmit(     ) {return this.canSubmit;     }
+getFormHeight(    ) {return this.formHeight;    }
+
+
 async main( // calendarClass  client-side
   dom
 ) {
-  this.DOM  = dom;
-
+  this.DOM  = dom;  // remember were to display
   // decide which calendar to load, users or main
   await this.loadEvents( `events/${this.year}/_graph.json` );
-  this.buildTable();
 
   // display event or calendar
   this.edgeName = this.urlParams.get('e');
   if (this.edgeName === null) {
     // display entire calendar
+    this.buildTable();  // convert edge data to table data that can be displayed
+
     if (document.getElementById("heading")) {
       document.getElementById("heading").innerHTML += ` ${this.year}`;
     } else {
@@ -117,22 +154,21 @@ async main( // calendarClass  client-side
 
     this.tableUx.display();
     this.findToday();   // only need to do this is we are displaying the clander
-    this.createEditForm();
+    document.getElementById("weeks").innerHTML += await app.proxy.getText("/_lib/UX/calendarForm.html");
   } else {
     // display event in calendar
-    this.displayEvent();
+    await this.displayEvent();
   }
 }
 
 
 createDate(  // calendarClass  client-side
   // returns a date  a starting or endingdate for an event edge
-  edge  //
+   edge  //
   ,end  //  true -> end time, add duration to start
   ,offsets = [0,0,0] // offset from start [yy,mm,dd]
 ) {
-  const timeZone ={"ET":-300, "CT":-360, "MT":-420, "PT":-480}             // have not put all the possible timezones in
-  let offset = timeZone[edge.timeZone] + new Date(0).getTimezoneOffset();  // get offset from event timezone vs user timezone
+  let offset = this.timezones[edge.timeZone] + new Date(0).getTimezoneOffset();  // get offset from event timezone vs user timezone
   let timeDuration = edge.timeDuration.split(":");                         // timeDuration[0] is hours  timeDuration[1] is minutes
   if (end) {
     // date that events ends
@@ -204,7 +240,6 @@ addOneOf(  // calendarClass  client-side
 }
 
 
-
 addMonthly(  // calendarClass  client-side
   k  // this.graph.edges[k] returns the edge
 ) {
@@ -217,7 +252,16 @@ addMonthly(  // calendarClass  client-side
       // find first target day of week in the the month
       let offset = day[0] - month.getDay(); // day[0] is the target day of week
       if (offset<0) {offset += 7;}          // target day of week in in the next week
-      offset += 7*(day[1]-1);               // move to correct on ie 1st, 2st, 3rd... day of week of the month
+      if (day[1] != 5) {
+        offset += 7*(day[1]-1);               // move to correct on ie 1st, 2st, 3rd... day of week of the month
+      } else {
+        // day repeats on last day of the month
+        // day is either on the 4th or 5th day for each month
+        let d = this.findDayInWeek(month.getMonth()+1,day[0]); // find the first day of the week of the next month
+        d.setDate(d.getDate() - 7);                            // subtract a week to get last day of week of this month
+        let n = this.findDayInMonth(d);                        // find if it is the 4th of 5th instance of day of the week in the month
+        offset += 7*(n[1]-1);                                  // calculate offset
+      }
       let eventDate = new Date(month.getTime() + offset*1000*60*60*24);
       this.events[eventDate.getMonth()+1][eventDate.getDate()].push(k);  // push key to edge associated with edge
     });
@@ -226,7 +270,22 @@ addMonthly(  // calendarClass  client-side
   }
 }
 
+findDayInWeek(
+  // Returns a Date object of the first instance of day of week in a month
+  // ex -- returns the first tuesday in january
+  month,
+  day
+) {
+  var d = new Date(this.year,month,1); // set day for first day in month
 
+  // walk until we find first instance of day of week in the month
+  while (d.getDay() != day) {
+    console.log('day ' + d.getDay());
+    d.setDate(d.getDate() + 1);
+  }
+
+  return d;
+}
 
 addWeekly( // calendarClass  client-side
   k  // this.graph.edges[k] returns the edge
@@ -263,12 +322,14 @@ buildTable(  // calendarClass  client-side
       // add days for week
       let m = start.getMonth()+1;
       let d = start.getDate();
+
+      // set style of day depending on not part of current year, past, today, future,
       if (start<firstDate) {
         // day is before january 1st of this year
-        style = `data-parentAttribute="['class','YearBefore']"`
+        style = `data-parentAttribute="['class','notYear']"`
       } else if (start.getFullYear()>this.year) {
         // day is after last day of year
-        style = `data-parentAttribute="['style','YearAfter']"`
+        style = `data-parentAttribute="['class','notYear']"`
       } else if (start.getMonth() == today.getMonth() && start.getDate() == today.getDate() && start.getFullYear() == today.getFullYear()) {
         // change how the comparison works because the time of day will not match up from start and today
         // so just see if the month, day, and year are the same to compare
@@ -276,52 +337,48 @@ buildTable(  // calendarClass  client-side
         let dayArg   = start.getDate();
         let monthArg = start.getMonth();
         let yearArg  = start.getFullYear();
-        style        = `data-parentAttribute="['class','today']"`  // tableUxClass will put class='today' in the TD tag
+        style = `data-parentAttribute="['class','today']"`  // tableUxClass will put class='past' in the TD tag
       } else if (start<today) {
         // set backgroupd color for past event
         let dayArg   = start.getDate();
         let monthArg = start.getMonth();
         let yearArg  = start.getFullYear();
-        style        = `data-parentAttribute="['class','past']"`  // tableUxClass will put class='past' in the TD tag
+        style = `data-parentAttribute="['class','past']"`  // tableUxClass will put class='past' in the TD tag
       } else {
         // set backgroupd color for future date
-        let dayArg = start.getDate();
+        let dayArg   = start.getDate();
         let monthArg = start.getMonth();
-        let yearArg = start.getFullYear();
-        style = ``;
+        let yearArg  = start.getFullYear();
+        style = ''
       }
-      let plusStyle = `cursor: pointer;`;
 
-      let newEvent      = "";
+      let add="";
       if (this.urlParams.get('u') != null) {
-        // we are on a user calendar, so allow adding
-        newEvent = `<a style="${plusStyle}" onClick="app.calendar.createNewEvent(${start.getFullYear()}, ${start.getMonth()}, ${start.getDate()})">+</a>`
+        add =`<a onClick="app.calendar.createNewEvent(${start.getFullYear()}, ${start.getMonth()}, ${start.getDate()})">+</a> `
       }
-
-      let html = `<h5 ${style}>${m}-${d} ${newEvent} </h5><ol>`;   // put MM-DD at top of day
+      let html = `<h5 ${style}>${m}-${d} ${add}</h5>`;
 
       let eventList = this.events[m][d];
-      eventList.forEach((k, i) => {
+      eventList.forEach((edgeName, i) => {
         // loop for all events for day [m][d]
           let year = start.getFullYear();
-          let nodeName = this.graph.edges[k].nR
-          if (typeof(nodeName) === "string") {
-              // assume node is an interal node
-              let user=""  // assume we are on main calendar
-              let editButton = "";
-              if (this.urlParams.get('u') != null) {
-                // we are on a user calendar
-                user = "&u=" + this.urlParams.get('u');
-                editButton = `<a onClick="app.calendar.editEvent(${nodeName})"> ${i+1}</a>`;
-              }
+          let nodeName = this.graph.edges[edgeName].nR
 
-              html += `<li>${editButton}
-                <a href="/app.html?p=events&e=${k}&d=${app.format.getISO(start)}${user}" target="_blank">${this.graph.nodes[nodeName].text[0][2]}</a>`
-          } else {
-            // assume nodeName is an Object
-            html += `<li><a  href="${nodeName.url}" target="_blank">${nodeName.text}</a>`
+          let user=""  // assume we are on main calendar
+          let editButton = `${i+1} `;
+          if (this.urlParams.get('u') != null) {
+            // we are on a user calendar
+            user = "&u=" + this.urlParams.get('u');
+            editButton = `<a onClick="app.calendar.editEvent(${edgeName})">${i+1}</a> `;
           }
 
+          if (typeof(nodeName) === "string") {
+            // assume node is an interal node
+            html += `<p>${editButton}<a  href="/app.html?p=events&e=${edgeName}&d=${app.format.getISO(start)}${user}" target="_blank">${this.graph.nodes[nodeName].text[0][2]}</a></p>`
+          } else {
+            // assume nodeName is an Object
+            html += `<p>${editButton}<a  href="${nodeName.url}" target="_blank">${nodeName.text}</a></p>`
+          }
       });
 
       row.push(html + "</br>")
@@ -334,167 +391,165 @@ buildTable(  // calendarClass  client-side
 
 fillFormFromData(  // calendarClass  client-side
   // fills in pop up form from the JSON data
-  editData
+  edgeName
 ) {
-  // fill in all selector values
+  // load from edge ------------
+  const edge = this.graph.edges[edgeName];
+  const dateStart = edge.dateStart;
+  document.getElementById("eventStartDate").value =
+       `${dateStart[0]}-${app.format.padZero(dateStart[1],2)}-${app.format.padZero(dateStart[2],2)}`
+  document.getElementById("eventStartTime").value = `${app.format.padZero(dateStart[3],2)}:${app.format.padZero(dateStart[4],2)}`;
 
-  // fill in start date
-  let startDateSelector = document.getElementById("startDate");
-  startDateSelector.valueAsDate = new Date(this.graph.edges[editData].dateStart[0], this.graph.edges[editData].dateStart[1]-1, this.graph.edges[editData].dateStart[2]);
+  document.getElementById("repeatType"    ).value = edge.repeat;
 
-  // fill in how event repeats
-  let repeatSelector = document.getElementById("repeatType");
-  repeatSelector.value = this.graph.edges[editData].repeat;
-
-  // fill in name of event
-  let nameSelector = document.getElementById("eventName");
-  nameSelector.value = this.graph.edges[editData].comments;
-
-  // fill in time of event
-  let startTimeSelector = document.getElementById("eventStartTime");
-  let startTimeString = this.graph.edges[editData].startGMT.toISOString(); // turn datetime string to ISO string to parse from there
-  startTimeString = startTimeString.split("T"); // get just the time and not date of event
-  let startTimeSplit = startTimeString[1].split("."); // remove the trailing text past the time of event
-  let startTimeValue; // for parsing the time into parts
-  let hour;  // the hour of the event
-  if (this.graph.edges[editData].timeZone == "ET") {
-    // subtract 4 hours from GMT to get EST
-    startTimeValue = startTimeSplit[0].split(":"); // split time into hours and minutes
-    hour = parseInt(startTimeValue[0]);
-    hour -= 4;
-  }
-  startTimeSelector.value = `${hour}:${startTimeValue[1]}`;
+  document.querySelector('#timeZone').value = edge.timeZone;
 
   // fill in duration of event
-  let durTimeData = this.graph.edges[editData].timeDuration;
-  durTimeData = durTimeData.split(":");
-  let durationHourSelector = document.getElementById("durationHour");
-  let durationMinuteSelector = document.getElementById("durationMinute");
-  durationHourSelector.value = parseInt(durTimeData[0]);
-  durationMinuteSelector.value = parseInt(durTimeData[1]);
+  const durTimeData = edge.timeDuration.split(":");
+  document.getElementById("durationHour"  ).value = parseInt(durTimeData[0]);
+  document.getElementById("durationMinute").value = parseInt(durTimeData[1]);
 
   // fill in end date of event
-  if (document.getElementById("endDate")) {
-    let endDateSelector = document.getElementById("endDate");
-    endDateSelector.valueAsDate = new Date(this.graph.edges[editData].dateEnd[0], this.graph.edges[editData].dateEnd[1]-1, this.graph.edges[editData].dateEnd[2]);
+  this.renderEndDateSelector();
+  document.getElementById("endDateInput").valueAsDate = new Date(
+      edge.dateEnd[0]
+      ,edge.dateEnd[1]-1
+      ,edge.dateEnd[2]
+    );
+
+  // fill in what days the event repeats on
+  this.fillRepeatdays();
+
+  // fill in days monthly events repeat on
+  if (edge.repeat == "monthly") {
+    document.getElementById("monthlyEndDateSelect").value = edge.dateEnd[1]; // fill in end month selector
+    for (let i = 0; i < edge.days.length; i++) {
+      if (i > 0) this.addNewRepeatMonthy();
+      document.getElementById(`monthlyWeekSelect-${i+1}`).value = edge.days[i][1];
+      document.getElementById(`monthlyDaySelect-${i+1}` ).value = edge.days[i][0];
+    }
   }
 
-  // fill in description of event
-  let editDescriptionText = document.getElementById("eventDescription");
-  editDescriptionText.innerText = this.graph.nodes[editData].text[1][2];
+  // load from node  ----------
+  document.getElementById("eventName"       ).value     = this.graph.nodes[edge.nR].text[0][2];
+  document.getElementById("eventDescription").value = this.graph.nodes[edge.nR].text[1][2];
 }
 
 
-createEditForm( // calendarClass  client-side
-){
-  const buttonStyle = `
-    border-radius: 10px;
-    background-color: #E2E2E2;
-    border:none;
-    cursor: pointer;
-  `;
+fillRepeatdays(  // calendarClass  client-side
+  // fills in the selector for what days of the week the event repeats on
+) {
+  let edgeName = this.getEventEdge();
+  // the edge exists already
+  let d = new Date(
+     this.graph.edges[edgeName].dateStart[0]
+    ,this.graph.edges[edgeName].dateStart[1]-1
+    ,this.graph.edges[edgeName].dateStart[2]
+  );
+  let dayIndex = d.getDay();
+  let r = this.graph.edges[edgeName].daysOffset;
+  let daysOfWeek = document.getElementsByClassName("repeatCheckbox");
+  for (let i = 0; i < r.length; i++) {
+    daysOfWeek[(r[i] + dayIndex) % 7].checked = true;
+  }
+}
 
-  const submitStyle = `
-    border-radius: 10px;
-    background-color: #E2E2E2;
-    border: none;
-    cursor: pointer;
-  `;
+closeForm(  // calendarClass  client-side
+  // closes pop up window
+) {
 
-  const deleteStyle = `
-    height: 7%;
-    background-color: #D45A5A;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    bottom: 10px;
-    left: 50%;
-  `;
+  // ensure all monthly repeat selectors are deleted
+  // so that when it is reopened there is no overlap
+  document.getElementById("popUpForm").style.height = this.getFormHeight();  // ensure pop up form has original height
+  let monthlySelectors = document.getElementsByClassName("monthlyRepeatInput");
+  for (let i = monthlySelectors.length; i > 1; i--) {
+    document.getElementById(`monthlyRepeatInput-${i}`).remove();
+  }
+  this.setOpenMonthDates(1);
 
-  const formStyle = `
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-  `;
+  this.popUpFormVisible(false);
+}
 
-  const labelStyle = `
-    margin-right: 3px;
-  `;
+addNewRepeatMonthy(  // calendarClass  client-side
+  // This function is the onClick function for the '+' button on popupform when the 'monthly' repeating option is chosen
+  // This adds a new day in the month that the event can repeat on
+  // Currently maxing it at 3 dates it can repeat on
+) {
+  // Make sure we are not at maximum amount of dates
+  if (this.getOpenMonthDates() <= 3){
+    // We need to expand how large the total pop up is to fit the new items
+    document.getElementById("popUpForm").style.height = `${document.getElementById("popUpForm").clientHeight + 35}px`;
 
-  const buttons = `
-    <button onClick="app.calendar.addNewEvent()"             style="${submitStyle}">Add Event</button>
-    <button onClick="app.calendar.save()"                    style="${submitStyle}">Save </button>
-    <button onClick="app.calendar.popUpFormVisible(false)"   style="${submitStyle}">Cancel </button>
-    <button onClick="app.calendar.deleteEvent(editData)"     style="${deleteStyle}">Delete </button>
-  `;
+    // Append new selector to repeat on
+    // document.getElementById(`monthlyRepeatInput-${this.getOpenMonthDates()+1}`).style.display = "block";
+    let weekValues = [
+       '1st'
+      ,'2nd'
+      ,'3rd'
+      ,'4th'
+      ,'5th'
+    ];
+    let dayValues = [
+       'Sunday'
+      ,'Monday'
+      ,'Tuesday'
+      ,'Wednesday'
+      ,'Thursday'
+      ,'Friday'
+      ,'Saturday'
+    ];
 
-  let create;
-  let deleteButton = "";
+    let fragment = document.createDocumentFragment();
+    let container = document.createElement('div');
+    container.className = "monthlyRepeatInput";
+    container.id = `monthlyRepeatInput-${this.getOpenMonthDates()+1}`;
+    let label = document.createElement('a');
+    label.textContent = `${this.getOpenMonthDates()+1}`;
+    let weekSelector = document.createElement('select');
+    for (let i = 0; i < weekValues.length; i++) { // walk through week array and create option tags for the weekSelector select tag and insert it
+      let option = document.createElement('option');
+      option.value = `${i+1}`;
+      option.innerText = weekValues[i];
+      weekSelector.appendChild(option);
+    }
+    weekSelector.id = `monthlyWeekSelect-${this.getOpenMonthDates()+1}`;
+    let daySelector = document.createElement('select');
+    for (let i = 0; i < dayValues.length; i++) { // walk through array of days of week and fill daySelector with them
+      let option = document.createElement('option');
+      option.value = `${i}`;
+      option.innerText = dayValues[i];
+      daySelector.appendChild(option);
+    }
+    daySelector.id = `monthlyDaySelect-${this.getOpenMonthDates()+1}`;
+    let removeButton = document.createElement('a');
+    removeButton.setAttribute('onclick', `app.calendar.removeMonthlySelector(${this.getOpenMonthDates()+1})`)
+    removeButton.className = 'removeMonthlySelectorButton';
+    removeButton.innerText = '-';
+    container.appendChild(label);
+    container.appendChild(weekSelector);
+    container.appendChild(daySelector);
+    container.appendChild(removeButton);
+    fragment.appendChild(container);
 
-  const cssForm = `
-    display: none;
-    width: 200px;
-    height: 560px;
-    background-color: #B5B5B5;
-    border-radius: 13px;
-    margin-left: 20px;
+    document.getElementById("monthlyEndDate").appendChild(fragment);
 
-    position: relative;
-    opacity: 60%;
-  `;
+    this.setOpenMonthDates(this.getOpenMonthDates()+1);
+  } else {
+    console.log("Maximum amount of dates");
+  }
+  console.log(this.getOpenMonthDates());
+}
 
-  const calendar = document.getElementById("weeks");
-  calendar.innerHTML += `
-  <div style="${cssForm}" id="popUpForm">
-    <p id="popUpForm-add-edit"></p>
-    <div style="display: flex; justify-content: center; margin: 5px;">
-      <label for="eventName" style="${labelStyle}">Name: </label>
-      <input id="eventName" type="text" placeholder="Event Name..." />
-    </div>
-
-    <div style="display: flex; justify-content: center; margin: 5px;">
-      <label for="timeZone" style="${labelStyle}">Time Zone: </label>
-      <select id="timeZone">
-      <option value="ET">Eastern</option>
-      <option value="CT">Centeral</option>
-      <option value="MT">Mountain</option>
-      <option value="PT">Pacific</option>
-      </select>
-    </div>
-
-
-    <div style="display: flex; justify-content: center; margin: 5px;">
-      <label for="eventStartDate" style="${labelStyle}">Start Date: </label>
-      <input id="eventStartDate" type="date" />
-    </div>
-
-    <div style="display: flex; justify-content: center; margin: 5px;">
-      <label for="eventStartTime" style="${labelStyle}">Start Time: </label>
-      <input id="eventStartTime" type="time" />
-    </div>
-
-    <div>
-      <label for="duration" style="${labelStyle}">Duration: </label>
-      <input id="durationHour" type="number" min="0" max="8"/>:<input id="durationMinute" type="number" min="0" max="59"/>
-    </div>
-
-    <div style="display: flex; justify-content: center; margin: 5px;">
-      <label for="repeatType" style="${labelStyle}">Repeats: </label>
-      <select id="repeatType" onChange="app.calendar.renderEndDateSelector()">
-        <option value="never" selected>Never</option>
-        <option value="yearly">Yearly</option>
-        <option value="monthly">Monthly</option>
-        <option value="weekly">Weekly</option>
-      </select>
-    </div>
-
-    <div id="endDateDiv" style="display: flex; justify-content: center; margin: 5px;"></div>
-    <div style="display: flex; flex-direction: column; margin-top: 5px; width: 80%; align-items: center;">
-      <label for="eventDescription" style="${labelStyle}">Description</label>
-      <textarea id="eventDescription" rows="11" cols="30" style="resize: none; border-radius: 5px;"></textarea>
-    </div>
-    ${buttons}
-  </div>`;
+removeMonthlySelector(  // calendarClass  client-side
+  // This function is the onclick for the '-' that appears next to the selectors when user is choosing the monthly repeat option
+  // This removes the selector that it is attached to and resizes the pop up window
+  index
+) {
+  // document.getElementById(`monthlyRepeatInput-${index}`).style.display = "none";
+  document.getElementById(`monthlyRepeatInput-${index}`).remove();
+  document.getElementById("popUpForm").style.height = `${document.getElementById("popUpForm").clientHeight - 35}px`;
+  this.setOpenMonthDates(this.getOpenMonthDates() - 1);
+  console.log(this.getOpenMonthDates());
 }
 
 
@@ -511,44 +566,129 @@ createNewEvent(  // calendarClass  client-side
     return;
   }
 
-  let date = new Date(year,month,day);
-  // load with date they clicked on
+  // set member variables for event year month and day
+  this.setEventYear(year);
+  this.setEventMonth(month);
+  this.setEventDay(day);
+
+  // Set correct buttons to display for creating new event
+  document.getElementById("saveEventButton"  ).style.display  = "none";
+  document.getElementById("deleteEventButton").style.display  = "none";;
+  document.getElementById("addEventButton"   ).style.display  = "inline-block";
+
+  // make form blank
+  this.createBlankForm();
+
+  // make popup vissible
+  this.popUpFormVisible(true);
+}
+
+
+createBlankForm(  // calendarClass  client-side
+  // sets all input fields in pop up form to be default
+) {
+  // fill in all selector values
+  // empty name field
+  document.getElementById("eventName").value = "";
+
+  // empty URL field
+  document.getElementById("eventURL").value = "";
+
+  // empty description field
+  document.getElementById("eventDescription").innerText = "";
+
+  // set start date to the chosen day they clicked on
+  let date = new Date(this.getEventYear(),this.getEventMonth(),this.getEventDay());
   document.getElementById('eventStartDate').value = date.toISOString().substring(0,10);
 
   // load time with current time
   date = new Date();
   document.getElementById('eventStartTime').value = date.toISOString().substring(11,16);
 
-  // load current time Zone, for now assume Eastern
-  //document.getElementById('eventStartTime')
+  // set default time zone
+  let timezone = new Date(0).getTimezoneOffset(); // find timezone offset from GMT
+  let keys = Object.keys(this.timezones); // create array of the keys which are the timezones we account for
+  keys.forEach((key, index) => { // walk through array of timezones and if it matches then we set the default value to it
+    if (this.timezones[key] === -timezone) {
+      document.getElementById("timeZone").value = key;
+    }
+  });
 
-  // make popup vissible
-  this.popUpFormVisible(true);
+  // ensure pop up form has original height
+  document.getElementById("popUpForm").style.height = this.getFormHeight();
+
+  // Ensure no monthly date selectors are open
+  let monthlySelectors = document.getElementsByClassName("monthlyRepeatInput");
+  for (let i = monthlySelectors.length; i > 1; i--) {
+    document.getElementById(`monthlyRepeatInput-${i}`).remove();
+  }
+  this.setOpenMonthDates(1);
+  document.getElementById("monthlyEndDateSelect").value = this.getEventMonth()+2; // default the month the event will end on to the month after the one selected
+
+  // Defaults event repeat type to 'never' repeating
+  document.getElementById("repeatType").value = "never"; // default repeat to 'never'
+  this.renderEndDateSelector(); // render details for type of repeating
+
+  // set default for weekly repeating
+  for (let i = 0; i < document.getElementsByClassName("repeatCheckbox").length; i++) {
+    // clear the checkboxes for weekly repeating events
+    document.getElementsByClassName("repeatCheckbox")[i].checked = false;
+  }
+
+  // set default monthly repeating
+  // ex -- 4th wednesday
+  let d = this.findDayInMonth(
+    new Date(
+       this.getEventYear()
+      ,this.getEventMonth()
+      ,this.getEventDay()
+    )
+  );
+  document.getElementById("monthlyWeekSelect-1").value = `${d[1]}`;
+  document.getElementById("monthlyDaySelect-1").selectedIndex = d[0];
+
+  // set default yearly repeating
+  document.getElementById("yearlyEndDateInput").value = `${this.year + 1}`;
+
+  // set default duration to one hour
+  document.getElementById("durationHour"  ).value = 1;
+  document.getElementById("durationMinute").value = 0;
 }
 
 
 editEvent(  // calendarClass  client-side
-   nodeName   //
+  edgeName  // string
 ) {
-  // determine if we are on user calendar or
   if (this.urlParams.get('u') === null) {
     // not on user calendar
     alert('Error, not on user calendar');
     return;
   }
 
-  // load data
-  //?
+  // save for other methods
+  this.setEventDay(   this.graph.edges[edgeName].dateStart[2]     );
+  this.setEventMonth( this.graph.edges[edgeName].dateStart[1]-1     );
+  this.setEventYear(  this.graph.edges[edgeName].dateStart[0]     );
+  this.setEventEdge(  edgeName                                    );
+  console.log(this.eventDay);
+  console.log(this.eventMonth);
+  console.log(this.eventYear);
 
-  // make popup vissible
-  this.popUpFormVisible(true);
+
+  // show/hide buttons
+  document.getElementById("addEventButton"   ).style.display = "none";             // Hide
+  document.getElementById("saveEventButton"  ).style.display = "inline-block";     // show ?
+  document.getElementById("deleteEventButton").style.display = "inline-block";     // show ?
+
+  this.popUpFormVisible(true    );   // make popup vissible
+  this.fillFormFromData(edgeName);   // load data
 }
 
 
 popUpFormVisible(  // calendarClass  client-side
   bool  // true =show it,  false -> hide it
 ) {
-  document.getElementById(`popUpForm`).style.display = bool ? '' : 'none';
+  document.getElementById(`popUpForm`).style.display = bool ? 'block' : 'none';
 }
 
 
@@ -556,176 +696,261 @@ renderEndDateSelector(  // calendarClass  client-side
 // renders the end date selector based on chosen selected value from the repeat selector in pop up form
 ) {
   let repeatSelector = document.getElementById("repeatType");
-  let endDateDiv = document.getElementById("endDateDiv");
+
   if (repeatSelector.value == "never") {
     // do not display any selector when event does not repeat
-    endDateDiv = document.getElementById("endDateDiv");
-    endDateDiv.innerHTML = "";
+    document.getElementById("yearlyEndDate"         ).style.display = 'none';
+    document.getElementById("weeklyMonthlyEndDate"  ).style.display = 'none';
+    document.getElementById("monthlyEndDate"        ).style.display = 'none';
+    document.getElementById("daysOfWeekSelector"    ).style.display = 'none';
+
   } else if (repeatSelector.value == "yearly") {
     // display only a number when selecting a year
-    let endDate = `
-      <label id="endDateLabel" for="endDate" style="margin-right: 3px;">End Date: </label>
-      <input id="endDate" type="number" min="2022" max="2030" value="${this.year+1}"/>
-    `;
-    endDateDiv.innerHTML = endDate;
-  } else {
-    // weekly or monthly option is selected so we should display selector for end date
-    let endDate = `
-      <label id="endDateLabel" for="endDate" style="margin-right: 3px;">End Date: </label>
-      <input id="endDate" type="date" />
-    `;
-    endDateDiv.innerHTML = endDate;
+    document.getElementById("yearlyEndDate"         ).style.display = 'inline';
+    document.getElementById("weeklyMonthlyEndDate"  ).style.display = 'none';
+    document.getElementById("monthlyEndDate"        ).style.display = 'none';
+    document.getElementById("daysOfWeekSelector"    ).style.display = 'none';
+
+  } else if (repeatSelector.value == "weekly") {
+    // weekly option is selected so we should display selector for end date
+    // add options for what days to repeat on every week
+    document.getElementById("yearlyEndDate"         ).style.display = 'none';
+    document.getElementById("monthlyEndDate"        ).style.display = 'none';
+    document.getElementById("weeklyMonthlyEndDate"  ).style.display = 'inline';
+    document.getElementById("daysOfWeekSelector"    ).style.display = 'inline';
+
+  } else if (repeatSelector.value == "monthly") {
+    // monthly option is chosen to repeat
+    document.getElementById("yearlyEndDate"         ).style.display = 'none';
+    document.getElementById("weeklyMonthlyEndDate"  ).style.display = 'none';
+    document.getElementById("monthlyEndDate"        ).style.display = 'flex';
+    document.getElementById("daysOfWeekSelector"    ).style.display = 'none';
+
   }
 }
 
+validateForm(
+  // This function makes sure that all the necessary fields of pop up form are filled in before the user can submit or save data
+) {
+  if (document.getElementById("eventName").value == "") {
+    alert('Name of event not filled in');
+    this.setCanSubmit(false);
+    console.log("name");
+  }
 
+  if ((document.getElementById("repeatType").value == "monthly" || document.getElementById("repeatType").value == "weekly") && document.getElementById("endDateInput").value == "") {
+    alert('End date of event not filled in');
+    this.setCanSubmit(false);
+    console.log("date");
+  }
 
-createEventEdge( // calendarClass  client-side
-  // reads data in pop up form and creates edge for app.calendar.graph data
-)   { // edit is array where first value is boolean of 0 if we are creating and 1 if we are editing. Second value of edit is the node number to store in edge
+  this.setCanSubmit(true);
+}
+
+loadEventEdge( // calendarClass  client-side
+               // moves pop up form to edge for this.graph.edge[edge]
+  edge // name of edge we are loading
+)   {
+  // move data from form to variables
+  const url           = document.getElementById("eventURL").value;         // url of the event
   const name           = document.getElementById("eventName").value;       // name of the event
-  let e                = document.getElementById("timeZone");
-  const timeZone       = e.options[e.selectedIndex].value;
-  const startTime      = document.getElementById("eventStartTime").value;  // the start time of the event
-  const durationHour   = document.getElementById("durationHour").value;    // hours portion how the duration
-  const durationMinute = document.getElementById("durationMinute").value;  // minutes portion of the duration
-  const repeat         = document.getElementById("repeatType").value;      // chosen value of how often to repeat event
-  let offset         = [];                                               // for repeating events and their offset from first day
-  let endDate;
-  let doesRepeat     = false;
 
-  if (document.getElementById("endDate")) {
-    endDate = document.getElementById("endDate").value;
+
+  let   durationHour   = document.getElementById("durationHour"  ).value;  // hours portion how the duration
+  let   durationMinute = document.getElementById("durationMinute").value;  // minutes portion of the duration
+  const repeat         = document.getElementById("repeatType"    ).value;  // chosen value of how often to repeat event
+
+  let year  = this.getEventYear();
+  let month = this.getEventMonth();
+  let day   = this.getEventDay();
+
+  let endDate     = "";
+  let doesRepeat  = false
+  if (document.getElementById("endDateInput")) {
+    endDate    = document.getElementById("endDateInput").value;
     doesRepeat = true;
-  } else {
-    endDate = "";
-    doesRepeat = false;
-  }  // date event should stop repeating
+  }
 
-  let startHour = startTime.split(":");
-  // let endHour = endTime.split(":");
+  const startTime  = document.getElementById("eventStartTime").value;  // the start time of the event
+  let startHour   = startTime.split(":");
   while (startHour[0][0] == "0") {
     startHour[0] = startHour[0].substring(1);
   }
 
   // parse year month day from end date
-  let endDateInfo = endDate.split("-");
-
+  let endDateInfo  = endDate.split("-");
   let startHourNum = parseInt(startHour[0],10);
   let startHourMin = parseInt(startHour[1],10);
 
-  if (durationMinute.length < 2) durationMinute = "0" + durationMinute;
+  // init duration
+  if (durationMinute.length < 2                ) {durationMinute = "0" + durationMinute;}
+  if (durationHour == "0" || durationHour == "") {durationHour = "1";}
 
-  let nodeNum
-  if (edit[0] == 0) {
-    // we are creating new edge
-    nodeNum = app.calendar.graph.nodeNext;
-  } else if (edit[0] == 1) {
-    // we are editing existing edge
-    nodeNum = edit[1];
-  }
+  let startDate = [year, month+1, day, startHourNum,startHourMin];
 
-
-  // handle when to repeat event
+  // handle repeat events
+  let offset         = [];   // for repeating events and their offset from first day
+  let days           = [];
   let dateEnd;
+
+  // handle different cases for types of repeating
   if (repeat == "weekly") {
-    console.log("weekly")
-    offset[0] = 0;
+    // repeats weekly
+    // find offset for desired days
+    let d = new Date(year,month,day);
+    let dayIndex = d.getDay();
+    let repeatingDays = this.weeklyRepeatDays();
+    for (let i = 0; i < repeatingDays.length; i++) {
+      // walk through the days chosen to repeat on, and find distance between start day and chosen day
+      let dif = repeatingDays[i] - dayIndex;
+      if (dif < 0) {
+        // day should repeat on day that happens before chosen day but only after chosen day
+        // ex repeats on monday wednesday friday, but the event starts on wednesday, so first monday is after the first wednesday
+        repeatingDays[i] += 7;
+        offset.push(repeatingDays[i]-dayIndex);
+      } else {
+        // push the difference between indices into the offset
+        offset.push(dif);
+      }
+    }
+    if (repeatingDays.length == 0) {
+      // if user did not choose days to repeat on, assume that it will repeat on same day every week
+      offset = [0];
+    }
     dateEnd = [parseInt(endDateInfo[0],10),parseInt(endDateInfo[1],10),parseInt(endDateInfo[2],10)];
+    if (!document.getElementById("endDateInput").value) {
+      // if end date field is left empty, then assume event ends one week after start
+      dateEnd = [year,month+1,day+7];
+    }
   } else if (repeat == "monthly") {
+    // event is repeating monthly
     offset = [0];
-    dateEnd = [parseInt(endDateInfo[0],10),parseInt(endDateInfo[1],10),parseInt(endDateInfo[2],10)];
+    // dateEnd = [parseInt(endDateInfo[0],10),parseInt(endDateInfo[1],10),parseInt(endDateInfo[2],10)];
+    let endMonth = document.getElementById("monthlyEndDateSelect").value;
+    dateEnd = [this.getEventYear(), parseInt(endMonth), 1];
+
+    // read input from the drop down boxes
+    for (let i = 0; i < this.getNumMonthDates(); i++) {
+      if (document.getElementById(`monthlyDaySelect-${i}`)) {
+        days.push([document.getElementById(`monthlyDaySelect-${i}`).value,document.getElementById(`monthlyWeekSelect-${i}`).value]);
+      }
+    }
+    startDate[2] = 1;
   } else if (repeat == "yearly") {
     offset = [];
     dateEnd = [parseInt(endDate,10),month+1,day];
-
   } else if (repeat == "never") {
     offset = [];
     dateEnd = [year,month+1,day];
   }
 
-   let edge = {
-     "nR":`${nodeNum}`
-     ,"dateStart":[year,month+1,day,startHourNum,startHourMin]
-     ,"dateEnd":dateEnd
-     ,"timeZone":"ET"
-     ,"timeDuration":`${durationHour}:${durationMinute}`
-     ,"comments":`${name}`
-     ,"repeat": `${repeat}`
-     ,"daysOffset":offset
-   };
+  // saving form data to the edge
+  let g = this.graph.edges[edge];
+  if (url == "") {
 
-   return edge;
+    //g.nR           = `${app.calendar.graph.nodeNext}`;
+    g.dateStart    = startDate;
+    g.dateEnd      = dateEnd;
+
+    let e          = document.getElementById("timeZone");
+    g.timeZone     = e.options[e.selectedIndex].value;
+    g.days         = days;
+    g.timeDuration = `${durationHour}:${durationMinute}`;
+    g.repeat       = repeat;
+    g.daysOffset   = offset;
+  } else {
+    let nR = {};
+    nR.text = name;
+    nR.url = url;
+    g.nR = nR;
+    g.dateStart    = startDate;
+    g.dateEnd      = dateEnd;
+
+    let e          = document.getElementById("timeZone");
+    g.timeZone     = e.options[e.selectedIndex].value;
+    g.days         = days;
+    g.timeDuration = `${durationHour}:${durationMinute}`;
+    g.repeat       = repeat;
+    g.daysOffset   = offset;
+  }
+
 }
 
-
-createEventNode(  // calendarClass  client-side
-  // reads data in pop up form and creates node for app.calendar.graph data
-  // returns a node for app.calendar.graph data
+findDayInMonth(
+  // This funciton returns an array with the first day being the index of the day in a week -- ex 0 for sunday and 1 for monday
+  // The second element in array is the index of week in the month -- ex 1 for first week 2 for second week
+  // EX: [2,4] would mean that the day is the 4th tuesday of the month
+  date
 ) {
-  let description = document.getElementById("eventDescription").value;   // description for the event
-  let name = document.getElementById("eventName").value;                 // name of the event
 
-  let node = {
-    "text":[
-      ["h3","",`${name}`]
-      ,["p","",`${description}`]
-    ]
-  };
-  return node;
+  let dayIndex = date.getDay();
+  let weekIndex = Math.ceil(date.getDate() / 7);
+  return [dayIndex , weekIndex];
 }
 
 
 async deleteEvent( // calendarClass  client-side
-  editData
 ) {
-  delete this.graph.edges[editData];
-  delete this.graph.nodes[editData];
+  delete this.graph.edges[this.getEventEdge()];
+  //delete this.graph.nodes[editData]; can only delete this if it is an orphan
 
   await this.processServerRefresh();
 }
 
+// When user hits "add event" or "save"
+// Handles the days of week that the event should repeat on
+// Returns array where each item is an index of day of the week starting at 0
+// ex [0,2,4] is [sunday, tuesday, thursday]
+weeklyRepeatDays() {
+  // grab all checkboxes
+  let options = document.getElementsByClassName("repeatCheckbox");
+  let rv = [];
 
-async save( // calendarClass  client-side
+  // go through all the checkboxes for the days and push back the index if they are checked
+  for (var i = 0; i < options.length; i++) {
+    if (options[i].checked == true) {
+      rv.push(i);
+    }
+  }
+  return rv;
+}
+
+async save(   // calendarClass  client-side
   // user clicked edits existing event, and now has clicked saved
 ) {
-  let edge = this.createEventEdge();
-  let node = this.createEventNode();
+  this.loadEventEdge(this.getEventEdge());
 
-  // change start date if needed
-  let newStartDate = document.getElementById("startDate").value;
-  newStartDate = newStartDate.split('-');
-  edge.dateStart[0] = parseInt(newStartDate[0]);
-  edge.dateStart[1] = parseInt(newStartDate[1]);
-  edge.dateStart[2] = parseInt(newStartDate[2]);
-
-  app.calendar.graph.edges[parseInt(editData)] = edge;
-  app.calendar.graph.nodes[parseInt(editData)] = node;
+  const edge      = this.graph.edges[this.getEventEdge()];
+  const node      = this.graph.nodes[edge.nR]
+  node.text[0][2] = document.getElementById("eventName"       ).value;
+  node.text[1][2] = document.getElementById("eventDescription").value;
 
   await this.processServerRefresh();
 }
 
 
-async addNewEvent(// calendarClass  client-side
+async addNewEvent(  // calendarClass  client-side
   // user click + to add a new event and now has click "add" button to save new event on server
   ) {
-  // create edges from values in pop up form
-  let edge = this.createEventEdge();
-  let node = this.createEventNode();
 
-  // find the numbers for the next node and edge
-  let edgeNum = app.calendar.graph.edgeNext; // this should be the number of the edge
-  let nodeNum = app.calendar.graph.nodeNext;
+  // move values in pop up form to graph edge
+  const edge = this.graph.edges[this.graph.edgeNext] = {};  // create new edge
+  edge.nR    = this.graph.nodeNext.toString();
+  this.loadEventEdge(this.graph.edgeNext);
 
-  // add and node edge to graph
-  app.calendar.graph.edges[edgeNum] = edge;
-  app.calendar.graph.nodes[nodeNum] = node;
+  const node = this.graph.nodes[this.graph.nodeNext] = {};  // create new node
+  node.text  = [
+    ["h3","",`${document.getElementById("eventName"       ).value}`]
+    ,["p" ,"",`${document.getElementById("eventDescription").value}`]
+  ];
 
   // increment edge and node counters
   app.calendar.graph.edgeNext += 1;
   app.calendar.graph.nodeNext += 1;
 
-  await this.processServerRefresh();
+  await this.processServerRefresh();  // save the updated calendar
+
+
 }
 
 async processServerRefresh( // calendarClass  client-side
@@ -737,7 +962,7 @@ async processServerRefresh( // calendarClass  client-side
   ,"msg":"uploadFile"
   ,"path":`/users/myWeb/events/${this.year}`
   ,"name":"_graph.json"
-  ,"data": app.calendar.graph
+  ,"data": app.format.obj2string(app.calendar.graph)
   }
 
   const resp = await app.proxy.postJSON(JSON.stringify(msg));  // save
@@ -748,22 +973,20 @@ async processServerRefresh( // calendarClass  client-side
 
 
 moveToDate( // calendarClass  client-side
-  newDate  // move to newDate from current date displayed on calendar
+   newDate // move to newDate from current date displayed on calendar
 ) {
   let timeBetweenDays;  // in milliseconds from newDate to first date displayed in first row
   let weeksBetweenDays; // number of rows need to move to make the newDate displayed in first row of calendar
-  const firstDayTD = document.getElementsByTagName("td")[0];       // grabs the table elements that hold the dates on calendar
-  const firstMonthDay = firstDayTD.textContent.split("-");  // grabs the first date at the top left of calendar table
+  const firstDayTD    = document.getElementsByTagName("td")[0];      // grabs the table elements that hold the dates on calendar
+  const firstMonthDay = firstDayTD.firstChild.innerText.split("-");  // grabs the first date at the top left of calendar table
 
   // convert strings to integers
   const firstMonth = parseInt(firstMonthDay[0]);
   const firstDay   = parseInt(firstMonthDay[1])
 
   // first date of page we are on at the moment
-  var firstDate = new Date(this.year, firstMonth-1, firstDay);
-
-  var firstYear = (this.tableUx.paging.row ===0 && firstDayTD.className === "YearBefore") ? (this.year-1) : this.year;
-  firstDate.setFullYear(firstYear);
+  const firstYear = (this.tableUx.paging.row ===0 && firstDayTD.className === "notYear") ? (this.year-1) : this.year;
+  const firstDate = new Date(firstYear, firstMonth-1, firstDay);
 
   // find difference in time between dates
   timeBetweenDays = newDate.getTime() - firstDate.getTime(); // time between a and b in milliseconds
@@ -780,12 +1003,8 @@ moveToDate( // calendarClass  client-side
 chooseMonth(  // calendarClass  client-side
   // Goes to page that has first day of chosen month
 ) {
-  var myList = document.getElementById("months");           // grabs the month input selector
-
-  // get date we want to jump to
-  var targetDate = new Date(this.year, myList.selectedIndex-1, 1); // target date to jump to
-
-  this.moveToDate(targetDate);
+  const myList = document.getElementById("months");           // grabs the month input selector
+  this.moveToDate(new Date(this.year, myList.selectedIndex-1, 1));
   myList.selectedIndex = 0;
 }
 
@@ -800,180 +1019,22 @@ findToday( // calendarClass  client-side
 }
 
 
-updatePictures( // calendarClass  client-side
-
-) {   // walk through each row and display the next picture
-  this.list.forEach((a_name, i) => {
-    let r = this.graph.nodes[a_name];
-    if (r && r.u_pictures && 0<r.u_pictures.length) {
-      // if the the array has urls of pictures, display one
-      let pic = this.n_pic % r.u_pictures.length;
-      document.getElementById(`pic_${this.idDOM}_${i}`).innerHTML =
-      `<img style="object-fit:contain; width:320px; height:200px;"  src="${"/synergyData/"+ r.u_pictures[pic][1]}">`
-    }
-  });
-  this.n_pic++;
-}
-
-
-displayEvent(  // calendarClass - client-side
-
-) {  // user has clicked on a clalender event, show the details of the event on a seprate page
-  let html="";
-  const list     = [];                                 // will contain list of nodes to display
+async displayEvent()  // calendarClass - client-side
+{
+  // display single event
+  const list     = [];         // will contain list of nodes to display
   const nodeName = this.graph.edges[this.edgeName].nR; // get the main nodeName or object
   const date     = this.urlParams.get('d')             // get YYYY-MM-DD from the URL
-  const script   = [];                                 // will hold any nodes script. will execute after all nodes are displayed
 
   list.push(nodeName+date);    // push node for this date, display it first, this nodeName may not exist
   list.push(nodeName);         // push the main node to display
 
-  list.forEach((node, i) => {
-    // build html for links like FaceBook, Ets, etc
-    html += this.HTMLforNode(i,node);
-    script.push(node.script);
-  });
+  const nodes2html = new nodes2htmlClass(this.graph.nodes, this.DOM, this.graph.edges[this.edgeName]);
+  await nodes2html.displayList(list);
 
   // add date to heading
   document.getElementById('heading1').innerHTML = "SFC Event On: " + date ;
-
-  // add main event info
-  document.getElementById(this.DOM).innerHTML = html;
-  this.list = list;
-  this.updatePictures();
-
-  if (!this.timer) {
-    // only want to setInterval once per page load
-    this.timer = setInterval(this.updatePictures.bind(this), 2000);  // refress pictures every 2 seconds
-  }
-  // now run script
 }
 
 
-HTMLforNode(  // calendarClass - client-side
-  i  // to get row color
-  ,nodeName  // nodeName to display
-) {
-
-
-  let html="";
-  const node  = this.graph.nodes[nodeName];
-  if (node) {
-    // the node exists
-    //  create list of urls
-    let urls="";
-    if (typeof(node.u_urls) != "undefined" && Array.isArray( node.u_urls ) ) {
-      // there are URL that are part of the row to be displayed
-      node.u_urls.forEach((item, i) => {
-        let target="_top";   // assume we want the link to stay on the same page
-        if (item[1].substr(0,8) === "https://"
-         || item[1].substr(0,7) === "http://") {
-          // assume urls that start with https:// or http:// are on other sites and create a new tab or window for them
-          target="_blank";
-        }
-        urls += `<a href='${item[1]}' target='${target}'>${item[0]}</a> &nbsp;&nbsp;&nbsp; `
-      });
-    }
-
-    // build html for row
-    html += this.displayRow(i,node,urls,);
-  } else {
-    // the node does not exists, display place holder if viewing non-production
-    if (localStorage.getItem('production')  === "false") {
-      // only show in non production
-      html += `<div class="row"><div><h3>add entry for ${a_name}</h3></div></div>`;
-    }
-  }
-
-  return html;
-}
-
-
-displayRow(      // calendarClass - client-side
-  // similar to widgetList
-  i       // row index, needed for color
-  ,node   // edge name has pointers to everything we need to display
-  ,urls   // urls to be displayed
-  ) {
-
-  // css class rows start with 1, array index start with 0
-  const color = (i % 4) + 1; // row1 row2 row3 row4 in css, this should be coming out of an array
-  let text = "";
-  let updated="";
-  let day,time;
-  const urlParams = new URLSearchParams( window.location.search );
-  let page = urlParams.get('p')
-
-  // walk the list of lines in text
-  const edge = this.graph.edges[this.edgeName]      ;  // had time data, points to node
-  node.text.forEach((line, i) => {
-    if        (line[0] === "monthly") {
-      let day  =  app.format.getDayOfWeek(edge.days[0][0]);
-      let start =  this.createDate(edge,false);
-      let end   =  this.createDate(edge,true);
-      let time  = `${app.format.timeRange(start, end)}`;
-      text +=  `<p><b>Day:</b> ${app.format.weekNumber(edge.days[0][1])} ${day} <br/><b>Time:</b> ${time}</p>`
-    } else if (line[0] === "weekly") {
-      // format date for weely event
-      let start =  this.createDate(edge,false);
-      let end   =  this.createDate(edge,true);
-      let days  =  app.format.getDaysOfWeek(start, edge.daysOffset);
-      let time  = `${app.format.timeRange(start, end)}`;
-      text +=  `<p><b>Day: </b>${days} <br/><b>Time:</b> ${time}</p>`
-    } else if (line[0] === "yearly") {
-      //
-      let start =  this.createDate(edge,false);
-      let end   =  this.createDate(edge,true);
-      let time  = `${app.format.timeRange(start, end)}`;
-      text += `<p><b>Date:</b> ${app.format.getISO(start)} <br/><b>Day:</b> ${app.format.getDayOfWeek(start.getDay())} <br/><b>Time: </b>${time}</p>`
-    } else if (line[0] === "eval") {  // depricate eval
-      // save javascript code to execute in array, run it after the DOM is loaded
-      this.a_eval.push(line[2]);
-    } else if(line[0] === "") {
-      // assume all HTML tags are included in line[2]
-      text += line[2];
-    } else {
-      // assume line[0] is a html tag and surround with open close tags
-      text += `<${line[0]}>${line[2]}</${line[0]}>`;
-    }
-  });
-
-  // create updated
-  if (!page) {
-    // on homepage
-    page="event/2022";
-  }
-
-  if (localStorage.getItem('production')  === "false") {
-      // only show if production = false
-      updated =`updated ${r.updated} <a href="/app.html?p=comment&pc=${page}&node=${encodeURI(a_name)}">add comment</a>`;
-  }
-
-
-  let pictures="";
-  if(typeof(node.u_pictures) !="undefined" && 0<node.u_pictures.length) {
-    // only put picture div in if there are pictures to display
-    pictures=`<div id="pic_${this.idDOM}_${i}" style="float:right;width:320px; height:200px;"></div>`;
-  }
-
-
-
-  const html =`
-  <div class="row row${color}">
-  ${pictures}
-  ${text}
-  <p>${urls}<p>
-  <p>${updated}</p>
-  </div>
-
-
-  </div>
-  `;   // table cell for piture
-
-
-  return html;
-}
-
-
-// calendarClass  client-side
-} // end class
+} // calendarClass  client-side  -end class

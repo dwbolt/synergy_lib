@@ -20,9 +20,19 @@ weekNumber(
     return str[number-1];
 }
 
+padZero(    // formatClass - client-side
+   number  // number to convert to string with leading zeros
+  ,length  // total length of string
+) {
+  let str = number.toString();
+  while (str.length<length) {
+    str = "0" + str;
+  }
+  return str;
+}
 
-// formatClass - client-side
-getDayOfWeek(
+
+getDayOfWeek( // formatClass - client-side
   numberDay   // 0->Sunday
 ){
   return( this.days[numberDay] );
@@ -85,8 +95,21 @@ escStringForJson(s_string) {
   return s_string
   .replace(/\"/g, '\\"')   // " ->\ "
   .replace(/\n/g, '\\n');   // newline -> \n
-
 }
+
+/*
+https://stackoverflow.com/questions/4253367/how-to-escape-a-json-string-containing-newline-characters-using-javascript
+  String.prototype.escapeSpecialChars = function() {
+    return this.replace(/\\n/g, "\\n")
+               .replace(/\\'/g, "\\'")
+               .replace(/\\"/g, '\\"')
+               .replace(/\\&/g, "\\&")
+               .replace(/\\r/g, "\\r")
+               .replace(/\\t/g, "\\t")
+               .replace(/\\b/g, "\\b")
+               .replace(/\\f/g, "\\f");
+};
+*/
 
 
 // formatClass - client-side
@@ -132,20 +155,43 @@ getDaysOfWeek(
   return str.slice(2);  // trim leading ", "
 }
 
+obj2string( // formatClass - client-side
+  obj,level=0  // to convert to string with each attribute on a newline - will make debugging saved json easy to read, each new attribute is on a seperate line, with intetion
+){
+  let str,pad;
 
-/*
-https://stackoverflow.com/questions/4253367/how-to-escape-a-json-string-containing-newline-characters-using-javascript
-  String.prototype.escapeSpecialChars = function() {
-    return this.replace(/\\n/g, "\\n")
-               .replace(/\\'/g, "\\'")
-               .replace(/\\"/g, '\\"')
-               .replace(/\\&/g, "\\&")
-               .replace(/\\r/g, "\\r")
-               .replace(/\\t/g, "\\t")
-               .replace(/\\b/g, "\\b")
-               .replace(/\\f/g, "\\f");
-};
-*/
+  try {
+    if        (typeof(obj) === "string") {
+      str = `"${this.escStringForJson(obj)}"`;
+    } else if (typeof(obj) === "number") {
+      str = obj.toString();
+    } else if (Array.isArray(obj)) {                  // code assume array has no gaps   a[0]=""   a[2]=""  has gap of a[]1
+      str = "";  // add new line for object
+      const keys = Object.keys(obj);
+      keys.forEach((key, index) => {
+        pad = "";    // init pad spacing
+        str += "\n" + `,${pad.padStart(level*3, " ")}  ${this.obj2string(obj[key],level+1)}`
+      });
+      str ="[\n " + str.substring(2) + "\n]";  // replace leading \n, with \n
+    } else if (typeof(obj) === "object") {
+      str = "";  // add new line for object
+      const keys = Object.keys(obj);
+      keys.forEach((key, index) => {
+        pad = "";    // init pad spacing
+        str += "\n" + `,${pad.padStart(level*3, " ")}"${key}" : ${this.obj2string(obj[key],level+1)}`
+      });
+
+      str ="{\n " + str.substring(2) + "}\n";  // replace leading \n, with \n
+    } else {
+      alert(`error: formatClass.obj2string() - typeof(obj)=${typeof(obj)}`);
+      str = obj.toString();
+    }
+  }  catch(err) {
+    alert(`error: formatClass.obj2string() - error=${err},level=${level}, obj=${obj}`)
+  }
+
+  return str;
+}
 
 
 // formatClass - client-side

@@ -39,13 +39,12 @@ constructor(
   this.paging.row   =  0;    // row number of first line, start with 0
   this.paging.rowMax =20;    // max row of talalbe or rowArray
 
+  this.selectedFields = [3]; // used by groupby, sort hardcode to test
 
   this.dom       = {};       // saves attributes like onclick that will be added when html is rendered
 
   //this.dom.table = "";       // put in <table ${this.dom.table} during display - how is this used?
   //this.dom.row   = "";       // put in <tr ${this.dom.row} during display  - does not seem to be used
-
-
 }
 
 

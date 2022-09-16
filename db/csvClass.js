@@ -1,20 +1,19 @@
-/*
+class csvClass { // csvClass: client-side
 
-class to parse csv file and put into instance of _lib/dbClass/tableClass
+  /*
 
-would like to also create csv from _lib/dbClass/tableClass
+  class to parse csv file and put into instance of _lib/dbClass/tableClass
 
-link to spec for CSV (Comma seperated Values)
-https://datatracker.ietf.org/doc/html/rfc4180
-spec allos CRLF to be in side of quotes - have not tested this
+  would like to also create csv from _lib/dbClass/tableClass
 
-*/
+  link to spec for CSV (Comma seperated Values)
+  https://datatracker.ietf.org/doc/html/rfc4180
+  spec allos CRLF to be in side of quotes - have not tested this
 
-// csvClass: client-side
-class csvClass {
+  */
 
-// csvClass: client-side
-constructor(
+
+constructor(  // csvClass: client-side
   table   // place to put parsed data
 ) {
 //  this.fsp  = require('fs').promises;   // asycn wrapper on fs
@@ -25,12 +24,9 @@ constructor(
 }
 
 
-// csvClass: client-side
-// file -> file in memory to be parseHeader
-// DOMid  -> (optional) place to put status of current row being parsed
-parseCSV(
-   file    // buffer to parser
-  ,DOMid   // place to put status of parser
+parseCSV(  // csvClass: client-side
+   file          // file in memory to be parseHeader
+  ,DOMid         // DOMid  -> (optional) place to put status of current row being parsed
   ,header=false  // if not passed, assume first row is header
 ) {
   // init class variables
@@ -45,18 +41,17 @@ parseCSV(
   this.rowEnd     = false;
   this.delimiter  = ',';      // assume our delimter is a Comma
   this.quote      = '"';      // assume strings with quotes, comma's or crlf are quoted with double quotes
-  this.DOM     = document.getElementById(DOMid);
+  this.DOM        = document.getElementById(DOMid);
 
-  this.csv = file;
+  this.csv        = file;     //  file in memory to parse
 
   if (header) {
-    // assume header passed in
+    // header passed in
     this.table.setHeader( header);
   } else {
     // assume first row is header
     this.table.setHeader( this.parseRow() );
   }
-
 
   // now loop and put every thing else in json.rows
   while ( this.valueStart < this.csv.length) {
@@ -70,8 +65,7 @@ parseCSV(
 }
 
 
-// csvClass: client-side
-parseHeader() {
+parseHeader() { // csvClass: client-side
   // the lenght of the hearder row, set the expected lenght of the remaining rows
   const a = [];   // returns this array with each element one field in the array
   while (!this.rowEnd) {
@@ -83,8 +77,7 @@ parseHeader() {
 }
 
 
-// csvClass: client-side
-parseRow() {
+parseRow() {  // csvClass: client-side
   const a = [];   // returns this array with each element one field in the array
 
   while (!this.rowEnd) {
@@ -104,14 +97,14 @@ parseRow() {
   return a;
 }
 
-// csvClass: client-side
-error(message){
+
+error(message){  // csvClass: client-side
     this.error = true;
     this.DOM.innerHTML += message +"<br/>";
 }
 
-// csvClass: client-side
-parseValue() {
+
+parseValue() {  // csvClass: client-side
   if      (this.csv[this.valueStart] === this.delimiter
       ||   this.csv[this.valueStart] === "\n"
       ||  (this.csv[this.valueStart] === "\r" && this.csv[this.valueStart+1] === "\n" ) ) {
@@ -134,8 +127,7 @@ parseValue() {
 }
 
 
-// csvClass: client-side
-parseQuote(){
+parseQuote(){  // csvClass: client-side
   // find the end of the quote   "            ",
   let e1 = this.csv.indexOf('",', this.valueStart+1);   // was +2
   let e2 = this.csv.indexOf('"\r', this.valueStart+1);  // was +2
@@ -158,8 +150,7 @@ parseQuote(){
 }
 
 
-// csvClass: client-side
-parse(){
+parse(){  // csvClass: client-side
   // find the end of the value, may come at next delimiter or end of line  \r\n or \n
   let ed=this.csv.indexOf(this.delimiter, this.valueStart);
   let en=this.csv.indexOf('\n'          , this.valueStart);
@@ -191,64 +182,23 @@ parse(){
 }
 
 
-// csvClass: client-side
-parseNull() {
+parseNull() { // csvClass: client-side
   this.testEndRow(this.valueStart);
   return (null);
 }
 
 
-// csvClass: client-side
-testEndRow(e) {
+testEndRow(e) {  // csvClass: client-side
   if (this.csv[e] === "\n"  || this.csv.length === e) {
     this.rowEnd = true;
   }
   this.valueStart = e+1;
 }
 
-// csvClass: client-side
-exportCSV() {
-  //
+
+exportCSV() { // csvClass: client-side
  const rows = this.table.getRows();
-
-
 }
 
 
-// csvClass: client-side
-} // end of class
-
-
-
-
-
-/*
-// csvClass: client-side
-genJSON() {
-  let rows = this.genRows();
-  return `{
-"fieldA": ${JSON.stringify(app.csv.json.header[0])}
-
-,"header": ${JSON.stringify(app.csv.json.header[0])}
-
-,"rows": [
-${rows}
-]
-}`;
-
-}
-*/
-
-
-/*
-// appClass to show csv class
-// create a json row to display/save
-genRows() {
-  let txt="";
-
-  this.json.rows.forEach((r, i) => {
-    txt += ","+JSON.stringify(r)+"\n"
-  })
-  return txt.slice(1);
-}
-*/
+} // end of class // csvClass: client-side
