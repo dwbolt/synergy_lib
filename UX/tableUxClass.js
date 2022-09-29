@@ -48,8 +48,8 @@ constructor(
 }
 
 
-// tableUxClass - client-side
-display(        // display table - for first time
+display(        // tableUxClass - client-side
+  // display table - for first time
   rowArray=null // optional rowarray, display if passed
 ) {
   this.tags = {}  // remove any previous tags

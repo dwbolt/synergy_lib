@@ -1,20 +1,20 @@
-class groupByClass {
+class groupByClass {  // groupbeClass.js
 /*
 
 provides methods that agreate rows similar to SQL groupBY
 
 */
 
-// groupByClass - client-side
-constructor() {
+
+constructor() { // groupByClass - client-side
   this.aggObj = {};  // place to put info from agg call back functions;
   this.table;        // pointer to table object
   this.groups = {};  // object, each attribute is a group name with an object value with group details,
 }
 
 
-// groupByClass - client-side
-groupBy(  // creates and saves this.groups
+groupBy(  // groupByClass - client-side
+  // creates and saves this.groups
    table  // tableClass object
   ,a_g    // array of fields to create a group  similar to SQL GROUP BY ["acount"]
 //  ,l = null     // null -> entire table, list of rows to group [3,5, 3 ...]  usually  a subset of the the table
@@ -49,13 +49,10 @@ groupBy(  // creates and saves this.groups
       this.groups[attributeName].rowIndex.push(i);
     }
   });
-
 }
 
 
-
-// groupByClass - client-side
-aggregate(
+aggregate(  // groupByClass - client-side
   f  // a function that aggregate a table row.  It could, sum, min, max, or something else
 ) {
   // walk groups
@@ -76,5 +73,4 @@ aggregate(
 }
 
 
-// groupByClass - client-side
-}  //  end
+}  //  end  groupByClass - client-side

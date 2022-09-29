@@ -1,8 +1,6 @@
-// tableClass - client-side
-class tableClass {
+class tableClass {  // tableClass - client-side
 
 /*
-
 similar to a table in sql rdb. working on support for:
  select - returns an array of row numbers that match the selection function passed in
  total -
@@ -12,12 +10,10 @@ similar to a table in sql rdb. working on support for:
 these features are tested in the following apps
   accounting
   server log
-
 */
 
 
-// tableClass - client-side
-constructor() {
+constructor() {  // tableClass - client-side
   // data
   this.json = {
     "description":""        // what is this table for
@@ -31,8 +27,8 @@ constructor() {
   }
 }
 
-// tableClass - client-side
-sortList(
+
+sortList(  // tableClass - client-side
     a_list     // array of row indexes that need to be sorted
   , a_fields   // array of fields to sort on
 ) {
@@ -60,13 +56,15 @@ sortList(
 }
 
 
-getValue(rowIndex,fieldName){return this.json.rows[rowIndex][this.json.field[fieldName]] ;} // tableClass - client-side
-getHeader()  {return this.json.header        ;} // tableClass - client-side
-getField() {return this.json.field           ;} // tableClass - client-side
-getRows()     {return this.json.rows         ;} // tableClass - client-side
-getRow(index) {return this.json.rows[index]  ;} // tableClass - client-side
-getRowsLength() {return this.json.rows.length;} // tableClass - client-side
-getJSON(      ) {return this.json            ;} // tableClass - client-side
+getValue(rowIndex,fieldName)  // tableClass - client-side
+                {return this.json.rows[rowIndex][this.json.field[fieldName]] ;}
+
+getHeader()     {return this.json.header        ;} // tableClass - client-side
+getField()      {return this.json.field         ;} // tableClass - client-side
+getRows()       {return this.json.rows          ;} // tableClass - client-side
+getRow(index)   {return this.json.rows[index]   ;} // tableClass - client-side
+getRowsLength() {return this.json.rows.length   ;} // tableClass - client-side
+getJSON(      ) {return this.json               ;} // tableClass - client-side
 
 appendRow(a_row){this.json.rows.push(a_row)  ;} // tableClass - client-side
 
@@ -262,11 +260,10 @@ getColumnFormat(i) { // tableClass - client-side
 clearRows() {this.json.rows = [];}  // tableClass - client-side
 
 
-// tableClass - client-side
-// add error checking for non-numbers
-total(
+total(  // tableClass - client-side
   col  // integer of column
 ) {
+  // add error checking for non-numbers
   let total = 0;
 
   // add col rows
