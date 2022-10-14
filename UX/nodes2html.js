@@ -191,28 +191,26 @@ async displayRow(  // nodes2htmlClass - client-side
 dateNode(// nodes2htmlClass - client-side
   a_date   // array of date generators
 ) {
-  let text = "";
+  let text = "",start,end;
+  const now = new Date();
 
   a_date.forEach((date, i) => {
-    if        (date.repeat === "monthly") {
-      let start =    app.calendar.createDate(date);
-      let end   =    app.calendar.createDate(date,true);
-      let day   =    app.format.getDayOfWeek(date.days[0][0]);
-      let time  = `${app.format.timeRange(start, end)}`;
-      text +=  `<p><b>Day:</b> ${app.format.weekNumber(date.days[0][1])} ${day} <br/><b>Time:</b> ${time}</p>`
-    } else if (date.repeat === "weekly") {
-      // format date for weely event
-      let start =  app.calendar.createDate(date,false);
-      let end   =  app.calendar.createDate(date,true);
-      let days  =  app.format.getDaysOfWeek(start, date.daysOffset);
-      let time  = `${app.format.timeRange(start, end)}`;
-      text +=  `<p><b>Day: </b>${days} <br/><b>Time:</b> ${time}</p>`
-    } else if (date.repeat === "yearly") {
-      let start =  app.calendar.createDate(date,false);
-      let end   =  app.calendar.createDate(date,true);
-      let time  = `${app.format.timeRange(start, end)}`;
-      text += `<p><b>Date:</b> ${app.format.getISO(start)} <br/><b>Day:</b> ${app.format.getDayOfWeek(start.getDay())} <br/><b>Time: </b>${time}</p>`
-    }
+    start =    app.calendar.createDate(date);
+    end   =    app.calendar.createDate(date,true);
+    if (start<now && now<end) { // current date is in between start and end
+      if        (date.repeat === "monthly") {
+        let day   =    app.format.getDayOfWeek(date.days[0][0]);
+        let time  = `${app.format.timeRange(start, end)}`;
+        text +=  `<p><b>Day:</b> ${app.format.weekNumber(date.days[0][1])} ${day} <br/><b>Time:</b> ${time}</p>`
+      } else if (date.repeat === "weekly") {
+        // format date for weely event
+        let days  =  app.format.getDaysOfWeek(start, date.daysOffset);
+        let time  = `${app.format.timeRange(start, end)}`;
+        text +=  `<p><b>Day: </b>${days} <br/><b>Time:</b> ${time}</p>`
+      } else if (date.repeat === "yearly") {
+        let time  = `${app.format.timeRange(start, end)}`;
+        text += `<p><b>Date:</b> ${app.format.getISO(start)} <br/><b>Day:</b> ${app.format.getDayOfWeek(start.getDay())} <br/><b>Time: </b>${time}</p>`
+      }}
   });
 
   return text;
