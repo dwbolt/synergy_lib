@@ -918,7 +918,8 @@ weeklyRepeatDays() {
 async save(   // calendarClass  client-side
   // user clicked edits existing event, and now has clicked saved
 ) {
-  this.loadEventEdge(this.getEventEdge());
+
+  this.loadEventEdge(this.getEventEdge());  // form data to this.graph.edge[]
 
   const edge      = this.graph.edges[this.getEventEdge()];
   const node      = this.graph.nodes[edge.nR]
@@ -949,12 +950,10 @@ async addNewEvent(  // calendarClass  client-side
   app.calendar.graph.nodeNext += 1;
 
   await this.processServerRefresh();  // save the updated calendar
-
-
 }
 
-async processServerRefresh( // calendarClass  client-side
 
+async processServerRefresh( // calendarClass  client-side
 ) {
   // save new graph
   const msg = {
