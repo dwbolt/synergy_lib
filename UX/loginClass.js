@@ -48,7 +48,7 @@ constructor(
 buildForm(
   idDOM  // place to put form
 ) {
-  // get login Statement
+  // get login State
   let loginState;
   if (sessionStorage.nameFirst && sessionStorage.nameFirst === localStorage.nameFirst
    && sessionStorage.nameLast  && sessionStorage.nameLast  === localStorage.nameLast
@@ -88,7 +88,6 @@ async string2digestBase64(
   s_pwd // string
 ) {
   const encoder  = new TextEncoder();
-
   const buffer   = encoder.encode(s_pwd);                          // conver string pwd to buffer
   const digest   = await crypto.subtle.digest('SHA-256', buffer);  // convert data buffer to a digest buffer
   const s_digest = btoa( new Uint8Array(digest) );                 // convert binary digest to string
@@ -103,7 +102,9 @@ getStatus(){
 // loginClass - client side
 // public: Sends the username and password digest to the server
 // server returns s in order to try to log in
-async login(DOMbutton) {
+async login(
+  DOMbutton  // login button
+) {
     // get user credentials from web page
     const user = document.getElementById("userName").value;
   	const pwd  = document.getElementById("password").value;
@@ -114,7 +115,7 @@ async login(DOMbutton) {
       return;
   	}
 
-    // encrypt password, so the server neaver sees it
+    // encrypt password, so the server never sees it
     const pwdDigest = await this.string2digestBase64(pwd);
 
     // ask server if this is a valid user
@@ -152,9 +153,8 @@ async login(DOMbutton) {
 }
 
 
-// loginClass - client side
-// public: Logs the user out by hiding the workspace, showing the login controls, and telling the server to end the user's session
-async logout() {
+async logout() { // loginClass - client side
+  // public: Logs the user out by hiding the workspace, showing the login controls, and telling the server to end the user's session
   // ask server to logout
   const msg = `{
     "server"      : "web"
@@ -267,17 +267,19 @@ async logout() {
   	document.getElementById("faveTable").classList.add("hidden");
   }
 
-// loginClass - client-side
-setLoginTrue(callBackFunction){
+
+setLoginTrue( // loginClass - client-side
+  callBackFunction
+){
   this.loginTrue = callBackFunction;
 }
 
-// loginClass-  client-side
-setLoginFalse(callBackFunction){
+
+setLoginFalse( // loginClass-  client-side
+  callBackFunction
+){
   this.loginFalse = callBackFunction;
 }
 
 
-
-// loginClass - client-side
-}  // end class
+}  // loginClass - client-side  // end class
