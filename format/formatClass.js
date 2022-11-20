@@ -173,8 +173,6 @@ obj2string( // formatClass - client-side
         str += "\n" + `,${pad.padStart(level*3, " ")}  ${this.obj2string(obj[key],level+1)}`
       });
       str ="[\n " + str.substring(2) + "\n]";  // replace leading \n, with \n
-    } else if (obj instanceof Date) {
-      str = obj.toString();  // do not like this, it is lossey
     } else if (typeof(obj) === "object") {
       str = "";  // add new line for object
       const keys = Object.keys(obj);
