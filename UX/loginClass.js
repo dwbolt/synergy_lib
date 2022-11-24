@@ -1,51 +1,51 @@
-// loginClass - client side
-class loginClass {
+class loginClass { // loginClass - client side
 
-  /* code modifed from harmony
+/* code modifed from harmony
+  constructor(
+buildForm(
+onEnter  - looks ad key press and tries to logsin if ender in pressed
+getStatus
+login - send to server and try to login
+logout() - logs user out of server
 
-  // public
-  loginOnEnter(element, evnt, userRequest) - takes a keypress event and, if the key pressed was Enter, calls login (enabling a keyboard shortcut)
-  login(element, userRequest) - sends the username and password entered by the user to the server in order to try to log in. Also shows the workspace (buttons, etc.) and hides the login controls.
-  logout() - logs the user out by hiding the workspace, showing the login controls, and telling the server to end the user's session.
-  dropFavorite(input, evnt) - adds an entry to the favorites list
-  saveFavoritesList(control, userRequest) - updates the list of favorites in the database
-  changeDB(dropdown, userRequest) - switches to a different database
+// move to server?
+string2digestBase64(
+  -----------
+*/
 
-  // private
-  createLogin() - stripped-down code that just gets HTML from widgetLogin.html and plugs it in
-  loginupdateDOM() - changes the login div to reflect that a user is logged in
 
-  getSettings(userRequest) - gets the Settings and Favorites documents from the database
-  adjustSettings() - If the settings document contains references to attributes that don't exist in the fields object, remove them.
-  getFavorites(userRequest, GUIDs) - searches for all favorite documents that aren't already cached
-  loadFavorites(GUIDs) - adds an entry to the favorites table for each favorite document
-  addFavoriteCell(row, cell, GUID) - adds a single cell to the favorites list, containing information for the doc with the given GUID
-
-  logoutUpdateDOM() - changes the login div to reflect that no user is logged in. Runs on logout or timeout
-
-  createButtons() - Populates the buttons div with a button for each node type. Clicking the button creates a search table for that node type.
-  removeButtons() - clears the list of search buttons
-  removeWidgets() - removes all widgets from the work area. Runs when user logs out, or when a DIFFERENT user logs in after timeout
-
-  // unused
-  createDebug - currently, dummy function that just alerts it's been called - will eventually create the debug header if/when we reintroduce it
-  buildRegressionHeader - currently, dummy function that just alerts it's been called - will eventually create the regression header
-  */
-
-// loginClass - client side
-constructor(
-) { // public: Creates the widgetLogin instance
+constructor(  // loginClass - client side
+) {
   this.proxy = new proxyClass();
   this.user;            // json object returned when users logs in
   this.requests    = [];   // Used by REST to track requests made by this widget.
   this.status      = false; // not logedin yet
   this.loginTrue;  //  callback functions
   this.loginFalse; //  callback functions
+
+  this.html         = {} // holds
+
+  this.html.login = `
+Username: <input id='userName'> <br/>
+Password: <input id='password'  type='password' onkeydown='app.login.onEnter(this,event)'> enter or return key will attempt login<br/>
+<input class='button' type='button' value='Log In'           onclick='app.login.logInOut(this)'>
+<input class='button' type='button' value='Change Password'  onclick='app.login.changePWD(this)'>
+<p id='msg'></p>
+  `;
+
+  this.html.changePWD = `
+Username: <input id='userName'> <br/>
+Password: <input id='password'  type='password'><br/>
+Password New <input class='button' type='button' value='Log In'           '>
+Retype New  <input class='button' type='button'  value='Change Password'
+ onclick='app.login.changePWD(this)'>
+<p id='msg'></p>
+  `;
+
 }
 
 
-// loginClass - client side
-buildForm(
+buildForm(  // loginClass - client side
   idDOM  // place to put form
 ) {
   // get login State
@@ -59,34 +59,28 @@ buildForm(
     // not logged in
     loginState = "not logged in";
   }
+
   // put login form on screen
-  document.getElementById(idDOM).innerHTML = `
-Username: <input id='userName'> <br/>
-Password: <input type='password' id='password'  onkeydown='app.login.onEnter(this,event)'><br/>
-<input class='button' type='button' id='loginButton'  value='Log In'  onclick='app.login.login(this)'>
-<input class='button' type='button' id='logoutButton' value='Log Out' onclick='app.login.logout(this)'>
-<div id='myPage'></div>
-  `;
-  document.getElementById('myPage').innerHTML = loginState;
+  document.getElementById(idDOM).innerHTML =
 }
 
 
-// loginClass - client side
-// should fire when user is in the passwowrd field on every keystroke
-onEnter(element, evnt, userRequest) { // public: Takes a keypress event and, if the key pressed was Enter, calls login (enabling a keyboard shortcut)
+onEnter( // loginClass - client side
+  // should fire when user is in the passwowrd field on every keystroke
+  element
+  , evnt
+  , userRequest
+) {
   	// dwb change	 - if (textBox == this.passwordInput && evnt.key == "Enter") {
   	if (evnt.key == "Enter") {
   		return this.login(element, userRequest);
   	}
 }
 
-
-// loginClass - client side
-// convert string to digest base64 string
-// passwords are not stored on the server, only the digest of the password
-async string2digestBase64(
-  s_pwd // string
+async logInOut(
+  button //
 ) {
+<<<<<<< Updated upstream
   const encoder  = new TextEncoder();
   const buffer   = encoder.encode(s_pwd);                          // conver string pwd to buffer
   const digest   = await crypto.subtle.digest('SHA-256', buffer);  // convert data buffer to a digest buffer
@@ -106,10 +100,23 @@ async login(
   DOMbutton  // login button
 ) {
     // get user credentials from web page
+=======
+  if (button.value === "Log In") {
+    await this.login(button);
+  } else {
+    await this.logout(button);
+  }
+}
+
+async login( // loginClass - client side
+  // public: Sends the username and password digest to the server
+  // server returns s in order to try to log in
+  DOMbutton  //
+) {
+    // get user credentials from web page, and make sure something was enter for userName and password
+>>>>>>> Stashed changes
     const user = document.getElementById("userName").value;
   	const pwd  = document.getElementById("password").value;
-
-    // make sure something was enter for userName and password
   	if (!(user && pwd)) {
   		alert("Username and password are required!");
       return;
@@ -128,23 +135,25 @@ async login(
 
   // process server responce
   this.user = await app.proxy.postJSON(msg);
+  this.status = this.user.msg;  // remember login status
   if (this.user.msg) {
-    // loged in worked
-    this.status = true;
-    // this instance will goaway when a new page loads, so save info in localStorage
+    // login worked
+    // this instance will go away when a new page loads, so save info in localStorage
       localStorage.nameFirst = this.user.nameFirst;
     sessionStorage.nameFirst = this.user.nameFirst;
       localStorage.nameLast  = this.user.nameLast;
     sessionStorage.nameLast  = this.user.nameLast;
-    document.getElementById('myPage').innerHTML  = `<a href="/app.html?p=home&u=">${sessionStorage.nameFirst} ${sessionStorage.nameLast}</a>`
+    document.getElementById('msg').innerHTML  = `<a href="/app.html?p=home&u=">${sessionStorage.nameFirst} ${sessionStorage.nameLast}</a>`
     if (typeof(this.loginTrue) === "function") {
         // call application login true function
         this.loginTrue();
     }
+
+    // toggle button to logout
+    DOMbutton.value   = "Log Out";
   } else {
-    this.status = false;
     // login failed
-    document.getElementById('myPage').innerHTML = 'Loggin Failed'
+    document.getElementById('msg').innerHTML = 'Loggin Failed'
     if (typeof(this.loginFalse) === "function") {
         // call application login true function
         this.loginFalse();
@@ -153,8 +162,15 @@ async login(
 }
 
 
+<<<<<<< Updated upstream
 async logout() { // loginClass - client side
   // public: Logs the user out by hiding the workspace, showing the login controls, and telling the server to end the user's session
+=======
+async logout( // loginClass - client side
+  // public: Logs the user out by hiding the workspace,
+  DOMbutton
+) {
+>>>>>>> Stashed changes
   // ask server to logout
   const msg = `{
     "server"      : "web"
@@ -170,13 +186,16 @@ async logout() { // loginClass - client side
   this.user = await app.proxy.postJSON(msg);
   if (this.user.msg) {
     // out loged in worked
-    document.getElementById('myPage').innerHTML = `Logged out`
+    document.getElementById('msg').innerHTML = `Logged out`
+    // toggle button to loggin
+    DOMbutton.value   = "Log In";
   } else {
     // login failed
-    document.getElementById('myPage').innerHTML = 'Logout Failed'
+    document.getElementById('msg').innerHTML = 'Logout Failed'
   }
 }
 
+<<<<<<< Updated upstream
 
   // Private functions
 // loginClass
@@ -271,6 +290,10 @@ async logout() { // loginClass - client side
 setLoginTrue( // loginClass - client-side
   callBackFunction
 ){
+=======
+// loginClass - client-side
+setLoginTrue(callBackFunction){
+>>>>>>> Stashed changes
   this.loginTrue = callBackFunction;
 }
 
@@ -282,4 +305,29 @@ setLoginFalse( // loginClass-  client-side
 }
 
 
+<<<<<<< Updated upstream
 }  // loginClass - client-side  // end class
+=======
+async string2digestBase64(  // loginClass - client side
+  // convert string to digest base64 string
+  // passwords are not stored on the server, only the digest of the password
+  s_pwd // string
+) {
+  const encoder  = new TextEncoder();
+
+  const buffer   = encoder.encode(s_pwd);                          // conver string pwd to buffer
+  const digest   = await crypto.subtle.digest('SHA-256', buffer);  // convert data buffer to a digest buffer
+  const s_digest = btoa( new Uint8Array(digest) );                 // convert binary digest to string
+  return s_digest;
+}
+
+
+getStatus( // loginClass - client side
+){
+  // need to check server
+  return this.status;
+}
+
+
+}  // loginClass - client-side // end class
+>>>>>>> Stashed changes
