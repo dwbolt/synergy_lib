@@ -61,7 +61,7 @@ buildForm(  // loginClass - client side
   }
 
   // put login form on screen
-  document.getElementById(msg).innerHTML = loginState;
+  document.getElementById("msg").innerHTML = loginState;
 }
 
 
@@ -79,7 +79,7 @@ onEnter( // loginClass - client side
 
 
 async logInOut(  // loginClass - client side
-  DOMbutton  // login button
+  button  // login button
 ) {
   // get user credentials from web page
   if (button.value === "Log In") {
