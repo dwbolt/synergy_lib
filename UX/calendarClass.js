@@ -371,13 +371,46 @@ buildTable(  // calendarClass  client-side
             user = "&u=" + this.urlParams.get('u');
             editButton = `<a onClick="app.calendar.editEvent(${edgeName})">${i+1}</a> `;
           }
+          
+          let repeat_color = "";
+          /* 
+            weekly = blue
+            monthly = yellow
+            yearly = black
+          */
 
           if (typeof(nodeName) === "string") {
             // assume node is an interal node
-            html += `<p>${editButton}<a  href="/app.html?p=events&e=${edgeName}&d=${app.format.getISO(start)}${user}" target="_blank">${this.graph.nodes[nodeName].text[0][2]}</a></p>`
+            if(this.graph.edges[edgeName].repeat == "weekly") {
+              repeat_color = "blue";
+            }
+            else if(this.graph.edges[edgeName].repeat == "monthly") {
+              repeat_color = "yellow";
+            }
+            else if(this.graph.edges[edgeName].repeat == "yearly") {
+              repeat_color = "black";
+            }
+            else {
+              repeat_color = "";
+            }
+
+            html += `<p>${editButton}<a  href="/app.html?p=events&e=${edgeName}&d=${app.format.getISO(start)}${user}" target="_blank" style="color: ${repeat_color}">${this.graph.nodes[nodeName].text[0][2]}</a></p>`
           } else {
             // assume nodeName is an Object
-            html += `<p>${editButton}<a  href="${nodeName.url}" target="_blank">${nodeName.text}</a></p>`
+            if(this.graph.edges[edgeName].repeat == "weekly") {
+              repeat_color = "blue";
+            }
+            else if(this.graph.edges[edgeName].repeat == "monthly") {
+              repeat_color = "yellow";
+            }
+            else if(this.graph.edges[edgeName].repeat == "yearly") {
+              repeat_color = "black";
+            }
+            else {
+              repeat_color = "";
+            }
+
+            html += `<p>${editButton}<a  href="${nodeName.url}" target="_blank" style="color: ${repeat_color}">${nodeName.text}</a></p>`
           }
       });
 
