@@ -939,12 +939,13 @@ async addNewEvent(  // calendarClass  client-side
   this.loadEventEdge(this.graph.edgeNext);
 
   const node = this.graph.nodes[this.graph.nodeNext] = {};  // create new node
+  
+  // Changed node text to JSON style string
   node.text  = [
-    ["h3","",`${document.getElementById("eventName"       ).value}`]
-    ,["p" ,"",`${document.getElementById("eventDescription").value}`]
+    ["h3","",JSON.stringify(`${document.getElementById("eventName"       ).value}`)]
+    ,["p" ,"",JSON.stringify(`${document.getElementById("eventDescription"       ).value}`)]
   ];
 
-  // increment edge and node counters
   app.calendar.graph.edgeNext += 1;
   app.calendar.graph.nodeNext += 1;
 
