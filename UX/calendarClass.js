@@ -39,6 +39,7 @@ constructor( // calendarClass  client-side
     const today = new Date();
 
     this.year = today.getFullYear();
+    this.month = today.getMonth();
     // need more though, this is here because calendar class has hardcoded app.format and app.proxy, but I'm using calendarClass is a seperate page too.
     this.DOM        = null; // where we are displaying calendar or event;
   	this.format     = new formatClass();  // format time and dates
@@ -145,8 +146,11 @@ async main( // calendarClass  client-side
     // display entire calendar
     this.buildTable();  // convert edge data to table data that can be displayed
 
+    // create a text month list
+    // concatenate the month to the display
+    const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     if (document.getElementById("heading")) {
-      document.getElementById("heading").innerHTML += ` ${this.year}`;
+      document.getElementById("heading").innerHTML += ` ${this.year}` + ` ${month[this.month-1]}`;
     } else {
       // assume it is the main page
       document.getElementById("heading1").innerHTML += ` ${this.year}`;
