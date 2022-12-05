@@ -23,22 +23,23 @@ constructor(  // loginClass - client side
   this.loginTrue;  //  callback functions
   this.loginFalse; //  callback functions
 
-  this.html         = {} // holds
+  this.form         = null; // holds pointer to form
 
+  this.html         = {}     // holds
   this.html.login = `
 Username: <input id='userName'> <br/>
 Password: <input id='password'  type='password' onkeydown='app.login.onEnter(this,event)'> enter or return key will attempt login<br/>
 <input class='button' type='button' value='Log In'           onclick='app.login.logInOut(this)'>
-<input class='button' type='button' value='Change Password'  onclick='app.login.changePWD(this)'>
+<input class='button' type='button' value='Change Password'  onclick='app.login.buildFormChangePWD()'>
 <p id='msg'></p>
   `;
 
   this.html.changePWD = `
-Username: <input id='userName'> <br/>
-Password: <input id='password'  type='password'><br/>
-Password New <input class='button' type='button' value='Log In'           '>
-Retype New  <input class='button' type='button'  value='Change Password'
- onclick='app.login.changePWD(this)'>
+Username:    <input id='userName'> <br/>
+Password:    <input id='password'     type='password'><br/>
+Password New <input id='passwordNew'  type='password'><br/>
+Retype New   <input id='passwordNew2' type='password'><br/>
+<input class='button' type='button' value='Change Password'  onclick='app.login.changePWD(this)'>
 <p id='msg'></p>
   `;
 }
@@ -47,7 +48,9 @@ Retype New  <input class='button' type='button'  value='Change Password'
 buildForm(  // loginClass - client side
   idDOM  // place to put form
 ) {
-  document.getElementById(idDOM).innerHTML = this.html.login;
+  this.form = document.getElementById(idDOM);
+  this.form.innerHTML = this.html.login;
+
   // get login State
   let loginState;
   if (sessionStorage.nameFirst && sessionStorage.nameFirst === localStorage.nameFirst
@@ -62,6 +65,17 @@ buildForm(  // loginClass - client side
 
   // put login form on screen
   document.getElementById("msg").innerHTML = loginState;
+}
+
+
+buildFormChangePWD(  // loginClass - client side
+) {
+  this.form.innerHTML = this.html.changePWD;
+}
+
+
+changePWD(){// loginClass - client side
+  alert("changePWD")
 }
 
 
