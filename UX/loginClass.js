@@ -35,10 +35,10 @@ Password: <input id='password'  type='password' onkeydown='app.login.onEnter(thi
   `;
 
   this.html.changePWD = `
-Username:    <input id='userName'> <br/>
-Password:    <input id='password'     type='password'><br/>
-Password New <input id='passwordNew'  type='password'><br/>
-Retype New   <input id='passwordNew2' type='password'><br/>
+Username:    <input id='userName' value="david"> <br/>
+Password:    <input id='password'     type='password' value="bolt"><br/>
+Password New <input id='passwordNew'  type='password' value="bolt2"><br/>
+Retype New   <input id='passwordNew2' type='password' value="bolt2"><br/>
 <input class='button' type='button' value='Change Password'  onclick='app.login.changePWD(this)'>
 <p id='msg'></p>
   `;
@@ -74,8 +74,35 @@ buildFormChangePWD(  // loginClass - client side
 }
 
 
-changePWD(){// loginClass - client side
-  alert("changePWD")
+async changePWD() {// loginClass - client side
+  const user     = document.getElementById("userName").value;
+  const pwd      = document.getElementById("password").value;
+  const pwdNew   = document.getElementById("passwordNew").value;
+  const pwdNew2  = document.getElementById("passwordNew2").value;
+
+  if (pwdNew != pwdNew2) {
+    // make sure new passwords match
+    alert("new passwords do not match, password NOT changed")
+    return;
+  }
+
+  // process server responce
+  const msg = `{
+    "server"      : "web"
+    ,"msg"        : "changePWD"
+    ,"user"       : "${user}"
+    ,"pwd"        : "${pwd}"
+    ,"pwdNew"     : "${pwdNew}"
+  }`
+
+  const serverResp = await app.proxy.postJSON(msg);
+  if (serverResp.msg) {
+    // password changed
+    alert("Password was sucessfully changed");
+  } else {
+    // password was not changed
+    alert(`passward change Failed,${JSON.stringify(serverResp)}`);
+  }
 }
 
 
@@ -105,7 +132,7 @@ async logInOut(  // loginClass - client side
 
 
 async login( // loginClass - client side
-  // public: Sends the username and password digest to the server
+  // public: Sends the username and password to the server
   // server returns s in order to try to log in
   DOMbutton  //
 ) {
@@ -118,18 +145,18 @@ async login( // loginClass - client side
   	}
 
     // encrypt password, so the server never sees it
-    const pwdDigest = await this.string2digestBase64(pwd);
+    //const pwdDigest = await this.string2digestBase64(pwd);
 
     // ask server if this is a valid user
     const msg = `{
-      "server"      : "web"
-      ,"msg"        : "login"
-      ,"user"       : "${user}"
-      ,"pwdDigest"  : "${pwdDigest}"
+      "server" : "web"
+      ,"msg"   : "login"
+      ,"user"  : "${user}"
+      ,"pwd"   : "${pwd}"
     }`
 
   // process server responce
-  this.user = await app.proxy.postJSON(msg);
+  this.user   = await app.proxy.postJSON(msg);
   this.status = this.user.msg;  // remember login status
   if (this.user.msg) {
     // login worked
@@ -200,7 +227,7 @@ setLoginFalse( // loginClass-  client-side
   this.loginFalse = callBackFunction;
 }
 
-
+/*
 async string2digestBase64(  // loginClass - client side
   // convert string to digest base64 string
   // passwords are not stored on the server, only the digest of the password
@@ -213,7 +240,7 @@ async string2digestBase64(  // loginClass - client side
   const s_digest = btoa( new Uint8Array(digest) );                 // convert binary digest to string
   return s_digest;
 }
-
+*/
 
 getStatus( // loginClass - client side
 ){
