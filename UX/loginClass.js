@@ -42,6 +42,21 @@ Retype New   <input id='passwordNew2' type='password' value="bolt2"><br/>
 <input class='button' type='button' value='Change Password'  onclick='app.login.changePWD(this)'>
 <p id='msg'></p>
   `;
+
+    this.html.newUser = `
+Username:    <input id='userName' value="david"> <br/>
+First Name:
+Last Name:
+Email:
+Phone number:
+Interests:
+Password New <input id='passwordNew'  type='password' value="bolt2"><br/>
+Retype New   <input id='passwordNew2' type='password' value="bolt2"><br/>
+<input class='button' type='button' value='Change Password'  onclick='app.login.changePWD(this)'>
+<p id='msg'></p>
+  `;
+
+
 }
 
 
