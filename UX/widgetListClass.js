@@ -69,7 +69,7 @@ async displayList(listName, html=""){  // widgetListClass - client-side
 
 
 async displayNode(nodeName, html=""){ // widgetListClass - client-side
-  return await this.nodes2html.displayList([this.json.node[nodeName]], html="");
+  return await this.nodes2html.HTMLforNode(0,nodeName);
 }
 
 
