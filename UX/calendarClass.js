@@ -163,7 +163,7 @@ async main( // calendarClass  client-side
 
 
 createDate(  // calendarClass  client-side
-  // returns a date  a starting or endingdate for an event edge
+  // returns a date  a starting or ending date for an event edge
    edge  //
   ,end  //  true -> end time, add duration to start
   ,offsets = [0,0,0] // offset from start [yy,mm,dd]
@@ -300,7 +300,6 @@ addWeekly( // calendarClass  client-side
      }
   });
 }
-
 
 buildTable(  // calendarClass  client-side
 ) {   // converts calendar data from graph to a table
@@ -1068,6 +1067,18 @@ async displayEvent()  // calendarClass - client-side
 
   // add date to heading
   document.getElementById('heading1').innerHTML = "SFC Event On: " + date ;
+}
+
+validateMinuteDuration(
+  // Validates the entered minute value within the popup 
+  e
+  ) {
+    // Check the value is greater than 59 or less than 0
+    if (e.value > 59) {
+      e.value = 59;
+    } else if (e.value < 0) {
+      e.value = 0;
+    }
 }
 
 

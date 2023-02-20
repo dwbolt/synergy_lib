@@ -38,7 +38,7 @@
 
   <div>
     <label for="duration" class="popUpLabel">Duration: </label>
-    <input id="durationHour" type="number" min="0" max="8"/>:<input id="durationMinute" type="number" min="0" max="59"/>
+    <input id="durationHour" type="number" min="0" max="8"/>:<input id="durationMinute" type="number" min="0" max="59" onchange="app.calendar.validateMinuteDuration(this)"/>
   </div>
 
   <div style="display: flex; justify-content: center; margin: 5px;">
