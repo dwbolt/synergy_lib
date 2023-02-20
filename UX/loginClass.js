@@ -20,41 +20,9 @@ constructor(  // loginClass - client side
   this.user;            // json object returned when users logs in
   this.requests    = [];   // Used by REST to track requests made by this widget.
   this.status      = false; // not logedin yet
+  this.form        = null; // holds pointer to form
   this.loginTrue;  //  callback functions
   this.loginFalse; //  callback functions
-
-  this.form         = null; // holds pointer to form
-
-  this.html         = {}     // holds
-  this.html.login = `
-Username: <input id='userName'> <br/>
-Password: <input id='password'  type='password' onkeydown='app.login.onEnter(this,event)'> enter or return key will attempt login<br/>
-<input class='button' type='button' value='Log In'           onclick='app.login.logInOut(this)'>
-<input class='button' type='button' value='Change Password'  onclick='app.login.buildFormChangePWD()'>
-<p id='msg'></p>
-  `;
-
-  this.html.changePWD = `
-Username:    <input id='userName' value="david"> <br/>
-Password:    <input id='password'     type='password' value="bolt"><br/>
-Password New <input id='passwordNew'  type='password' value="bolt2"><br/>
-Retype New   <input id='passwordNew2' type='password' value="bolt2"><br/>
-<input class='button' type='button' value='Change Password'  onclick='app.login.changePWD(this)'>
-<p id='msg'></p>
-  `;
-
-    this.html.newUser = `
-Username:     <input id='userName' > <br/>
-First Name:   <input id='nameFirst' > 
-Last Name:    <input id='nameLast' > 
-Email:        <input id='email' "> 
-Phone number: <input id='[phone]'>
-Password New <input id='passwordNew'  type='password'><br/>
-Retype New   <input id='passwordNew2' type='password'><br/>
-<input class='button' type='button' value='Add User'  onclick='app.login.userAdd(this)'>
-<p id='msg'></p>
-  `;
-
 }
 
 
@@ -62,7 +30,12 @@ buildForm(  // loginClass - client side
   idDOM  // place to put form
 ) {
   this.form = document.getElementById(idDOM);
-  this.form.innerHTML = this.html.login;
+  this.form.innerHTML = `
+  Username: <input id='userName'> <br/>
+  Password: <input id='password'  type='password' onkeydown='app.login.onEnter(this,event)'> enter or return key will attempt login<br/>
+  <input class='button' type='button' value='Log In'           onclick='app.login.logInOut(this)'>
+  <input class='button' type='button' value='Change Password'  onclick='app.login.buildFormChangePWD()'>
+  <p id='msg'></p>`;
 
   // get login State
   let loginState;
@@ -80,10 +53,88 @@ buildForm(  // loginClass - client side
   document.getElementById("msg").innerHTML = loginState;
 }
 
+buildFormUserAdd(  // loginClass - client side
+idDom
+) {
+  document.getElementById(idDom).innerHTML =  `
+  Username:     <input id='userName'   > <br/>
+  First Name:   <input id='nameFirst'  > <br/>
+  Last Name:    <input id='nameLast'   > <br/>
+  Email:        <input id='email'      > <br/>
+  Phone number: <input id='phone'      > <br/>
+  Password New: <input id='password'> <br/>
+  <input class='button' type='button' value='Add User'  onclick='app.login.userAdd(this)'>
+  <p id='msg'></p>
+    `;
+}
+
+ async userAdd() {// loginClass - client side
+
+  // process server responce
+  const msg = `{
+    "server"      : "web"
+    ,"msg"        : "addUser"
+    ,"user"       : "${document.getElementById("userName" ).value}"
+    ,"nameFirst"  : "${document.getElementById("nameFirst").value}"
+    ,"nameLast"   : "${document.getElementById("nameLast" ).value}" 
+    ,"email"      : "${document.getElementById("email"    ).value}" 
+    ,"phone"      : "${document.getElementById("phone"    ).value}" 
+    ,"pwd"        : "${document.getElementById("password" ).value}"
+  }`
+
+  const serverResp = await app.proxy.postJSON(msg);
+  if (serverResp.msg) {
+    // password changed
+    alert("Password was sucessfully changed");
+  } else {
+    // password was not changed
+    alert(`passward change Failed,${JSON.stringify(serverResp)}`);
+  }
+}
+
+
+async changePWD() {// loginClass - client side
+  const user     = document.getElementById("userName").value;
+  const pwd      = document.getElementById("password").value;
+  const pwdNew   = document.getElementById("passwordNew").value;
+  const pwdNew2  = document.getElementById("passwordNew2").value;
+
+  if (pwdNew != pwdNew2) {
+    // make sure new passwords match
+    alert("new passwords do not match, password NOT changed")
+    return;
+  }
+
+  // process server responce
+  const msg = `{
+    "server"      : "web"
+    ,"msg"        : "changePWD"
+    ,"user"       : "${user}"
+    ,"pwd"        : "${pwd}"
+    ,"pwdNew"     : "${pwdNew}"
+  }`
+
+  const serverResp = await app.proxy.postJSON(msg);
+  if (serverResp.msg) {
+    // password changed
+    alert("Password was sucessfully changed");
+  } else {
+    // password was not changed
+    alert(`passward change Failed,${JSON.stringify(serverResp)}`);
+  }
+}
+
 
 buildFormChangePWD(  // loginClass - client side
 ) {
-  this.form.innerHTML = this.html.changePWD;
+  this.form.innerHTML =  `
+  Username:    <input id='userName' value="david"> <br/>
+  Password:    <input id='password'     type='password' value="bolt"><br/>
+  Password New <input id='passwordNew'  type='password' value="bolt2"><br/>
+  Retype New   <input id='passwordNew2' type='password' value="bolt2"><br/>
+  <input class='button' type='button' value='Change Password'  onclick='app.login.changePWD(this)'>
+  <p id='msg'></p>
+    `;
 }
 
 
