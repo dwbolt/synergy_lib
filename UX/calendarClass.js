@@ -1059,6 +1059,15 @@ async displayEvent()  // calendarClass - client-side
   const list     = [];         // will contain list of nodes to display
   const nodeName = this.graph.edges[this.edgeName].nR; // get the main nodeName or object
   const date     = this.urlParams.get('d')             // get YYYY-MM-DD from the URL
+  const edge = this.graph.edges[this.edgeName];        // get the edge to access the starting time
+  
+  // convert time to standard time, get the suffix, & the timezone to create full startTime
+  const hours = ((edge.dateStart[3] + 11) % 12 + 1);
+  const minutes = edge.dateStart[4] < 10 ? "0" + edge.dateStart[4] : edge.dateStart[4];
+  const suffix = edge.dateStart[3] >= 12 ? "PM" : "AM";
+  const timeZone = edge.timeZone;
+
+  const startTime = `<p>Start Time: ${hours}:${minutes} ${suffix} (${timeZone})</p>`;
 
   list.push(nodeName+date);    // push node for this date, display it first, this nodeName may not exist
   list.push(nodeName);         // push the main node to display
@@ -1066,8 +1075,9 @@ async displayEvent()  // calendarClass - client-side
   const nodes2html = new nodes2htmlClass(this.graph.nodes, this.DOM, this.graph.edges[this.edgeName]);
   await nodes2html.displayList(list);
 
-  // add date to heading
-  document.getElementById('heading1').innerHTML = "SFC Event On: " + date ;
+  // add date to heading & start time below the description
+  document.getElementById('heading1').innerHTML = "SFC Event On: " + date;
+  document.getElementById('main').innerHTML += startTime;
 }
 
 
