@@ -84,10 +84,10 @@ idDom
 
   const serverResp = await app.proxy.postJSON(msg);
   if (serverResp.msg) {
-    // password changed
-    alert("Password was sucessfully changed");
+    // user added
+    alert("User was sucessfully Added/changed");
   } else {
-    // password was not changed
+    // user was not added
     alert(`passward change Failed,${JSON.stringify(serverResp)}`);
   }
 }
