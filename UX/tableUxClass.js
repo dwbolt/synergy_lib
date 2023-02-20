@@ -117,6 +117,16 @@ displayHeader(){
 // tableUxClass - client-side
 changePageSize(e) {
   this.paging.lines = parseInt(e.value); // convert string to number;
+  
+  // Don't allow for rows/page value under the min or over the max
+  if (this.paging.lines < e.min ) {
+    this.paging.lines = e.min;
+    e.value = e.min;
+  } else if (this.paging.lines > e.max) {
+    this.paging.lines = e.max;
+    e.value = e.max;
+  }
+
   this.displayData();
 }
 
