@@ -39,7 +39,6 @@ constructor( // calendarClass  client-side
     const today = new Date();
 
     this.year = today.getFullYear();
-    this.month = today.getMonth();
     // need more though, this is here because calendar class has hardcoded app.format and app.proxy, but I'm using calendarClass is a seperate page too.
     this.DOM        = null; // where we are displaying calendar or event;
   	this.format     = new formatClass();  // format time and dates
@@ -146,11 +145,8 @@ async main( // calendarClass  client-side
     // display entire calendar
     this.buildTable();  // convert edge data to table data that can be displayed
 
-    // create a text month list
-    // concatenate the month to the display
-    const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     if (document.getElementById("heading")) {
-      document.getElementById("heading").innerHTML += ` ${this.year}` + ` ${month[this.month-1]}`;
+      document.getElementById("heading").innerHTML += ` ${this.year}`;
     } else {
       // assume it is the main page
       document.getElementById("heading1").innerHTML += ` ${this.year}`;
@@ -167,7 +163,7 @@ async main( // calendarClass  client-side
 
 
 createDate(  // calendarClass  client-side
-  // returns a date  a starting or ending date for an event edge
+  // returns a date  a starting or endingdate for an event edge
    edge  //
   ,end  //  true -> end time, add duration to start
   ,offsets = [0,0,0] // offset from start [yy,mm,dd]
@@ -305,6 +301,7 @@ addWeekly( // calendarClass  client-side
   });
 }
 
+
 buildTable(  // calendarClass  client-side
 ) {   // converts calendar data from graph to a table
   const t        = this.db.getTable("weekCal");  // t -> table we will put event data in to display
@@ -374,46 +371,13 @@ buildTable(  // calendarClass  client-side
             user = "&u=" + this.urlParams.get('u');
             editButton = `<a onClick="app.calendar.editEvent(${edgeName})">${i+1}</a> `;
           }
-          
-          let repeat_color = "";
-          /* 
-            weekly = blue
-            monthly = yellow
-            yearly = black
-          */
 
           if (typeof(nodeName) === "string") {
             // assume node is an interal node
-            if(this.graph.edges[edgeName].repeat == "weekly") {
-              repeat_color = "blue";
-            }
-            else if(this.graph.edges[edgeName].repeat == "monthly") {
-              repeat_color = "yellow";
-            }
-            else if(this.graph.edges[edgeName].repeat == "yearly") {
-              repeat_color = "black";
-            }
-            else {
-              repeat_color = "";
-            }
-
-            html += `<p>${editButton}<a  href="/app.html?p=events&e=${edgeName}&d=${app.format.getISO(start)}${user}" target="_blank" style="color: ${repeat_color}">${this.graph.nodes[nodeName].text[0][2]}</a></p>`
+            html += `<p>${editButton}<a  href="/app.html?p=events&e=${edgeName}&d=${app.format.getISO(start)}${user}" target="_blank">${this.graph.nodes[nodeName].text[0][2]}</a></p>`
           } else {
             // assume nodeName is an Object
-            if(this.graph.edges[edgeName].repeat == "weekly") {
-              repeat_color = "blue";
-            }
-            else if(this.graph.edges[edgeName].repeat == "monthly") {
-              repeat_color = "yellow";
-            }
-            else if(this.graph.edges[edgeName].repeat == "yearly") {
-              repeat_color = "black";
-            }
-            else {
-              repeat_color = "";
-            }
-
-            html += `<p>${editButton}<a  href="${nodeName.url}" target="_blank" style="color: ${repeat_color}">${nodeName.text}</a></p>`
+            html += `<p>${editButton}<a  href="${nodeName.url}" target="_blank">${nodeName.text}</a></p>`
           }
       });
 
@@ -954,7 +918,8 @@ weeklyRepeatDays() {
 async save(   // calendarClass  client-side
   // user clicked edits existing event, and now has clicked saved
 ) {
-  this.loadEventEdge(this.getEventEdge());
+
+  this.loadEventEdge(this.getEventEdge());  // form data to this.graph.edge[]
 
   const edge      = this.graph.edges[this.getEventEdge()];
   const node      = this.graph.nodes[edge.nR]
@@ -975,23 +940,20 @@ async addNewEvent(  // calendarClass  client-side
   this.loadEventEdge(this.graph.edgeNext);
 
   const node = this.graph.nodes[this.graph.nodeNext] = {};  // create new node
-  
-  // Changed node text to JSON style string
   node.text  = [
-    ["h3","",JSON.stringify(`${document.getElementById("eventName"       ).value}`)]
-    ,["p" ,"",JSON.stringify(`${document.getElementById("eventDescription"       ).value}`)]
+    ["h3","",`${document.getElementById("eventName"       ).value}`]
+    ,["p" ,"",`${document.getElementById("eventDescription").value}`]
   ];
 
+  // increment edge and node counters
   app.calendar.graph.edgeNext += 1;
   app.calendar.graph.nodeNext += 1;
 
   await this.processServerRefresh();  // save the updated calendar
-
-
 }
 
-async processServerRefresh( // calendarClass  client-side
 
+async processServerRefresh( // calendarClass  client-side
 ) {
   // save new graph
   const msg = {
@@ -1062,15 +1024,6 @@ async displayEvent()  // calendarClass - client-side
   const list     = [];         // will contain list of nodes to display
   const nodeName = this.graph.edges[this.edgeName].nR; // get the main nodeName or object
   const date     = this.urlParams.get('d')             // get YYYY-MM-DD from the URL
-  const edge = this.graph.edges[this.edgeName];        // get the edge to access the starting time
-  
-  // convert time to standard time, get the suffix, & the timezone to create full startTime
-  const hours = ((edge.dateStart[3] + 11) % 12 + 1);
-  const minutes = edge.dateStart[4] < 10 ? "0" + edge.dateStart[4] : edge.dateStart[4];
-  const suffix = edge.dateStart[3] >= 12 ? "PM" : "AM";
-  const timeZone = edge.timeZone;
-
-  const startTime = `<p>Start Time: ${hours}:${minutes} ${suffix} (${timeZone})</p>`;
 
   list.push(nodeName+date);    // push node for this date, display it first, this nodeName may not exist
   list.push(nodeName);         // push the main node to display
@@ -1078,21 +1031,8 @@ async displayEvent()  // calendarClass - client-side
   const nodes2html = new nodes2htmlClass(this.graph.nodes, this.DOM, this.graph.edges[this.edgeName]);
   await nodes2html.displayList(list);
 
-  // add date to heading & start time below the description
-  document.getElementById('heading1').innerHTML = "SFC Event On: " + date;
-  document.getElementById('main').innerHTML += startTime;
-}
-
-validateMinuteDuration(
-  // Validates the entered minute value within the popup 
-  e
-  ) {
-    // Check the value is greater than 59 or less than 0
-    if (e.value > 59) {
-      e.value = 59;
-    } else if (e.value < 0) {
-      e.value = 0;
-    }
+  // add date to heading
+  document.getElementById('heading1').innerHTML = "SFC Event On: " + date ;
 }
 
 
