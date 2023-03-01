@@ -30,28 +30,29 @@ buildForm(  // loginClass - client side
   idDOM  // place to put form
 ) {
   this.form = document.getElementById(idDOM);
-  this.form.innerHTML = `
-  Username: <input id='userName'> <br/>
-  Password: <input id='password'  type='password' onkeydown='app.login.onEnter(this,event)'> enter or return key will attempt login<br/>
-  <input class='button' type='button' value='Log In'           onclick='app.login.logInOut(this)'>
-  <input class='button' type='button' value='Change Password'  onclick='app.login.buildFormChangePWD()'>
-  <p id='msg'></p>`;
+  let logInOut,loginState;
 
   // get login State
-  let loginState;
   if (sessionStorage.nameFirst && sessionStorage.nameFirst === localStorage.nameFirst
    && sessionStorage.nameLast  && sessionStorage.nameLast  === localStorage.nameLast
   ) {
     // logged in
+    logInOut   = "Log Out";
     loginState = `<a href="/app.html?p=home&u=">${sessionStorage.nameFirst} ${sessionStorage.nameLast}</a>`
   } else {
     // not logged in
+    logInOut   = "Log In ";
     loginState = "not logged in";
   }
 
-  // put login form on screen
-  document.getElementById("msg").innerHTML = loginState;
+  this.form.innerHTML = `
+  Username: <input id='userName'> <br/>
+  Password: <input id='password'  type='password' onkeydown='app.login.onEnter(this,event)'> enter or return key will attempt login<br/>
+  <input class='button' type='button' value='${logInOut}'      onclick='app.login.logInOut(this)'>
+  <input class='button' type='button' value='Change Password'  onclick='app.login.buildFormChangePWD()'>
+  <p id='msg'>${loginState}</p>`;
 }
+
 
 buildFormUserAdd(  // loginClass - client side
 idDom
@@ -88,7 +89,7 @@ idDom
     alert("User was sucessfully Added/changed");
   } else {
     // user was not added
-    alert(`passward change Failed,${JSON.stringify(serverResp)}`);
+    alert(`User add Failed,${JSON.stringify(serverResp)}`);
   }
 }
 
@@ -128,10 +129,10 @@ async changePWD() {// loginClass - client side
 buildFormChangePWD(  // loginClass - client side
 ) {
   this.form.innerHTML =  `
-  Username:    <input id='userName' value="david"> <br/>
-  Password:    <input id='password'     type='password' value="bolt"><br/>
-  Password New <input id='passwordNew'  type='password' value="bolt2"><br/>
-  Retype New   <input id='passwordNew2' type='password' value="bolt2"><br/>
+  Username:    <input id='userName'                    ><br/>
+  Password:    <input id='password'     type='password'><br/>
+  Password New <input id='passwordNew'  type='password'><br/>
+  Retype New   <input id='passwordNew2' type='password'><br/>
   <input class='button' type='button' value='Change Password'  onclick='app.login.changePWD(this)'>
   <p id='msg'></p>
     `;
@@ -208,9 +209,6 @@ async login( // loginClass - client side
       return;
   	}
 
-    // encrypt password, so the server never sees it
-    //const pwdDigest = await this.string2digestBase64(pwd);
-
     // ask server if this is a valid user
     const msg = `{
       "server" : "web"
@@ -220,15 +218,17 @@ async login( // loginClass - client side
     }`
 
   // process server responce
-  this.user   = await app.proxy.postJSON(msg);
-  this.status = this.user.msg;  // remember login status
-  if (this.user.msg) {
+  const serverResponse = await app.proxy.postJSON(msg);
+  this.status          = serverResponse.msg;  // remember login status
+  if (this.status) {
     // login worked
     // this instance will go away when a new page loads, so save info in localStorage
-      localStorage.nameFirst = this.user.nameFirst;
-    sessionStorage.nameFirst = this.user.nameFirst;
-      localStorage.nameLast  = this.user.nameLast;
-    sessionStorage.nameLast  = this.user.nameLast;
+      localStorage.user      = user;
+    sessionStorage.user      = user;
+      localStorage.nameFirst = serverResponse.nameFirst;
+    sessionStorage.nameFirst = serverResponse.nameFirst;
+      localStorage.nameLast  = serverResponse.nameLast;
+    sessionStorage.nameLast  = serverResponse.nameLast;
     document.getElementById('msg').innerHTML  = `<a href="/app.html?p=home&u=">${sessionStorage.nameFirst} ${sessionStorage.nameLast}</a>`
     if (typeof(this.loginTrue) === "function") {
         // call application login true function
@@ -248,16 +248,14 @@ async login( // loginClass - client side
 }
 
 
+displayUser(dom){
+  document.getElementById(dom).innerHTML = `${sessionStorage.user} - ${localStorage.nameLast }, ${localStorage.nameFirst} `
+}
+
+
 async logout( // loginClass - client side
   DOMbutton
 ) {
-    // public: Logs the user out by hiding the workspace
-    localStorage.removeItem("nameFirst");
-  sessionStorage.removeItem("nameFirst");
-    localStorage.removeItem("nameLast");
-  sessionStorage.removeItem("nameLast");
-  sessionStorage.removeItem("userKey");
-
   // ask server to logout
   const msg = `{
      "server"  : "web"
@@ -265,9 +263,19 @@ async logout( // loginClass - client side
   }`
 
   // process server responce
-  this.user = await app.proxy.postJSON(msg);
-  if (this.user.msg) {
-    // out loged in worked
+  const serverResponse = await app.proxy.postJSON(msg);
+  if (serverResponse.msg) {
+    // log out worked on server side, all session information cleared
+
+    // erase client side long in information
+      localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
+      localStorage.removeItem("nameFirst");
+    sessionStorage.removeItem("nameFirst");
+      localStorage.removeItem("nameLast");
+    sessionStorage.removeItem("nameLast");
+    sessionStorage.removeItem("userKey");
+
     document.getElementById('msg').innerHTML = `Logged out`
     // toggle button to loggin
     DOMbutton.value   = "Log In";
