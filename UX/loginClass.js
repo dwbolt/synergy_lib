@@ -41,7 +41,7 @@ buildForm(  // loginClass - client side
     loginState = `<a href="/app.html?p=home&u=">${sessionStorage.nameFirst} ${sessionStorage.nameLast}</a>`
   } else {
     // not logged in
-    logInOut   = "Log In ";
+    logInOut   = "Log In";
     loginState = "not logged in";
   }
 
