@@ -66,7 +66,7 @@ async getText(url) {
         let t = await  f.text();
         return t;
       } else {
-        alert("HTTP-Error: " + response.status);
+        alert(`proxyClass.getText error: url = ${url}  status = ${f.status}`);
       }
     } catch (e) {
       alert("getText" + e);
