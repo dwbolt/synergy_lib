@@ -388,7 +388,7 @@ buildTable(  // calendarClass  client-side
               repeat_color = "blue";
             }
             else if(this.graph.edges[edgeName].repeat == "monthly") {
-              repeat_color = "yellow";
+              repeat_color = "green";
             }
             else if(this.graph.edges[edgeName].repeat == "yearly") {
               repeat_color = "black";
