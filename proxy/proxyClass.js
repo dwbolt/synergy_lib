@@ -1,3 +1,5 @@
+class proxyClass { // proxyClass - client - side
+
 /*
 
 class to work with other web servers
@@ -5,18 +7,11 @@ this may need to be on server rather than client
 
 */
 
-
-// proxyClass
-class proxyClass {
-
-
-// proxyClass
-constructor() {
+constructor() {  // proxyClass - client - side
 }
 
 
-// proxyClass
-async postJSON(
+async postJSON(   // proxyClass - client - side
    json // json messege to send
   ,url = window.location.href // server, default to current server
 ) {
@@ -28,7 +23,6 @@ async postJSON(
     credentials: 'same-origin', // include, *same-origin, omit
     headers: {
       'Content-Type': 'application/json'
-      // 'Content-Type': 'application/x-www-form-urlencoded',
     },
     redirect: 'follow', // manual, *follow, error
     referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
@@ -38,8 +32,7 @@ async postJSON(
 }
 
 
-// proxyClass
-async getJSON(
+async getJSON(  // proxyClass - client - side
   url // location of json file
 ) {
     try {
@@ -57,8 +50,7 @@ async getJSON(
 }
 
 
-// proxyClass
-async getText(url) {
+async getText(url) {   // proxyClass - client - side
     try {
       const f = await fetch(url);
       if (f.ok) { // if HTTP-status is 200-299
@@ -74,4 +66,4 @@ async getText(url) {
 }
 
 
-} // end of class
+}  // proxyClass - client - side  // end of class
