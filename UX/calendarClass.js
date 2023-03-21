@@ -809,9 +809,9 @@ loadEventEdge( // calendarClass  client-side
 
   const startTime  = document.getElementById("eventStartTime").value;  // the start time of the event
   let startHour   = startTime.split(":");
-  while (startHour[0][0] == "0") {
-    startHour[0] = startHour[0].substring(1);
-  }
+  //while (startHour[0][0] == "0") {                   dwb this breaks if starthour === "00", does not seem needed. prseInt works with leading "0"
+  //  startHour[0] = startHour[0].substring(1);
+  //}
 
   // parse year month day from end date
   let endDateInfo  = endDate.split("-");

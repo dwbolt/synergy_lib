@@ -32,23 +32,25 @@ tableAdd(tableName) {  // create empty table and add to database
 }
 
 
-// dbClass - client-side
-getTable(s_tableName) {  // return instance of tableClass
-  return this.json[s_tableName];
+getTable( // dbClass - client-side
+  s_tableName
+  ) {  
+  return this.json[s_tableName];  // return instance of tableClass
 }
 
 
-// dbClass - client-side
-clearData() {  // ? not sure when this is called
+clearData( // dbClass - client-side
+) {  // ? not sure when this is called
   this.json = null;
   this.url = null;
 }
 
 
-// dbClass - client-side
+save(  // dbClass - client-side
 // if s_DOMid is undefined, return the string
-// convert this.json into a string that can be saved or displayed
-save(s_DOMid) {
+// convert this.json into a string that can be saved or display
+  s_DOMid
+  ) {
   let file="{";
   let com = " ";
   Object.entries(this.json).forEach((item, i) => {
@@ -67,8 +69,9 @@ save(s_DOMid) {
 }
 
 
-// dbClass - client-side
-async load(url) {
+async load(  // dbClass - client-side
+  url
+  ) {
   // load json table file
   this.url = url;
   this.json = await app.proxy.getJSON(url);
@@ -86,8 +89,9 @@ async load(url) {
 }
 
 
-// dbClass - client-side
-loadLocal(buffer) {
+loadLocal( // dbClass - client-side
+  buffer
+  ) {
   // load json table file
 //  this.url = url;
 //  this.json = await app.proxy.getJSON(url);
@@ -120,9 +124,8 @@ displaySummery(s_domID) {
 }
 
 
-// dbClass - client-side
-// create menu of tables to display
-displayMenu(
+displayMenu( // dbClass - client-side
+  // create menu of tables to display
    domID        // where to output menu
   ,selectTable  // onchange function to execute
   ,exportF      //
@@ -140,9 +143,8 @@ displayMenu(
 }
 
 
-
-// dbClass - client-side
-displayTable(e){
+displayTable( // dbClass - client-side
+  e){
   // get value drop down list
   const table = e.options[e.selectedIndex].value;
   this.json[table].display('tableDisplay',"app.page.table");
@@ -150,24 +152,4 @@ displayTable(e){
 }
 
 
-// dbClass - client-side
-} // end /////////////////////////////////////////////////////////////////////////////
-
-
-
-
-// dbClass - client-side
-/* commened out by dwb 2022-03-11 does not seem to be used
-updateColumn(){
-  // hard coded json update  special use
-  let f = this.json.journal.field;
-  this.json.journal.rows.forEach((r) => {
-    r[f.n_credit] = Math.trunc( r[f.n_credit] * 100 );
-    r[f.n_debit]  = Math.trunc( r[f.n_debit]  * 100 );
-  });
-
-  this.display('journal');
-//  x=document.getElementById("t1-0")
-//  x.childNodes[3]
-}
-*/
+} // dbClass - client-side // end /////////////////////////////////////////////////////////////////////////////
