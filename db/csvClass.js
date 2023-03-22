@@ -201,4 +201,4 @@ exportCSV() { // csvClass: client-side
 }
 
 
-} // end of class // csvClass: client-side
+} // end of csvClass: client-side

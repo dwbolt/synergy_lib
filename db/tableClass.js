@@ -7,13 +7,15 @@ similar to a table in sql rdb. working on support for:
  group by - in a seperate class for now
  sort - pass an array of indexes to be sorted, and an array of fields to sort on
 
-these features are tested in the following apps
+these features are used in the following apps
   accounting
   server log
 */
 
+// tableClass - client-side
+constructor(
 
-constructor() {  // tableClass - client-side
+) {  
   // data
   this.json = {
     "description":""        // what is this table for
