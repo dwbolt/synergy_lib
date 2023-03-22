@@ -1,5 +1,4 @@
-// tableUxClass - client-side
-class tableUxClass {
+class tableUxClass { // tableUxClass - client-side
 
   //////////////////////////////////////////////////////
   /*
@@ -14,8 +13,8 @@ constructor(
    domID       // where table will be displayed
   ,globalName  // is used in UX on onChange, onClick etc events to get back to this instace of the object
 ) {
-  this.DOMid       = domID;              // where table will be displayed
-  this.globalName = globalName; // is used in UX on onChange, onClick etc events
+  this.DOMid       = domID;     // remember where table will be displayed
+  this.globalName = globalName; // remember is used in UX on onChange, onClick etc events
 
   // data
   this.tableUxB          = null;  // points to tableUx used for edit and copy buffer
@@ -30,8 +29,9 @@ constructor(
   this.footer            = [];  //
 
   this.buffer      = false; // are we displaying the model buffer
-  this.tags        = {}     // each attribute contains a list of indexes into this.model.json.rows these are a subset of the table rows
   this.tag         = null;  // name of tag to display if null, display entire table
+  this.tags        = {}     // each attribute contains a list of indexes into this.model.json.rows these are a subset of the table rows
+
   this.selected    = [];    // list of rows the user has selected for, (delete, copy, edit, make list)
 
   this.paging       = {}     // store paging states
@@ -381,8 +381,9 @@ setModel( // let class know what data it will be displaying/using
 }
 
 
-// tableUxClass - client-side
-appendHTMLrow(  // append row from table or tag list
+
+appendHTMLrow(  // tableUxClass - client-side
+  // append row from table or tag list
    i         // is line the row is being displayed on
   ,rowIndex  // row data to be displayed
 ) {
@@ -433,8 +434,7 @@ appendHTMLrow(  // append row from table or tag list
 }
 
 
-// tableUxClass - client-side
-formatTransform(
+formatTransform( // tableUxClass - client-side
   value   // orig field value
   , i     // column number
 ){
@@ -460,9 +460,8 @@ formatTransform(
 }
 
 
-// tableUxClass - client-side
-// this is used in the display() method
-setDom(
+setDom( // tableUxClass - client-side
+  // this is used in the display() method
   element //  2022-04-16 need more doc, not sure this is still used
   ,value  //
 ) {
@@ -470,9 +469,9 @@ setDom(
 }
 
 
-// tableUxClass - client-side
+genRows( // tableUxClass - client-side
 // creating text file to save
-genRows() {
+) {
   let txt="";
 
   this.json.rows.forEach((r, i) => {
@@ -485,8 +484,10 @@ genRows() {
 }
 
 
-// tableUxClass - client-side
-genTable(s_tableName) {
+
+genTable(  //+ tableUxClass - client-side
+  s_tableName
+  ) {//-+
   let rows = this.genRows();
 
   return `"${s_tableName}": {
@@ -497,11 +498,12 @@ genTable(s_tableName) {
 ,"rows": [
 ${rows}]
 }\n\n`;
-}
+} //-
 
 
-// tableUxClass - client-side
-getColumnFormat(i) { // return <td> attributes to be added
+getColumnFormat( // tableUxClass - client-side
+  i
+  ) { // return <td> attributes to be added
   let f = this.columnFormat[i];
   if (f === undefined) {
     return "";
@@ -511,8 +513,9 @@ getColumnFormat(i) { // return <td> attributes to be added
 }
 
 
-// tableUxClass - client-side
-setColumnFormat(i,value) {  // set <td> attributes to be added
+setColumnFormat( // tableUxClass - client-side
+  i,value
+  ) {  // set <td> attributes to be added
              this.columnFormat[i] = value;
   if (this.tableUxB) {
     // make the buff point to the same model as the main tableUx
@@ -522,20 +525,23 @@ setColumnFormat(i,value) {  // set <td> attributes to be added
 clearColumnFormat(){ this.columnFormat =[];}
 
 
-// tableUxClass - client-side
-setColumnTransform(i,value) { // set function to be called before value is displayed
+setColumnTransform( // tableUxClass - client-side
+  i
+  ,value
+  ) { // set function to be called before value is displayed
              this.columnTransform[i] = value;
   if (this.tableUxB) {
     // make the buff point to the same model as the main tableUx
     this.tableUxB.columnTransform[i] = value;
   }
 }
+
+
 clearColumnTransform(){ this.columnTransform = [];}
 
 
-// tableUxClass - client-side
-// add error checking for non-numbers
-total(
+total( // tableUxClass - client-side
+  // add error checking for non-numbers
   col  // column to total
 ) {
   let total = 0;
@@ -567,9 +573,10 @@ total(
 }
 
 
-// tableUxClass - client-side
-// return all the unique values in a table for the given field
-unique(s_field) {
+unique( // tableUxClass - client-side
+  // return all the unique values in a table for the given field
+  s_field
+  ) {
   const a=[];
   const f=this.json.field;
   this.json.rows.forEach((r) => {
@@ -583,8 +590,7 @@ unique(s_field) {
 }
 
 
-// tableUxClass - client-side
-select(
+select( // tableUxClass - client-side
   f    // f is boolean function, returns true if we want the row included in the list
 ) {
   this.tags.search = []  // set search tag equal to finds
@@ -602,8 +608,9 @@ select(
 }
 
 
-// tableUxClass - client-side
-setJSON(j) {
+setJSON(  // tableUxClass - client-side
+  j
+  ) {
   // replace place holder of new table with data from loaded file
   Object.entries(j).forEach((item, i) => {
     this.json[item[0]] = item[1];  // replace default value with loaded value
@@ -611,15 +618,16 @@ setJSON(j) {
 }
 
 
-// tableUxClass - client-side
-f(fieldName) {
+f(  // tableUxClass - client-side
+  fieldName
+  ) {
   return this.model.json.field[fieldName];
 }
 
 
-// tableUxClass - client-side
-// create the field attribute from the fieldA
-field(fieldA) {
+field(  // tableUxClass - client-side
+  fieldA  // create the field attribute from the fieldA
+  ) {
   if (fieldA) {
     // set the field Array
     this.json.fieldA = fieldA
@@ -632,9 +640,9 @@ field(fieldA) {
 }
 
 
-// tableUxClass - client-side
+search( // tableUxClass - client-side
+  // user made change in search criteria
 // use recursion
-search( // user made change in search criteria
    eDom      // element where search and display is done.
   ,index = 2 // skip first two columns, there is not search values there
 ) {
@@ -663,15 +671,15 @@ search( // user made change in search criteria
 }
 
 
-// tableUxClass - client-side
-next() { //next page
+next( // tableUxClass - client-side
+) { //next page
   this.paging.row = this.paging.row + this.paging.lines;
   this.displayData();
 }
 
 
-/// tableUxClass - client-side
-prev() { // previous page
+prev( /// tableUxClass - client-side
+) { // previous page
   this.paging.row = this.paging.row - this.paging.lines;
   if (this.paging.row < 0) {
     // should not be less than 0;
@@ -681,15 +689,15 @@ prev() { // previous page
 }
 
 
-/// tableUxClass - client-side
-first(){  // first page
+first( /// tableUxClass - client-side
+){  // first page
   this.paging.row = 0;
   this.displayData();
 }
 
 
-/// tableUxClass - client-side
-last(){  // last page
+last( /// tableUxClass - client-side
+){  // last page
 //  this.paging.row = this.model.getRowsLength()  - this.paging.lines
 //  this.paging.row = this.paging.rowMax  - this.paging.lines
   this.paging.row = parseInt(this.paging.rowMax/this.paging.lines) * this.paging.lines;
@@ -698,9 +706,9 @@ last(){  // last page
 
 
 ///////////////////////////////////////////////  buffer methods
-// tableUxClass - client-side
-// a_index-> array of row numbers into
-table2buffer(a_index) {
+table2buffer( // tableUxClass - client-side
+  a_index //  array of row numbers into
+  ) {
   // clear the buffer
   this.json.rowsBuffer = [];
 
@@ -711,9 +719,10 @@ table2buffer(a_index) {
 }
 
 
-// tableUxClass - client-side
+bufferGet( // tableUxClass - client-side
 // is this used?
-bufferGet(s_field) {
+  s_field
+  ) {
   return this.json.rowsBuffer;
 }
 
@@ -733,8 +742,8 @@ bufferSetType() {
 }
 
 
-// tableUxClass - client-side
-bufferSave() {  // to table in memory
+bufferSave(// tableUxClass - client-side
+) {  // to table in memory
   this.bufferSetType();
   this.json.rowsBuffer.forEach((item, i) => {
     // does not handle the case of growing or srinking the number of items in the buffer
@@ -743,8 +752,9 @@ bufferSave() {  // to table in memory
 }
 
 
-// tableUxClass - client-side
-bufferAppend() {  // to table in memory
+bufferAppend( // tableUxClass - client-side
+
+) {  // to table in memory
   this.bufferSetType();
   this.json.rowsBuffer.forEach((item, i) => {
     this.json.rows.push( item[1]  );
@@ -752,9 +762,9 @@ bufferAppend() {  // to table in memory
 }
 
 
-// tableUxClass - client-side
+bufferInput2Json(  // tableUxClass - client-side
 // move data from DOM to table buffer
-bufferInput2Json() {
+) {
   let r,col;
   // a_rows ->  an array of rows of input buffer data
   const a_rows = document.getElementById(this.DOMidBuffer).firstChild.firstChild.children;
@@ -778,8 +788,7 @@ bufferInput2Json() {
 }
 
 
-// tableUxClass - client-side
-bufferDisplay(
+bufferDisplay(// tableUxClass - client-side
   s_domID = s_domID=this.DOMidBuffer // s_domID optional for subsequet calls.
   , on = ""
 ) {
@@ -799,8 +808,10 @@ bufferDisplay(
 }
 
 
-// tableUxClass - client-side
-bufferAppendRow(row,i) {
+bufferAppendRow( // tableUxClass - client-side
+  row
+  ,i
+  ) {
   let html = `<tr><td>${i+1}</td>`;
   let format;
 
@@ -818,9 +829,9 @@ bufferAppendRow(row,i) {
 }
 
 
-// tableUxClass - client-side
-// adding
-bufferCreateEmpty(n_rows) {
+bufferCreateEmpty( // tableUxClass - client-side
+  n_rows // number of rows to add
+  ) {
   const rows = [];
   let i,ii;
 
@@ -837,6 +848,4 @@ bufferCreateEmpty(n_rows) {
   this.model.json.rows = rows;
 }
 
-
-// tableUxClass - client-side
-} //  end
+} // tableUxClass - client-side //  end
