@@ -229,7 +229,7 @@ async login( // loginClass - client side
     sessionStorage.nameFirst = serverResponse.nameFirst;
       localStorage.nameLast  = serverResponse.nameLast;
     sessionStorage.nameLast  = serverResponse.nameLast;
-    document.getElementById('msg').innerHTML  = `<a href="/app.html?p=home&u=">${sessionStorage.nameFirst} ${sessionStorage.nameLast}</a>`
+    document.getElementById('msg').innerHTML  = `<a href="/users/app.html" target="_blank">${sessionStorage.nameFirst} ${sessionStorage.nameLast}</a>`
     if (typeof(this.loginTrue) === "function") {
         // call application login true function
         this.loginTrue(msg);
