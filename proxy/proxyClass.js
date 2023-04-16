@@ -17,6 +17,16 @@ Delete. - delete
 */
 
 
+async RESTdelete(   // proxyClass - client - side
+  url = window.location.href // server, default to current server
+) {
+  const response = await fetch(url, {
+    method: 'DELETE'
+  });
+  return response
+}
+
+
 async RESTpost(   // proxyClass - client - side
    buffer // create binary resource on server
   ,url = window.location.href // server, default to current server
