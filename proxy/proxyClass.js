@@ -18,9 +18,9 @@ Delete. - delete
 
 
 async RESTdelete(   // proxyClass - client - side
-  url = window.location.href // server, default to current server
+  url 
 ) {
-  const response = await fetch(url, {
+  const response = await fetch(encodeURI(url), {
     method: 'DELETE'
   });
   return response
