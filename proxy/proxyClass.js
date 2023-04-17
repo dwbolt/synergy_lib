@@ -9,6 +9,7 @@ class to work with other web servers
 constructor() {  // proxyClass - client - side
 }
 
+//////////////// start REST API
 /* Rest API
 Create  - post
 Read.   - get
@@ -32,7 +33,7 @@ async RESTpost(   // proxyClass - client - side
   ,url = window.location.href // server, default to current server
 ) {
   // Default options are marked with *
-  const response = await fetch(url, {
+  const response = await fetch(encodeURI(url), {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
     mode: 'cors', // no-cors, *cors, same-origin
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -48,7 +49,7 @@ async RESTpost(   // proxyClass - client - side
 }
 
 
-//----------------------
+///////////////////////////////----------------------  replace these with rest api
 
 async postJSON(   // proxyClass - client - side
    json // json messege to send
