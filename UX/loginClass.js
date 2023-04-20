@@ -19,7 +19,6 @@ constructor(  // loginClass - client side
   this.proxy = new proxyClass();
   this.user;            // json object returned when users logs in
   this.requests    = [];   // Used by REST to track requests made by this widget.
-  this.status      = false; // not logedin yet
   this.form        = null; // holds pointer to form
   this.loginTrue;  //  callback functions
   this.loginFalse; //  callback functions
@@ -33,9 +32,7 @@ buildForm(  // loginClass - client side
   let logInOut,loginState;
 
   // get login State
-  if (sessionStorage.nameFirst && sessionStorage.nameFirst === localStorage.nameFirst
-   && sessionStorage.nameLast  && sessionStorage.nameLast  === localStorage.nameLast
-  ) {
+  if (this.getStatus()) {
     // logged in
     logInOut   = "Log Out";
     loginState = `<a href="/app.html?p=home&u=">${sessionStorage.nameFirst} ${sessionStorage.nameLast}</a>`
@@ -219,8 +216,7 @@ async login( // loginClass - client side
 
   // process server responce
   const serverResponse = await app.proxy.postJSON(msg);
-  this.status          = serverResponse.msg;  // remember login status
-  if (this.status) {
+  if (serverResponse.msg) {
     // login worked
     // this instance will go away when a new page loads, so save info in localStorage
       localStorage.user      = user;
@@ -248,7 +244,7 @@ async login( // loginClass - client side
 }
 
 
-displayUser(dom){
+displayUser( dom){
   document.getElementById(dom).innerHTML = `${sessionStorage.user} - ${localStorage.nameLast }, ${localStorage.nameFirst} `
 }
 
@@ -268,11 +264,8 @@ async logout( // loginClass - client side
     // log out worked on server side, all session information cleared
 
     // erase client side long in information
-      localStorage.removeItem("user");
     sessionStorage.removeItem("user");
-      localStorage.removeItem("nameFirst");
     sessionStorage.removeItem("nameFirst");
-      localStorage.removeItem("nameLast");
     sessionStorage.removeItem("nameLast");
     sessionStorage.removeItem("userKey");
 
@@ -280,7 +273,7 @@ async logout( // loginClass - client side
     // toggle button to loggin
     DOMbutton.value   = "Log In";
   } else {
-    // login failed
+    // logout failed
     document.getElementById('msg').innerHTML = 'Logout Failed'
   }
 }
@@ -299,26 +292,25 @@ setLoginFalse( // loginClass-  client-side
   this.loginFalse = callBackFunction;
 }
 
-/*
-async string2digestBase64(  // loginClass - client side
-  // convert string to digest base64 string
-  // passwords are not stored on the server, only the digest of the password
-  s_pwd // string
-) {
-  const encoder  = new TextEncoder();
-
-  const buffer   = encoder.encode(s_pwd);                          // conver string pwd to buffer
-  const digest   = await crypto.subtle.digest('SHA-256', buffer);  // convert data buffer to a digest buffer
-  const s_digest = btoa( new Uint8Array(digest) );                 // convert binary digest to string
-  return s_digest;
-}
-*/
 
 getStatus( // loginClass - client side
 ){
-  // need to check server
-  return this.status;
+  // need to check server, for now just check cookkie, could also get timeout from server to make this better
+  //https://www.w3schools.com/js/js_cookies.asp
+  const cookies = document.cookie       // convert to string
+  const cookiesA = cookies.split(';')        // create arry of keys
+  for (let i=0; i<cookiesA.length ;i++) {
+    let keyValue = cookiesA[i].split('=');
+    if (keyValue[0]==="userKey") {
+      if (0 === keyValue[1].length) {
+        return false;       // user has logged out
+      } else {
+        return true;        // client thinks the user is longed in - server may not
+      }
+    }
+  }
+  
+  return false;
 }
-
 
 }  // loginClass - client-side // end class
