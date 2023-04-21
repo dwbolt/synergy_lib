@@ -233,6 +233,7 @@ async login( // loginClass - client side
 
     // toggle button to logout
     DOMbutton.value   = "Log Out";
+    window.location.reload();
   } else {
     // login failed
     document.getElementById('msg').innerHTML = 'Loggin Failed'
@@ -272,6 +273,7 @@ async logout( // loginClass - client side
     document.getElementById('msg').innerHTML = `Logged out`
     // toggle button to loggin
     DOMbutton.value   = "Log In";
+    window.location.reload();
   } else {
     // logout failed
     document.getElementById('msg').innerHTML = 'Logout Failed'
