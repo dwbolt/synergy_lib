@@ -300,7 +300,7 @@ getStatus( // loginClass - client side
   // need to check server, for now just check cookkie, could also get timeout from server to make this better
   //https://www.w3schools.com/js/js_cookies.asp
   const cookies = document.cookie       // convert to string
-  const cookiesA = cookies.split(';')        // create arry of keys
+  const cookiesA = cookies.split('; ')        // create arry of keys
   for (let i=0; i<cookiesA.length ;i++) {
     let keyValue = cookiesA[i].split('=');
     if (keyValue[0]==="userKey") {
