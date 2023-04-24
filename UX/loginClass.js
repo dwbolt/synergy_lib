@@ -35,11 +35,11 @@ buildForm(  // loginClass - client side
   if (this.getStatus()) {
     // logged in
     logInOut   = "Log Out";
-    loginState = `<a href="/app.html?p=home&u=">${sessionStorage.nameFirst} ${sessionStorage.nameLast}</a>`
+    loginState = `Logged in top menu.`
   } else {
     // not logged in
     logInOut   = "Log In";
-    loginState = "not logged in";
+    loginState = "Logged out top menu.";
   }
 
   this.form.innerHTML = `
@@ -225,7 +225,7 @@ async login( // loginClass - client side
     sessionStorage.nameFirst = serverResponse.nameFirst;
       localStorage.nameLast  = serverResponse.nameLast;
     sessionStorage.nameLast  = serverResponse.nameLast;
-    document.getElementById('msg').innerHTML  = `<a href="/users/app.html" target="_blank">${sessionStorage.nameFirst} ${sessionStorage.nameLast}</a>`
+    document.getElementById('msg').innerHTML  = `Menu reflects logged in state.`
     if (typeof(this.loginTrue) === "function") {
         // call application login true function
         this.loginTrue(msg);
@@ -270,7 +270,7 @@ async logout( // loginClass - client side
     sessionStorage.removeItem("nameLast");
     sessionStorage.removeItem("userKey");
 
-    document.getElementById('msg').innerHTML = `Logged out`
+    document.getElementById('msg').innerHTML = `Menu reflects loggout state.`
     // toggle button to loggin
     DOMbutton.value   = "Log In";
     window.location.reload();
