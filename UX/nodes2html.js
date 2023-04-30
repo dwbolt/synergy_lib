@@ -130,6 +130,7 @@ async displayRow(  // nodes2htmlClass - client-side
       // see if date is with node
       this.edge = r.date;
     }
+
     if        (line[0] === "date") {
       text +=  this.dateNode(this.edge);
     } else if  (line[0] === "monthly") {
@@ -151,6 +152,7 @@ async displayRow(  // nodes2htmlClass - client-side
       // assume line[0] is a html tag and surround with open close tags
       text += `<${line[0]}>${line[2]}</${line[0]}>`;
     }
+    
   }
 
   if (localStorage.getItem('production')  === "false") {
