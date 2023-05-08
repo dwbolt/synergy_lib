@@ -131,35 +131,13 @@ async displayRow(  // nodes2htmlClass - client-side
       this.edge = r.date;
     }
 
-    if        (line[0] === "date") {
-      text +=  this.dateNode(this.edge);
-    } else if  (line[0] === "monthly") {
-      text +=  this.dateNode([this.edge]);  // just so old data will not break
-    } else if (line[0] === "weekly") {
-      text +=  this.dateNode([this.edge])   // just so old data will not break
-    } else if (line[0] === "yearly") {
-      text +=  this.dateNode([this.edge])   // just so old data will not break
-    } else if (line[0] === "eval") {
-      // save javascript code to execute in array, run it after the DOM is loaded
-      this.a_eval.push(line[2]);
-    } else if(line[0] === "load") {
-      // load external html
-      text += await app.proxy.getText(line[2]);
-    } else if(line[0] === "") {
-      // assume all HTML tags are included in line[2]
-      text += line[2];
-    } else {
-      // assume line[0] is a html tag and surround with open close tags
-      text += `<${line[0]}>${line[2]}</${line[0]}>`;
-    }
-    
+    text += await this.convertLine(line);
   }
 
   if (localStorage.getItem('production')  === "false") {
       // only show if production = false
       updated =`updated ${r.updated} <a href="/app.html?p=comment&pc=${page}&node=${encodeURI(a_name)}">add comment</a>`;
   }
-
 
   let pictures="";
   if(typeof(r.u_pictures) !="undefined" && 0<r.u_pictures.length) {
@@ -185,8 +163,43 @@ async displayRow(  // nodes2htmlClass - client-side
   </div>
   `;   // table cell for piture
 
-
   return html;
+}
+
+
+async convertLine(line) {
+  switch (line[0]) {
+    case "date" :
+      return  this.dateNode(this.edge);
+    case "monthly":
+      return  this.dateNode([this.edge]);  // just so old data will not break
+    case "weekly":
+      return  this.dateNode([this.edge])   // just so old data will not break
+    case "yearly":
+      return  this.dateNode([this.edge])   // just so old data will not break
+    case "eval":
+      // save javascript code to execute in aray, run it after the DOM is loaded
+      this.a_eval.push(line[2]);
+      return "";
+    case "load":
+      // load external html
+      return await app.proxy.getText(line[2]);
+    case "class":
+      // load external js file that holds a class
+      //text += await app.proxy.getText(line[2]);
+      if ( true ) {  // need test if already loaded
+        var classFile = document.createElement('script');
+        classFile.src = line[2];
+        document.head.appendChild(classFile);
+     }
+      return;
+    case "":
+      // assume all HTML tags are included in line[2]
+      return line[2];
+    default:
+      // assume line[0] is a html tag and surround with open close tags
+      return `<${line[0]}>${line[2]}</${line[0]}>`;
+  }
 }
 
 
