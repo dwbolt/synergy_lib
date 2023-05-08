@@ -192,7 +192,17 @@ async convertLine(line) {
         classFile.src = line[2];
         document.head.appendChild(classFile);
      }
-      return;
+      return "";
+    case "module":
+      // load external js file that holds a class
+      //text += await app.proxy.getText(line[2]);
+      if ( true ) {  // need test if already loaded
+        const element = document.createElement('script');
+        element.src  = line[2];
+        element.type = "module";
+        document.head.appendChild(element);
+      }
+      return "";      
     case "":
       // assume all HTML tags are included in line[2]
       return line[2];
