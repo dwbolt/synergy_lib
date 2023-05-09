@@ -167,7 +167,9 @@ async displayRow(  // nodes2htmlClass - client-side
 }
 
 
-async convertLine(line) {
+async convertLine(  // nodes2htmlClass - client-side
+  line  // ["command","data","data"] from _.json file that html is generated from
+  ) {  // nodes2htmlClass - client-side
   switch (line[0]) {
     case "date" :
       return  this.dateNode(this.edge);
@@ -184,25 +186,18 @@ async convertLine(line) {
     case "load":
       // load external html
       return await app.proxy.getText(line[2]);
-    case "class":
-      // load external js file that holds a class
-      //text += await app.proxy.getText(line[2]);
-      if ( true ) {  // need test if already loaded
-        var classFile = document.createElement('script');
-        classFile.src = line[2];
-        document.head.appendChild(classFile);
-     }
-      return "";
-    case "module":
-      // load external js file that holds a class
-      //text += await app.proxy.getText(line[2]);
+    case "script":
+      // load external js
+      const el = document.body.querySelector(
+        "style[type='text/javascript'], src:not([type])"
+      );
       if ( true ) {  // need test if already loaded
         const element = document.createElement('script');
-        element.src  = line[2];
+        element.src = line[2];
         element.type = "module";
         document.head.appendChild(element);
-      }
-      return "";      
+     }
+      return "";
     case "":
       // assume all HTML tags are included in line[2]
       return line[2];
@@ -213,7 +208,7 @@ async convertLine(line) {
 }
 
 
-dateNode(// nodes2htmlClass - client-side
+dateNode(  // nodes2htmlClass - client-side
   a_date   // array of date generators
 ) {
   let text = "",start,end;
