@@ -347,3 +347,5 @@ field( // tableClass - client-side
 
 
 } //  end  of // tableClass - client-side
+
+export {tableClass};

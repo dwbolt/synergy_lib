@@ -202,3 +202,5 @@ exportCSV() { // csvClass: client-side
 
 
 } // end of csvClass: client-side
+
+export {csvClass};

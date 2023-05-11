@@ -1,4 +1,6 @@
-class dbClass {  ///////////////////////////////////////////////////////////////////////
+import  {tableClass   }   from '/_lib/db/tableModule.js'    ;
+
+class dbClass {  
 /* db - database classes
 
 class dbClass       - more than one table can be in a json file
@@ -153,3 +155,6 @@ displayTable( // dbClass - client-side
 
 
 } // dbClass - client-side // end /////////////////////////////////////////////////////////////////////////////
+
+export {dbClass};
+
