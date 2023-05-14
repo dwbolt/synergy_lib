@@ -106,16 +106,15 @@ displayBuffer(        // display table - for first time
 }
 
 
-
-// tableUxClass - client-side
-displayHeader(){
-  //this.displaySearch();
+displayHeader( // tableUxClass - client-side
+){
   this.displayColumnTitles();
 }
 
 
-// tableUxClass - client-side
-changePageSize(e) {
+changePageSize(  // tableUxClass - client-side
+  e
+  ) {
   this.paging.lines = parseInt(e.value); // convert string to number;
   this.displayData();
 }
@@ -127,7 +126,7 @@ setSearchVisible(    value) {this.searchVisible     = value;}
 setLineNumberVisible(value) {this.lineNumberVisible = value;}
 setRowNumberVisible( value) {this.rowNumberVisible  = value;}
 setFooter(           value) {
-            this.footer   = value;
+  this.footer   = value;
   if (this.tableUxB) {
     // make the buff point to the same model as the main tableUx
     this.tableUxB.footer  = value;
@@ -136,8 +135,9 @@ setFooter(           value) {
 setSelected(         array) {this.selected          = array;}
 setBuffer(         tableUx) {this.tableUxB          = tableUx;}  // rember the tableUx Buffer
 
-// tableUxClass - client-side
-export(){ // as CSV file
+
+export( // tableUxClass - client-side
+){ // as CSV file
   // covert table to csv
   let csv = this.model.genCSV();
 
@@ -151,8 +151,8 @@ export(){ // as CSV file
 }
 
 
-// tableUxClass - client-side
-displayTagSelected( // user slected a tag to display
+displayTagSelected( // tableUxClass - client-side
+  // user slected a tag to display
   e  // points to dropdown holding tags for table
 ) { // user selected a tags list to display
   this.displayTag(e.options[e.selectedIndex].value);

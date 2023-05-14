@@ -26,9 +26,46 @@ constructor() {
 }
 
 
-/////////////////////////////   database methods
-// dbClass - client-side
-tableAdd(tableName) {  // create empty table and add to database
+async load(  // dbClass - client-side
+  url
+  ) {
+  // load json table file
+  this.url  = url;
+  this.json = await app.proxy.getJSON(url);
+
+  // walk through table data, and make the table class objects
+  Object.entries(this.json).forEach((item, i) => {
+    // covern raw json data to a table class
+    const t = new tableClass();
+    t.setJSON(item[1]);      // add loaded table attributes to constructor defaults
+    this.json[item[0]] = t;  // change plan data to a tableClasse
+    t.field();  // init the field attribute from fieldA array
+  });
+
+  // top level attributes are table names
+}
+
+
+displayMenu( // dbClass - client-side
+  // create menu of tables to display
+   domID        // where to output menu
+  ,selectTable  // onchange function to execute
+) {
+  // build menu list
+  let html = `<h4>Select Table to Display</h4><select size="4" onclick="${selectTable}">`;
+
+  Object.entries(this.json).forEach((table, i) => {
+    html += `<option value="${table[0]}">${table[0]}</option>`;
+  });
+  html += `
+  </select>`;
+
+  document.getElementById(domID).innerHTML = html;
+}
+
+
+tableAdd(tableName) { // dbClass - client-side
+   // create empty table and add to database
   this.json[tableName] = new tableClass(tableName);
   return this.json[tableName]
 }
@@ -71,26 +108,6 @@ save(  // dbClass - client-side
 }
 
 
-async load(  // dbClass - client-side
-  url
-  ) {
-  // load json table file
-  this.url = url;
-  this.json = await app.proxy.getJSON(url);
-
-  // walk through table data, and make the table class objects
-  Object.entries(this.json).forEach((item, i) => {
-    // covern raw json data to a table class
-    const t = new tableClass();
-    t.setJSON(item[1]);      // add loaded table attributes to constructor defaults
-    this.json[item[0]] = t;  // change plan data to a tableClasse
-    t.field();  // init the field attribute from fieldA array
-  });
-
-  // top level attributes are table names
-}
-
-
 loadLocal( // dbClass - client-side
   buffer
   ) {
@@ -111,9 +128,9 @@ loadLocal( // dbClass - client-side
 }
 
 
-// dbClass - client-side
+displaySummery( // dbClass - client-side
 //display summery of db loaded
-displaySummery(s_domID) {
+  s_domID) {
   let html = "<p><b>Summery of Data loaded</b></p>";
 
   Object.entries(this.json).forEach((item, i) => {
@@ -123,25 +140,6 @@ displaySummery(s_domID) {
   });
 
   document.getElementById(s_domID).innerHTML = html;
-}
-
-
-displayMenu( // dbClass - client-side
-  // create menu of tables to display
-   domID        // where to output menu
-  ,selectTable  // onchange function to execute
-  ,exportF      //
-) {
-  // build menu list
-  let html = `<h4>Select Table to Display</h4><select size="4" onclick="${selectTable}">`;
-
-  Object.entries(this.json).forEach((table, i) => {
-    html += `<option value="${table[0]}">${table[0]}</option>`;
-  });
-  html += `
-  </select>`;
-
-  document.getElementById(domID).innerHTML = html;
 }
 
 
