@@ -12,9 +12,8 @@ these features are used in the following apps
   server log
 */
 
-// tableClass - client-side
-constructor(
 
+constructor( // tableClass - client-side
 ) {  
   // data
   this.json = {
@@ -232,7 +231,7 @@ genRows() {  // tableClass - client-side
     txt += ","+JSON.stringify(r)+"\n"
   })
 
-  return " "+ txt.substr(1)  // replace leading comma with a space
+  return " "+ txt.slice(1)  // replace leading comma with a space
 }
 
 

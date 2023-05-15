@@ -12,9 +12,8 @@ these features are used in the following apps
   server log
 */
 
-// tableClass - client-side
-constructor(
 
+constructor(  // tableClass - client-side
 ) {  
   // data
   this.json = {

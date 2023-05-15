@@ -18,7 +18,7 @@ constructor(
 
   // data
   this.tableUxB          = null;  // points to tableUx used for edit and copy buffer
-  this.model;               // state object to commuicate with
+  this.model;               // pointer to instance of tableClass
   this.tableName;           // name of table in Database
   this.searchVisible     = true; // display boxes to put search criteria in
   this.statusLineData    = ["tableName","nextPrev","rows","firstLast","tags","rows/page","download","groupBy"];
@@ -288,40 +288,43 @@ ${options}
 }
 
 
-// tableUxClass - client-side
-statusLine(
+statusLine(   // tableUxClass - client-side
 ){
   let html = "";
 
   // create status line in the order of  this.status
   this.statusLineData.forEach((item, i) => {
-    if (item === "nextPrev") {
-      html += `
-      <input id="prev" type="button" onclick ="${this.globalName}.prev()" value="Prev"/><input id="next" type="button" onclick ="${this.globalName}.next()" value="Next"/>
-      `
-    } else if (item === "firstLast") {
-      html += `
-      <input id="first" type="button" onclick ="${this.globalName}.first()" value="First"/><input id="last" type="button" onclick ="${this.globalName}.last()" value="Last"/>
-      `
-    } else if (item === "tableName") {
-      html += `<b>Table: ${this.tableName}</b>`
-    } else if (item === "rows") {
-      html += `Rows: ${this.paging.rowMax}`
-    } else if (item === "tags") {
-      html += `tags: ${this.genTags()}`
-    } else if (item === "rows/page") {
-      html += `rows/page: <input type="number" min="1" max="999" value="${this.paging.lines}" onchange="${this.globalName}.changePageSize(this)"/>`
-    } else if (item === "download") {
-      html += `<input type="button" onclick="app.tableUx.export()" value="Download CSV"/> <a id='download_link'>ddd</a>`
-    } else if (item === "groupBy") {
-      html += `<input type="button" onclick="app.tableUx.groupBy()" value="Group"/>`
-    } else {
-      // custom
-      html += item;
-    }
+    switch(item) {
+      case "nextPrev":
+        html += `<input id="prev" type="button" onclick ="${this.globalName}.prev()" value="Prev"/><input id="next" type="button" onclick ="${this.globalName}.next()" value="Next"/>`
+        break;
+      case "firstLast":
+        html += `<input id="first" type="button" onclick ="${this.globalName}.first()" value="First"/><input id="last" type="button" onclick ="${this.globalName}.last()" value="Last"/>`
+        break;
+      case "tableName":
+        html += `<b>Table: ${this.tableName}</b>`
+        break;
+      case "rows":
+        html += `Rows: ${this.paging.rowMax}`
+        break;
+      case "tags":
+        html += `tags: ${this.genTags()}`
+        break;
+      case "rows/page":
+        html += `rows/page: <input type="number" min="1" max="999" value="${this.paging.lines}" onchange="${this.globalName}.changePageSize(this)"/>`
+        break;
+      case "download":
+        html += `<input type="button" onclick="app.tableUx.export()" value="Download CSV"/> <a id='download_link'>ddd</a>`
+        break;
+      case "groupBy":
+        html += `<input type="button" onclick="app.tableUx.groupBy()" value="Group"/>`
+        break;
+      default:
+        // custom
+        html += item;
+      }
 
     html += ` &nbsp ` // add extra space between user input items
-
   });
 
   // add to html to DOM
@@ -330,8 +333,8 @@ statusLine(
 }
 
 
-// tableUxClass - client-side
-displayFooter(){  // put agg functions here
+displayFooter(){  // tableUxClass - client-side
+  // put agg functions here
   // add empty columns for lineNum and rowNum if they are being displayed
   let html    = "";
   let lineNum = ""; if (this.lineNumberVisible ) {lineNum = `<td></td>`;}
@@ -380,6 +383,7 @@ setModel( // let class know what data it will be displaying/using
   }
 }
 
+getModel(){return this.model}  // will be table class
 
 
 appendHTMLrow(  // tableUxClass - client-side
@@ -514,9 +518,10 @@ getColumnFormat( // tableUxClass - client-side
 
 
 setColumnFormat( // tableUxClass - client-side
-  i,value
+  i       //
+  ,value  //
   ) {  // set <td> attributes to be added
-             this.columnFormat[i] = value;
+  this.columnFormat[i] = value;
   if (this.tableUxB) {
     // make the buff point to the same model as the main tableUx
     this.tableUxB.columnFormat[i] = value;
