@@ -62,7 +62,7 @@ display(        // tableUxClass - client-side
   } else {
     // display full table
     this.tag = null;
-    this.paging.rowMax = this.model.json.rows.length;
+    this.paging.rowMax = this.model.getRows().length;
   }
 
   // add status line and empty table to DOM
@@ -148,6 +148,9 @@ export( // tableUxClass - client-side
   const url = window.URL.createObjectURL(data);
   e.href = url;
   e.download = `${this.tableName}.csv`
+
+  // now click the link
+  e.click();
 }
 
 
@@ -314,7 +317,7 @@ statusLine(   // tableUxClass - client-side
         html += `rows/page: <input type="number" min="1" max="999" value="${this.paging.lines}" onchange="${this.globalName}.changePageSize(this)"/>`
         break;
       case "download":
-        html += `<input type="button" onclick="app.tableUx.export()" value="Download CSV"/> <a id='download_link'>ddd</a>`
+        html += `<input type="button" onclick="${this.globalName}.export()" value="Download CSV"/> <a id='download_link'></a>`
         break;
       case "groupBy":
         html += `<input type="button" onclick="app.tableUx.groupBy()" value="Group"/>`
@@ -375,7 +378,7 @@ setModel( // let class know what data it will be displaying/using
   ,name   // name of table
 ) {
   this.tableName  = name;           // string
-  this.model      = db.json[name];  // is of class tableClass
+  this.model      = db.getTable(name);  // is of class tableClass
   if (this.tableUxB) {
     // make the buff point to the same model as the main tableUx
     this.tableUxB.tableName  = name;           // string

@@ -173,6 +173,8 @@ async displayRow(  // nodes2htmlClass - client-side
 async convertLine(  // nodes2htmlClass - client-side
   line  // ["command","data","data"] from _.json file that html is generated from
   ) {  // nodes2htmlClass - client-side
+  let el;  // for testing if element is already loaded
+
   switch (line[0]) {
     case "date" :
       return  this.dateNode(this.edge);
@@ -191,7 +193,7 @@ async convertLine(  // nodes2htmlClass - client-side
       return await this.proxy.getText(line[2]);
     case "script":
       // load external js
-      const el = document.body.querySelector(
+      el = document.body.querySelector(
         "style[type='text/javascript'], src:not([type])"
       );
       if ( true ) {  // need test if already loaded
@@ -201,6 +203,20 @@ async convertLine(  // nodes2htmlClass - client-side
         document.head.appendChild(element);
      }
       return "";
+    case "link":
+      // load external css file
+      el = document.body.querySelector(
+        "style[type='text/javascript'], src:not([type])"
+      );
+      if ( !el ) {  // need test if already loaded
+        const element = document.createElement('link');
+        //<link rel="stylesheet" href="app.css" />
+        element.href = line[2];
+        element.rel = "stylesheet";
+        document.head.appendChild(element);
+      }
+      return "";
+
     case "":
       // assume all HTML tags are included in line[2]
       return line[2];

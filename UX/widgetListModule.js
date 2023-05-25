@@ -80,7 +80,8 @@ async displayButton(   // widgetListClass - client-side
   dom  // DOM of button that was pushed
   ) {
   this.a_eval = [];  // aray of evals to do after dom is updated,
-  let html=`<h3 id="heading">${dom.value}</h3>`  // make heading the same as button name
+  //let html=`<h3 id="heading">${dom.value}</h3>`  // make heading the same as button name
+  let html=""  // make heading the same as button name
 
   // set the of all sibbling buttons to mot selected
   if (dom) {

@@ -1,3 +1,5 @@
+import  {proxyClass   }   from '/_lib/proxy/proxyModule.js'    ;
+
 class tableClass {  // tableClass - client-side
 
 /*
@@ -12,19 +14,122 @@ these features are used in the following apps
   server log
 */
 
+#json   // json table loaded from disk
+#url
+#proxy
 
 constructor( // tableClass - client-side
 ) {  
   // data
-  this.json = {
+  this.#proxy = new proxyClass();
+
+  this.#json  = {
     "description":""        // what is this table for
+    ,"primary-key": null    // index 0-> primary-key is the first column of data
     ,"field":{}             // calculated field from fieldA
     ,"fieldA":[]            // array of names to access field in rows
                             // search is optional array of size of search input
     ,"header":[]            // what is displayed for the header
+    ,"index":[]             // array of index fields
     ,"rows":[]              // row data, one array for each row
+    ,"changes": {}  // current changed memory value
+    /*
+      "key":{
+         "column#": {"value_new":", value_orig:"}
+        ,"column#": {"value_new":", value_orig:"}
+        ..
+      }
+      ,"key2":{...}
+    }   */       
     ,"rowsBuffer":[]        // array of arrays: buffer data for add, select, dupp, will change rows data if saved
                             // [rowIndex,[changes made]]  index of <0 is new row to be appended at end if saved
+  }
+}
+
+
+async load(url) { // tableClass - client-side
+  this.#url = url;
+  this.#json = await this.#proxy.getJSON(this.#url );
+  // init
+  this.#json.changes = {};
+  this.#json.index   = [];
+
+  // index primary key
+  this.index(this.#json.primary_key);
+}
+
+
+async save2file( // tableClass - client-side
+){
+  const changes = Object.keys(this.#json.changes)
+  if (0<changes.length) {
+    // only save file if there are changes to the table
+    const msg   = await this.#proxy.RESTpost( this.genTable() ,this.#url);
+    alert(`
+    file=${this.#url}
+    records changed=${changes.length}
+    save status = ${msg.statusText}`);
+  }
+}
+
+
+save2memory( // tableClass - client-side
+  primary_key_value, record
+  ) {
+  // make change to row in memory and update memory change log
+  
+  // get change log for row
+  let changes = this.#json.changes[primary_key_value];
+  if (typeof(changes)==="undefined") {
+    // no privous changes to row, so init to empay change object
+              this.#json.changes[primary_key_value] = {}       ;
+    changes = this.#json.changes[primary_key_value];
+  }
+
+  // see what fields changed for the row
+  for(var i=0; i< record.length; i++) {
+    if (i !== this.get_primary_key() ) {  // skip primary key
+      // not on primary key
+      let edited_value   = record[i];  // from edit form
+      let current_value  = this.getRowByIndex(this.get_primary_key(), primary_key_value)[i];  // from table memory
+
+      // update change log
+      if (edited_value !== current_value ) {
+        // change was made to field
+        if (typeof(changes[primary_key_value]) === "undefined") {
+          // first time field has changed for this row, add change log for field
+          changes[i] = {"original":current_value, "new_value":edited_value};
+        } else if (edited_value  === changes[primary_key_value][i]["original"]) {
+          // original value was restored, so delete session change log
+          delete changes[i];
+        } else {
+          // replace new_value
+          changes[primary_key_value][i].new_value = edited_value;
+        }
+
+        // update memery row
+        this.getRowByIndex(this.get_primary_key(), primary_key_value)[i]  = edited_value;
+      }
+    }
+  }
+
+  // need to save memory change log to server incase session is lost, so user will not loose there work
+  // code here
+}
+
+
+index(key){ // tableClass - client-side
+  // create index on column key;
+  if (typeof(key)  === "number") {
+    const rows  = this.getRows();
+    const index = {}
+    for (var i=0;i< rows.length; i++) {
+      let value = rows[i][key];  // get row's key value
+      index[value]=i;            // store the row number 
+    }
+    this.#json.index[key]=index;  // index of field key
+  } else {
+    // key not valide
   }
 }
 
@@ -36,9 +141,9 @@ sortList(  // tableClass - client-side
   // a_list will be return sorted
   a_list.sort( (a,b)=> {
     // a and b are indexes in table
-    const ra = this.json.rows[a];    // a row from a_table
-    const rb = this.json.rows[b];    // b row from a_table
-    const f  = this.json.field;
+    const ra = this.#json.rows[a];    // a row from a_table
+    const rb = this.#json.rows[b];    // b row from a_table
+    const f  = this.#json.field;
 
     let ret = 0;
     a_fields.forEach((field, i) => {
@@ -58,27 +163,35 @@ sortList(  // tableClass - client-side
 
 
 getValue(rowIndex,fieldName)  // tableClass - client-side
-                {return this.json.rows[rowIndex][this.json.field[fieldName]] ;}
+                {return this.#json.rows[rowIndex][this.#json.field[fieldName]] ;}
 
-getHeader()     {return this.json.header        ;} // tableClass - client-side
-getField()      {return this.json.field         ;} // tableClass - client-side
-getRows()       {return this.json.rows          ;} // tableClass - client-side
-getRow(index)   {return this.json.rows[index]   ;} // tableClass - client-side
-getRowsLength() {return this.json.rows.length   ;} // tableClass - client-side
-getJSON(      ) {return this.json               ;} // tableClass - client-side
+getHeader()      {return this.#json.header        ;} // tableClass - client-side
+getField()       {return this.#json.field         ;} // tableClass - client-side
+getRows()        {return this.#json.rows          ;} // tableClass - client-side
+getRow(index)    {return this.#json.rows[index]   ;} // tableClass - client-side
+get_primary_key(){return this.#json.primary_key   ;} // tableClass - client-side
+get_changes()    {return this.#json.changes       ;} // tableClass - client-side
 
-appendRow(a_row){this.json.rows.push(a_row)  ;} // tableClass - client-side
+getRowByIndex( // tableClass - client-side
+   index // index number 0-> first field in table
+  ,value // value of index
+  )   {return this.#json.rows[ this.#json.index[index][value] ];} // tableClass - client-side
 
-setHeader(a_header){this.json.header = a_header;} // tableClass - client-side
+getRowsLength() {return this.#json.rows.length   ;} // tableClass - client-side
+getJSON(      ) {return this.#json               ;} // tableClass - client-side
+
+appendRow(a_row){this.#json.rows.push(a_row)  ;} // tableClass - client-side
+
+setHeader(a_header){this.#json.header = a_header;} // tableClass - client-side
 
 
 genCSV( // tableClass - client-side
 ) { // create a string in CSV of the table
     // add a_header
-    let csv = this.genCSVrow(this.json.header);
+    let csv = this.genCSVrow(this.#json.header);
 
     // add data
-    this.json.rows.forEach((r, i) => {
+    this.#json.rows.forEach((r, i) => {
       csv += this.genCSVrow(r);
     });
 
@@ -98,20 +211,20 @@ genCSVrow( // tableClass - client-side
 
 //////////////////////////////////     buffer methods
 
-getRowBuffer(index) {return this.json.rowsBuffer[index];}
+getRowBuffer(index) {return this.#json.rowsBuffer[index];}
 
 
 table2buffer(  // tableClass - client-side
   a_index  // a_index-> array of row numbers into
 ) {
   // clear the buffer
-  this.json.rowsBuffer = [];
+  this.#json.rowsBuffer = [];
 
   // make a copy of the data for the buffer so change buffer does not change data in table
   a_index.forEach((rowNumber, i) => {
     // make copy of row and add row number at end
-    this.json.rowsBuffer.push(
-      Array.from(this.json.rows[rowNumber]).concat(rowNumber));
+    this.#json.rowsBuffer.push(
+      Array.from(this.#json.rows[rowNumber]).concat(rowNumber));
   });
 }
 
@@ -119,16 +232,16 @@ table2buffer(  // tableClass - client-side
 bufferGet( // tableClass - client-side
   s_field  // is this used?
 ) {
-  return this.json.rowsBuffer;
+  return this.#json.rowsBuffer;
 }
 
 
 bufferSetType( // tableClass - client-side
 ) { // convert all strings that should be numbers to numbers
-  this.json.fieldA.forEach((column, i) => {
+  this.#json.fieldA.forEach((column, i) => {
     if (column.startsWith("n_")) {
       // found a number column
-      this.json.rowsBuffer.forEach((r, ii) => {
+      this.#json.rowsBuffer.forEach((r, ii) => {
         // convert that column to a number
         r[1][i] = Number(r[1][i]);
       });
@@ -140,9 +253,9 @@ bufferSetType( // tableClass - client-side
 bufferSave(  // tableClass - client-side
 ) {  // to table in memory
   this.bufferSetType();
-  this.json.rowsBuffer.forEach((item, i) => {
+  this.#json.rowsBuffer.forEach((item, i) => {
     // does not handle the case of growing or srinking the number of items in the buffer
-    this.json.rows[item[0]] = item[1];
+    this.#json.rows[item[0]] = item[1];
   });
 }
 
@@ -151,8 +264,8 @@ bufferAppend(  // tableClass - client-side
 
 ) {  // to table in memory
   this.bufferSetType();
-  this.json.rowsBuffer.forEach((item, i) => {
-    this.json.rows.push( item[1]  );
+  this.#json.rowsBuffer.forEach((item, i) => {
+    this.#json.rows.push( item[1]  );
   });
 }
 
@@ -165,16 +278,16 @@ bufferInput2Json( // tableClass - client-side
   const a_rows = document.getElementById(this.DOMid.buffer).firstChild.firstChild.children;
   for (r=1; r<a_rows.length; r++) {  // skip first row, it is the header
     let empty = true;
-    for (col=1; col<=this.json.fieldA.length; col++) { // skip first column, it has the row number
+    for (col=1; col<=this.#json.fieldA.length; col++) { // skip first column, it has the row number
       let v = a_rows[r].children[col].firstChild.value;  // read html input value
       if (empty && v!=="") {
         empty = false;  // will keep this row, it has data
       }
-      this.json.rowsBuffer[r-1][1][col-1] = v;   // set json value
+      this.#json.rowsBuffer[r-1][1][col-1] = v;   // set json value
     }
     if (empty) {
       // do not save empty row in data
-      this.json.rowsBuffer.pop();
+      this.#json.rowsBuffer.pop();
     }
   }
 
@@ -206,17 +319,17 @@ bufferAppendRow(  // tableClass - client-side
 bufferCreateEmpty(  // tableClass - client-side
   n_rows  // adding
 ) {
-  this.json.rowsBuffer = [];
+  this.#json.rowsBuffer = [];
 
   let i,ii;
 
   // create n_rows
   for(i=0; i<n_rows; i++) {
     let empty = []; //
-    for(ii=0; ii<this.json.header.length; ii++) {
+    for(ii=0; ii<this.#json.header.length; ii++) {
       empty.push(null); // create an array of null as long as the header
     }
-    this.json.rowsBuffer.push([-1,empty]);  // -1 -> a new row, a positive number is an edit
+    this.#json.rowsBuffer.push([-1,empty]);  // -1 -> a new row, a positive number is an edit
   }
 }
 
@@ -225,7 +338,7 @@ genRows() {  // tableClass - client-side
   // creating text file to save
   let txt="";
 
-  this.json.rows.forEach((r, i) => {
+  this.#json.rows.forEach((r, i) => {
     // will only work for numbers, strings, boolean
     //  Will not work for dates, objects, etc...
     txt += ","+JSON.stringify(r)+"\n"
@@ -236,29 +349,26 @@ genRows() {  // tableClass - client-side
 
 
 genTable(  // tableClass - client-side
-  s_tableName
 ) {
-  let rows = this.genRows();
-
-  return `"${s_tableName}": {
-"fieldA":  ${JSON.stringify(this.json.fieldA)}
-
-,"header": ${JSON.stringify(this.json.header)}
+  return `{
+ "fieldA":      ${JSON.stringify(this.#json.fieldA     )}
+,"primary_key": ${JSON.stringify(this.#json.primary_key)}
+,"header":      ${JSON.stringify(this.#json.header     )}
 
 ,"rows": [
-${rows}]
-}\n\n`;
+${this.genRows()}]
+}`;
 }
 
 
 getColumnFormat(i) { // tableClass - client-side
-  let f = this.json.columnFormat[i];
+  let f = this.#json.columnFormat[i];
   if (f === undefined) return "";
   return f;
 }
 
 
-clearRows() {this.json.rows = [];}  // tableClass - client-side
+clearRows() {this.#json.rows = [];}  // tableClass - client-side
 
 
 total(  // tableClass - client-side
@@ -268,7 +378,7 @@ total(  // tableClass - client-side
   let total = 0;
 
   // add col rows
-  this.json.rows.forEach((row, i) => {
+  this.#json.rows.forEach((row, i) => {
     total += row[col];
   });
 
@@ -279,8 +389,8 @@ total(  // tableClass - client-side
 unique(s_field) {  // tableClass - client-side
   // return all the unique values in a table for the given field
   const a=[];
-  const f=this.json.field;
-  this.json.rows.forEach((r) => {
+  const f=this.#json.field;
+  this.#json.rows.forEach((r) => {
     let v = r[f[s_field]];
     if (!a.includes(v)) {
       a.push(v);
@@ -295,8 +405,8 @@ select(   // tableClass - client-side
   f  // f is boolean function, returns true if we want the row included in the list
 ) {
   let a=[]  // return a list of indexes of table that match the selection criteria
-  let field = this.json.field;
-  this.json.rows.forEach((r, i) => {
+  let field = this.#json.field;
+  this.#json.rows.forEach((r, i) => {
     // need to pass the test into the function, for now hard code
     try {
       if ( f(field, r) ) {
@@ -313,20 +423,20 @@ select(   // tableClass - client-side
 filter(  // tableClass - client-side
   f  // f is boolean function, returns true if we want the row included in the list
 ) {
-  return this.json.rows.filter(f);
+  return this.#json.rows.filter(f);
 }
 
 
 setJSON(j) {  // tableClass - client-side
   // replace place holder of new table with data from loaded file
   Object.entries(j).forEach((item, i) => {
-    this.json[item[0]] = item[1];  // replace default value with loaded value
+    this.#json[item[0]] = item[1];  // replace default value with loaded value
   });
 }
 
 
 f(fieldName) { // tableClass - client-side
-  return this.json.field[fieldName];
+  return this.#json.field[fieldName];
 }
 
 
@@ -335,12 +445,12 @@ field( // tableClass - client-side
 ) {
   if (fieldA) {
     // set the field Array
-    this.json.fieldA = fieldA
+    this.#json.fieldA = fieldA
   }
 
-  this.json.field = {};
-  this.json.fieldA.forEach((item, i) => {
-    this.json.field[item] = i;
+  this.#json.field = {};
+  this.#json.fieldA.forEach((item, i) => {
+    this.#json.field[item] = i;
   });
 }
 
