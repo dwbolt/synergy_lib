@@ -291,8 +291,8 @@ ${options}
 // tableUxClass - client-side
 statusLine(
 ){
-  let html = "";
-
+  let html        = "";
+ 
   // create status line in the order of  this.status
   this.statusLineData.forEach((item, i) => {
     if (item === "nextPrev") {

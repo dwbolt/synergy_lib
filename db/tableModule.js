@@ -79,10 +79,11 @@ async save2file( // tableClass - client-side
 
 
 save2memory( // tableClass - client-side
-  primary_key_value, record
-  ) {
   // make change to row in memory and update memory change log
-  
+  primary_key_value  // positive number edit exiting row,  negative number create new row
+  ,record            // new record values
+  ) {
+
   // get change log for row
   let changes = this.#json.changes[primary_key_value];
   if (typeof(changes)==="undefined") {
@@ -130,22 +131,22 @@ index(  // tableClass - client-side
   if (typeof(key)  === "number") {
     const rows  = this.getRows();
     const index = {}
-    let next    = 0; // next primary key
+    let max     = 0; // next primary key
 
     // walk to entire table and index on column key
     for (var i=0; i< rows.length; i++) {
       let value = rows[i][key];  // get row's key value
       index[value]=i;            // store the row number 
 
-      if (key === this.get_primary_key() && next<value) {
+      if (key === this.get_primary_key() && max<value) {
         // find largest key value, primary key is an integer number that increments
-        next = value;
+        max = value;
       }
     }
 
     this.#json.index[key]=index;  // index of field key
     if (key === this.get_primary_key() ) {
-      this.#json.primary_key_next = next +1;
+      this.#json.primary_key_max = max;
     }
   } else {
     // key not valid
@@ -348,12 +349,13 @@ bufferCreateEmpty(  // tableClass - client-side
   let i,ii;
 
   // create n_rows
-  for(i=0; i<n_rows; i++) {
-    let empty = []; //
+  for(i=1; i<n_rows+1; i++) {
+    let empty = []; // create emty row
     for(ii=0; ii<this.#json.header.length; ii++) {
       empty.push(null); // create an array of null as long as the header
     }
-    this.#json.rowsBuffer.push([-1,empty]);  // -1 -> a new row, a positive number is an edit
+    empty[this.get_primary_key()] = -i;
+    this.#json.rowsBuffer.push(empty);  // -1 -> a new row, a positive number is an edit
   }
 }
 

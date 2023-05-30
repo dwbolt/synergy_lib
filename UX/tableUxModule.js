@@ -62,7 +62,7 @@ display(        // tableUxClass - client-side
   } else {
     // display full table
     this.tag = null;
-    this.paging.rowMax = this.model.getRows().length;
+    this.paging.rowMax = this.getModel().getRows().length;
   }
 
   // add status line and empty table to DOM
@@ -181,8 +181,8 @@ displaySearch(){
   //<th>
   let html = `
   <tr onchange="${this.globalName}.search(this)" id="search">
-  <th></th>
-  <th></th>`;
+  ${( this.lineNumberVisible ? "<th></th>": "") }
+  ${( this.rowNumberVisible  ? "<th></th>": "") }`;
 
   // add search input for each row column
   let search, size   = 10;  // number of characters allowed in search
@@ -206,8 +206,9 @@ displaySearch(){
 // tableUxClass - client-side
 displayColumnTitles(){
   // add header    //  this.json[table].DOMid = domID; // remember where table was displayed
-  let line=""; if (this.lineNumberVisible) {line = "<th>line</th>";}
-  let row =""; if ( this.rowNumberVisible) {row  = "<th>row</th>";}
+  this.skip_columns = 0;
+  let line=""; if (this.lineNumberVisible) {line = "<th>line</th>"; this.skip_columns++}
+  let row =""; if (this.rowNumberVisible ) {row  = "<th>row</th>" ; this.skip_columns++}
   let html = `<tr>${line}${row}`;
 
   this.model.getHeader().forEach((item, i) => {
@@ -597,7 +598,7 @@ unique( // tableUxClass - client-side
   return a;
 }
 
-
+/*
 select( // tableUxClass - client-side
   f    // f is boolean function, returns true if we want the row included in the list
 ) {
@@ -614,7 +615,7 @@ select( // tableUxClass - client-side
     }
   });
 }
-
+*/
 
 setJSON(  // tableUxClass - client-side
   j
@@ -652,19 +653,27 @@ search( // tableUxClass - client-side
   // user made change in search criteria
 // use recursion
    eDom      // element where search and display is done.
-  ,index = 2 // skip first two columns, there is not search values there
+  //,index = 2 // skip first two columns, there is not search values there
 ) {
-  let i, col, indexNext;
+  let i, col;
   const c = eDom.children;  // array of <th> tags were search criteria are stored
 
   // look at search field, if something is not empty search for all
-  for (i=index; i<c.length; i++) {
-    let v=c[i].firstChild.value.toLowerCase();  // get value of text search box
-    if ( 0 < v.length) {
+  for (i=this.skip_columns; i<c.length; i++) {
+    this.searchValue = c[i].firstChild.value.toLowerCase();  // get value of text search box
+    if ( 0 < this.searchValue.length) {
       // found search string
-      indexNext = i+1;
-      let a_s = this.select((f,r) => {
-        let str=r[i-2];   //  assumes location,
+      this.tags.search = []
+      const rows = this.getModel().getRows();
+      for(let ii=0; ii<rows.length; ii++) {
+        let str=rows[ii][i-this.skip_columns]; 
+        if (str.toLowerCase().includes(this.searchValue)) {
+          this.tags.search.push(ii);
+        }
+      }
+      /*
+      this.select((f,r) => {
+        let str=r[i-this.skip_column];   //  assumes location,
         if (str === null) return 0;  // do not include row if search field is null
         if ( typeof(str) === "number" ) {
           str =  str.toString(); // will break when we allow users to reorder fields
@@ -672,11 +681,13 @@ search( // tableUxClass - client-side
         return ( str.toLowerCase().includes(v) );
       });
       break;  // only processing first search criteria, support more than one later
+      */
     }
   }
 
   this.displayTag("search");
 }
+
 
 
 next( // tableUxClass - client-side
