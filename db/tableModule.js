@@ -1,3 +1,5 @@
+// _/lib/db/tableModule.js
+
 import  {proxyClass   }   from '/_lib/proxy/proxyModule.js'    ;
 
 class tableClass {  // tableClass - client-side
@@ -68,7 +70,10 @@ async save2file( // tableClass - client-side
     alert(`
     file=${this.#url}
     records changed=${changes.length}
-    save status = ${msg.statusText}`);
+    save status = ${msg.statusText}`)
+    if (msg.statusText=="OK") {
+      this.#json.changes = {};
+    };
   }
 }
 
@@ -118,18 +123,33 @@ save2memory( // tableClass - client-side
 }
 
 
-index(key){ // tableClass - client-side
+index(  // tableClass - client-side
+  key  // column # to index on
+  ){ 
   // create index on column key;
   if (typeof(key)  === "number") {
     const rows  = this.getRows();
     const index = {}
-    for (var i=0;i< rows.length; i++) {
+    let next    = 0; // next primary key
+
+    // walk to entire table and index on column key
+    for (var i=0; i< rows.length; i++) {
       let value = rows[i][key];  // get row's key value
       index[value]=i;            // store the row number 
+
+      if (key === this.get_primary_key() && next<value) {
+        // find largest key value, primary key is an integer number that increments
+        next = value;
+      }
     }
+
     this.#json.index[key]=index;  // index of field key
+    if (key === this.get_primary_key() ) {
+      this.#json.primary_key_next = next +1;
+    }
   } else {
-    // key not valide
+    // key not valid
+    alert(`tableModule.js index key=${key} is not a number`);
   }
 }
 
@@ -230,9 +250,13 @@ table2buffer(  // tableClass - client-side
 
 
 bufferGet( // tableClass - client-side
-  s_field  // is this used?
+  row  //
 ) {
-  return this.#json.rowsBuffer;
+  if (typeof(row) === "number") {
+    return this.#json.rowsBuffer[row];
+  } else {
+    return this.#json.rowsBuffer;
+  }
 }
 
 
