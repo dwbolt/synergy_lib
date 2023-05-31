@@ -17,9 +17,10 @@ save local file download
 save to server
 
 */
-#json  // data loaded from json file
-#urlList // directory where database folders are
-#url   // remember where the file came from
+#json      // data loaded from json file
+#urlList   // directory where database folders are
+#jsonList  //
+#url       // remember where the file came from
 // dbClass - client-side
 constructor() {
   this.#json = {tables:{} };
