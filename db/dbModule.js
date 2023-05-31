@@ -18,6 +18,7 @@ save to server
 
 */
 #json  // data loaded from json file
+#urlList // directory where database folders are
 #url   // remember where the file came from
 // dbClass - client-side
 constructor() {
@@ -25,9 +26,30 @@ constructor() {
 }
 
 
+async loadList(  // dbClass - client-side
+  // load database list from server
+  url // location
+  ) {
+  // load json table file
+  this.#urlList          = url;
+  this.#jsonList = await app.proxy.getJSON(this.#urlList);
+  const url_database = url.slice(1,url.length-6);  // may break if _.json changes
+
+  // walk through table data, load and make the table class objects
+  const tables_meta = this.#json.meta.tables;        //
+  const table_names = Object.keys(tables_meta);
+  for (let i=0; i<table_names.length; i++) {
+    // convert raw json data to a table class
+    const table = new tableClass();
+    await table.load(`${urlTableBase}${table_names[i]}/_.json`);
+    this.#json.tables[table_names[i]] = table;  // add table to database
+  }
+}
+
+
 async load(  // dbClass - client-side
-  // load database file from server
-  url
+  // load database tables file from server
+  url  // location
   ) {
   // load json table file
   this.#url          = url;
