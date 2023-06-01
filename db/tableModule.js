@@ -107,7 +107,7 @@ save2memory( // tableClass - client-side
       // update change log
       if (edited_value !== current_value ) {
         // change was made to field
-        if (typeof(changes[primary_key_value]) === "undefined") {
+        if (typeof(changes[i]) === "undefined") {
           // first time field has changed for this row, add change log for field
           changes[i] = {"original":current_value, "new_value":edited_value};
         } else if (edited_value  === changes[primary_key_value][i]["original"]) {
