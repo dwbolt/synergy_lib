@@ -237,7 +237,7 @@ genCSVrow( // tableClass - client-side
 
 //////////////////////////////////     buffer methods
 
-getRowBuffer(index) {return this.#json.rowsBuffer[index];}
+getRowBuffer(index) {return (index ? this.#json.rowsBuffer[index] : this.#json.rowsBuffer);}
 
 
 table2buffer(  // tableClass - client-side

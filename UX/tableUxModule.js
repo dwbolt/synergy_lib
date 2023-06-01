@@ -82,10 +82,10 @@ display(        // tableUxClass - client-side
   </table>`;
 
   // fill in empty table
-  this.statusLine();
+  //this.statusLine();
   this.displaySearch();
   this.displayColumnTitles();
-  this.displayData();
+  this.displayData();  // will display statusLine
   this.displayFooter();
 }
 
@@ -174,9 +174,9 @@ displayTag(
   name  // points to dropdown holding tags for table
 ) { // user selected a tags list to display
   this.tag = name;
-  this.paging.rowMax = this.tags[name].length;
+  //this.paging.rowMax = this.tags[name].length;
   this.paging.row = 0;
-  this.statusLine();
+  //this.statusLine();
   this.displayData();
 }
 
@@ -238,8 +238,10 @@ displayData(){
     html += this.appendHTMLrow(i+1, i+this.paging.row);
   }
 
+  // display data
   this.getTableDom().children[2].innerHTML = html;
 
+  // format data
   // allow first child of each <td> tag to set attribute of <td> tag, the calenderClass was the first to use this
   // walk tr, then td to change class for td
   let tbody = document.getElementById(this.DOMid).children[0].children[2]; // first Child should be <table>   .children[2] should be <tbody>
@@ -261,6 +263,19 @@ displayData(){
       }
     }
   }
+
+  // figure out maxrow
+  if (this.buffer) {
+    // display bufffer
+    this.paging.rowMax = this.model.getRowBuffer().length;
+  } else if (this.tag === "null"  || this.tag === null) {
+    // display all data
+    this.paging.rowMax = this.model.getRows().length;
+  } else {
+    // display subset of rows in tag
+    this.paging.rowMax = this.tags[this.tag].length;
+  }
+  this.statusLine();
 
   // enable/disable the prev and next button - should be a better way todo this
   if (this.paging.row  ===  0 ) {
