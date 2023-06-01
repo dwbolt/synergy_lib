@@ -27,7 +27,7 @@ constructor( // tableClass - client-side
 
   this.#json  = {
     "description":""        // what is this table for
-    ,"primary-key": null    // index 0-> primary-key is the first column of data
+    ,"primary_key": null    // index 0-> primary_key is the first column of data
     ,"field":{}             // calculated field from fieldA
     ,"fieldA":[]            // array of names to access field in rows
                             // search is optional array of size of search input
@@ -78,11 +78,16 @@ async save2file( // tableClass - client-side
 }
 
 
+
 save2memory( // tableClass - client-side
   // make change to row in memory and update memory change log
   primary_key_value  // positive number edit exiting row,  negative number create new row
   ,record            // new record values
   ) {
+ 
+  // if primary_key_value is negaive it is an add
+
+
 
   // get change log for row
   let changes = this.#json.changes[primary_key_value];
@@ -285,14 +290,6 @@ bufferSave(  // tableClass - client-side
 }
 
 
-bufferAppend(  // tableClass - client-side
-
-) {  // to table in memory
-  this.bufferSetType();
-  this.#json.rowsBuffer.forEach((item, i) => {
-    this.#json.rows.push( item[1]  );
-  });
-}
 
 
 bufferInput2Json( // tableClass - client-side
@@ -342,6 +339,7 @@ bufferAppendRow(  // tableClass - client-side
 
 
 bufferCreateEmpty(  // tableClass - client-side
+  // bufferCreateEmpty bufferAppend can fail if more than one instance of tableModule is running. a second Buffer append could overwrite the first
   n_rows  // adding
 ) {
   this.#json.rowsBuffer = [];
@@ -352,11 +350,29 @@ bufferCreateEmpty(  // tableClass - client-side
   for(i=1; i<n_rows+1; i++) {
     let empty = []; // create emty row
     for(ii=0; ii<this.#json.header.length; ii++) {
-      empty.push(null); // create an array of null as long as the header
+      empty.push(""); // create an array of null as long as the header
     }
-    empty[this.get_primary_key()] = -i;
+    empty[this.get_primary_key()] = this.#json.primary_key_max+i;
     this.#json.rowsBuffer.push(empty);  // -1 -> a new row, a positive number is an edit
   }
+}
+
+
+bufferAppend(  // tableClass - client-side
+
+) {  
+  // copy rows from buffer to memory
+  this.bufferSetType();
+  this.#json.rowsBuffer.forEach((item, i) => {
+    // copy from buffer to memory
+    this.#json.primary_key_max = item[this.get_primary_key()];
+    this.#json.rows.push( item );
+    // update primary key index
+    let value = item[this.#json.primary_key];  // get row's key value
+    this.#json.index[this.#json.primary_key][value] = this.#json.rows.length-1;   // store the row number 
+  });
+
+  // need to update other indexes
 }
 
 

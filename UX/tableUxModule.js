@@ -47,6 +47,13 @@ constructor(
   //this.dom.row   = "";       // put in <tr ${this.dom.row} during display  - does not seem to be used
 }
 
+delete_row(   // tableUxClass - client-side
+  key
+) {
+  this.getModel().delete_row(key);
+  this.statusLine();
+}
+
 
 display(        // tableUxClass - client-side
   // display table - for first time
@@ -598,24 +605,6 @@ unique( // tableUxClass - client-side
   return a;
 }
 
-/*
-select( // tableUxClass - client-side
-  f    // f is boolean function, returns true if we want the row included in the list
-) {
-  this.tags.search = []  // set search tag equal to finds
-  let field = this.model.getField();
-  this.model.getRows().forEach((r, i) => {
-    // need to pass the test into the function, for now hard code
-    try {
-      if ( f(field, r) ) {
-        this.tags.search.push(i);
-      }
-    }  catch(err) {
-      alert(`tableUxClass.select error=${err}`)
-    }
-  });
-}
-*/
 
 setJSON(  // tableUxClass - client-side
   j
@@ -657,12 +646,13 @@ search( // tableUxClass - client-side
 ) {
   let i, col;
   const c = eDom.children;  // array of <th> tags were search criteria are stored
-
+  let searched = false;
   // look at search field, if something is not empty search for all
   for (i=this.skip_columns; i<c.length; i++) {
     this.searchValue = c[i].firstChild.value.toLowerCase();  // get value of text search box
     if ( 0 < this.searchValue.length) {
       // found search string
+      searched = true;
       this.tags.search = []
       const rows = this.getModel().getRows();
       for(let ii=0; ii<rows.length; ii++) {
@@ -671,21 +661,19 @@ search( // tableUxClass - client-side
           this.tags.search.push(ii);
         }
       }
-      /*
-      this.select((f,r) => {
-        let str=r[i-this.skip_column];   //  assumes location,
-        if (str === null) return 0;  // do not include row if search field is null
-        if ( typeof(str) === "number" ) {
-          str =  str.toString(); // will break when we allow users to reorder fields
-        }
-        return ( str.toLowerCase().includes(v) );
-      });
-      break;  // only processing first search criteria, support more than one later
-      */
     }
   }
-
-  this.displayTag("search");
+  if (searched) {
+    // display found records
+    this.displayTag("search");
+  } else {
+    // search cleared, so display all
+    this.tag           = null;  
+    this.paging.rowMax = this.getModel().getRows().length;
+    this.paging.row    = 0;
+    this.statusLine();
+    this.displayData();
+  }
 }
 
 
