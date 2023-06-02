@@ -27,14 +27,15 @@ constructor( // tableClass - client-side
 
   this.#json  = {
     "description":""        // what is this table for
-    ,"primary_key": null    // index 0-> primary_key is the first column of data
+    ,"primary_key": 0    // index 0-> primary_key is the first column of data
     ,"field":{}             // calculated field from fieldA
     ,"fieldA":[]            // array of names to access field in rows
                             // search is optional array of size of search input
-    ,"header":[]            // what is displayed for the header
-    ,"index":[]             // array of index fields
-    ,"rows":[]              // row data, one array for each row
-    ,"changes": {}  // current changed memory value
+    ,"header" : []          // what is displayed for the header
+    ,"index"  : []          // array of index fields
+    ,"changes": {}          // current changed memory value
+    ,"rows"   : []          // row data, one array for each row
+
     /*
       "key":{
          "column#": {"value_new":", value_orig:"}
@@ -57,9 +58,12 @@ async load(url) { // tableClass - client-side
   this.#json.index   = [];
 
   // index primary key
-  this.index(this.#json.primary_key);
+  this.index_primary();
 }
 
+index_primary(){
+  this.index(this.#json.primary_key);
+}
 
 async save2file( // tableClass - client-side
 ){

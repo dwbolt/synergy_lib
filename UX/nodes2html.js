@@ -186,6 +186,9 @@ async convertLine(  // nodes2htmlClass - client-side
     case "load":
       // load external html
       return await app.proxy.getText(line[2]);
+    case "redirect":
+      // redirect to another page
+      window.location.replace(line[2]);
     case "script":
       // load external js
       const el = document.body.querySelector(

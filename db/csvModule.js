@@ -18,7 +18,7 @@ constructor(  // csvClass: client-side
 ) {
 //  this.fsp  = require('fs').promises;   // asycn wrapper on fs
   this.csv;                 // cvs file in memory to convert to JSON
-  this.rowDebug  = 999;     // can be used to debug
+  //this.rowDebug  = 999;     // can be used to debug
   this.error     = false;   // will be set to true if a parsing error occures
   this.table     = table;   // place to put parsed data
 }
@@ -62,6 +62,9 @@ parseCSV(  // csvClass: client-side
       this.DOM.innerHTML = this.row+"parsed";
     }
   }
+
+  // assume first row is primary index - need to work on this
+  this.table.index_primary();
 }
 
 

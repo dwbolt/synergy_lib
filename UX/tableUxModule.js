@@ -672,7 +672,7 @@ search( // tableUxClass - client-side
       const rows = this.getModel().getRows();
       for(let ii=0; ii<rows.length; ii++) {
         let str=rows[ii][i-this.skip_columns]; 
-        if (str.toLowerCase().includes(this.searchValue)) {
+        if (str && str.toLowerCase().includes(this.searchValue)) {
           this.tags.search.push(ii);
         }
       }

@@ -54,7 +54,7 @@ async load(  // dbClass - client-side
   ) {
   // load json table file
   this.#url          = url;
-  this.#json = await app.proxy.getJSON(this.#url);
+  this.#json = await app.proxy.getJSON(this.#url);  // loading database file, points to tables
   const urlTableBase = url.slice(1,url.length-6);  // may break if _.json changes
 
   // walk through table data, load and make the table class objects
