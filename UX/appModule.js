@@ -1,7 +1,10 @@
-import  {loginClass     }   from '/_lib/UX/loginModule.js'     ;
+
 import  {proxyClass     }   from '/_lib/proxy/proxyModule.js'  ;
+import  {formatClass    }   from '/_lib/format/formatModule.js';
+import  {loginClass     }   from '/_lib/UX/loginModule.js'     ;
 import  {widgetListClass}   from '/_lib/UX/widgetListModule.js';
 import  {calendarClass  }   from '/_lib/UX/calendarModule.js'  ;
+
 
 class appModule { // synergy.SFCKnox.org web site
 
@@ -11,6 +14,7 @@ constructor() {  // appClass - client side
 	this.login      = new loginClass();
 	this.proxy      = new proxyClass();
 	this.calendar   = new calendarClass("weeks","app.calendar");
+	this.format     = new formatClass();
 	this.widgetList;    // will hold instance of widgetListClass
 	this.css;           // var to hold json css file
 }
