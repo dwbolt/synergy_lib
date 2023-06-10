@@ -21,10 +21,12 @@ these features are used in the following apps
 #proxy
 
 constructor( // tableClass - client-side
+url
 ) {  
   // data
   this.#proxy = new proxyClass();
-
+  this.#url   = url;
+  
   this.#json  = {
     "description":""        // what is this table for
     ,"primary_key": 0    // index 0-> primary_key is the first column of data
@@ -67,9 +69,10 @@ index_primary(){
 
 async save2file( // tableClass - client-side
 ){
-  const changes = Object.keys(this.#json.changes)
+  // see if it is a new table;
+  const changes = Object.keys(this.#json.changes);
   if (0<changes.length) {
-    // only save file if there are changes to the table
+    // only save file if there are changes to the table or it is new
     const msg   = await this.#proxy.RESTpost( this.genTable() ,this.#url);
     alert(`
     file=${this.#url}
@@ -82,25 +85,13 @@ async save2file( // tableClass - client-side
 }
 
 
-
 save2memory( // tableClass - client-side
   // make change to row in memory and update memory change log
   primary_key_value  // positive number edit exiting row,  negative number create new row
   ,record            // new record values
   ) {
- 
-  // if primary_key_value is negaive it is an add
-
-
-
   // get change log for row
-  let changes = this.#json.changes[primary_key_value];
-  if (typeof(changes)==="undefined") {
-    // no privous changes to row, so init to empay change object
-              this.#json.changes[primary_key_value] = {}       ;
-    changes = this.#json.changes[primary_key_value];
-  }
-
+  let changes = this.changes_get(primary_key_value);
   // see what fields changed for the row
   for(var i=0; i< record.length; i++) {
     if (i !== this.get_primary_key() ) {  // skip primary key
@@ -200,7 +191,19 @@ getField()       {return this.#json.field         ;} // tableClass - client-side
 getRows()        {return this.#json.rows          ;} // tableClass - client-side
 getRow(index)    {return this.#json.rows[index]   ;} // tableClass - client-side
 get_primary_key(){return this.#json.primary_key   ;} // tableClass - client-side
-get_changes()    {return this.#json.changes       ;} // tableClass - client-side
+
+changes_get(key) { // tableClass - client-side
+  // return change object for record with primary key = key
+  let changes = this.#json.changes[key];
+  if (typeof(changes)==="undefined") {
+    // no privous changes to row, so init to empty change object
+              this.#json.changes[key] = {};
+    changes = this.#json.changes[key];
+  } 
+  
+  return changes;
+}
+
 
 getRowByIndex( // tableClass - client-side
    index // index number 0-> first field in table
@@ -210,7 +213,26 @@ getRowByIndex( // tableClass - client-side
 getRowsLength() {return this.#json.rows.length   ;} // tableClass - client-side
 getJSON(      ) {return this.#json               ;} // tableClass - client-side
 
-appendRow(a_row){this.#json.rows.push(a_row)  ;} // tableClass - client-side
+appendRow(  // tableClass - client-side
+  a_row
+  ){
+  this.#json.rows.push(a_row);  // adding new row
+  change_summary("append");  // incremnet append count
+}
+
+
+change_summary(  // tableClass - client-side
+  field
+  ){
+  const change = changes_get("summary");
+  if (typeof(change[field]) ==="undefined") {
+    // first time data is stored so create empty
+    change[field] = {count: 0};
+  }
+
+  change[field]["count"]++;
+}
+
 
 setHeader(a_header){this.#json.header = a_header;} // tableClass - client-side
 
@@ -218,13 +240,22 @@ setHeader(a_header){this.#json.header = a_header;} // tableClass - client-side
 genCSV( // tableClass - client-side
 ) { // create a string in CSV of the table
     // add a_header
+
     let csv = this.genCSVrow(this.#json.header);
-
-    // add data
-    this.#json.rows.forEach((r, i) => {
-      csv += this.genCSVrow(r);
-    });
-
+    /*
+    if (tag === null) {
+      // all data 
+      this.#json.rows.forEach((r, i) => {
+        csv += this.genCSVrow(r);
+      });
+    } else {
+      let rows = this.#json.rows;
+      let index = this.tags[tag];
+      for(var i=0; i<index.length; i++) {
+        csv += this.genCSVrow(rows[index[i]]);
+      }
+    }
+*/
     //return csv.substr(1)  // remove leading comma on first line
     return csv  // remove leading comma on first line
 }

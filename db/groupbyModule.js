@@ -74,3 +74,5 @@ aggregate(  // groupByClass - client-side
 
 
 }  //  end  groupByClass - client-side
+
+export {groupByClass}

@@ -1,3 +1,5 @@
+import { groupByClass} from '/_lib/db/groupByModule.js';
+
 class tableUxClass { // tableUxClass - client-side
 
   //////////////////////////////////////////////////////
@@ -42,10 +44,8 @@ constructor(
   this.selectedFields = [3]; // used by groupby, sort hardcode to test
 
   this.dom       = {};       // saves attributes like onclick that will be added when html is rendered
-
-  //this.dom.table = "";       // put in <table ${this.dom.table} during display - how is this used?
-  //this.dom.row   = "";       // put in <tr ${this.dom.row} during display  - does not seem to be used
 }
+
 
 delete_row(   // tableUxClass - client-side
   key
@@ -145,20 +145,36 @@ setBuffer(         tableUx) {this.tableUxB          = tableUx;}  // rember the t
 
 export( // tableUxClass - client-side
 ){ // as CSV file
-  // covert table to csv
-  let csv = this.model.genCSV();
+  let table = this.getModel();
+  const rows = table.getRows();
+  // export header
+  let csv = "";
+  //let csv = table.genCSVrow(this.#json.header);
+
+  if(this.tag) {
+    // export just records that are in the tag
+    const index = this.tags[this.tag];
+    for(var i=0; i<index.length; i++) {
+      csv += table.genCSVrow(rows[index[i]]);
+    };
+  } else {
+    // export entire table
+    for(var i=0; i<rows.length; i++) {
+      csv += table.genCSVrow(rows[i]);
+    };
+  }
+
 
   const data = new Blob([csv], {type: 'text/plain'});
 
   // set data and download name for hyperlink
-  const e=document.getElementById('download_link')
+  const e=document.getElementById('export_link')
   const url = window.URL.createObjectURL(data);
   e.href = url;
   e.download = `${this.tableName}.csv`
-
-  // now click the link
-  e.click();
+  e.click(); // now click the link  start the download/export
 }
+
 
 
 displayTagSelected( // tableUxClass - client-side
@@ -174,9 +190,7 @@ displayTag(
   name  // points to dropdown holding tags for table
 ) { // user selected a tags list to display
   this.tag = name;
-  //this.paging.rowMax = this.tags[name].length;
   this.paging.row = 0;
-  //this.statusLine();
   this.displayData();
 }
 
@@ -241,7 +255,7 @@ displayData(){
   // display data
   this.getTableDom().children[2].innerHTML = html;
 
-  // format data
+  // format data just appended
   // allow first child of each <td> tag to set attribute of <td> tag, the calenderClass was the first to use this
   // walk tr, then td to change class for td
   let tbody = document.getElementById(this.DOMid).children[0].children[2]; // first Child should be <table>   .children[2] should be <tbody>
@@ -343,7 +357,7 @@ statusLine(   // tableUxClass - client-side
         html += `<input type="button" onclick="${this.globalName}.export()" value="Download CSV"/> <a id='download_link'></a>`
         break;
       case "groupBy":
-        html += `<input type="button" onclick="app.tableUx.groupBy()" value="Group"/>`
+        html += `<input type="button" onclick="app.page.tableUX.groupBy()" value="Group"/>`
         break;
       default:
         // custom
@@ -388,8 +402,16 @@ displayFooter(){  // tableUxClass - client-side
 }
 
 
-// tableUxClass - client-side
-getTableDom(){
+groupBy(// tableUxClass - client-side
+
+){
+alert("not imlimented yet");
+//this.groupBy   = new groupByClass();
+}
+
+
+getTableDom(// tableUxClass - client-side
+){
   const e=document.getElementById(this.DOMid);     // dom element where table is displayed
   const table =     e.children[0]; // should be table - brittle code
   return table;
@@ -672,6 +694,7 @@ search( // tableUxClass - client-side
       const rows = this.getModel().getRows();
       for(let ii=0; ii<rows.length; ii++) {
         let str=rows[ii][i-this.skip_columns]; 
+        if (typeof(str) ==="number" ){str = str.toString();}
         if (str && str.toLowerCase().includes(this.searchValue)) {
           this.tags.search.push(ii);
         }

@@ -27,27 +27,6 @@ constructor() {
 }
 
 
-async loadList(  // dbClass - client-side
-  // load database list from server
-  url // location
-  ) {
-  // load json table file
-  this.#urlList          = url;
-  this.#jsonList = await app.proxy.getJSON(this.#urlList);
-  const url_database = url.slice(1,url.length-6);  // may break if _.json changes
-
-  // walk through table data, load and make the table class objects
-  const tables_meta = this.#json.meta.tables;        //
-  const table_names = Object.keys(tables_meta);
-  for (let i=0; i<table_names.length; i++) {
-    // convert raw json data to a table class
-    const table = new tableClass();
-    await table.load(`${urlTableBase}${table_names[i]}/_.json`);
-    this.#json.tables[table_names[i]] = table;  // add table to database
-  }
-}
-
-
 async load(  // dbClass - client-side
   // load database tables file from server
   url  // location
@@ -55,15 +34,14 @@ async load(  // dbClass - client-side
   // load json table file
   this.#url          = url;
   this.#json = await app.proxy.getJSON(this.#url);  // loading database file, points to tables
-  const urlTableBase = url.slice(1,url.length-6);  // may break if _.json changes
+  this.#urlList = url.slice(1,url.length-7);  // may break if _.json changes
 
   // walk through table data, load and make the table class objects
   const tables_meta = this.#json.meta.tables;        //
   const table_names = Object.keys(tables_meta);
   for (let i=0; i<table_names.length; i++) {
-    // convert raw json data to a table class
     const table = new tableClass();
-    await table.load(`${urlTableBase}${table_names[i]}/_.json`);
+    await table.load(`${this.#urlList}/${table_names[i]}/_.json`);
     this.#json.tables[table_names[i]] = table;  // add table to database
   }
 }
@@ -95,7 +73,7 @@ displayMenu( // dbClass - client-side
   ,selectTable  // onchange function to execute
 ) {
   // build menu list
-  let html = `<h4>Select Table to Display</h4><select size="4" onclick="${selectTable}">`;
+  let html = `<select size="4" onclick="${selectTable}">`;
 
   Object.entries(this.#json.tables).forEach((table, i) => {
     html += `<option value="${table[0]}">${table[0]}</option>`;
@@ -111,8 +89,9 @@ getJSON(){return this.#json;}
 
 
 tableAdd(tableName) { // dbClass - client-side
-   // create empty table and add to database
-  this.#json.tables[tableName] = new tableClass(tableName);
+  // create empty table and add to database
+  this.#json.tables[tableName] = new tableClass(`${this.#urlList}/${tableName}/_.json`);
+
   return this.#json.tables[tableName]
 }
 
@@ -132,7 +111,7 @@ clearData( // dbClass - client-side
 
 
 async save(  // dbClass - client-side
-  // save loaded tables to disk
+  // save changed loaded tables to disk
 ) {
   const keys = Object.keys(this.#json.tables);  // keys to loaded tables
   
@@ -141,28 +120,7 @@ async save(  // dbClass - client-side
     await this.#json.tables[keys[i]].save2file();
   }
 }
-    /*save(  // dbClass - client-side
-// if s_DOMid is undefined, return the string
-// convert this.#json into a string that can be saved or display
-  s_DOMid
-  ) {
-  let file="{";
-  let com = " ";
-  Object.entries(this.#json.tables).forEach((item, i) => {
-    file += "\n"+com + this.getTable(item[0]).genTable(item[0]);
-    com = ",";
-  });
-  file += "}"
 
-  if (typeof(s_DOMid) === "undefined") {
-    // no dom, return the string
-    return file;
-  } else {
-      // display in DOM
-      document.getElementById(s_DOMid).value = file;
-  }
-}
-*/
 
 displaySummery( // dbClass - clien-side
 //display summery of db loaded

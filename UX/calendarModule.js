@@ -1,8 +1,9 @@
-import  {formatClass    }   from '/_lib/format/formatModule.js';
-import  {proxyClass     }   from '/_lib/proxy/proxyModule.js'  ;
-import  {dbClass        }   from '/_lib/db/dbModule.js'        ;
-import  {tableUxClass   }   from '/_lib/UX/tableUxModule.js'   ;
-import  {nodes2htmlClass}   from '/_lib/UX/nodes2htmlModule.js'   ;
+import  {formatClass    }   from '/_lib/format/formatModule.js'  ;
+import  {proxyClass     }   from '/_lib/proxy/proxyModule.js'    ;
+import  {dbClass        }   from '/_lib/db/dbModule.js'          ;
+import  {tableUxClass   }   from '/_lib/UX/tableUxModule.js'     ;
+import  {nodes2htmlClass}   from '/_lib/UX/nodes2htmlModule.js'  ;
+import  {calendarEditClass} from '/_lib/UX/calendarEditModule.js';
 
 class calendarClass {
   /*
@@ -31,14 +32,6 @@ addEvents(
    A users will see the events in their timezone.
    This may not only change the time but also the day, month or year for the viewer of the events
   
-   ///////////////////////////////////// edit methods
-   createNewEvent  -> addNewEvent(
-  
-   editEvent -> save(
-    fillFormFromData  // move data from graph.json to form
-  
-  popUpFormVisible
-   createEditForm
   */
   
    #appRef 
@@ -49,10 +42,13 @@ addEvents(
   ) {
       this.DOM     = dom;
       this.#appRef = appRef;
+
       const today  = new Date();
-  
       this.year  = today.getFullYear();
       this.month = today.getMonth();
+
+      this.graph = {};                         // where the events are stored in compact form
+      this.edit  = new calendarEditClass(this);
       // need more though, this is here because calendar class has hardcoded this.format and app.proxy, but I'm using calendarClass is a seperate page too.
 
       this.format     = new formatClass();  // format time and dates
@@ -67,9 +63,8 @@ addEvents(
       this.eventData;          // number to access node or edge in data
       this.popUpHeight;        // holds the height of the pop up form
       this.numMonthDates = 4;  // holds number of dates a monthly repeating date can repeat on per month
-      this.openMonthDates = 1; // number of selectors visible when monthly repeating option is chosen
       this.canSubmit = false;  // determines whether or not the form is ready to submit
-      this.formHeight = "680px";
+
   
       // need for both sfc web site and the stand alone page
       this.db      = new dbClass();       // create empty database
@@ -108,7 +103,6 @@ addEvents(
       this.tableUx.setRowNumberVisible(false);              // hide row numbers
   
       this.weeks2display = 2;                              // display 4 weeks of data at a time
-      this.graph=null;                         // where the events are stored in compact form
       this.n_pic = 0;
   
       // init every day with empty array
@@ -126,30 +120,24 @@ addEvents(
 setEventMonth(    val) {this.eventMonth  = val;   } // calendarClass  client-side
 setEventYear(     val) {this.eventYear   = val;   }// calendarClass  client-side
 setEventDay(      val) {this.eventDay    = val;   }// calendarClass  client-side
-setEventEdge(     val) {this.eventEdge   = val;   }// calendarClass  client-side
 setPopUpHeight(   val) {this.popUpHeight = val;   }// calendarClass  client-side
 setNumMonthDates( val) {this.numMonthDates = val; }// calendarClass  client-side
-setOpenMonthDates(val) {this.openMonthDates = val;}// calendarClass  client-side
 setCanSubmit(     val) {this.canSubmmit = val;    }// calendarClass  client-side
-setFormHeight(    val) {this.formHeight = val;    }// calendarClass  client-side
-
   
 // accessors
 getEventMonth(    ) {return this.eventMonth ;   }// calendarClass  client-side
 getEventYear(     ) {return this.eventYear  ;   }// calendarClass  client-side
 getEventDay(      ) {return this.eventDay   ;   }// calendarClass  client-side
-getEventEdge(     ) {return this.eventEdge  ;   }// calendarClass  client-side
 getPopUpHeight(   ) {return this.popUpHeight;   }// calendarClass  client-side
 getNumMonthDates( ) {return this.numMonthDates; }// calendarClass  client-side
-getOpenMonthDates() {return this.openMonthDates;}// calendarClass  client-side
 getCanSubmit(     ) {return this.canSubmit;     }// calendarClass  client-side
-getFormHeight(    ) {return this.formHeight;    }// calendarClass  client-side
   
-  
+
 async main( // calendarClass  client-side
+url
 ) {
   // decide which calendar to load, users or main
-  await this.loadEvents( `events/${this.year}/_graph.json` );
+  await this.loadEvents(url);
 
   // display event or calendar
   this.edgeName = this.urlParams.get('e');
@@ -198,15 +186,7 @@ async main( // calendarClass  client-side
   async loadEvents( // calendarClass  client-side
     url
   ) {
-    // load calendar data
-    let dir;
-    if ( app.login.getStatus()) {
-      dir = `users/`       ; // display user calendar
-    } else {
-      dir = "synergyData/" ; // display web calendar
-    }
-    
-    this.url   = dir+url;
+    this.url   = url;
     this.graph = await app.proxy.getJSON(this.url);
   
     // each edge will generate at least one element in and event list
@@ -472,66 +452,16 @@ async main( // calendarClass  client-side
     ,month
     ,day          //
   ) {
-    // determine if we are on user calendar or
-    if (!app.login.getStatus()) {
-      // not on user calendar
-      alert('Error, not on user calendar');
-      return;
-    }
-  
-    // set member variables for event year month and day
-    this.setEventYear(year);
-    this.setEventMonth(month);
-    this.setEventDay(day);
-  
-    // Set correct buttons to display for creating new event
-    document.getElementById("saveEventButton"  ).style.display  = "none";
-    document.getElementById("deleteEventButton").style.display  = "none";;
-    document.getElementById("addEventButton"   ).style.display  = "inline-block";
-  
-    // make form blank
-    this.createBlankForm();
-  
-    // make popup vissible
-    this.popUpFormVisible(true);
+    this.edit.createNewEvent(year,month,day);
   }
 
   
   editEvent(  // calendarClass  client-side
     edgeName  // string
   ) {
-    if (!app.login.getStatus()) {
-      // not on user calendar
-      alert('Error, not on user calendar');
-      return;
-    }
-  
-    // save for other methods
-    this.setEventDay(   this.graph.edges[edgeName].dateStart[2]     );
-    this.setEventMonth( this.graph.edges[edgeName].dateStart[1]-1     );
-    this.setEventYear(  this.graph.edges[edgeName].dateStart[0]     );
-    this.setEventEdge(  edgeName                                    );
-    console.log(this.eventDay);
-    console.log(this.eventMonth);
-    console.log(this.eventYear);
-  
-  
-    // show/hide buttons
-    document.getElementById("addEventButton"   ).style.display = "none";             // Hide
-    document.getElementById("saveEventButton"  ).style.display = "inline-block";     // show ?
-    document.getElementById("deleteEventButton").style.display = "inline-block";     // show ?
-  
-    this.popUpFormVisible(true    );   // make popup vissible
-    this.fillFormFromData(edgeName);   // load data
+    this.edit.editEvent(edgeName);
   }
   
-  
-  popUpFormVisible(  // calendarClass  client-side
-    bool  // true =show it,  false -> hide it
-  ) {
-    document.getElementById(`popUpForm`).style.display = bool ? 'block' : 'none';
-  }
-
 
 
   findDayInMonth(

@@ -1,4 +1,4 @@
-<div class="popUpForm" id="popUpForm">
+<div class="popUpForm" id="popUpForm" hidden>
   <p id="popUpForm-add-edit"></p>
 
   <div style="display: flex; justify-content: center; margin: 5px;">
@@ -139,9 +139,9 @@
     </div>
   </div>
 
-  <button onClick="app.page.addNewEvent()"  class="addSaveButton"       id="addEventButton"   > Add Event </button>
-  <button onClick="app.page.save()"         class="addSaveButton"       id="saveEventButton"  > Save      </button>
-  <button onClick="app.page.closeForm()"    class="cancelEventButton"   id="cancelEventButton"> Cancel    </button>
-  <button onClick="app.page.deleteEvent()"  class="deleteEventButton"   id="deleteEventButton"> Delete    </button>
+  <button onClick="app.page.edit.addNewEvent()"  class="addSaveButton"       id="addEventButton"   > Add Event </button>
+  <button onClick="await app.page.edit.save()"         class="addSaveButton"       id="saveEventButton"  > Save      </button>
+  <button onClick="      app.page.edit.closeForm()"    class="cancelEventButton"   id="cancelEventButton"> Cancel    </button>
+  <button onClick="await app.page.edit.deleteEvent()"  class="deleteEventButton"   id="deleteEventButton"> Delete    </button>
 
 </div>

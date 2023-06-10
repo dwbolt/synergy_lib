@@ -18,9 +18,11 @@ constructor(  // csvClass: client-side
 ) {
 //  this.fsp  = require('fs').promises;   // asycn wrapper on fs
   this.csv;                 // cvs file in memory to convert to JSON
-  //this.rowDebug  = 999;     // can be used to debug
+  //this.rowDebug  = 999;   // can be used to debug
   this.error     = false;   // will be set to true if a parsing error occures
   this.table     = table;   // place to put parsed data
+  this.insertID  = false;   // do not insert ID column
+  this.id        =     1;   // 
 }
 
 
@@ -50,10 +52,16 @@ parseCSV(  // csvClass: client-side
     this.table.setHeader( header);
   } else {
     // assume first row is header
-    this.table.setHeader( this.parseRow() );
+    const header = this.parseRow();
+    if (header[0] !== "ID") {
+      // insert id column
+      this.insertID = true;
+      header.splice(0, 0, "ID"); 
+    }
+    this.table.setHeader( header );
   }
 
-  // now loop and put every thing else in json.rows
+  // now loop and put everything else in json.rows
   while ( this.valueStart < this.csv.length) {
     // now add all the data
     this.table.appendRow( this.parseRow() );
@@ -97,6 +105,10 @@ parseRow() {  // csvClass: client-side
   this.column=0;
   this.rowEnd = false;
   this.row++;
+  if (this.insertID) {
+    // create an id for row
+    a.splice(0, 0, this.id++);
+  }
   return a;
 }
 
