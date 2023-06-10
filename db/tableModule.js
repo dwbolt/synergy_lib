@@ -192,8 +192,13 @@ getRows()        {return this.#json.rows          ;} // tableClass - client-side
 getRow(index)    {return this.#json.rows[index]   ;} // tableClass - client-side
 get_primary_key(){return this.#json.primary_key   ;} // tableClass - client-side
 
-changes_get(key) { // tableClass - client-side
+changes_get(key=null) { // tableClass - client-side
   // return change object for record with primary key = key
+  if (key === null){
+    // return all the changes is a key is not passed in
+    return this.#json.changes;
+  }
+
   let changes = this.#json.changes[key];
   if (typeof(changes)==="undefined") {
     // no privous changes to row, so init to empty change object
@@ -213,18 +218,19 @@ getRowByIndex( // tableClass - client-side
 getRowsLength() {return this.#json.rows.length   ;} // tableClass - client-side
 getJSON(      ) {return this.#json               ;} // tableClass - client-side
 
+
 appendRow(  // tableClass - client-side
   a_row
   ){
   this.#json.rows.push(a_row);  // adding new row
-  change_summary("append");  // incremnet append count
+  this.change_summary("append");  // incremnet append count
 }
 
 
 change_summary(  // tableClass - client-side
   field
   ){
-  const change = changes_get("summary");
+  const change = this.changes_get("summary");
   if (typeof(change[field]) ==="undefined") {
     // first time data is stored so create empty
     change[field] = {count: 0};

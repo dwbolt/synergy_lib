@@ -114,10 +114,31 @@ async save(  // dbClass - client-side
   // save changed loaded tables to disk
 ) {
   const keys = Object.keys(this.#json.tables);  // keys to loaded tables
-  
+  let save_meta = false;
+
+  // tr
   for(var i=0; i< keys.length; i++) {
     // save all loaded tables that have changed
     await this.#json.tables[keys[i]].save2file();
+    if ( typeof(this.#json.meta.tables[keys[i]]) ===  "undefined") {
+      // have a new table, add it to meta data
+      this.#json.meta.tables[keys[i]] = {"location": keys[i], comments: "imported table"}
+      save_meta = true;
+    }
+  }
+
+  if (save_meta) {
+      // database meta data
+    
+    await app.proxy.RESTpost(
+`{
+  "meta":{
+    "tables": ${JSON.stringify(this.#json.meta.tables)}
+  }
+  ,"tables":{
+  }
+}`
+    , this.#url);
   }
 }
 
