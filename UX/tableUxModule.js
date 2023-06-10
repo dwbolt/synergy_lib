@@ -145,11 +145,9 @@ setBuffer(         tableUx) {this.tableUxB          = tableUx;}  // rember the t
 
 export( // tableUxClass - client-side
 ){ // as CSV file
-  let table = this.getModel();
-  const rows = table.getRows();
-  // export header
-  let csv = "";
-  //let csv = table.genCSVrow(this.#json.header);
+  const table = this.getModel();    // get access to class holding the table data
+  const rows  = table.getRows();    // get access to array of rows
+  let csv     = table.genCSVrow(table.getHeader()); // export header
 
   if(this.tag) {
     // export just records that are in the tag
@@ -159,6 +157,7 @@ export( // tableUxClass - client-side
     };
   } else {
     // export entire table
+
     for(var i=0; i<rows.length; i++) {
       csv += table.genCSVrow(rows[i]);
     };
@@ -168,7 +167,7 @@ export( // tableUxClass - client-side
   const data = new Blob([csv], {type: 'text/plain'});
 
   // set data and download name for hyperlink
-  const e=document.getElementById('export_link')
+  const e=document.getElementById('download_link')
   const url = window.URL.createObjectURL(data);
   e.href = url;
   e.download = `${this.tableName}.csv`

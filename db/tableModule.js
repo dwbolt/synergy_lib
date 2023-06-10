@@ -36,6 +36,7 @@ url
     ,"header" : []          // what is displayed for the header
     ,"index"  : []          // array of index fields
     ,"changes": {}          // current changed memory value
+    ,"deleted": {}          // {key: true, key2, true .....} listed of keys stored that are logally deleted
     ,"rows"   : []          // row data, one array for each row
 
     /*
@@ -62,6 +63,7 @@ async load(url) { // tableClass - client-side
   // index primary key
   this.index_primary();
 }
+
 
 index_primary(){
   this.index(this.#json.primary_key);
@@ -121,6 +123,15 @@ save2memory( // tableClass - client-side
 
   // need to save memory change log to server incase session is lost, so user will not loose there work
   // code here
+}
+
+
+delete( // tableClass - client-side
+key
+){
+  
+this.getJSON()
+
 }
 
 
