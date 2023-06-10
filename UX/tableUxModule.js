@@ -1,4 +1,4 @@
-import { groupByClass} from '/_lib/db/groupByModule.js';
+import {groupbyClass} from '/_lib/db/groupByModule.js';
 
 class tableUxClass { // tableUxClass - client-side
 
