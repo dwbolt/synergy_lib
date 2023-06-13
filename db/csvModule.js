@@ -72,7 +72,8 @@ parseCSV(  // csvClass: client-side
   }
 
   // assume first row is primary index - need to work on this
-  this.table.index_primary();
+  //this.table.index_primary();
+  this.table.PK_create();
 }
 
 

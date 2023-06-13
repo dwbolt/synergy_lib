@@ -22,14 +22,14 @@ document.getElementById(`popUpForm`).hidden = bool;
 //document.getElementById(`popUpForm`).style.display = bool ? 'block' : 'none';
 }
 
-createNewEvent(  // calendarClass  client-side
+async createNewEvent(  // calendarClass  client-side
 // user clicked + to add new event on a particular day
  year
 ,month
 ,day          //
 ) {
 // determine if we are on user calendar or
-if (!app.login.getStatus()) {
+if (!await app.login.getStatus()) {
   // not on user calendar
   alert('Error, not on user calendar');
   return;
@@ -53,10 +53,10 @@ this.createBlankForm();
 }
 
 
-editEvent(  // calendarClass  client-side
+async editEvent(  // calendarClass  client-side
 edgeName  // string
 ) {
-if (!app.login.getStatus()) {
+if (! await app.login.getStatus()) {
   // not on user calendar
   alert('Error, not on user calendar');
   return;

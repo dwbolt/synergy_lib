@@ -17,13 +17,15 @@ save local file download
 save to server
 
 */
-#json      // data loaded from json file
-#urlList   // directory where database folders are
-#jsonList  //
+
+
 #url       // remember where the file came from
-// dbClass - client-side
-constructor() {
-  this.#json = {tables:{} };
+#urlList   // directory where database folders are
+#json      // data loaded from json file
+
+
+constructor() {   // dbClass - client-side
+  this.tables = {};
 }
 
 
@@ -31,18 +33,36 @@ async load(  // dbClass - client-side
   // load database tables file from server
   url  // location
   ) {
+  this.#url     = url;
+
+  // load list of tables in database
+  let obj;
+  do {
+    obj  = await app.proxy.getJSONwithError(this.#url);   // get list of tables
+    if(obj.json === null) {
+      alert(`missing or bad file="${this.#url}", replacing with default table list`);
+      // missing or ill formed json file, so store an empty good one 
+      await app.proxy.RESTpost(
+        `{
+          "meta":{
+            "tables": {"people":{"location":"people"}}
+          }}`
+        ,this.#url)
+    }
+  } while (obj.json === null);
+  this.#json  = obj.json; 
+
   // load json table file
-  this.#url          = url;
-  this.#json = await app.proxy.getJSON(this.#url);  // loading database file, points to tables
   this.#urlList = url.slice(1,url.length-7);  // may break if _.json changes
 
   // walk through table data, load and make the table class objects
   const tables_meta = this.#json.meta.tables;        //
   const table_names = Object.keys(tables_meta);
+  this.tables = {};
   for (let i=0; i<table_names.length; i++) {
     const table = new tableClass();
     await table.load(`${this.#urlList}/${table_names[i]}/_.json`);
-    this.#json.tables[table_names[i]] = table;  // add table to database
+    this.tables[table_names[i]] = table;  // add table to database
   }
 }
 
@@ -59,7 +79,7 @@ loadLocal( // dbClass - client-side   -- should be able to share code here
     // covern raw json data to a table class
     const t = new tableClass();
     t.setJSON(item[1]);      // add loaded table attributes to constructor defaults
-    this.#json.tables[item[0]] = t;  // change plan data to a tableClasse
+    this.tables[item[0]] = t;  // change plan data to a tableClasse
     t.field();  // init the field attribute from fieldA array
   });
 
@@ -75,7 +95,7 @@ displayMenu( // dbClass - client-side
   // build menu list
   let html = `<select size="4" onclick="${selectTable}">`;
 
-  Object.entries(this.#json.tables).forEach((table, i) => {
+  Object.entries(this.tables).forEach((table, i) => {
     html += `<option value="${table[0]}">${table[0]}</option>`;
   });
   html += `
@@ -90,16 +110,16 @@ getJSON(){return this.#json;}
 
 tableAdd(tableName) { // dbClass - client-side
   // create empty table and add to database
-  this.#json.tables[tableName] = new tableClass(`${this.#urlList}/${tableName}/_.json`);
+  this.tables[tableName] = new tableClass(`${this.#urlList}/${tableName}/_.json`);
 
-  return this.#json.tables[tableName]
+  return this.tables[tableName]
 }
 
 
 getTable( // dbClass - client-side
   s_tableName
   ) {  
-  return this.#json.tables[s_tableName];  // return instance of tableClass
+  return this.tables[s_tableName];  // return instance of tableClass
 }
 
 
@@ -113,13 +133,13 @@ clearData( // dbClass - client-side
 async save(  // dbClass - client-side
   // save changed loaded tables to disk
 ) {
-  const keys = Object.keys(this.#json.tables);  // keys to loaded tables
+  const keys = Object.keys(this.tables);  // keys to loaded tables
   let save_meta = false;
 
   // tr
   for(var i=0; i< keys.length; i++) {
     // save all loaded tables that have changed
-    await this.#json.tables[keys[i]].save2file();
+    await this.tables[keys[i]].save2file();
     if ( typeof(this.#json.meta.tables[keys[i]]) ===  "undefined") {
       // have a new table, add it to meta data
       this.#json.meta.tables[keys[i]] = {"location": keys[i], comments: "imported table"}
@@ -134,8 +154,6 @@ async save(  // dbClass - client-side
 `{
   "meta":{
     "tables": ${JSON.stringify(this.#json.meta.tables)}
-  }
-  ,"tables":{
   }
 }`
     , this.#url);

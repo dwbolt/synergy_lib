@@ -38,7 +38,7 @@ async main() { // appClass - client side
 	this.css                                        = await this.proxy.getJSON("css.json");
 	document.getElementById("footer"    ).innerHTML = await this.proxy.getText("footer.html");
 
-	if (this.login.getStatus()) {
+	if (await this.login.getStatus()) {
 		// user logged in
 		document.getElementById("navigation").innerHTML = await this.proxy.getText("menuUser.html") 
 		document.getElementById("userName"  ).innerHTML = `Home for: ${sessionStorage.nameFirst} ${sessionStorage.nameLast}`
@@ -66,11 +66,12 @@ async main() { // appClass - client side
 		await this.widgetList.displayButton(domButton);
 	} else if (document.getElementById('buttons').firstChild){
 		// display first button
-		await this.widgetList.displayButton( document.getElementById('buttons').firstChild);
+		await this.widgetList.displayButton( document.getElementById('buttons').firstChild );
 	} else {
 		// no button, assume rows has an array of nodes to display
 		await this.widgetList.displayList("rows");
 	}
+	let x=0;  // dummy statement to set breakpoint on
 }
 
 

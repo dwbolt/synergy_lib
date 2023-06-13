@@ -17,35 +17,6 @@ constructor(DOMid){ // calendarEditClass  client-side
   `
 }
 
-/*
-menu(  // menuClass- client side
-){  // init menu for application, display dropdown list of pages,
-  // remember menu selection
-  const e = document.getElementById('page');
-  const i = e.selectedIndex;
-
-  // add or remove data dependant menu items
-  let html = `<option value= "home"     >Home </option>`
-
-  if (this.login.getStatus()) {
-    // logged in, so let user load data
-    html += '<option value= "loadYear"  >Load Year</option>'
-  }
-
-  if (0<app.pages.loadYear.year) {
-    // data is loaded, show allow options that use data
-    html += `
-    <option value= "reconcile" >Reconcile</option>
-    <option value= "statements">Statements</option>
-    <option value= "data"      >View/Edit Data</option>
-    `
-  }
-  document.getElementById("page").innerHTML = html;
-
-  // resore menu selection
-  e.selectedIndex = i;
-}
-*/
 
 add(  // menuClass- client side
   html    // html for menu

@@ -299,7 +299,7 @@ url
   }
 }
   
-  buildTable(  // calendarClass  client-side
+  async buildTable(  // calendarClass  client-side
   ) {   // converts calendar data from graph to a table
     const t        = this.db.getTable("weekCal");  // t -> table we will put event data in to display
     t.clearRows();
@@ -351,21 +351,23 @@ url
   
         let add="";
         //if (this.urlParams.get('u') != null) {
-        if (app.login.getStatus()) {
+        if ( await app.login.getStatus()) {
           // user calendar
           add =`<a onClick="${this.#appRef}.createNewEvent(${start.getFullYear()}, ${start.getMonth()}, ${start.getDate()})">+</a> `
         }
         let html = `<h5 ${style}>${m}-${d} ${add}</h5>`;
   
         let eventList = this.events[m][d];
-        eventList.forEach((edgeName, i) => {
+        //eventList.forEach((edgeName, i) => {
+        for(let i=0; i> eventList.length; i++ ) {
+          let edgeName=eventList[i];
           // loop for all events for day [m][d]
             let year = start.getFullYear();
             let nodeName = this.graph.edges[edgeName].nR
   
             let user=""  // assume we are on main calendar
             let editButton = `${i+1} `;
-            if (app.login.getStatus()) {
+            if (await app.login.getStatus()) {
               // we are on a user calendar
               //user = "&u=" + this.urlParams.get('u');
               editButton = `<a onClick="${this.#appRef}.editEvent(${edgeName})">${i+1}</a> `;
@@ -415,7 +417,8 @@ url
   
               html += `<p>${editButton}<a  href="${nodeName.url}" target="_blank" style="color: ${repeat_color}">${nodeName.text}</a></p>`
             }
-        });
+        }
+        //});
   
         row.push(html + "</br>")
         start.setDate( start.getDate() + 1 ); // move to next day

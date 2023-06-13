@@ -89,6 +89,23 @@ async getJSON(  // proxyClass - client - side
     }
 }
 
+async getJSONwithError(  // proxyClass - client - side
+  url // location of json file
+) {
+    try {
+      const f = await fetch(url);
+      if (f.ok) { // if HTTP-status is 200-299
+        // get the response body (the method explained below)
+        let j = await  f.json();
+        return {"json": j   , "status": f.status};
+      } else {
+        return {"json": null, "status": f.status};
+      }
+    } catch (e) {
+      return   {"json": null, "error": e}
+    }
+}
+
 
 async getText(url) {   // proxyClass - client - side
     try {

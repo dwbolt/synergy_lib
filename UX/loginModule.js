@@ -27,14 +27,14 @@ constructor(  // loginClass - client side
 }
 
 
-buildForm(  // loginClass - client side
+async buildForm(  // loginClass - client side
   idDOM  // place to put form
 ) {
   this.form = document.getElementById(idDOM);
   let logInOut,loginState;
 
   // get login State
-  if (this.getStatus()) {
+  if (await this.getStatus()) {
     // logged in
     logInOut   = "Log Out";
     loginState = `Logged in top menu.`
@@ -297,24 +297,11 @@ setLoginFalse( // loginClass-  client-side
 }
 
 
-getStatus( // loginClass - client side
+async getStatus( // loginClass - client side
 ){
-  // need to check server, for now just check cookkie, could also get timeout from server to make this better
-  //https://www.w3schools.com/js/js_cookies.asp
-  const cookies = document.cookie       // convert to string
-  const cookiesA = cookies.split('; ')        // create arry of keys
-  for (let i=0; i<cookiesA.length ;i++) {
-    let keyValue = cookiesA[i].split('=');
-    if (keyValue[0]==="userKey") {
-      if (0 === keyValue[1].length) {
-        return false;       // user has logged out
-      } else {
-        return true;        // client thinks the user is longed in - server may not
-      }
-    }
-  }
-  
-  return false;
+  // ask server still logged in
+  const serverResponse = await app.proxy.postJSON(`{"server":"web", "msg":"logged_in"}`);
+  return serverResponse.msg;  // true -> logged in 
 }
 
 }  // loginClass - client-side // end class

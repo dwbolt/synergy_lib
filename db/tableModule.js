@@ -1,7 +1,3 @@
-// _/lib/db/tableModule.js
-
-import  {proxyClass   }   from '/_lib/proxy/proxyModule.js'    ;
-
 class tableClass {  // tableClass - client-side
 
 /*
@@ -18,27 +14,22 @@ these features are used in the following apps
 
 #json   // json table loaded from disk
 #url
-#proxy
 
 constructor( // tableClass - client-side
 url
 ) {  
   // data
-  this.#proxy = new proxyClass();
   this.#url   = url;
   
   this.#json  = {
     "description":""        // what is this table for
-    ,"primary_key": 0    // index 0-> primary_key is the first column of data
     ,"field":{}             // calculated field from fieldA
     ,"fieldA":[]            // array of names to access field in rows
                             // search is optional array of size of search input
     ,"header" : []          // what is displayed for the header
     ,"index"  : []          // array of index fields
-    ,"changes": {}          // current changed memory value
     ,"deleted": {}          // {key: true, key2, true .....} listed of keys stored that are logally deleted
-    ,"rows"   : []          // row data, one array for each row
-
+    ,"changes": {}          // current changed memory value
     /*
       "key":{
          "column#": {"value_new":", value_orig:"}
@@ -46,28 +37,117 @@ url
         ..
       }
       ,"key2":{...}
-    }   */       
-    ,"rowsBuffer":[]        // array of arrays: buffer data for add, select, dupp, will change rows data if saved
+    }   */      
+    ,"rows"      : []       // row data, one array for each row 
+    ,"rowsBuffer": []       // array of arrays: buffer data for add, select, dupp, will change rows data if saved
                             // [rowIndex,[changes made]]  index of <0 is new row to be appended at end if saved
   }
 }
 
 
-async load(url) { // tableClass - client-side
+async load(  // tableClass - client-side
+  url
+  ) { 
   this.#url = url;
-  this.#json = await this.#proxy.getJSON(this.#url );
+  let obj;
+  do {
+    obj  = await app.proxy.getJSONwithError(this.#url);   // get table in database
+    if(obj.json === null) {
+      alert(`missing or bad file="${this.#url}", replacing with default table struture`);
+      // missing or ill formed json file, so store an empty good one 
+      await app.proxy.RESTpost(this.default_table_structure() ,this.#url)
+    }
+  } while (obj.json === null);
+  this.#json  = obj.json; 
+
   // init
-  this.#json.changes = {};
-  this.#json.index   = [];
+  if (typeof(this.#json.changes) === "undefined") this.#json.changes = {};
+  if (typeof(this.#json.deleted) === "undefined") this.#json.deleted = {};
 
   // index primary key
-  this.index_primary();
+  if (typeof(this.#json.PK) !== "object") {
+    // create PK
+    this.PK_create(); 
+  }
 }
 
 
-index_primary(){
-  this.index(this.#json.primary_key);
+default_table_structure() {
+  const tableName=this.#url.slice(0,this.#url.length-7).split("/");  // take off /_.json, then slit
+  switch(tableName[tableName.length-1]) {
+    case "people":
+      return `{
+  "fieldA" : []
+  ,"header": ["id", "FIRST NAME", "LAST NAME", "EMAIL ADDRESS", "OFFICE NUMBER", "CELL NUMBER", "PERSONAL NOTES"]
+  ,"rows"  : []
+}`
+      
+    case "orgainization":
+      return `
+{
+  "fieldA":      []
+  ,"header":      ["id","NAME"," NOTES "]
+  ,"rows": []
+}`
+
+    case "phone":
+      return `
+{
+"fieldA":      []
+,"header":      ["id","NAME"," NOTES "]
+,"rows": []
+}`
+
+    case "address":
+      return `
+{
+"fieldA":      []
+,"header":      ["id","NAME"," NOTES "]
+,"rows": []
+}`
+
+    case "url":
+      return `
+{
+"fieldA":      []
+,"header":      ["id","NAME"," NOTES "]
+,"rows": []
+}`
+
+    default:
+      // code block
+  }
 }
+
+PK_create(){
+  // create primary key index 
+  this.#json.PK     = {};
+  this.#json.PK_max = 0; 
+  
+  // walk to entire table and index on column key
+  const rows = this.getRows();
+  for (var i=0; i< rows.length; i++) {
+    let value = rows[i][0];  // the PK is always the starting column
+    this.#json.PK[value]=i;  // store the row number 
+
+    if (this.#json.PK_max < value) {
+      // find largest key value, primary key is an integer number that increments
+      this.#json.PK_max = value;
+    }
+  }
+}
+
+
+PK_get( // tableClass - client-side
+  key=null  // primary key, return row
+  ){
+  if (key === null) {
+    return Object.keys(this.#json.PK);    // array of PK keys - use to walk all rows
+  } else {
+    return this.#json.rows[ this.#json.PK[key] ];
+  }
+}
+
 
 async save2file( // tableClass - client-side
 ){
@@ -75,7 +155,7 @@ async save2file( // tableClass - client-side
   const changes = Object.keys(this.#json.changes);
   if (0<changes.length) {
     // only save file if there are changes to the table or it is new
-    const msg   = await this.#proxy.RESTpost( this.genTable() ,this.#url);
+    const msg   = await app.proxy.RESTpost( this.genTable() ,this.#url);
     alert(`
     file=${this.#url}
     records changed=${changes.length}
@@ -96,10 +176,10 @@ save2memory( // tableClass - client-side
   let changes = this.changes_get(primary_key_value);
   // see what fields changed for the row
   for(var i=0; i< record.length; i++) {
-    if (i !== this.get_primary_key() ) {  // skip primary key
+    if (i !== 0) {  // skip primary key
       // not on primary key
       let edited_value   = record[i];  // from edit form
-      let current_value  = this.getRowByIndex(this.get_primary_key(), primary_key_value)[i];  // from table memory
+      let current_value  = this.PK_get(primary_key_value)[i];  // from table memory
 
       // update change log
       if (edited_value !== current_value ) {
@@ -116,7 +196,7 @@ save2memory( // tableClass - client-side
         }
 
         // update memery row
-        this.getRowByIndex(this.get_primary_key(), primary_key_value)[i]  = edited_value;
+        this.PK_get(primary_key_value)[i]  = edited_value;
       }
     }
   }
@@ -127,14 +207,16 @@ save2memory( // tableClass - client-side
 
 
 delete( // tableClass - client-side
-key
+key  // pK to delete
 ){
-  
-this.getJSON()
 
+  this.#json.deleted[key] = true;   // add key to deleted object
+  delete this.#json.PK[key];        // remove key from PK
+  const changes = this.changes_get(key); // update change log
+  changes.deleted=true;
 }
 
-
+/*
 index(  // tableClass - client-side
   key  // column # to index on
   ){ 
@@ -164,7 +246,7 @@ index(  // tableClass - client-side
     alert(`tableModule.js index key=${key} is not a number`);
   }
 }
-
+*/
 
 sortList(  // tableClass - client-side
     a_list     // array of row indexes that need to be sorted
@@ -404,24 +486,24 @@ bufferCreateEmpty(  // tableClass - client-side
     for(ii=0; ii<this.#json.header.length; ii++) {
       empty.push(""); // create an array of null as long as the header
     }
-    empty[this.get_primary_key()] = this.#json.primary_key_max+i;
+    empty[0] = this.#json.PK_max+i;
     this.#json.rowsBuffer.push(empty);  // -1 -> a new row, a positive number is an edit
   }
 }
 
 
 bufferAppend(  // tableClass - client-side
-
+// append buffer to main data
 ) {  
   // copy rows from buffer to memory
   this.bufferSetType();
   this.#json.rowsBuffer.forEach((item, i) => {
     // copy from buffer to memory
-    this.#json.primary_key_max = item[this.get_primary_key()];
+    this.#json.PK_max = item[0];
     this.#json.rows.push( item );
     // update primary key index
-    let value = item[this.#json.primary_key];  // get row's key value
-    this.#json.index[this.#json.primary_key][value] = this.#json.rows.length-1;   // store the row number 
+    const PK = item[0];  // get PK value
+    this.#json.PK[PK] = this.#json.rows.length-1;   // Point index to row
   });
 
   // need to update other indexes
@@ -443,11 +525,14 @@ genRows() {  // tableClass - client-side
 
 
 genTable(  // tableClass - client-side
+// create JSON file to store table for later retrivial
 ) {
   return `{
- "fieldA":      ${JSON.stringify(this.#json.fieldA     )}
-,"primary_key": ${JSON.stringify(this.#json.primary_key)}
-,"header":      ${JSON.stringify(this.#json.header     )}
+ "fieldA"      :${JSON.stringify(this.#json.fieldA     )}
+,"header"     :${JSON.stringify(this.#json.header      )}
+,"deleted"    :${JSON.stringify(this.#json.deleted     )} 
+,"PK"         :${JSON.stringify(this.#json.PK          )}
+,"PK_max"     :${JSON.stringify(this.#json.PK_max      )}
 
 ,"rows": [
 ${this.genRows()}]

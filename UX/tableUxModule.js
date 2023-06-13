@@ -242,8 +242,7 @@ displayColumnTitles(){
 }
 
 
-// tableUxClass - client-side
-displayData(){
+displayData(){   // tableUxClass - client-side
   let html="";  // init html
 
   // build one row at a time
@@ -313,8 +312,8 @@ displayData(){
 }
 
 
-// tableUxClass - client-side
-genTags(){
+genTags(){ // tableUxClass - client-side
+  // delisplay the tags so user can choose which to view
   let options="";
   Object.keys(this.tags).forEach((item, i) => {
     options+=`<option value="${item}">${item}</option>`;
@@ -436,38 +435,40 @@ getModel(){return this.model}  // will be table class
 appendHTMLrow(  // tableUxClass - client-side
   // append row from table or tag list
    i         // is line the row is being displayed on
-  ,rowIndex  // row data to be displayed
+  ,arrayIndex  // row data to be displayed
 ) {
 
   // decide if raw data or a tag list is being displayed
-  let row,rowIndexDisp;
+  let row,PK;
   if (this.buffer) {
     // display bufffer
     row          = this.model.getRowBuffer(rowIndex)
-    rowIndexDisp = rowIndex
+    PK = rowIndex
   } else if (this.tag === "null"  || this.tag === null) {
     // display all data
-    row          = this.model.getRow(rowIndex);
-    rowIndexDisp = rowIndex
+    row          = this.model.getRow(PK);
+    PK = rowIndex
   } else {
     // display subset of rows in tag
-    rowIndexDisp = this.tags[this.tag][rowIndex];
-    row          = this.model.getRow( rowIndexDisp);
+    if (arrayIndex < this.tags[this.tag].length) {
+      PK = this.tags[this.tag][arrayIndex];
+      row          = this.model.PK_get( PK);
+    } else {
+      return ""; // no more data
+    }
   }
 
-  if (!row) {
-    return "";  // at end of data, do not append anything
-  }
+
 
   // create html for each column in the row
   let lineNum=""; if (this.lineNumberVisible ) {lineNum = `<td>${i}</td>`           ;}
-  let rowNum =""; if (this.rowNumberVisible  ) {rowNum  = `<td>${rowIndexDisp}</td>`;}
+  let rowNum =""; if (this.rowNumberVisible  ) {rowNum  = `<td>${PK}</td>`;}
 
   let selected = "";
   if (this.selected.find(
-    val => val === rowIndexDisp) )
+    val => val === PK) )
      {selected="class='selected'";}
-  let html   = `<tr ${selected} data-row=${rowIndexDisp}>${lineNum}${rowNum}`;
+  let html   = `<tr ${selected} data-row=${PK}>${lineNum}${rowNum}`;
 
   let value;
   row.forEach((field,ii) => {
