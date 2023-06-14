@@ -694,7 +694,7 @@ search( // tableUxClass - client-side
         let str=rows[ii][i-this.skip_columns]; 
         if (typeof(str) ==="number" ){str = str.toString();}
         if (str && str.toLowerCase().includes(this.searchValue)) {
-          this.tags.search.push(ii);
+          this.tags.search.push(rows[ii][0]);  // push the primary key
         }
       }
     }
