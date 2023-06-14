@@ -309,7 +309,7 @@ async buildTable(  // calendarClass  client-side
   const start     = new Date(this.year, 0, 1);   // current date/time
   const firstDate = new Date(this.year, 0, 1);
   const year      = start.getFullYear();
-  start.setDate( start.getDate()  - start.getDay() ); // move start to Sunday, year could change if it is the first week of the year
+  start.setDate( start.getDate()  - start.getDay() ); // move start to Sunday, year could change if it is the first week of the yearedit
 
   // build weeks data to end of year
   let style;
@@ -332,6 +332,7 @@ async buildTable(  // calendarClass  client-side
       let eventList = this.events[m][d];
       for(let i=0;  i<eventList.length; i++ ) {
         let editButton = `${i+1} `;
+        let edgeName = eventList[i];
         if (await app.login.getStatus()) {
           // we are on a user calendar
           //user = "&u=" + this.urlParams.get('u');
@@ -339,7 +340,6 @@ async buildTable(  // calendarClass  client-side
         }
         
         let repeat_class = ""; 
-        let edgeName = eventList[i];
                if(this.graph.edges[edgeName].repeat == "weekly" ) {repeat_class = "repeat_weekly" ;
         } else if(this.graph.edges[edgeName].repeat == "monthly") {repeat_class = "repeat_monthly";
         } else if(this.graph.edges[edgeName].repeat == "yearly" ) {repeat_class = "repeat_yearly" ;}
