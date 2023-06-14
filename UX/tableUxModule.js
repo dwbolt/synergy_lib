@@ -446,8 +446,8 @@ appendHTMLrow(  // tableUxClass - client-side
     PK = rowIndex
   } else if (this.tag === "null"  || this.tag === null) {
     // display all data
+    PK = arrayIndex;
     row          = this.model.getRow(PK);
-    PK = rowIndex
   } else {
     // display subset of rows in tag
     if (arrayIndex < this.tags[this.tag].length) {
@@ -457,8 +457,6 @@ appendHTMLrow(  // tableUxClass - client-side
       return ""; // no more data
     }
   }
-
-
 
   // create html for each column in the row
   let lineNum=""; if (this.lineNumberVisible ) {lineNum = `<td>${i}</td>`           ;}

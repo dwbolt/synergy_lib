@@ -137,13 +137,13 @@ async main( // calendarClass  client-side
 url
 ) {
   // decide which calendar to load, users or main
-  await this.loadEvents(url);
+  await this.loadEvents(url); // will fill out this.events - array for each day of the year 
 
   // display event or calendar
   this.edgeName = this.urlParams.get('e');
   if (this.edgeName === null) {
     // display entire calendar
-    this.buildTable();  // convert edge data to table data that can be displayed
+    await this.buildTable();  // convert this.events to a table that can be displayed with tableUX
 
     // create a text month list
     // concatenate the month to the display
@@ -165,112 +165,112 @@ url
 }
   
   
-  createDate(  // calendarClass  client-side
-    // returns a starting or ending date for an event edge
-     edge  //
-    ,end  //  true -> end time, add duration to start
-    ,offsets = [0,0,0] // offset from start [yy,mm,dd]
-  ) {
-    let offset = this.timezones[edge.timeZone] + new Date(0).getTimezoneOffset();  // get offset from event timezone vs user timezone
-    let timeDuration = edge.timeDuration.split(":");                         // timeDuration[0] is hours  timeDuration[1] is minutes
-    if (end) {
-      // date that events ends
-      return new Date(edge.dateEnd[0]   ,edge.dateEnd[1]-1  , edge.dateEnd[2]  , edge.dateStart[3]+ parseInt(timeDuration[0]) , edge.dateStart[4] - offset + parseInt(timeDuration[1]) );
-    } else {
-      // date that events starts
-      return new Date(edge.dateStart[0] +offsets[0] ,edge.dateStart[1]-1 +offsets[1], edge.dateStart[2] +offsets[2], edge.dateStart[3], edge.dateStart[4] - offset);
-    }
-  }
-  
-  
-  async loadEvents( // calendarClass  client-side
-    url
-  ) {
-    this.url   = url;
-    this.graph = await app.proxy.getJSON(this.url);
-  
-    // each edge will generate at least one element in and event list
-    Object.keys(this.graph.edges).forEach((k, i) => {
-      // generate startGMT, endGMT
-      let e = this.graph.edges[k];  // edge we are processing
-      e.startGMT = this.createDate(e,false);  // start date time
-      e.endGMT   = this.createDate(e,true );  // end   date time
-      this.addEvents(k);
-    }); // end Object.keys forEach
-  }
-
-  addEvents(  // calendarClass  client-side
-  k  // this.graph.edges[k] returns the edge
+createDate(  // calendarClass  client-side
+  // returns a starting or ending date for an event edge
+    edge  //
+  ,end  //  true -> end time, add duration to start
+  ,offsets = [0,0,0] // offset from start [yy,mm,dd]
 ) {
-  switch(this.graph.edges[k].repeat) {
-    case "weekly":
-      this.addWeekly(k)
-      break;
-    case "monthly":
-      this.addMonthly(k)
-      break;
-    case "yearly":
+  let offset = this.timezones[edge.timeZone] + new Date(0).getTimezoneOffset();  // get offset from event timezone vs user timezone
+  let timeDuration = edge.timeDuration.split(":");                         // timeDuration[0] is hours  timeDuration[1] is minutes
+  if (end) {
+    // date that events ends
+    return new Date(edge.dateEnd[0]   ,edge.dateEnd[1]-1  , edge.dateEnd[2]  , edge.dateStart[3]+ parseInt(timeDuration[0]) , edge.dateStart[4] - offset + parseInt(timeDuration[1]) );
+  } else {
+    // date that events starts
+    return new Date(edge.dateStart[0] +offsets[0] ,edge.dateStart[1]-1 +offsets[1], edge.dateStart[2] +offsets[2], edge.dateStart[3], edge.dateStart[4] - offset);
+  }
+}
+  
+  
+async loadEvents( // calendarClass  client-side
+  url   // pointer to graph event data
+) {
+  this.url   = url;
+  this.graph = await app.proxy.getJSON(this.url);  
+
+  // each edge will generate at least one element in and event list
+  Object.keys(this.graph.edges).forEach((k, i) => {
+    // generate startGMT, endGMT
+    let e = this.graph.edges[k];  // edge we are processing
+    e.startGMT = this.createDate(e,false);  // start date time
+    e.endGMT   = this.createDate(e,true );  // end   date time
+    this.addEvents(k);   // will fill out this.events[[][]...] one array for each day of week for the year
+  }); // end Object.keys forEach
+}
+
+
+addEvents(  // calendarClass  client-side
+k  // this.graph.edges[k] returns the edge
+) {
+switch(this.graph.edges[k].repeat) {
+  case "weekly":
+    this.addWeekly(k)
+    break;
+  case "monthly":
+    this.addMonthly(k)
+    break;
+  case "yearly":
+    this.addOneOf(k);
+    break;
+  case "never":
+    this.addOneOf(k);
+    break;
+  default:
+    if (typeof(this.graph.edges[k].repeat) === "undefined") {
+      // does not repeat
       this.addOneOf(k);
-      break;
-    case "never":
-      this.addOneOf(k);
-      break;
-    default:
-      if (typeof(this.graph.edges[k].repeat) === "undefined") {
-        // does not repeat
-        this.addOneOf(k);
-      } else {
-        // error
-        alert(`in calendarClass.addEvents: repeat=${this.graph.edges[k].repeat}  k=${k}`);
-      }
+    } else {
+      // error
+      alert(`in calendarClass.addEvents: repeat=${this.graph.edges[k].repeat}  k=${k}`);
+    }
   }
 }
 
 
-  findDayInWeek(
-    // Returns a Date object of the first instance of day of week in a month
-    // ex -- returns the first tuesday in january
-    month,
-    day
-  ) {
-    var d = new Date(this.year,month,1); // set day for first day in month
-  
-    // walk until we find first instance of day of week in the month
-    while (d.getDay() != day) {
-      console.log('day ' + d.getDay());
-      d.setDate(d.getDate() + 1);
-    }
-  
-    return d;
-  }
-  
+findDayInWeek( // calendarClass  client-side
+  // Returns a Date object of the first instance of day of week in a month
+  // ex -- returns the first tuesday in january
+  month,
+  day
+) {
+  var d = new Date(this.year,month,1); // set day for first day in month
 
-  
-  addOneOf(  // calendarClass  client-side
-    k  // this.graph.edges[k] returns the edge
-  ){
-    const date=this.graph.edges[k].startGMT
-    this.events[date.getMonth()+1][date.getDate()].push(k);  // push key to edge associated with edge
+  // walk until we find first instance of day of week in the month
+  while (d.getDay() != day) {
+    console.log('day ' + d.getDay());
+    d.setDate(d.getDate() + 1);
   }
 
-
-  addWeekly( // calendarClass  client-side
-    k  // this.graph.edges[k] returns the edge
-  ) {
-    // walk the daysOffset, first entry should be 0;  we assume
-    const edge = this.graph.edges[k];
-    edge.daysOffset.forEach((day, i) => {  // day=0 -> sunday
-       let walk = new Date(edge.startGMT.getTime() + day*1000*60*60*24);
-       while (walk <= edge.endGMT) {
-          this.events[walk.getMonth()+1][walk.getDate()].push(k);  // push key to edge associated with edge
-          walk.setDate(walk.getDate() + 7);                        // add seven days, goto the next week
-       }
-    });
-  }
-
-
-  addMonthly(  // calendarClass  client-side
+  return d;
+}
+  
+  
+addOneOf(  // calendarClass  client-side
   k  // this.graph.edges[k] returns the edge
+){
+  const date=this.graph.edges[k].startGMT
+  this.events[date.getMonth()+1][date.getDate()].push(k);  // push key to edge associated with edge
+}
+
+
+addWeekly( // calendarClass  client-side
+  k  // this.graph.edges[k] returns the edge
+) {
+  // walk the daysOffset, first entry should be 0;  we assume
+  const edge = this.graph.edges[k];
+  edge.daysOffset.forEach((day, i) => {  // day=0 -> sunday
+      let walk = new Date(edge.startGMT.getTime() + day*1000*60*60*24);
+      while (walk <= edge.endGMT) {
+        this.events[walk.getMonth()+1][walk.getDate()].push(k);  // push key to edge associated with edge
+        walk.setDate(walk.getDate() + 7);                        // add seven days, goto the next week
+      }
+  });
+}
+
+
+addMonthly(  // calendarClass  client-side
+k  // this.graph.edges[k] returns the edge
 ) {
   // walk the daysOffset, first entry should be 0;
   const edge=this.graph.edges[k];
@@ -299,268 +299,214 @@ url
   }
 }
   
-  async buildTable(  // calendarClass  client-side
-  ) {   // converts calendar data from graph to a table
-    const t        = this.db.getTable("weekCal");  // t -> table we will put event data in to display
-    t.clearRows();
-    t.setHeader( ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday "] );
-  
-    const today = new Date();
-    const start = new Date(this.year, 0, 1);   // current date/time
-    const firstDate = new Date(this.year, 0, 1);
-    const year = start.getFullYear();
-    start.setDate( start.getDate()  - start.getDay() ); // move start to Sunday, year could change if it is the first week of the year
-  
-    // build weeks data to end of year
-    let style;
-    for (let x=0; start.getFullYear()<=year ;x++) {
-      let row = []; // init week
-      for (let y=0; y<=6; y++) {
-        // add days for week
-        let m = start.getMonth()+1;
-        let d = start.getDate();
-  
-        // set style of day depending on not part of current year, past, today, future,
-        if (start<firstDate) {
-          // day is before january 1st of this year
-          style = `data-parentAttribute="['class','notYear']"`
-        } else if (start.getFullYear()>this.year) {
-          // day is after last day of year
-          style = `data-parentAttribute="['class','notYear']"`
-        } else if (start.getMonth() == today.getMonth() && start.getDate() == today.getDate() && start.getFullYear() == today.getFullYear()) {
-          // change how the comparison works because the time of day will not match up from start and today
-          // so just see if the month, day, and year are the same to compare
-          // set backgroupd color for today
-          let dayArg   = start.getDate();
-          let monthArg = start.getMonth();
-          let yearArg  = start.getFullYear();
-          style = `data-parentAttribute="['class','today']"`  // tableUxClass will put class='past' in the TD tag
-        } else if (start<today) {
-          // set backgroupd color for past event
-          let dayArg   = start.getDate();
-          let monthArg = start.getMonth();
-          let yearArg  = start.getFullYear();
-          style = `data-parentAttribute="['class','past']"`  // tableUxClass will put class='past' in the TD tag
+async buildTable(  // calendarClass  client-side
+) {   // converts calendar data from graph to a table
+  const t        = this.db.getTable("weekCal");  // t -> table we will put event data in to display
+  t.clearRows();
+  t.setHeader( ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday "] );
+
+  const today     = new Date();
+  const start     = new Date(this.year, 0, 1);   // current date/time
+  const firstDate = new Date(this.year, 0, 1);
+  const year      = start.getFullYear();
+  start.setDate( start.getDate()  - start.getDay() ); // move start to Sunday, year could change if it is the first week of the year
+
+  // build weeks data to end of year
+  let style;
+  for (let x=0; start.getFullYear()<=year ;x++) {
+    let row = []; // init week
+    for (let y=0; y<=6; y++) {
+      // add days for week
+      let m = start.getMonth()+1;
+      let d = start.getDate();
+
+      let add="";
+      if ( await app.login.getStatus()) {
+        // user calendar
+        add =`<a onClick="${this.#appRef}.createNewEvent(${start.getFullYear()}, ${start.getMonth()}, ${start.getDate()})">+</a> `
+      }
+      style = this.style_get(start, firstDate, today);  // set style of day depending on not part of current year, past, today, future,
+      let html = `<h5 ${style}>${m}-${d} ${add}</h5>`;
+
+      // loop for all events for day [m][d]
+      let eventList = this.events[m][d];
+      for(let i=0;  i<eventList.length; i++ ) {
+        let editButton = `${i+1} `;
+        if (await app.login.getStatus()) {
+          // we are on a user calendar
+          //user = "&u=" + this.urlParams.get('u');
+          editButton = `<a onClick="${this.#appRef}.editEvent(${edgeName})">${i+1}</a> `;
+        }
+        
+        let repeat_class = ""; 
+        let edgeName = eventList[i];
+               if(this.graph.edges[edgeName].repeat == "weekly" ) {repeat_class = "repeat_weekly" ;
+        } else if(this.graph.edges[edgeName].repeat == "monthly") {repeat_class = "repeat_monthly";
+        } else if(this.graph.edges[edgeName].repeat == "yearly" ) {repeat_class = "repeat_yearly" ;}
+
+        let nodeName = this.graph.edges[edgeName].nR
+        if (typeof(nodeName) === "string") {
+          // node is an interal node
+          let user=""  // assume we are on main calendar
+          html += `<p>${editButton}<a  href="/app.html?p=${app.page}&e=${edgeName}&d=${this.format.getISO(start)}${user}" target="_blank" class="${repeat_class}">${this.graph.nodes[nodeName].text[0][2]}</a></p>`
         } else {
-          // set backgroupd color for future date
-          let dayArg   = start.getDate();
-          let monthArg = start.getMonth();
-          let yearArg  = start.getFullYear();
-          style = ''
+          // external link
+          html += `<p>${editButton}<a  href="${nodeName.url}"   target="_blank" class="${repeat_class}">${nodeName.text}</a></p>`
         }
-  
-        let add="";
-        //if (this.urlParams.get('u') != null) {
-        if ( await app.login.getStatus()) {
-          // user calendar
-          add =`<a onClick="${this.#appRef}.createNewEvent(${start.getFullYear()}, ${start.getMonth()}, ${start.getDate()})">+</a> `
-        }
-        let html = `<h5 ${style}>${m}-${d} ${add}</h5>`;
-  
-        let eventList = this.events[m][d];
-        //eventList.forEach((edgeName, i) => {
-        for(let i=0; i> eventList.length; i++ ) {
-          let edgeName=eventList[i];
-          // loop for all events for day [m][d]
-            let year = start.getFullYear();
-            let nodeName = this.graph.edges[edgeName].nR
-  
-            let user=""  // assume we are on main calendar
-            let editButton = `${i+1} `;
-            if (await app.login.getStatus()) {
-              // we are on a user calendar
-              //user = "&u=" + this.urlParams.get('u');
-              editButton = `<a onClick="${this.#appRef}.editEvent(${edgeName})">${i+1}</a> `;
-            }
-            
-            let repeat_color = "";
-            let repeat_class = ""; 
-            /* 
-              weekly = blue
-              monthly = yellow
-              yearly = black
-            */
-  
-            if (typeof(nodeName) === "string") {
-              // assume node is an interal node
-              if(this.graph.edges[edgeName].repeat == "weekly") {
-                // repeat_color = "blue";
-                repeat_class = "repeat_weekly";
-              }
-              else if(this.graph.edges[edgeName].repeat == "monthly") {
-                // repeat_color = "red";
-                repeat_class = "repeat_monthly";
-              }
-              else if(this.graph.edges[edgeName].repeat == "yearly") {
-                // repeat_color = "black";
-                repeat_class = "repeat_yearly";
-              }
-              else {
-                repeat_color = "";
-              }
-  
-              html += `<p>${editButton}<a  href="/app.html?p=${app.page}&e=${edgeName}&d=${this.format.getISO(start)}${user}" target="_blank" class="${repeat_class}">${this.graph.nodes[nodeName].text[0][2]}</a></p>`
-            } else {
-              // assume nodeName is an Object
-              if(this.graph.edges[edgeName].repeat == "weekly") {
-                repeat_color = "blue";
-              }
-              else if(this.graph.edges[edgeName].repeat == "monthly") {
-                repeat_color = "red";
-              }
-              else if(this.graph.edges[edgeName].repeat == "yearly") {
-                repeat_color = "black";
-              }
-              else {
-                repeat_color = "";
-              }
-  
-              html += `<p>${editButton}<a  href="${nodeName.url}" target="_blank" style="color: ${repeat_color}">${nodeName.text}</a></p>`
-            }
-        }
-        //});
-  
-        row.push(html + "</br>")
-        start.setDate( start.getDate() + 1 ); // move to next day
       }
-      t.appendRow(row);  // append row to table
+
+      row.push(html + "</br>")
+      start.setDate( start.getDate() + 1 ); // move to next day
     }
+    t.appendRow(row);  // append row to table
   }
+}
+  
+
+style_get(start, firstDate,today) {  // calendarClass  client-side
+  if (start<firstDate || start.getFullYear()>this.year) {
+    // day is before january 1st of this year  or     // day is after last day of year
+    return `data-parentAttribute="['class','notYear']"`
+  } else if (start.getMonth() == today.getMonth() && start.getDate() == today.getDate() && start.getFullYear() == today.getFullYear()) {
+    return `data-parentAttribute="['class','today']"`  // tableUxClass will put class='past' in the TD tag
+  } else if (start<today) {
+    return `data-parentAttribute="['class','past']"`  // tableUxClass will put class='past' in the TD tag
+  } else {
+    return  ''
+  }
+}
+
+
+fillRepeatdays(  // calendarClass  client-side
+  // fills in the selector for what days of the week the event repeats on
+) {
+  let edgeName = this.getEventEdge();
+  // the edge exists already
+  let d = new Date(
+      this.graph.edges[edgeName].dateStart[0]
+    ,this.graph.edges[edgeName].dateStart[1]-1
+    ,this.graph.edges[edgeName].dateStart[2]
+  );
+  let dayIndex = d.getDay();
+  let r = this.graph.edges[edgeName].daysOffset;
+  let daysOfWeek = document.getElementsByClassName("repeatCheckbox");
+  for (let i = 0; i < r.length; i++) {
+    daysOfWeek[(r[i] + dayIndex) % 7].checked = true;
+  }
+}
 
   
+createNewEvent(  // calendarClass  client-side
+  // user clicked + to add new event on a particular day
+    year
+  ,month
+  ,day          //
+) {
+  this.edit.createNewEvent(year,month,day);
+}
+
   
-  fillRepeatdays(  // calendarClass  client-side
-    // fills in the selector for what days of the week the event repeats on
+editEvent(  // calendarClass  client-side
+  edgeName  // string
+) {
+  this.edit.editEvent(edgeName);
+}
+
+
+findDayInMonth(  // calendarClass  client-sid
+  // This funciton returns an array with the first day being the index of the day in a week -- ex 0 for sunday and 1 for monday
+  // The second element in array is the index of week in the month -- ex 1 for first week 2 for second week
+  // EX: [2,4] would mean that the day is the 4th tuesday of the month
+  date
+) {
+
+  let dayIndex = date.getDay();
+  let weekIndex = Math.ceil(date.getDate() / 7);
+  return [dayIndex , weekIndex];
+}
+  
+  
+moveToDate( // calendarClass  client-side
+    newDate // move to newDate from current date displayed on calendar
+) {
+  let timeBetweenDays;  // in milliseconds from newDate to first date displayed in first row
+  let weeksBetweenDays; // number of rows need to move to make the newDate displayed in first row of calendar
+  const firstDayTD    = document.getElementsByTagName("td")[0];      // grabs the table elements that hold the dates on calendar
+  const firstMonthDay = firstDayTD.firstChild.innerText.split("-");  // grabs the first date at the top left of calendar table
+
+  // convert strings to integers
+  const firstMonth = parseInt(firstMonthDay[0]);
+  const firstDay   = parseInt(firstMonthDay[1])
+
+  // first date of page we are on at the moment
+  const firstYear = (this.tableUx.paging.row ===0 && firstDayTD.className === "notYear") ? (this.year-1) : this.year;
+  const firstDate = new Date(firstYear, firstMonth-1, firstDay);
+
+  // find difference in time between dates
+  timeBetweenDays = newDate.getTime() - firstDate.getTime(); // time between a and b in milliseconds
+
+  // turn difference in milliseconds to weeks
+  weeksBetweenDays = Math.floor(timeBetweenDays / (1000 * (60 * 60) * 24 * 7));
+
+  // change paging row
+  this.tableUx.paging.row += weeksBetweenDays;
+  this.tableUx.displayData();
+}
+  
+  
+chooseMonth(  // calendarClass  client-side
+  // Goes to page that has first day of chosen month
+) {
+  const myList = document.getElementById("months");           // grabs the month input selector
+  this.moveToDate(new Date(this.year, myList.selectedIndex-1, 1));
+  myList.selectedIndex = 0;
+}
+  
+  
+findToday( // calendarClass  client-side
+// jumpts to current date from anywhere on calendar
+) {
+  // get current date (we want to jump to this date)
+  var today = new Date();
+
+  this.moveToDate(today);
+}
+  
+  
+async displayEvent()  // calendarClass - client-side
+{
+  // display single event
+  const list     = [];         // will contain list of nodes to display
+  const nodeName = this.graph.edges[this.edgeName].nR; // get the main nodeName or object
+  const date     = this.urlParams.get('d')             // get YYYY-MM-DD from the URL
+  const startTime = new Date(this.graph.edges[this.edgeName].startGMT);  // Create new date object with the event start time
+  
+  // Create a formatted version of the start time using the formatClass
+  const formattedStartTime = `<p>Start Time: ${this.format.timeFormat(startTime)} </p>`;
+
+  list.push(nodeName+date);    // push node for this date, display it first, this nodeName may not exist
+  list.push(nodeName);         // push the main node to display
+
+  const nodes2html = new nodes2htmlClass(this.graph.nodes, this.DOM, this.graph.edges[this.edgeName]);
+  await nodes2html.displayList(list);
+
+  // add date to heading & formatted start time below the description
+  document.getElementById('heading1').innerHTML  = "SFC Event On: " + date;
+  document.getElementById('main'    ).innerHTML += formattedStartTime;
+}
+  
+
+validateMinuteDuration(  // calendarClass - client-side
+  // Validates the entered minute value within the popup 
+  e
   ) {
-    let edgeName = this.getEventEdge();
-    // the edge exists already
-    let d = new Date(
-       this.graph.edges[edgeName].dateStart[0]
-      ,this.graph.edges[edgeName].dateStart[1]-1
-      ,this.graph.edges[edgeName].dateStart[2]
-    );
-    let dayIndex = d.getDay();
-    let r = this.graph.edges[edgeName].daysOffset;
-    let daysOfWeek = document.getElementsByClassName("repeatCheckbox");
-    for (let i = 0; i < r.length; i++) {
-      daysOfWeek[(r[i] + dayIndex) % 7].checked = true;
+    // Check the value is greater than 59 or less than 0
+    if (e.value > 59) {
+      e.value = 59;
+    } else if (e.value < 0) {
+      e.value = 0;
     }
-  }
-
-  
-  
-  createNewEvent(  // calendarClass  client-side
-    // user clicked + to add new event on a particular day
-     year
-    ,month
-    ,day          //
-  ) {
-    this.edit.createNewEvent(year,month,day);
-  }
-
-  
-  editEvent(  // calendarClass  client-side
-    edgeName  // string
-  ) {
-    this.edit.editEvent(edgeName);
-  }
-  
-
-
-  findDayInMonth(
-    // This funciton returns an array with the first day being the index of the day in a week -- ex 0 for sunday and 1 for monday
-    // The second element in array is the index of week in the month -- ex 1 for first week 2 for second week
-    // EX: [2,4] would mean that the day is the 4th tuesday of the month
-    date
-  ) {
-  
-    let dayIndex = date.getDay();
-    let weekIndex = Math.ceil(date.getDate() / 7);
-    return [dayIndex , weekIndex];
-  }
-  
-  
-  moveToDate( // calendarClass  client-side
-     newDate // move to newDate from current date displayed on calendar
-  ) {
-    let timeBetweenDays;  // in milliseconds from newDate to first date displayed in first row
-    let weeksBetweenDays; // number of rows need to move to make the newDate displayed in first row of calendar
-    const firstDayTD    = document.getElementsByTagName("td")[0];      // grabs the table elements that hold the dates on calendar
-    const firstMonthDay = firstDayTD.firstChild.innerText.split("-");  // grabs the first date at the top left of calendar table
-  
-    // convert strings to integers
-    const firstMonth = parseInt(firstMonthDay[0]);
-    const firstDay   = parseInt(firstMonthDay[1])
-  
-    // first date of page we are on at the moment
-    const firstYear = (this.tableUx.paging.row ===0 && firstDayTD.className === "notYear") ? (this.year-1) : this.year;
-    const firstDate = new Date(firstYear, firstMonth-1, firstDay);
-  
-    // find difference in time between dates
-    timeBetweenDays = newDate.getTime() - firstDate.getTime(); // time between a and b in milliseconds
-  
-    // turn difference in milliseconds to weeks
-    weeksBetweenDays = Math.floor(timeBetweenDays / (1000 * (60 * 60) * 24 * 7));
-  
-    // change paging row
-    this.tableUx.paging.row += weeksBetweenDays;
-    this.tableUx.displayData();
-  }
-  
-  
-  chooseMonth(  // calendarClass  client-side
-    // Goes to page that has first day of chosen month
-  ) {
-    const myList = document.getElementById("months");           // grabs the month input selector
-    this.moveToDate(new Date(this.year, myList.selectedIndex-1, 1));
-    myList.selectedIndex = 0;
-  }
-  
-  
-  findToday( // calendarClass  client-side
-  // jumpts to current date from anywhere on calendar
-  ) {
-    // get current date (we want to jump to this date)
-    var today = new Date();
-  
-    this.moveToDate(today);
-  }
-  
-  
-  async displayEvent()  // calendarClass - client-side
-  {
-    // display single event
-    const list     = [];         // will contain list of nodes to display
-    const nodeName = this.graph.edges[this.edgeName].nR; // get the main nodeName or object
-    const date     = this.urlParams.get('d')             // get YYYY-MM-DD from the URL
-    const startTime = new Date(this.graph.edges[this.edgeName].startGMT);  // Create new date object with the event start time
-   
-    // Create a formatted version of the start time using the formatClass
-    const formattedStartTime = `<p>Start Time: ${this.format.timeFormat(startTime)} </p>`;
-  
-    list.push(nodeName+date);    // push node for this date, display it first, this nodeName may not exist
-    list.push(nodeName);         // push the main node to display
-  
-    const nodes2html = new nodes2htmlClass(this.graph.nodes, this.DOM, this.graph.edges[this.edgeName]);
-    await nodes2html.displayList(list);
-  
-    // add date to heading & formatted start time below the description
-    document.getElementById('heading1').innerHTML  = "SFC Event On: " + date;
-    document.getElementById('main'    ).innerHTML += formattedStartTime;
-  }
-  
-
-  validateMinuteDuration(
-    // Validates the entered minute value within the popup 
-    e
-    ) {
-      // Check the value is greater than 59 or less than 0
-      if (e.value > 59) {
-        e.value = 59;
-      } else if (e.value < 0) {
-        e.value = 0;
-      }
-  }
+}
   
 
 } // calendarClass  client-side  -end class
