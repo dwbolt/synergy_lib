@@ -313,6 +313,8 @@ async buildTable(  // calendarClass  client-side
 
   // build weeks data to end of year
   let style;
+  this.login_status = await app.login.getStatus();  // cashe login status for duration of load and buil
+
   for (let x=0; start.getFullYear()<=year ;x++) {
     let row = []; // init week
     for (let y=0; y<=6; y++) {
@@ -321,7 +323,7 @@ async buildTable(  // calendarClass  client-side
       let d = start.getDate();
 
       let add="";
-      if ( await app.login.getStatus()) {
+      if ( this.login_status) {
         // user calendar
         add =`<a onClick="${this.#appRef}.createNewEvent(${start.getFullYear()}, ${start.getMonth()}, ${start.getDate()})">+</a> `
       }
@@ -333,7 +335,7 @@ async buildTable(  // calendarClass  client-side
       for(let i=0;  i<eventList.length; i++ ) {
         let editButton = `${i+1} `;
         let edgeName = eventList[i];
-        if (await app.login.getStatus()) {
+        if (await this.login_status) {
           // we are on a user calendar
           //user = "&u=" + this.urlParams.get('u');
           editButton = `<a onClick="${this.#appRef}.editEvent(${edgeName})">${i+1}</a> `;

@@ -29,10 +29,6 @@ async main() { // appClass - client side
 		const lastToken = newURLs[newURLs.length-1].toLowerCase();
 		if (lastToken === ""        ) { window.location.replace(newURL+"app.html?p=home"); }
 		if (lastToken === "app.html") { window.location.replace(newURL+"?p=home"        ); }
-
-		// should never get here 
-		//alert(`appModule.main() error lastToken=${lastToken}`);
-		//return; 
 	}
 
 	this.css                                        = await this.proxy.getJSON("css.json");
