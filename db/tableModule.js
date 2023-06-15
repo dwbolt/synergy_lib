@@ -424,8 +424,6 @@ bufferSave(  // tableClass - client-side
 }
 
 
-
-
 bufferInput2Json( // tableClass - client-side
   // move data from DOM to table buffer
 ) {
@@ -450,7 +448,6 @@ bufferInput2Json( // tableClass - client-side
   // make sure it was stored correctly and apply any formating
   this.bufferDisplay();
 }
-
 
 
 bufferAppendRow(  // tableClass - client-side
