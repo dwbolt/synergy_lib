@@ -325,7 +325,7 @@ async buildTable(  // calendarClass  client-side
       let add="";
       if ( this.login_status) {
         // user calendar
-        add =`<a onClick="${this.#appRef}.createNewEvent(${start.getFullYear()}, ${start.getMonth()}, ${start.getDate()})">+</a> `
+        add =`<a onClick="${this.#appRef}.edit.createNewEvent(${start.getFullYear()}, ${start.getMonth()}, ${start.getDate()})">+</a> `
       }
       style = this.style_get(start, firstDate, today);  // set style of day depending on not part of current year, past, today, future,
       let html = `<h5 ${style}>${m}-${d} ${add}</h5>`;
