@@ -157,7 +157,6 @@ url
 
     this.tableUx.display();
     this.findToday();   // only need to do this is we are displaying the clander
-    document.getElementById("weeks").innerHTML += await app.proxy.getText("/_lib/UX/calendarEditForm.html");
   } else {
     // display event in calendar
     await this.displayEvent();
@@ -379,25 +378,6 @@ style_get(start, firstDate,today) {  // calendarClass  client-side
 }
 
 
-fillRepeatdays(  // calendarClass  client-side
-  // fills in the selector for what days of the week the event repeats on
-) {
-  let edgeName = this.getEventEdge();
-  // the edge exists already
-  let d = new Date(
-      this.graph.edges[edgeName].dateStart[0]
-    ,this.graph.edges[edgeName].dateStart[1]-1
-    ,this.graph.edges[edgeName].dateStart[2]
-  );
-  let dayIndex = d.getDay();
-  let r = this.graph.edges[edgeName].daysOffset;
-  let daysOfWeek = document.getElementsByClassName("repeatCheckbox");
-  for (let i = 0; i < r.length; i++) {
-    daysOfWeek[(r[i] + dayIndex) % 7].checked = true;
-  }
-}
-
-  
 createNewEvent(  // calendarClass  client-side
   // user clicked + to add new event on a particular day
     year
@@ -495,19 +475,6 @@ async displayEvent()  // calendarClass - client-side
   // add date to heading & formatted start time below the description
   document.getElementById('heading1').innerHTML  = "SFC Event On: " + date;
   document.getElementById('main'    ).innerHTML += formattedStartTime;
-}
-  
-
-validateMinuteDuration(  // calendarClass - client-side
-  // Validates the entered minute value within the popup 
-  e
-  ) {
-    // Check the value is greater than 59 or less than 0
-    if (e.value > 59) {
-      e.value = 59;
-    } else if (e.value < 0) {
-      e.value = 0;
-    }
 }
   
 

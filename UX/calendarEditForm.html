@@ -1,101 +1,70 @@
-<div class="popUpForm" id="popUpForm" hidden>
-  <p id="popUpForm-add-edit"></p>
-
-  <div style="display: flex; justify-content: center; margin: 5px;">
-    <label for="eventName" class="popUpLabel">Name: </label>
-    <input id="eventName" type="text" placeholder="Event Name..." />
+  <br>
+  <div class="section">
+    <label>Name: <input id="name" type="text" placeholder="Event Name..." /></label>
   </div>
 
-  <div style="display: flex; justify-content: center; margin: 5px;">
-    <label for="eventURL" class="popUpLabel">URL: </label>
-    <input id="eventURL" type="text" placeholder="Event URL..." />
+  <div class="section">
+    <label>URL: <input id="url" type="text" placeholder="Event URL..." /></label>
   </div>
 
-  <div style="display: flex; flex-direction: column; margin-top: 5px; width: 80%; align-items: center;">
-    <label for="eventDescription" class="popUpLabel">Description</label>
-    <textarea id="eventDescription" rows="11" cols="30" style="resize: none; border-radius: 5px;"></textarea>
+  <div class="section">
+    <label>Description<br><textarea id="description" rows="11" cols="30" style="resize: none; border-radius: 5px;"></textarea></label>
   </div>
 
-  <div style="display: flex; justify-content: center; margin: 5px;">
-    <label for="eventStartDate" class="popUpLabel">Start Date: </label>
-    <input id="eventStartDate" type="date" />
+  <div class="section">
+    <label">Start Date: <input id="eventStartDate" type="date" /></label>
   </div>
 
-  <div style="display: flex; justify-content: center; margin: 5px;">
-    <label for="eventStartTime" class="popUpLabel">Start Time: </label>
-    <input id="eventStartTime" type="time" />
+  <div class="section">
+    <label>Start Time: </label><input id="eventStartTime" type="time" />
   </div>
 
-  <div style="display: flex; justify-content: center; margin: 5px;">
-    <label for="timeZone" class="popUpLabel">Time Zone: </label>
+  <div class="section">
+    <label>Time Zone: 
     <select id="timeZone">
       <option value="ET">Eastern</option>
       <option value="CT">Central</option>
       <option value="MT">Mountain</option>
       <option value="PT">Pacific</option>
-    </select>
+    </select></label>
   </div>
 
-  <div>
-    <label for="duration" class="popUpLabel">Duration: </label>
-    <input id="durationHour" type="number" min="0" max="8"/>:<input id="durationMinute" type="number" min="0" max="59" onchange="app.page.validateMinuteDuration(this)"/>
+  <div class="section">
+    <label>Duration: 
+    <input id="durationHour"   type="number" min="0" max="23"/>:
+    <input id="durationMinute" type="number" min="0" max="59"/>
+    </label>
   </div>
 
-  <div style="display: flex; justify-content: center; margin: 5px;">
-    <label for="repeatType" class="popUpLabel">Repeats: </label>
-    <select id="repeatType" onChange="app.page.renderEndDateSelector()">
+  <div class="section">
+    <label>Repeats: 
+    <select id="repeatType" onChange="app.page.edit.renderEndDateSelector()">
       <option value="never" selected>Never</option>
-      <option value="yearly">Yearly</option>
-      <option value="monthly">Monthly</option>
       <option value="weekly">Weekly</option>
+      <option value="monthly">Monthly</option>
+      <option value="yearly">Yearly</option>
+    </label>
     </select>
   </div>
 
-  <div id="endDateDiv" style="display: flex; justify-content: center; margin: 5px;">
-    <div id="yearlyEndDate">
-      <label id="endDateLabel" for="endDate" style="margin-right: 3px;">End Date: </label>
-      <input id="yearlyEndDateInput" type="number" min="2022" max="2030"/>
-    </div>
-    <div id="weeklyMonthlyEndDate">
-      <label id="endDateLabel" for="endDate" style="margin-right: 3px;">End Date: </label>
-      <input id="endDateInput" type="date" />
-    </div>
-  </div>
-  <div id="monthlyEndDate" style="display: flex; justify-content: center; margin: 5px; flex-direction: column;">
-    <div id="monthlyEndDate">
-      <label id="endDateLabel">Last Month: </label>
-      <select id="monthlyEndDateSelect">
-        <option value="1">January</option>
-        <option value="2">February</option>
-        <option value="3">March</option>
-        <option value="4">April</option>
-        <option value="5">May</option>
-        <option value="6">June</option>
-        <option value="7">July</option>
-        <option value="8">August</option>
-        <option value="9">Septempber</option>
-        <option value="10">October</option>
-        <option value="11">November</option>
-        <option value="12">December</option>
-      </select>
-    </div>
+  <div id="monthly_repeat" class="section">
     <div class="monthlyRepeatsLabel">
       <label>Repeats On:</label>
-      <a class="addNewRepeatMonthly" onClick="app.page.addNewRepeatMonthy()">+</a>
+      <a class="addNewRepeatMonthly" onClick="app.page.edit.addNewRepeatMonthy()">+</a>
     </div>
-    <div class="monthlyRepeatInput">
-      <a>1</a>
-      <select id="monthlyWeekSelect-1">
+
+    <div>
+      <select>
         <option value="1" selected>1st</option>
         <option value="2">2nd</option>
         <option value="3">3rd</option>
         <option value="4">4th</option>
         <option value="5">Last</option>
       </select>
-      <select id="monthlyDaySelect-1">
+      <select>
         <option value="0" selected> Sunday   </option>
         <option value="1">          Monday   </option>
-        <option value="2">           Tuesday  </option>
+        <option value="2">          Tuesday  </option>
         <option value="3">          Wednesday</option>
         <option value="4">          Thursday </option>
         <option value="5">          Friday   </option>
@@ -103,45 +72,42 @@
       </select>
     </div>
   </div>
-  <div id="repeatDiv">
-    <div id="daysOfWeekSelector">
-      <div id="repeatSelectorTitle">Repeats on</div>
-      <div class="dayPicker">
-        <label class="pickDayContainer">
-          <input type="checkbox" value="sunday" class="repeatCheckbox" id="sunCheck">
-          <span class="checkmark">Su</span>
-        </label>
-        <label class="pickDayContainer">
-          <input type="checkbox" value="monday"class="repeatCheckbox" id="monCheck">
-          <span class="checkmark">Mo</span>
-        </label>
-        <label class="pickDayContainer">
-          <input type="checkbox" value="tuesday" class="repeatCheckbox" id="tueCheck">
-          <span class="checkmark">Tu</span>
-        </label>
-        <label class="pickDayContainer">
-          <input type="checkbox" value="wednesday" class="repeatCheckbox" id="wedCheck">
-          <span class="checkmark">We</span>
-        </label>
-        <label class="pickDayContainer">
-          <input type="checkbox" value="thursday" class="repeatCheckbox" id="thurCheck">
-          <span class="checkmark">Tr</span>
-        </label>
-        <label class="pickDayContainer">
-          <input type="checkbox" value="friday" class="repeatCheckbox" id="friCheck">
-          <span class="checkmark">Fr</span>
-        </label>
-        <label class="pickDayContainer">
-          <input type="checkbox" value="saturday" class="repeatCheckbox" id="satCheck">
-          <span class="checkmark">Sa</span>
-        </label>
-      </div>
+
+  <div id="weekly_repeat" class="section">
+    <div class="dayPicker">
+      <br>Repeats on
+      <label class="pickDayContainer">
+        <input type="checkbox" value="sunday" class="repeatCheckbox" id="sunCheck">
+        <span class="checkmark">Su</span></label>
+      <label class="pickDayContainer">
+        <input type="checkbox" value="monday"class="repeatCheckbox" id="monCheck">
+        <span class="checkmark">Mo</span></label>
+      <label class="pickDayContainer">
+        <input type="checkbox" value="tuesday" class="repeatCheckbox" id="tueCheck">
+        <span class="checkmark">Tu</span></label>
+      <label class="pickDayContainer">
+        <input type="checkbox" value="wednesday" class="repeatCheckbox" id="wedCheck">
+        <span class="checkmark">We</span></label>
+      <label class="pickDayContainer">
+        <input type="checkbox" value="thursday" class="repeatCheckbox" id="thurCheck">
+        <span class="checkmark">Tr</span></label>
+      <label class="pickDayContainer">
+        <input type="checkbox" value="friday" class="repeatCheckbox" id="friCheck">
+        <span class="checkmark">Fr</span></label>
+      <label class="pickDayContainer">
+        <input type="checkbox" value="saturday" class="repeatCheckbox" id="satCheck">
+        <span class="checkmark">Sa</span></label>
     </div>
   </div>
 
-  <button onClick="app.page.edit.addNewEvent()"  class="addSaveButton"       id="addEventButton"   > Add Event </button>
-  <button onClick="await app.page.edit.save()"         class="addSaveButton"       id="saveEventButton"  > Save      </button>
-  <button onClick="      app.page.edit.closeForm()"    class="cancelEventButton"   id="cancelEventButton"> Cancel    </button>
-  <button onClick="await app.page.edit.deleteEvent()"  class="deleteEventButton"   id="deleteEventButton"> Delete    </button>
+  <div id="end_date_div" class="section">
+    <label>End Date: <input id="end_date" type="date"/> </label>
+  </div>
 
-</div>
+  <div class="section">
+    <br>
+    <button id="addEventButton"   onClick="app.page.edit.addNewEvent();">Add Event</button>
+    <button id="saveEventButton"  onClick="app.page.edit.save(       );">Save      </button>
+    <button id="cancelEventButton"onClick="app.page.edit.closeForm(  );">Cancel    </button>
+    <button id="deleteEventButton"onClick="app.page.edit.deleteEvent();" >Delete   </button>
+  </div>
