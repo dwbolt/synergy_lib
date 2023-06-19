@@ -1,25 +1,36 @@
   <br>
   <div class="section">
-    <label>Name: <input id="name" type="text" placeholder="Event Name..." /></label>
+    <label>Name: <input id="name" type="text" size=40 placeholder="Event Name..." /></label>
   </div>
 
   <div class="section">
-    <label>URL: <input id="url" type="text" placeholder="Event URL..." /></label>
+    <label>URL: <input id="url" type="text" size=40 placeholder="Event URL..." /></label>
   </div>
 
   <div class="section">
-    <label>Description<br><textarea id="description" rows="11" cols="30" style="resize: none; border-radius: 5px;"></textarea></label>
+    <label>Description<br><textarea id="description" rows="11" cols="50" style="resize: none; border-radius: 5px;"></textarea></label>
   </div>
 
   <div class="section">
-    <label">Start Date: <input id="eventStartDate" type="date" /></label>
+    Start:
+    <label>Date <input id="start_date" type="date" /></label>
+    <label>Time <input id="start_time" type="time" /></label>
   </div>
 
   <div class="section">
-    <label>Start Time: </label><input id="eventStartTime" type="time" />
+    End:
+    <label>Date <input id="end_date" type="date"/> </label>
+    <label>Time <input id="end_time" type="time" /></label>
   </div>
 
+
   <div class="section">
+    <label>Duration: 
+    <input id="duration_days"    type="number" min="0" max="99"/>
+    <input id="duration_hours"   type="number" min="0" max="23"/>:
+    <input id="duration_minutes" type="number" min="0" max="59"/>
+    </label>
+
     <label>Time Zone: 
     <select id="timeZone">
       <option value="ET">Eastern</option>
@@ -27,13 +38,7 @@
       <option value="MT">Mountain</option>
       <option value="PT">Pacific</option>
     </select></label>
-  </div>
 
-  <div class="section">
-    <label>Duration: 
-    <input id="durationHour"   type="number" min="0" max="23"/>:
-    <input id="durationMinute" type="number" min="0" max="59"/>
-    </label>
   </div>
 
   <div class="section">
@@ -100,8 +105,9 @@
     </div>
   </div>
 
-  <div id="end_date_div" class="section">
-    <label>End Date: <input id="end_date" type="date"/> </label>
+  <div id="end_repeat" class="section">
+    Repeat Ends <label>after:</label><input id="repeat_count" type="number" min="0" max="99"/> times, or<br>
+    on:<label>Date <input id="repeat_end_date" type="date"/> </label> <label>Time <input id="repeat_end_time" type="time" /></label>
   </div>
 
   <div class="section">

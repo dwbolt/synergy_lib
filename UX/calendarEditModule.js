@@ -50,17 +50,18 @@ async createNewEvent(  // calendarClass  client-side
   this.graph   = this.calendar.graph;
 
   // set start date to date clicked on
-  document.getElementById("eventStartDate").value = 
+  document.getElementById("start_date").value = 
     `${this.#year}-${app.format.padZero(this.#month,2)}-${app.format.padZero(this.#day,2)}`
 
   // set start time to current time
   const currentdate = new Date();
-  document.getElementById("eventStartTime").value = 
+  document.getElementById("start_time").value = 
     `${app.format.padZero(currentdate.getHours(),2)}:${app.format.padZero(currentdate.getMinutes(),2)}`;
 
   // set duration to 0 hours and 30 minues
-  document.getElementById("durationHour"  ).value = 0;
-  document.getElementById("durationMinute").value = 30;
+  document.getElementById("duration_days"   ).value = 0;
+  document.getElementById("duration_hours"  ).value = 0;
+  document.getElementById("duration_minutes").value = 30;
 
   // Set correct buttons to display for creating new event
   document.getElementById("saveEventButton"  ).hidden = true;
@@ -183,15 +184,16 @@ edgeName
   document.getElementById("description").value = edge.description 
 
   const dateStart = edge.dateStart;
-  document.getElementById("eventStartDate").value =
+  document.getElementById("start_date").value =
       `${dateStart[0]}-${app.format.padZero(dateStart[1],2)}-${app.format.padZero(dateStart[2],2)}`
-  document.getElementById("eventStartTime").value = `${app.format.padZero(dateStart[3],2)}:${app.format.padZero(dateStart[4],2)}`;
+  document.getElementById("start_time").value = `${app.format.padZero(dateStart[3],2)}:${app.format.padZero(dateStart[4],2)}`;
   document.querySelector('#timeZone'      ).value = edge.timeZone;
  
   // fill in duration of event
   const durTimeData = edge.timeDuration.split(":");
-  document.getElementById("durationHour"  ).value = parseInt(durTimeData[0]);
-  document.getElementById("durationMinute").value = parseInt(durTimeData[1]);
+  document.getElementById("duration_days"   ).value = parseInt(durTimeData[0]);  // fix
+  document.getElementById("duration_hours"  ).value = parseInt(durTimeData[0]);
+  document.getElementById("duration_minutes").value = parseInt(durTimeData[1]);
   document.getElementById("repeatType"    ).value = edge.repeat;
 
   document.getElementById("end_date").valueAsDate = new Date(
@@ -286,16 +288,16 @@ form2data( // calendarEditClass  client-side
   g.description = document.getElementById("description").value;
 
   // date_start with time
-  const date_startS = document.getElementById("eventStartDate").value;   // "2023-04-05"
-  const date_start  = date_startS.split("-");                            // ["2023","04","05"]
-  const time_startS      = document.getElementById("eventStartTime").value;   // "12:20"
-  const time_start       = time_startS .split(":");                           // ["12","20"]
+  const date_startS = document.getElementById("start_date").value;   // "2023-04-05"
+  const date_start  = date_startS.split("-");                        // ["2023","04","05"]
+  const time_startS = document.getElementById("start_time").value;   // "12:20"
+  const time_start  = time_startS .split(":");                       // ["12","20"]
   g.dateStart    = [parseInt(date_start[0]), parseInt(date_start[1]) , parseInt(date_start[2])
                    ,parseInt(time_start[0]), parseInt(time_start[1]) ];
 
   g.dateEnd      = [g.dateStart[0], g.dateStart[1], g.dateStart[2] ];   // assume repeat = "neaver"
   g.timeZone     = document.getElementById("timeZone"    ).value;  
-  g.timeDuration = document.getElementById("durationHour").value +":"+ document.getElementById("durationMinute").value;
+  g.timeDuration = document.getElementById("duration_hours").value +":"+ document.getElementById("duration_minutes").value;
 
   g.repeat       = document.getElementById("repeatType"    ).value;  // chosen value of how often to repeat even
   this.repeat(g);  // handle different cases for types of repeating
@@ -387,26 +389,25 @@ renderEndDateSelector(  // calendarEditClass  client-side
   let repeat = document.getElementById("repeatType").value;
   switch( repeat ) {
   case "never":
-    document.getElementById("end_date_div"  ).hidden        = true;
+    document.getElementById("end_repeat"    ).hidden        = true;
     document.getElementById("weekly_repeat" ).style.display = 'none';
     document.getElementById("monthly_repeat").style.display = 'none';
     break;
 
   case "weekly":
-    document.getElementById("end_date_div"  ).hidden        = false ;
+    document.getElementById("end_repeat"    ).hidden        = false;
     document.getElementById("weekly_repeat" ).style.display = 'inline';
     document.getElementById("monthly_repeat").style.display = 'none';
     break;
     
   case "monthly":
-    document.getElementById("end_date_div"  ).hidden        = false;
     document.getElementById("weekly_repeat" ).style.display = 'none';
     document.getElementById("monthly_repeat").style.display = 'inline';
     break;
 
   case "yearly":
   // display only a number when selecting a year
-  document.getElementById("end_date_div"  ).hidden        = false;
+  document.getElementById("end_repeat"    ).hidden        = false;
   document.getElementById("weekly_repeat" ).style.display = 'none';
   document.getElementById("monthly_repeat").style.display = 'none';
   break;
