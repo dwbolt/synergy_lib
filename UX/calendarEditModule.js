@@ -172,6 +172,16 @@ weeklyRepeatDays() {
   return rv;
 }
 
+putDate(// calendarEditClass  client-side
+  DOMname // where to put date data
+  ,date   // [year, month,day,hours, minutes]
+){
+document.getElementById(`${DOMname}_date`).valueAsDate = new Date(date[0],date[1]-1,date[2]); // "2023-04-05"
+ // "12:20"
+document.getElementById(`${DOMname}_time`).value = 
+`${app.format.padZero(date[3],2)}:${app.format.padZero(date[4],2)}`;  
+}
+
 
 data2form(  // calendarEditClass  client-side
 // fills in pop up form from the JSON data
@@ -183,10 +193,11 @@ edgeName
   document.getElementById("url"        ).value = edge.url           
   document.getElementById("description").value = edge.description 
 
-  const dateStart = edge.dateStart;
-  document.getElementById("start_date").value =
-      `${dateStart[0]}-${app.format.padZero(dateStart[1],2)}-${app.format.padZero(dateStart[2],2)}`
-  document.getElementById("start_time").value = `${app.format.padZero(dateStart[3],2)}:${app.format.padZero(dateStart[4],2)}`;
+  let d = edge.dateStart;
+ // document.getElementById("start_date").value =
+ //     `${dateStart[0]}-${app.format.padZero(dateStart[1],2)}-${app.format.padZero(dateStart[2],2)}`
+  document.getElementById("start_date").valueAsDate = new Date(d[0],d[1],d[2]); 
+  document.getElementById("start_time").value = `${app.format.padZero(d[3],2)}:${app.format.padZero(d[4],2)}`;
   document.querySelector('#timeZone'      ).value = edge.timeZone;
  
   // fill in duration of event
@@ -196,21 +207,23 @@ edgeName
   document.getElementById("duration_minutes").value = parseInt(durTimeData[1]);
   document.getElementById("repeatType"    ).value = edge.repeat;
 
-  document.getElementById("end_date").valueAsDate = new Date(
-    edge.dateEnd[0]
-    ,edge.dateEnd[1]-1
-    ,edge.dateEnd[2]
-  );
+  d = edge.dateEnd;
+  document.getElementById("end_date").valueAsDate = new Date(d[0],d[1]-1, d[2]);
 
   this.renderEndDateSelector();  // hide elements not being used
 
   // fill in what days the event repeats on
-  this.fillRepeatdays(edge);  // not sure what this does
+  this.data2form_repeat(edge);
+}
+
+data2form_repeat(edge){
+  this.putDate("repeat_end",  edge.repeat_end_date );
 
   switch(edge.repeat) {
-  case "never":
+  case "never":  break; // nothing todo
+  case "weekly": 
+    this.fillRepeatdays(edge);  // not sure what this does
     break; // nothing todo
-
   case "monthly":
     document.getElementById("monthlyEndDateSelect").value = edge.dateEnd[1]; // fill in end month selector
     for (let i = 0; i < edge.days.length; i++) {
@@ -221,10 +234,9 @@ edgeName
     break;
 
     default:
-      // errror
       alert(`error in calendarEditClass method="data2form" repeat="${edge.repeat}" `);
   }
-
+  /*
   if (typeof(edge.nR) === "string") {
     // load from node  ----------
     document.getElementById("name"       ).value = this.graph.nodes[edge.nR].text[0][2];
@@ -233,6 +245,7 @@ edgeName
     // load from edge
 
   }
+*/
 }
 
 
@@ -241,7 +254,6 @@ fillRepeatdays(  // calendarEditClass  client-side
   edge
 ) {
   let r = edge.daysOffset;
-  if(typeof(r)==="undefined") return;  // this should not even be called execept for maybe repeat weekly
   // the edge exists already
   let d = new Date( edge.dateStart[0], edge.dateStart[1]-1, edge.dateStart[2]);
   let dayIndex = d.getDay();
@@ -277,6 +289,19 @@ validateForm(
 }
   
 
+getDate(// calendarEditClass  client-side
+  DOMname // 
+){
+  const dateString = document.getElementById(`${DOMname}_date`).value;   // "2023-04-05"
+  const date       = dateString.split("-")
+
+  const timeString = document.getElementById(`${DOMname}_time`).value;   // "12:20"
+  const time       = timeString.split(":"); 
+
+  return [parseInt(date[0]), parseInt(date[1]) , parseInt(date[2]),parseInt(time[0]), parseInt(time[1]) ];  // array[year, month, day, hours, minutes]
+}
+
+
 form2data( // calendarEditClass  client-side
 // moves pop up form to edge for this.graph.edge[edge]
     edge // name of edge we are loading
@@ -294,15 +319,16 @@ form2data( // calendarEditClass  client-side
   const time_start  = time_startS .split(":");                       // ["12","20"]
   g.dateStart       = this.getDate("start");
   g.dateEnd         = [g.dateStart[0], g.dateStart[1], g.dateStart[2] ];   // add duration **************
-  g.dateEndRepeat   = this.getDate("repeat_end");  
+  //g.dateEndRepeat   = this.getDate("repeat_end");  
   //g.repeat_count    = document.getElementById("repeat_count").value;
   g.timeZone        = document.getElementById("timeZone"      ).value;  
   g.timeDuration    = document.getElementById("duration_hours").value +":"+ document.getElementById("duration_minutes").value;
 
   g.repeat       = document.getElementById("repeatType"    ).value;  // chosen value of how often to repeat even
-  this.repeat(g);  // handle different cases for types of repeating
+  this.form2data_repeat(g);  // handle different cases for types of repeating
 
   // saving form data to the edge
+  /*
   const url            = document.getElementById("url"        ).value;       // url of the event
   g.description        = document.getElementById("description").value;       // will be private if url is give, will be displayed if no url is given
   if (url === "") {
@@ -313,31 +339,19 @@ form2data( // calendarEditClass  client-side
     g.nR.text = document.getElementById("name").value;       // name of the event;
     g.nR.url  = url;
   }
+  */
 }
 
 
-getDate(// calendarEditClass  client-side
-  DOMname // 
-){
-  const dateString = document.getElementById(`${DOMname}_date`).value;   // "2023-04-05"
-  const date       = dateString.split("-")
-
-  const timeString = document.getElementById(`${DOMname}_time`).value;   // "12:20"
-  const time       = timeString.split(":"); 
-
-  return [parseInt(date[0]), parseInt(date[1]) , parseInt(date[2]),parseInt(time[0]), parseInt(time[1]) ];  // array[year, month, day, hours, minutes]
-}
-
-
-repeat(g){  // calendarEditClass  client-side
+form2data_repeat(g){  // calendarEditClass  client-side
+  // called by form2date, handle repeating data
   // set repeating enddate
 
   // handle repeat events
-  g.offset  = [];   // for repeating events and their offset from first day
-  g.days    = [];
+  //g.offset  = [];   // for repeating events and their offset from first day
+  //g.days    = [];
 
-  g.repeat_end_date = [parseInt(endDateInfo[0],10),parseInt(endDateInfo[1],10),parseInt(endDateInfo[2],10)];
-  repeat_end_time
+  g.repeat_end_date = this.getDate("repeat_end");
 
   switch(g.repeat) {
   case "weekly":
@@ -345,7 +359,7 @@ repeat(g){  // calendarEditClass  client-side
     const now           = new Date();
     const dayIndex      = now.getDay();               // 0-> Sunday   1->Monday
     const repeatingDays = this.weeklyRepeatDays();    // returns array of days repeating  [0,2]  would be Sunday Tuesday repeating days
-
+    g.daysOffset =[] ;
     for (let i = 0; i < repeatingDays.length; i++) {
       // walk through the days chosen to repeat on, and find distance between start day and chosen day
       let dif = repeatingDays[i] - dayIndex;
@@ -353,16 +367,16 @@ repeat(g){  // calendarEditClass  client-side
         // day should repeat on day that happens before chosen day but only after chosen day
         // ex repeats on monday wednesday friday, but the event starts on wednesday, so first monday is after the first wednesday
         repeatingDays[i] += 7;
-        g.offset.push(repeatingDays[i]-dayIndex);
+        g.daysOffset.push(repeatingDays[i]-dayIndex);
       } else {
         // push the difference between indices into the offset
-        g.offset.push(dif);
+        g.daysOffset.push(dif);
       }
     }
 
     if (repeatingDays.length == 0) {
       // if user did not choose days to repeat on, assume that it will repeat on same day every week
-      g.offset = [0];
+      g.daysOffset = [0];
     }
     break;
 
@@ -392,6 +406,7 @@ repeat(g){  // calendarEditClass  client-side
 
   default:
     // error
+    alert(`error in "calendarEditModule.js" method="repeat" repeat="${g.repeat}"`);
   }
 }
 
@@ -402,20 +417,21 @@ renderEndDateSelector(  // calendarEditClass  client-side
   let repeat = document.getElementById("repeatType").value;
   switch( repeat ) {
   case "never":
-    document.getElementById("end_repeat"    ).hidden        = true;
-    document.getElementById("weekly_repeat" ).style.display = 'none';
-    document.getElementById("monthly_repeat").style.display = 'none';
+    document.getElementById("end_repeat"    ).hidden = true;
+    document.getElementById("weekly_repeat" ).hidden = true;
+    document.getElementById("monthly_repeat").hidden = true;
     break;
 
   case "weekly":
-    document.getElementById("end_repeat"    ).hidden        = false;
-    document.getElementById("weekly_repeat" ).style.display = 'inline';
-    document.getElementById("monthly_repeat").style.display = 'none';
+    document.getElementById("end_repeat"    ).hidden = false;
+    document.getElementById("weekly_repeat" ).hidden = false;
+    document.getElementById("monthly_repeat").hidden = true;
     break;
     
   case "monthly":
-    document.getElementById("weekly_repeat" ).style.display = 'none';
-    document.getElementById("monthly_repeat").style.display = 'inline';
+    document.getElementById("end_repeat"    ).hidden = false;
+    document.getElementById("weekly_repeat" ).hidden = true;
+    document.getElementById("monthly_repeat").hidden = false;
     break;
 
   case "yearly":

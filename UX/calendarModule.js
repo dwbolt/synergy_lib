@@ -202,7 +202,10 @@ async loadEvents( // calendarClass  client-side
 addEvents(  // calendarClass  client-side
 k  // this.graph.edges[k] returns the edge
 ) {
-switch(this.graph.edges[k].repeat) {
+  const edge = this.graph.edges[k];
+  const a = edge.repeat_end_date;
+  edge.endGMT_repeat = new Date(a[0],a[1]-1,a[2],a[3],a[4]);
+  switch(edge.repeat) {
   case "weekly":
     this.addWeekly(k)
     break;
@@ -260,8 +263,10 @@ addWeekly( // calendarClass  client-side
   const edge = this.graph.edges[k];
   edge.daysOffset.forEach((day, i) => {  // day=0 -> sunday
       let walk = new Date(edge.startGMT.getTime() + day*1000*60*60*24);
-      while (walk <= edge.endGMT) {
-        this.events[walk.getMonth()+1][walk.getDate()].push(k);  // push key to edge associated with edge
+      while (walk <= edge.endGMT_repeat) {
+  //      this.events[walk.getMonth()+1][walk.getDate()].push(k);  // push key to edge associated with edge
+        this.events[walk.getMonth()][walk.getDate()].push(k);  // push key to edge associated with edge
+
         walk.setDate(walk.getDate() + 7);                        // add seven days, goto the next week
       }
   });
