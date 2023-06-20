@@ -292,12 +292,12 @@ form2data( // calendarEditClass  client-side
   const date_start  = date_startS.split("-");                        // ["2023","04","05"]
   const time_startS = document.getElementById("start_time").value;   // "12:20"
   const time_start  = time_startS .split(":");                       // ["12","20"]
-  g.dateStart    = [parseInt(date_start[0]), parseInt(date_start[1]) , parseInt(date_start[2])
-                   ,parseInt(time_start[0]), parseInt(time_start[1]) ];
-
-  g.dateEnd      = [g.dateStart[0], g.dateStart[1], g.dateStart[2] ];   // assume repeat = "neaver"
-  g.timeZone     = document.getElementById("timeZone"    ).value;  
-  g.timeDuration = document.getElementById("duration_hours").value +":"+ document.getElementById("duration_minutes").value;
+  g.dateStart       = this.getDate("start");
+  g.dateEnd         = [g.dateStart[0], g.dateStart[1], g.dateStart[2] ];   // add duration **************
+  g.dateEndRepeat   = this.getDate("repeat_end");  
+  //g.repeat_count    = document.getElementById("repeat_count").value;
+  g.timeZone        = document.getElementById("timeZone"      ).value;  
+  g.timeDuration    = document.getElementById("duration_hours").value +":"+ document.getElementById("duration_minutes").value;
 
   g.repeat       = document.getElementById("repeatType"    ).value;  // chosen value of how often to repeat even
   this.repeat(g);  // handle different cases for types of repeating
@@ -316,6 +316,19 @@ form2data( // calendarEditClass  client-side
 }
 
 
+getDate(// calendarEditClass  client-side
+  DOMname // 
+){
+  const dateString = document.getElementById(`${DOMname}_date`).value;   // "2023-04-05"
+  const date       = dateString.split("-")
+
+  const timeString = document.getElementById(`${DOMname}_time`).value;   // "12:20"
+  const time       = timeString.split(":"); 
+
+  return [parseInt(date[0]), parseInt(date[1]) , parseInt(date[2]),parseInt(time[0]), parseInt(time[1]) ];  // array[year, month, day, hours, minutes]
+}
+
+
 repeat(g){  // calendarEditClass  client-side
   // set repeating enddate
 
@@ -323,12 +336,16 @@ repeat(g){  // calendarEditClass  client-side
   g.offset  = [];   // for repeating events and their offset from first day
   g.days    = [];
 
+  g.repeat_end_date = [parseInt(endDateInfo[0],10),parseInt(endDateInfo[1],10),parseInt(endDateInfo[2],10)];
+  repeat_end_time
+
   switch(g.repeat) {
   case "weekly":
     // find offset for desired days
-    let d = new Date(this.year, this.month, this.day);
-    let dayIndex = d.getDay();
-    let repeatingDays = this.weeklyRepeatDays();
+    const now           = new Date();
+    const dayIndex      = now.getDay();               // 0-> Sunday   1->Monday
+    const repeatingDays = this.weeklyRepeatDays();    // returns array of days repeating  [0,2]  would be Sunday Tuesday repeating days
+
     for (let i = 0; i < repeatingDays.length; i++) {
       // walk through the days chosen to repeat on, and find distance between start day and chosen day
       let dif = repeatingDays[i] - dayIndex;
@@ -336,20 +353,16 @@ repeat(g){  // calendarEditClass  client-side
         // day should repeat on day that happens before chosen day but only after chosen day
         // ex repeats on monday wednesday friday, but the event starts on wednesday, so first monday is after the first wednesday
         repeatingDays[i] += 7;
-        offset.push(repeatingDays[i]-dayIndex);
+        g.offset.push(repeatingDays[i]-dayIndex);
       } else {
         // push the difference between indices into the offset
-        offset.push(dif);
+        g.offset.push(dif);
       }
     }
+
     if (repeatingDays.length == 0) {
       // if user did not choose days to repeat on, assume that it will repeat on same day every week
-      offset = [0];
-    }
-    dateEnd = [parseInt(endDateInfo[0],10),parseInt(endDateInfo[1],10),parseInt(endDateInfo[2],10)];
-    if (!document.getElementById("endDateInput").value) {
-      // if end date field is left empty, then assume event ends one week after start
-      dateEnd = [this.year, this.month+1, this.day+7];
+      g.offset = [0];
     }
     break;
 
