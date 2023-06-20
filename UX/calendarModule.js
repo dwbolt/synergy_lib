@@ -205,7 +205,11 @@ k  // this.graph.edges[k] returns the edge
   const edge = this.graph.edges[k];
   const a = edge.repeat_end_date;
   edge.endGMT_repeat = new Date(a[0],a[1]-1,a[2],a[3],a[4]);
+
   switch(edge.repeat) {
+  case "never":
+    this.addOneOf(k);
+    break;
   case "weekly":
     this.addWeekly(k)
     break;
@@ -213,9 +217,6 @@ k  // this.graph.edges[k] returns the edge
     this.addMonthly(k)
     break;
   case "yearly":
-    this.addOneOf(k);
-    break;
-  case "never":
     this.addOneOf(k);
     break;
   default:
@@ -264,9 +265,7 @@ addWeekly( // calendarClass  client-side
   edge.daysOffset.forEach((day, i) => {  // day=0 -> sunday
       let walk = new Date(edge.startGMT.getTime() + day*1000*60*60*24);
       while (walk <= edge.endGMT_repeat) {
-  //      this.events[walk.getMonth()+1][walk.getDate()].push(k);  // push key to edge associated with edge
-        this.events[walk.getMonth()][walk.getDate()].push(k);  // push key to edge associated with edge
-
+        this.events[walk.getMonth()+1][walk.getDate()].push(k);  // push key to edge associated with edge
         walk.setDate(walk.getDate() + 7);                        // add seven days, goto the next week
       }
   });
@@ -329,7 +328,7 @@ async buildTable(  // calendarClass  client-side
       let add="";
       if ( this.login_status) {
         // user calendar
-        add =`<a onClick="${this.#appRef}.edit.createNewEvent(${start.getFullYear()}, ${start.getMonth()}, ${start.getDate()})">+</a> `
+        add =`<a onClick="${this.#appRef}.edit.createNewEvent(${start.getFullYear()}, ${m}, ${d})">+</a> `
       }
       style = this.style_get(start, firstDate, today);  // set style of day depending on not part of current year, past, today, future,
       let html = `<h5 ${style}>${m}-${d} ${add}</h5>`;
@@ -339,7 +338,7 @@ async buildTable(  // calendarClass  client-side
       for(let i=0;  i<eventList.length; i++ ) {
         let editButton = `${i+1} `;
         let edgeName = eventList[i];
-        if (await this.login_status) {
+        if (this.login_status) {
           // we are on a user calendar
           //user = "&u=" + this.urlParams.get('u');
           editButton = `<a onClick="${this.#appRef}.editEvent(${edgeName})">${i+1}</a> `;
@@ -350,15 +349,8 @@ async buildTable(  // calendarClass  client-side
         } else if(this.graph.edges[edgeName].repeat == "monthly") {repeat_class = "repeat_monthly";
         } else if(this.graph.edges[edgeName].repeat == "yearly" ) {repeat_class = "repeat_yearly" ;}
 
-        let nodeName = this.graph.edges[edgeName].nR
-        if (typeof(nodeName) === "string") {
-          // node is an interal node
-          let user=""  // assume we are on main calendar
-          html += `<p>${editButton}<a  href="/app.html?p=${app.page}&e=${edgeName}&d=${this.format.getISO(start)}${user}" target="_blank" class="${repeat_class}">${this.graph.nodes[nodeName].text[0][2]}</a></p>`
-        } else {
-          // external link
-          html += `<p>${editButton}<a  href="${nodeName.url}"   target="_blank" class="${repeat_class}">${nodeName.text}</a></p>`
-        }
+        let edge = this.graph.edges[edgeName]
+        html += `<p>${editButton}<a  href="${edge.url}"   target="_blank" class="${repeat_class}">${edge.name}</a></p>`
       }
 
       row.push(html + "</br>")

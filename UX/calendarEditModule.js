@@ -55,14 +55,13 @@ async createNewEvent(  // calendarClass  client-side
 
   // set start time to current time
   const currentdate = new Date();
-  document.getElementById("start_time").value = 
-    `${app.format.padZero(currentdate.getHours(),2)}:${app.format.padZero(currentdate.getMinutes(),2)}`;
+  document.getElementById("start_time").value = `${app.format.padZero(currentdate.getHours(),2)}:00`;
 
   // set duration to 0 hours and 30 minues
-  document.getElementById("duration_days"   ).value = 0;
   document.getElementById("duration_hours"  ).value = 0;
   document.getElementById("duration_minutes").value = 30;
-
+  this.duration_changed();
+  
   // Set correct buttons to display for creating new event
   document.getElementById("saveEventButton"  ).hidden = true;
   document.getElementById("deleteEventButton").hidden = true;
@@ -172,14 +171,46 @@ weeklyRepeatDays() {
   return rv;
 }
 
+
 putDate(// calendarEditClass  client-side
-  DOMname // where to put date data
-  ,date   // [year, month,day,hours, minutes]
+   DOMname // where to put date data
+  ,date    // [year, month,day,hours, minutes]
 ){
 document.getElementById(`${DOMname}_date`).valueAsDate = new Date(date[0],date[1]-1,date[2]); // "2023-04-05"
  // "12:20"
 document.getElementById(`${DOMname}_time`).value = 
 `${app.format.padZero(date[3],2)}:${app.format.padZero(date[4],2)}`;  
+}
+
+
+duration_changed( // calendarEditClass  client-side
+  ){
+    // get duration
+    const hours   = parseInt(document.getElementById(`duration_hours`  ).value);
+    const minutes = parseInt(document.getElementById(`duration_minutes`).value);
+
+    // create end date from start + duration
+    const s = this.getDate("start"); // [year,month,day,hour,sec]
+    const end = new Date(s[0],s[1]-1,s[2], s[3]+hours, s[4]+minutes);
+
+    // update end_date and end_time
+    document.getElementById("end_date").valueAsDate = end; 
+    document.getElementById("end_time").value       = `${app.format.padZero(end.getHours(),2)}:${app.format.padZero(end.getMinutes(),2)}`;
+}
+
+
+end_time_changed(){ // calendarEditClass  client-side
+  let d       = this.getDate("start");                        
+  const start = new Date(d[0], d[1]-1, d[2], d[3],d[4]);      // get start
+      d       = this.getDate("end");
+  const end   = new Date(d[0], d[1]-1, d[2], d[3],d[4]);      // get end
+
+  // set duration
+  const diff    =  end.getTime()  - start.getTime();
+  const hours   =  Math.floor(diff/       (1000*60*60));
+  const minutes =  Math.floor((diff-(hours*1000*60*60))/1000*60);
+  document.getElementById("duration_hours"  ).value = hours;
+  document.getElementById("duration_minutes").value = minutes;
 }
 
 
@@ -194,22 +225,21 @@ edgeName
   document.getElementById("description").value = edge.description 
 
   let d = edge.dateStart;
- // document.getElementById("start_date").value =
- //     `${dateStart[0]}-${app.format.padZero(dateStart[1],2)}-${app.format.padZero(dateStart[2],2)}`
-  document.getElementById("start_date").valueAsDate = new Date(d[0],d[1],d[2]); 
-  document.getElementById("start_time").value = `${app.format.padZero(d[3],2)}:${app.format.padZero(d[4],2)}`;
-  document.querySelector('#timeZone'      ).value = edge.timeZone;
+  document.getElementById("start_date").valueAsDate = new Date(d[0],d[1]-1,d[2]); 
+  document.getElementById("start_time").value       = `${app.format.padZero(d[3],2)}:${app.format.padZero(d[4],2)}`;
+  
+  d = edge.dateEnd;
+  document.getElementById("end_date").valueAsDate = new Date(d[0],d[1]-1, d[2]);
+  document.getElementById("end_time").value       = `${app.format.padZero(d[3],2)}:${app.format.padZero(d[4],2)}`;
+
+  document.querySelector('#timeZone'      ).value   = edge.timeZone;
  
   // fill in duration of event
   const durTimeData = edge.timeDuration.split(":");
-  document.getElementById("duration_days"   ).value = parseInt(durTimeData[0]);  // fix
   document.getElementById("duration_hours"  ).value = parseInt(durTimeData[0]);
   document.getElementById("duration_minutes").value = parseInt(durTimeData[1]);
+
   document.getElementById("repeatType"    ).value = edge.repeat;
-
-  d = edge.dateEnd;
-  document.getElementById("end_date").valueAsDate = new Date(d[0],d[1]-1, d[2]);
-
   this.renderEndDateSelector();  // hide elements not being used
 
   // fill in what days the event repeats on
@@ -222,8 +252,9 @@ data2form_repeat(edge){
   switch(edge.repeat) {
   case "never":  break; // nothing todo
   case "weekly": 
-    this.fillRepeatdays(edge);  // not sure what this does
-    break; // nothing todo
+    this.set_weekly_days(edge);  // not sure what this does
+    break;
+
   case "monthly":
     document.getElementById("monthlyEndDateSelect").value = edge.dateEnd[1]; // fill in end month selector
     for (let i = 0; i < edge.days.length; i++) {
@@ -249,12 +280,11 @@ data2form_repeat(edge){
 }
 
 
-fillRepeatdays(  // calendarEditClass  client-side
+set_weekly_days(  // calendarEditClass  client-side
   // fills in the selector for what days of the week the event repeats on
   edge
 ) {
   let r = edge.daysOffset;
-  // the edge exists already
   let d = new Date( edge.dateStart[0], edge.dateStart[1]-1, edge.dateStart[2]);
   let dayIndex = d.getDay();
   let daysOfWeek = document.getElementsByClassName("repeatCheckbox");
@@ -313,16 +343,11 @@ form2data( // calendarEditClass  client-side
   g.description = document.getElementById("description").value;
 
   // date_start with time
-  const date_startS = document.getElementById("start_date").value;   // "2023-04-05"
-  const date_start  = date_startS.split("-");                        // ["2023","04","05"]
-  const time_startS = document.getElementById("start_time").value;   // "12:20"
-  const time_start  = time_startS .split(":");                       // ["12","20"]
   g.dateStart       = this.getDate("start");
-  g.dateEnd         = [g.dateStart[0], g.dateStart[1], g.dateStart[2] ];   // add duration **************
-  //g.dateEndRepeat   = this.getDate("repeat_end");  
-  //g.repeat_count    = document.getElementById("repeat_count").value;
-  g.timeZone        = document.getElementById("timeZone"      ).value;  
-  g.timeDuration    = document.getElementById("duration_hours").value +":"+ document.getElementById("duration_minutes").value;
+  g.dateEnd         = this.getDate("end")  
+  g.timeZone        = document.getElementById("timeZone"        ).value;  
+  g.timeDuration    = document.getElementById("duration_hours"  ).value +":"+ 
+                      document.getElementById("duration_minutes").value;
 
   g.repeat       = document.getElementById("repeatType"    ).value;  // chosen value of how often to repeat even
   this.form2data_repeat(g);  // handle different cases for types of repeating
