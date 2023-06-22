@@ -203,13 +203,15 @@ addEvents(  // calendarClass  client-side
 k  // this.graph.edges[k] returns the edge
 ) {
   const edge = this.graph.edges[k];
+  if (edge.repeat === "never") {
+    this.addOneOf(k);
+    return;
+  }
+
   const a = edge.repeat_end_date;
   edge.endGMT_repeat = new Date(a[0],a[1]-1,a[2],a[3],a[4]);
 
   switch(edge.repeat) {
-  case "never":
-    this.addOneOf(k);
-    break;
   case "weekly":
     this.addWeekly(k)
     break;
@@ -220,13 +222,7 @@ k  // this.graph.edges[k] returns the edge
     this.addOneOf(k);
     break;
   default:
-    if (typeof(this.graph.edges[k].repeat) === "undefined") {
-      // does not repeat
-      this.addOneOf(k);
-    } else {
-      // error
-      alert(`in calendarClass.addEvents: repeat=${this.graph.edges[k].repeat}  k=${k}`);
-    }
+      alert(`in calendarClass.addEvents: repeat=${edge.repeat}  k=${k}`);
   }
 }
 
@@ -262,6 +258,24 @@ addWeekly( // calendarClass  client-side
 ) {
   // walk the daysOffset, first entry should be 0;  we assume
   const edge = this.graph.edges[k];
+  edge.weekdays.forEach((day,i) => {  // walk each day in the week we are repeating
+    let date =  new Date(edge.startGMT.getTime());  // create a copy of start date
+    if (day < date.getDay()) {
+      date.setDate(date.getDate() + 7 - date.getDay());   // add days to date to get to Sunday
+    }
+
+    if (date.getDay()< day ) {
+      date.setDate(date.getDate() + day - date.getDay()); // add days to get to correct day of week
+    }
+
+    while (date < edge.endGMT_repeat) {
+      this.events[date.getMonth()+1][date.getDate()].push(k);  // push key to edge associated with edge
+      date.setDate(date.getDate() + 7);   // get next week
+    }
+  }); 
+
+
+  /*
   edge.daysOffset.forEach((day, i) => {  // day=0 -> sunday
       let walk = new Date(edge.startGMT.getTime() + day*1000*60*60*24);
       while (walk <= edge.endGMT_repeat) {
@@ -269,6 +283,7 @@ addWeekly( // calendarClass  client-side
         walk.setDate(walk.getDate() + 7);                        // add seven days, goto the next week
       }
   });
+  */
 }
 
 

@@ -246,11 +246,15 @@ edgeName
   this.data2form_repeat(edge);
 }
 
-data2form_repeat(edge){
-  this.putDate("repeat_end",  edge.repeat_end_date );
+
+data2form_repeat(   // calendarEditClass  client-side
+  edge   //
+  ){
 
   switch(edge.repeat) {
-  case "never":  break; // nothing todo
+  case "never":  
+    return; // nothing todo
+
   case "weekly": 
     this.set_weekly_days(edge);  // not sure what this does
     break;
@@ -267,16 +271,8 @@ data2form_repeat(edge){
     default:
       alert(`error in calendarEditClass method="data2form" repeat="${edge.repeat}" `);
   }
-  /*
-  if (typeof(edge.nR) === "string") {
-    // load from node  ----------
-    document.getElementById("name"       ).value = this.graph.nodes[edge.nR].text[0][2];
-    document.getElementById("eventDescription").value = this.graph.nodes[edge.nR].text[1][2];
-  } else {
-    // load from edge
-
-  }
-*/
+  
+  this.putDate("repeat_end",  edge.repeat_end_date );
 }
 
 
@@ -284,12 +280,10 @@ set_weekly_days(  // calendarEditClass  client-side
   // fills in the selector for what days of the week the event repeats on
   edge
 ) {
-  let r = edge.daysOffset;
-  let d = new Date( edge.dateStart[0], edge.dateStart[1]-1, edge.dateStart[2]);
-  let dayIndex = d.getDay();
+  let days = edge.weekdays; // arrays of day to repeat, 0->sunday 1-monday..
   let daysOfWeek = document.getElementsByClassName("repeatCheckbox");
-  for (let i = 0; i < r.length; i++) {
-    daysOfWeek[(r[i] + dayIndex) % 7].checked = true;
+  for (let i = 0; i < days.length; i++) {
+    daysOfWeek[days[i]].checked = true;
   }
 }
 
@@ -351,58 +345,20 @@ form2data( // calendarEditClass  client-side
 
   g.repeat       = document.getElementById("repeatType"    ).value;  // chosen value of how often to repeat even
   this.form2data_repeat(g);  // handle different cases for types of repeating
-
-  // saving form data to the edge
-  /*
-  const url            = document.getElementById("url"        ).value;       // url of the event
-  g.description        = document.getElementById("description").value;       // will be private if url is give, will be displayed if no url is given
-  if (url === "") {
-    // create a node
-    g.nR = 0;
-  } else {
-    g.nR = {}
-    g.nR.text = document.getElementById("name").value;       // name of the event;
-    g.nR.url  = url;
-  }
-  */
 }
 
 
 form2data_repeat(g){  // calendarEditClass  client-side
   // called by form2date, handle repeating data
-  // set repeating enddate
-
-  // handle repeat events
-  //g.offset  = [];   // for repeating events and their offset from first day
-  //g.days    = [];
-
-  g.repeat_end_date = this.getDate("repeat_end");
+  if (g.repeat !== "never"){
+    // only need this attrebute for repeading data
+    g.repeat_end_date = this.getDate("repeat_end");
+  }
 
   switch(g.repeat) {
   case "weekly":
     // find offset for desired days
-    const now           = new Date();
-    const dayIndex      = now.getDay();               // 0-> Sunday   1->Monday
-    const repeatingDays = this.weeklyRepeatDays();    // returns array of days repeating  [0,2]  would be Sunday Tuesday repeating days
-    g.daysOffset =[] ;
-    for (let i = 0; i < repeatingDays.length; i++) {
-      // walk through the days chosen to repeat on, and find distance between start day and chosen day
-      let dif = repeatingDays[i] - dayIndex;
-      if (dif < 0) {
-        // day should repeat on day that happens before chosen day but only after chosen day
-        // ex repeats on monday wednesday friday, but the event starts on wednesday, so first monday is after the first wednesday
-        repeatingDays[i] += 7;
-        g.daysOffset.push(repeatingDays[i]-dayIndex);
-      } else {
-        // push the difference between indices into the offset
-        g.daysOffset.push(dif);
-      }
-    }
-
-    if (repeatingDays.length == 0) {
-      // if user did not choose days to repeat on, assume that it will repeat on same day every week
-      g.daysOffset = [0];
-    }
+    g.weekdays = this.weeklyRepeatDays();    // returns array of days repeating  [0,2]  would be Sunday Tuesday repeating days
     break;
 
   case "monthly":
