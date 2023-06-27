@@ -265,14 +265,14 @@ data2form_repeat(   // calendarEditClass  client-side
 
   switch(edge.repeat) {
   case "never":  
-    return; // nothing todo
+     edge.repeat_end_date = edge.dateEnd;
+     break;
 
   case "weekly": 
     this.set_weekly_days(edge);  // not sure what this does
     break;
 
   case "monthly":
-    //document.getElementById("monthlyEndDateSelect").value = edge.dateEnd[1]; // fill in end month selector
     while ( this.openMonthDates < edge.days.length){
       this.addNewRepeatMonthy();  // create place
     }
