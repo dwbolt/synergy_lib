@@ -11,7 +11,7 @@ constructor(  // calendarEditClass  client-side
   ){ 
     // move values in pop up form to graph edge
   this.calendar       = cal;      // point to calander object that we are editing.
-  this.openMonthDates = 1;        // number of selectors visible when monthly repeating option is chosen
+  this.openMonthDates = 0;        // number of selectors visible when monthly repeating option is chosen
   this.formHeight     = "500px"; 
 }
 
@@ -145,8 +145,13 @@ await this.processServerRefresh();
 async processServerRefresh( // calendarEditClass  client-side
 ) {
   // save new graph
-  const resp = await app.proxy.RESTpost(app.format.obj2string(this.graph),this.calendar.url);
-  alert(JSON.stringify(resp));   // was it succussful
+  const buffer = app.format.obj2string(this.graph)
+  const resp = await app.proxy.RESTpost(buffer,this.calendar.url);
+  if (resp.ok) {
+    alert(`save sucessful, length=${buffer.length} bytes`);
+  } else {
+    alert(`Error status="${resp.status}"`);
+  }
   location.reload();
   this.windowActive = false;
   return(resp);
@@ -178,8 +183,13 @@ putDate(// calendarEditClass  client-side
 ){
 document.getElementById(`${DOMname}_date`).valueAsDate = new Date(date[0],date[1]-1,date[2]); // "2023-04-05"
  // "12:20"
-document.getElementById(`${DOMname}_time`).value = 
-`${app.format.padZero(date[3],2)}:${app.format.padZero(date[4],2)}`;  
+
+if (document.getElementById(`${DOMname}_time`)) {
+  // will not exist for DOMname "repeat_end"
+  document.getElementById(`${DOMname}_time`).value = 
+  `${app.format.padZero(date[3],2)}:${app.format.padZero(date[4],2)}`;  
+}
+
 }
 
 
@@ -196,6 +206,8 @@ duration_changed( // calendarEditClass  client-side
     // update end_date and end_time
     document.getElementById("end_date").valueAsDate = end; 
     document.getElementById("end_time").value       = `${app.format.padZero(end.getHours(),2)}:${app.format.padZero(end.getMinutes(),2)}`;
+
+    // if repeat end is displayed, set time po
 }
 
 
@@ -260,18 +272,26 @@ data2form_repeat(   // calendarEditClass  client-side
     break;
 
   case "monthly":
-    document.getElementById("monthlyEndDateSelect").value = edge.dateEnd[1]; // fill in end month selector
+    //document.getElementById("monthlyEndDateSelect").value = edge.dateEnd[1]; // fill in end month selector
+    while ( this.openMonthDates < edge.days.length){
+      this.addNewRepeatMonthy();  // create place
+    }
     for (let i = 0; i < edge.days.length; i++) {
-      if (i > 0) this.addNewRepeatMonthy();
       document.getElementById(`monthlyWeekSelect-${i+1}`).value = edge.days[i][1];
       document.getElementById(`monthlyDaySelect-${i+1}` ).value = edge.days[i][0];
     }
     break;
 
-    default:
-      alert(`error in calendarEditClass method="data2form" repeat="${edge.repeat}" `);
+  case "yearly":
+    break;
+
+  default:
+    alert(`error in calendarEditClass method="data2form" repeat="${edge.repeat}" `);
   }
-  
+
+  // set repeat end data, use time from dateEnd
+  edge.repeat_end_date[3] = edge.dateEnd[3];
+  edge.repeat_end_date[4] = edge.dateEnd[4];
   this.putDate("repeat_end",  edge.repeat_end_date );
 }
 
@@ -291,7 +311,7 @@ set_weekly_days(  // calendarEditClass  client-side
 closeForm(  // calendarEditClass  client-side
   // closes pop up window
 ) {
-  this.openMonthDates = 1;
+  this.openMonthDates = 0;
   this.hidden(true);
 }
 
@@ -319,10 +339,15 @@ getDate(// calendarEditClass  client-side
   const dateString = document.getElementById(`${DOMname}_date`).value;   // "2023-04-05"
   const date       = dateString.split("-")
 
-  const timeString = document.getElementById(`${DOMname}_time`).value;   // "12:20"
-  const time       = timeString.split(":"); 
+  if (document.getElementById(`${DOMname}_time`)) {
+     const timeString = document.getElementById(`${DOMname}_time`).value;   // "12:20"
+     const time       = timeString.split(":"); 
+     return [parseInt(date[0]), parseInt(date[1]) , parseInt(date[2]),parseInt(time[0]), parseInt(time[1]) ];  // array[year, month, day, hours, minutes]
+  } else {
+    return [parseInt(date[0]), parseInt(date[1]) , parseInt(date[2])];
+  }
 
-  return [parseInt(date[0]), parseInt(date[1]) , parseInt(date[2]),parseInt(time[0]), parseInt(time[1]) ];  // array[year, month, day, hours, minutes]
+
 }
 
 
@@ -363,22 +388,16 @@ form2data_repeat(g){  // calendarEditClass  client-side
 
   case "monthly":
     // event is repeating monthly
-    g.offset = [0];
-    let endMonth = document.getElementById("monthlyEndDateSelect").value;
-    g.dateEnd = [this.getEventYear(), parseInt(endMonth), 1];
-
+    g.days = [];
     // read input from the drop down boxes
-    for (let i = 0; i < this.getNumMonthDates(); i++) {
-      if (document.getElementById(`monthlyDaySelect-${i}`)) {
-        days.push([document.getElementById(`monthlyDaySelect-${i}`).value,document.getElementById(`monthlyWeekSelect-${i}`).value]);
-      }
+    for (let i = 1; i <= this.openMonthDates; i++) {
+        g.days.push([parseInt(document.getElementById(`monthlyDaySelect-${i}` ).value),
+                     parseInt(document.getElementById(`monthlyWeekSelect-${i}`).value)]);
     }
-    g.startDate[2] = 1;
+    //g.startDate[2] = 1;
     break;
 
   case "yearly":
-    g.offset = [];
-    g.dateEnd = [parseInt(endDate,10), this.month+1, this.day];
     break;
 
   case "never":
@@ -410,17 +429,21 @@ renderEndDateSelector(  // calendarEditClass  client-side
     break;
     
   case "monthly":
+    if (this.openMonthDates === 0) {
+      // no places to select day or week, so add one
+      this.addNewRepeatMonthy();
+    }
     document.getElementById("end_repeat"    ).hidden = false;
     document.getElementById("weekly_repeat" ).hidden = true;
     document.getElementById("monthly_repeat").hidden = false;
     break;
 
   case "yearly":
-  // display only a number when selecting a year
-  document.getElementById("end_repeat"    ).hidden        = false;
-  document.getElementById("weekly_repeat" ).style.display = 'none';
-  document.getElementById("monthly_repeat").style.display = 'none';
-  break;
+    // display only a number when selecting a year
+    document.getElementById("end_repeat"    ).hidden = false;
+    document.getElementById("weekly_repeat" ).hidden = true;
+    document.getElementById("monthly_repeat").hidden = true;
+    break;
 
   default:
     // error
@@ -435,19 +458,19 @@ addNewRepeatMonthy(  // calendarEditClass  client-side
   // Currently maxing it at 3 dates it can repeat on
 ) {
   if (3 < this.openMonthDates) return;    // Make sure we are not at maximum amount of dates
-
+  this.openMonthDates++;
   // We need to expand how large the total pop up is to fit the new items
   document.getElementById("popUpForm").style.height = `${document.getElementById("popUpForm").clientHeight + 35}px`;
   document.getElementById("monthly_repeat").innerHTML += 
   `<div>
-  <select>
+  <select id = "monthlyWeekSelect-${this.openMonthDates}">
     <option value="1" selected>1st</option>
     <option value="2">2nd</option>
     <option value="3">3rd</option>
     <option value="4">4th</option>
     <option value="5">Last</option>
   </select>
-  <select>
+  <select id = "monthlyDaySelect-${this.openMonthDates}">
     <option value="0" selected> Sunday   </option>
     <option value="1">          Monday   </option>
     <option value="2">          Tuesday  </option>
@@ -459,7 +482,6 @@ addNewRepeatMonthy(  // calendarEditClass  client-side
   <a onclick="app.calendar.edit.removeMonthlySelector(this)" class="removeMonthlySelectorButton">-</a>
 </div>
 `
-  this.openMonthDates++;
 }
 
 

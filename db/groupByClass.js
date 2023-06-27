@@ -1,4 +1,5 @@
-class groupByClass {  // groupbeClass.js
+//    /_lib/db/groupByClass.js                      
+class groupByClass {  // groupbyClass.js
 /*
 
 provides methods that agreate rows similar to SQL groupBY

@@ -19,7 +19,9 @@ constructor( // tableClass - client-side
 url
 ) {  
   // data
-  this.#url   = url;
+  const page   = window.location;
+  const urlEsc = new URL(`${page.protocol}//${page.host}/${url}`);
+  this.#url   = urlEsc.toString();
   
   this.#json  = {
     "description":""        // what is this table for
@@ -156,6 +158,7 @@ async save2file( // tableClass - client-side
   if (0<changes.length) {
     // only save file if there are changes to the table or it is new
     const msg   = await app.proxy.RESTpost( this.genTable() ,this.#url);
+
     alert(`
     file=${this.#url}
     records changed=${changes.length}

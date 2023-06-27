@@ -62,7 +62,6 @@ addEvents(
       this.eventDay;           // day of event to edit or add
       this.eventData;          // number to access node or edge in data
       this.popUpHeight;        // holds the height of the pop up form
-      this.numMonthDates = 4;  // holds number of dates a monthly repeating date can repeat on per month
       this.canSubmit = false;  // determines whether or not the form is ready to submit
 
   
@@ -80,18 +79,18 @@ addEvents(
         ,"nextPrev"
         ,`<select name="months" id="months" onChange="${this.#appRef}.chooseMonth()">
             <option value="nullMonth" selected>Choose Month</option>
-            <option value="january">January</option>
-            <option value="february">February</option>
-            <option value="march">March</option>
-            <option value="april">April</option>
-            <option value="may">May</option>
-            <option value="june">June</option>
-            <option value="july">July</option>
-            <option value="august">August</option>
-            <option value="september">September</option>
-            <option value="october">October</option>
-            <option value="november">November</option>
-            <option value="december">December</option>
+            <option value="january">01 January</option>
+            <option value="february">02 February</option>
+            <option value="march">03 March</option>
+            <option value="april">04 April</option>
+            <option value="may">05 May</option>
+            <option value="june">06 June</option>
+            <option value="july">07 July</option>
+            <option value="august">08 August</option>
+            <option value="september">09 September</option>
+            <option value="october">10 October</option>
+            <option value="november">11 November</option>
+            <option value="december">12 December</option>
           </select>`
         ,`rows/page: <input type="number" min="1" max="10" size=3 value="${this.tableUx.paging.lines}" onchange="${this.#appRef}.tableUx.changePageSize(this)"/>`
   
@@ -121,7 +120,6 @@ setEventMonth(    val) {this.eventMonth  = val;   } // calendarClass  client-sid
 setEventYear(     val) {this.eventYear   = val;   }// calendarClass  client-side
 setEventDay(      val) {this.eventDay    = val;   }// calendarClass  client-side
 setPopUpHeight(   val) {this.popUpHeight = val;   }// calendarClass  client-side
-setNumMonthDates( val) {this.numMonthDates = val; }// calendarClass  client-side
 setCanSubmit(     val) {this.canSubmmit = val;    }// calendarClass  client-side
   
 // accessors
@@ -129,7 +127,6 @@ getEventMonth(    ) {return this.eventMonth ;   }// calendarClass  client-side
 getEventYear(     ) {return this.eventYear  ;   }// calendarClass  client-side
 getEventDay(      ) {return this.eventDay   ;   }// calendarClass  client-side
 getPopUpHeight(   ) {return this.popUpHeight;   }// calendarClass  client-side
-getNumMonthDates( ) {return this.numMonthDates; }// calendarClass  client-side
 getCanSubmit(     ) {return this.canSubmit;     }// calendarClass  client-side
   
 
@@ -209,7 +206,7 @@ k  // this.graph.edges[k] returns the edge
   }
 
   const a = edge.repeat_end_date;
-  edge.endGMT_repeat = new Date(a[0],a[1]-1,a[2],a[3],a[4]);
+  edge.endGMT_repeat = new Date(a[0],a[1]-1,a[2],edge.endGMT.getHours(), edge.endGMT.getMinutes());  // use end_date time
 
   switch(edge.repeat) {
   case "weekly":
@@ -273,29 +270,21 @@ addWeekly( // calendarClass  client-side
       date.setDate(date.getDate() + 7);   // get next week
     }
   }); 
-
-
-  /*
-  edge.daysOffset.forEach((day, i) => {  // day=0 -> sunday
-      let walk = new Date(edge.startGMT.getTime() + day*1000*60*60*24);
-      while (walk <= edge.endGMT_repeat) {
-        this.events[walk.getMonth()+1][walk.getDate()].push(k);  // push key to edge associated with edge
-        walk.setDate(walk.getDate() + 7);                        // add seven days, goto the next week
-      }
-  });
-  */
 }
 
 
 addMonthly(  // calendarClass  client-side
 k  // this.graph.edges[k] returns the edge
 ) {
-  // walk the daysOffset, first entry should be 0;
-  const edge=this.graph.edges[k];
-  let i=0;
-  for ( let month = new Date(edge.startGMT.getTime()); month < edge.endGMT;  ) {
+  // walk the days, first entry should be 0;
+  const edge = this.graph.edges[k];
+  const start = edge.startGMT;
+  let monthOffset = 0;
+  for (let month = new Date(start.getFullYear(), start.getMonth(), 1) ;
+       month < edge.endGMT_repeat;  
+       month=new Date(start.getFullYear(), start.getMonth()+ ++monthOffset, 1)) {
     // chang
-    edge.days.forEach((day, i) => {  // day=[day number, week number] day number 0 -> sunday     :  [1,2] -> second monday of month
+    edge.days.forEach((day, ii) => {  // day=[day number, week number] day number 0 -> sunday     :  [1,2] -> second monday of month
       // find first target day of week in the the month
       let offset = day[0] - month.getDay(); // day[0] is the target day of week
       if (offset<0) {offset += 7;}          // target day of week in in the next week
@@ -312,11 +301,10 @@ k  // this.graph.edges[k] returns the edge
       let eventDate = new Date(month.getTime() + offset*1000*60*60*24);
       this.events[eventDate.getMonth()+1][eventDate.getDate()].push(k);  // push key to edge associated with edge
     });
-    // goto next month
-    month=this.createDate(edge,false,[0,++i,0]);
   }
 }
   
+
 async buildTable(  // calendarClass  client-side
 ) {   // converts calendar data from graph to a table
   const t        = this.db.getTable("weekCal");  // t -> table we will put event data in to display
