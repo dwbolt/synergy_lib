@@ -469,16 +469,19 @@ appendHTMLrow(  // tableUxClass - client-side
   let html   = `<tr ${selected} data-row=${PK}>${lineNum}${rowNum}`;
 
   let value;
-  row.forEach((field,ii) => {
+  const length = this.model.getHeader().length;
+  for(let i=0; i<length; i++) {
+  //row.forEach((field,ii) => {
     // create display form of field
-    if (field===null) {
+    let field = row[i]
+    if (field===null || typeof(field)==="undefined") {
       value=""; // display null values as blank
     } else {
       value = field;
     }
 
-    html += this.formatTransform(value, ii);
-  });
+    html += this.formatTransform(value, i);
+  };
   html += "</tr>";
   return html;
 }

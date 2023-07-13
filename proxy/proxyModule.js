@@ -17,6 +17,21 @@ Update  - put
 Delete. - delete
 */
 
+async RESTget(url) {   // proxyClass - client - side
+  try {
+    const f = await fetch(url);
+    if (f.ok) { // if HTTP-status is 200-299
+      // get the response body (the method explained below)
+      let t = await  f.text();
+      return {ok:true, value:t};
+    } else {
+      alert(`proxyClass.getText error: url = ${url}  status = ${f.status}`);
+    }
+  } catch (e) {
+    return {ok:false, value:e};
+  }
+}
+
 
 async RESTdelete(   // proxyClass - client - side
   url 

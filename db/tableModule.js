@@ -48,7 +48,7 @@ url
 
 
 async load(  // tableClass - client-side
-  url
+  url        // location of table to load
   ) { 
   this.#url = url;
   let obj;
@@ -61,6 +61,7 @@ async load(  // tableClass - client-side
     }
   } while (obj.json === null);
   this.#json  = obj.json; 
+  this.setHeader();
 
   // init
   if (typeof(this.#json.changes) === "undefined") this.#json.changes = {};
@@ -157,13 +158,17 @@ async save2file( // tableClass - client-side
   const changes = Object.keys(this.#json.changes);
   if (0<changes.length) {
     // only save file if there are changes to the table or it is new
-    const msg   = await app.proxy.RESTpost( this.genTable() ,this.#url);
+    //const msg   = await app.proxy.RESTpost( this.genTable() ,this.#url);
+    const msg   = await app.proxy.RESTpost( app.format.obj2string(this.#json) ,this.#url);
 
     alert(`
-    file=${this.#url}
-    records changed=${changes.length}
-    save status = ${msg.statusText}`)
+      file=${this.#url}
+      records changed=${changes.length}
+      save status = ${msg.statusText}`
+    );
+
     if (msg.statusText=="OK") {
+      // start new change log
       this.#json.changes = {};
     };
   }
@@ -279,10 +284,63 @@ sortList(  // tableClass - client-side
 }
 
 
+get_field( // tableClass - client-side
+  i  // index into select array
+  ,attribute  // header or type or location..
+  ){
+  const field_name = this.#json.meta.select[i];
+
+  switch(attribute){
+  case "header":
+    return this.#json.meta.fields[field_name][0];
+  case "type":
+    return this.#json.meta.fields[field_name][1];
+  case "location":
+    return this.#json.meta.fields[field_name][2];
+  default:
+    alert(`error in "tableModule.js" method="get_field" i="${i}"  field="${field}"`); 
+  }
+  return null;
+  }
+
+
+get_multi(  // tableClass - client-side
+  pk  // primary key
+  ,i  // select index into header/select
+ ) {
+   const type       = this.get_field(i,"type");
+   let multi        = this.#json.multi[pk][type];
+   if (!Array.isArray(multi)){multi = []} // make empty array if not already an array
+   return multi;
+ }
+
+
 getValue(rowIndex,fieldName)  // tableClass - client-side
                 {return this.#json.rows[rowIndex][this.#json.field[fieldName]] ;}
 
-getHeader()      {return this.#json.header        ;} // tableClass - client-side
+getHeader()      {return this.#json.meta.header        ;} // tableClass - client-side
+
+
+setHeader(   // tableClass - client-side
+value = null  //  
+)      {
+  // set header
+  if (Array.isArray(value)) {
+    // 
+    this.#json.meta.header = header;
+    return; 
+  }
+
+  // create header from meta data
+  this.#json.meta.header = [];
+  const fields           = this.#json.meta.fields;  // point to field meta data
+  const select           = this.#json.meta.select;  // array of field names to be displayed
+  for(let i=0; i<select.length; i++) {
+    this.#json.meta.header.push(fields[select[i]][0]);   // *** hardcode  0 refers to header, 1-> data type, 2->location
+  }
+} 
+
+
 getField()       {return this.#json.field         ;} // tableClass - client-side
 getRows()        {return this.#json.rows          ;} // tableClass - client-side
 getRow(index)    {return this.#json.rows[index]   ;} // tableClass - client-side
@@ -334,9 +392,6 @@ change_summary(  // tableClass - client-side
 
   change[field]["count"]++;
 }
-
-
-setHeader(a_header){this.#json.header = a_header;} // tableClass - client-side
 
 
 genCSV( // tableClass - client-side
@@ -483,7 +538,7 @@ bufferCreateEmpty(  // tableClass - client-side
   // create n_rows
   for(i=1; i<n_rows+1; i++) {
     let empty = []; // create emty row
-    for(ii=0; ii<this.#json.header.length; ii++) {
+    for(ii=0; ii<this.getHeader().length; ii++) {
       empty.push(""); // create an array of null as long as the header
     }
     empty[0] = this.#json.PK_max+i;

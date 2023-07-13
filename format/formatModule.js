@@ -170,9 +170,10 @@ obj2string( // formatClass - client-side
       const keys = Object.keys(obj);
       keys.forEach((key, index) => {
         pad = "";    // init pad spacing
-        str += "\n" + `,${pad.padStart(level*3, " ")}  ${this.obj2string(obj[key],level+1)}`
+       // str += "\n" + `,${pad.padStart(level*3, " ")}  ${this.obj2string(obj[key],level+1)}`
+        str +=  `,${this.obj2string(obj[key],level+1)}`
       });
-      str ="[\n " + str.substring(2) + "\n]";  // replace leading \n, with \n
+      str ="[" + str.substring(1) + "]";  // replace leading \n, with \n
     } else if (typeof(obj) === "object") {
       str = "";  // add new line for object
       const keys = Object.keys(obj);

@@ -134,12 +134,12 @@ async save(  // dbClass - client-side
   // save changed loaded tables to disk
 ) {
   const keys = Object.keys(this.tables);  // keys to loaded tables
-  let save_meta = false;
+  let save_meta = false;                  // assume no new tables were created
 
-  // tr
+  // walking all tables in database to see if they have canged or or new
   for(var i=0; i< keys.length; i++) {
     // save all loaded tables that have changed
-    await this.tables[keys[i]].save2file();
+    await this.tables[keys[i]].save2file();  // will return quickly if no changes
     if ( typeof(this.#json.meta.tables[keys[i]]) ===  "undefined") {
       // have a new table, add it to meta data
       this.#json.meta.tables[keys[i]] = {"location": keys[i], comments: "imported table"}
@@ -148,15 +148,13 @@ async save(  // dbClass - client-side
   }
 
   if (save_meta) {
-      // database meta data
-    
+    // there is a new table so save updated meta data for database
     await app.proxy.RESTpost(
 `{
   "meta":{
     "tables": ${JSON.stringify(this.#json.meta.tables)}
   }
-}`
-    , this.#url);
+}`, this.#url);
   }
 }
 
