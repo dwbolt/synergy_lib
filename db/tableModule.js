@@ -315,6 +315,18 @@ get_multi(  // tableClass - client-side
  }
 
 
+ get_column(  // tableClass - client-side
+  pk  // primary key
+  ,i  // select index into header/select
+ ) {
+   let column  = this.#json.meta.select[i][pk];
+    if (typeof(column) === "undifined") {
+      column="";
+    }
+   return column;
+ }
+ 
+
 getValue(rowIndex,fieldName)  // tableClass - client-side
                 {return this.#json.rows[rowIndex][this.#json.field[fieldName]] ;}
 
