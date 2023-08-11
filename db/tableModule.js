@@ -224,38 +224,6 @@ key  // pK to delete
   changes.deleted=true;
 }
 
-/*
-index(  // tableClass - client-side
-  key  // column # to index on
-  ){ 
-  // create index on column key;
-  if (typeof(key)  === "number") {
-    const rows  = this.getRows();
-    const index = {}
-    let max     = 0; // next primary key
-
-    // walk to entire table and index on column key
-    for (var i=0; i< rows.length; i++) {
-      let value = rows[i][key];  // get row's key value
-      index[value]=i;            // store the row number 
-
-      if (key === this.get_primary_key() && max<value) {
-        // find largest key value, primary key is an integer number that increments
-        max = value;
-      }
-    }
-
-    this.#json.index[key]=index;  // index of field key
-    if (key === this.get_primary_key() ) {
-      this.#json.primary_key_max = max;
-    }
-  } else {
-    // key not valid
-    alert(`tableModule.js index key=${key} is not a number`);
-  }
-}
-*/
-
 sortList(  // tableClass - client-side
     a_list     // array of row indexes that need to be sorted
   , a_fields   // array of fields to sort on
@@ -297,6 +265,8 @@ get_field( // tableClass - client-side
     return this.#json.meta.fields[field_name][1];
   case "location":
     return this.#json.meta.fields[field_name][2];
+  case "param":
+    return this.#json.meta.fields[field_name][3];
   default:
     alert(`error in "tableModule.js" method="get_field" i="${i}"  field="${field}"`); 
   }
@@ -309,7 +279,15 @@ get_multi(  // tableClass - client-side
   ,i  // select index into header/select
  ) {
    const type       = this.get_field(i,"type");
-   let multi        = this.#json.multi[pk][type];
+   let multi;
+   try {
+    multi = this.#json.multi[pk][type];
+  } catch (e) {
+    // it is not defined, so return an empty array
+    multi = [];
+  }
+
+
    if (!Array.isArray(multi)){multi = []} // make empty array if not already an array
    return multi;
  }
@@ -319,11 +297,13 @@ get_multi(  // tableClass - client-side
   pk  // primary key
   ,i  // select index into header/select
  ) {
-   let column  = this.#json.meta.select[i][pk];
-    if (typeof(column) === "undifined") {
-      column="";
+   const column_name  = this.#json.meta.select[i];
+   let   column_value = this.#json.columns[column_name][pk];
+   if (typeof(column_value) === "undefined") {
+    // return empty string if not defin
+    column_value = "";
     }
-   return column;
+   return column_value;
  }
  
 
