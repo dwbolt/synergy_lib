@@ -47,6 +47,13 @@ url
 }
 
 
+get_PK( // tableClass - client-side
+) {
+  // array of PK keys for entire table;
+  return Object.keys(this.#json.meta.PK);
+}
+
+
 async load(  // tableClass - client-side
   url        // location of table to load
   ) { 
@@ -72,6 +79,25 @@ async load(  // tableClass - client-side
     // create PK
     this.PK_create(); 
   }
+}
+
+
+get_object( // tableClass - client-side
+  id        // primary key of row/object
+  ){ 
+  // 
+  let object = {};
+  const select = this.#json.meta.select;  // list of object attributes 
+  for(let i=0; i<select.length ;i++){
+    // assume row, need to add other cases
+    let row_number = this.#json.meta.PK[id]; // ger row number from primary key index
+    let value = this.#json.rows[row_number][this.get_field(i,"param")];
+    if (value) {
+      object[select[i]] = value;
+    }
+  }
+
+  return object;  // json version of row in table
 }
 
 
