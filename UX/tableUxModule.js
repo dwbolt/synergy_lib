@@ -55,6 +55,13 @@ delete_row(   // tableUxClass - client-side
 }
 
 
+set_hidden(  // tableUxClass - client-side
+  value  // true -> hide; false -> show
+  ){
+  document.getElementById(this.DOMid).hidden = value;
+}
+
+
 display(        // tableUxClass - client-side
   // display table - for first time
   rowArray=null // optional rowarray, display if passed
