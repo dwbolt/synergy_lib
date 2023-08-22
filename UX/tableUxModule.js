@@ -1,4 +1,5 @@
-import {groupByClass} from '/_lib/db/groupByModule.js';
+import {groupByClass}  from '/_lib/db/groupByModule.js';
+import {recordUxClass} from '/_lib/UX/recordUxModule.js';
 
 class tableUxClass { // tableUxClass - client-side
 
@@ -19,6 +20,7 @@ constructor(
   this.globalName = globalName; // remember is used in UX on onChange, onClick etc events
 
   // data
+  this.recordUX          = new recordUxClass();
   this.tableUxB          = null;  // points to tableUx used for edit and copy buffer
   this.model;               // pointer to instance of tableClass
   this.tableName;           // name of table in Database
