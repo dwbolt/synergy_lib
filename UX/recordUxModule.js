@@ -13,18 +13,29 @@ class recordUxClass { // recordUxClass - client-side
 #edit_type
 
 constructor( // recordUxClass - client-side
-   domID       // where table will be displayed
-  ,globalName  // is used in UX on onChange, onClick etc events to get back to this instace of the object
+   tableUX       // where table will be displayed
 ) {
+  this.tableUX = tableUX
 }
+/*
 
+    ,["","","<input hidden type='button' value='New'       onclick='app.page.recordNew()'>  "]
+    ,["","","<input hidden type='button' value='Add'       onclick='app.page.recordAdd()'>  "]
+    ,["","","<input hidden type='button' value='Duplicate' onclick='app.page.recordDuplicate()'> "]
+
+    ,["",""," &nbsp <input hidden type='button' value='Edit' onclick='app.page.recordEdit(true)'> "]
+    ,["","","<input hidden type='button' value='Delete'      onclick='app.page.recordDelete()'> "]
+    ,["","","<input hidden type='button' value='Save'        onclick='app.page.recordSave()'> "]
+
+    ,["",""," &nbsp <input hidden type='button' value='Cancel'    onclick='app.page.recordCancel()'> </p>"]
+*/
 
 show(  // client side dbUXClass - for a page
   element // dom element
 ){
   // recordShow
   const table             = this.tableUX.getModel()  // get tableClass being displayed
-  let html = `Table: ${this.tableUX.tableName}<br><table>`;
+  let html = `<b>Table: ${this.tableUX.tableName}</b><br><table>`;
   if (element) {
     // user clicked on elemnt, remember primary key for other record methodes
     this.#primary_key_value = parseInt(element.innerText,10); 
@@ -60,7 +71,7 @@ show(  // client side dbUXClass - for a page
     html += `<tr><td>${i+1}</td> <td>${header[i]}</td> <td>${rowValue}</td></tr>`
   }
   html += "</table>"
-  document.getElementById("record").innerHTML = html;
+  document.getElementById(this.tableUX.DOMid + "_record").innerHTML = html;
 
   // show buttons
   this.buttonsShow("New Duplicate Edit  Delete Cancel");

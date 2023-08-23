@@ -20,7 +20,7 @@ constructor(
   this.globalName = globalName; // remember is used in UX on onChange, onClick etc events
 
   // data
-  this.recordUX          = new recordUxClass();
+  this.recordUX          = new recordUxClass(this);
   this.tableUxB          = null;  // points to tableUx used for edit and copy buffer
   this.model;               // pointer to instance of tableClass
   this.tableName;           // name of table in Database
