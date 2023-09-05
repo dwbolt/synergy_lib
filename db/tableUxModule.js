@@ -1,5 +1,5 @@
 import {groupByClass}  from '/_lib/db/groupByModule.js';
-import {recordUxClass} from '/_lib/UX/recordUxModule.js';
+import {recordUxClass} from '/_lib/db/recordUxModule.js';
 
 class tableUxClass { // tableUxClass - client-side
 
@@ -240,9 +240,10 @@ displayColumnTitles(){
   let row =""; if (this.rowNumberVisible ) {row  = "<th>row</th>" ; this.skip_columns++}
   let html = `<tr>${line}${row}`;
 
-  this.model.getHeader().forEach((item, i) => {
-    html += "<th>" +item + "</th>";
-  });
+  const fields = this.model.meta_get("fields")
+  for(var i=0; i<7; i++){
+    html += "<th>" +fields[i.toString()].header + "</th>";
+  };
 
  html += "</tr>";
 

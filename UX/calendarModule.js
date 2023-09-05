@@ -1,7 +1,7 @@
 import  {formatClass    }   from '/_lib/format/formatModule.js'  ;
 import  {proxyClass     }   from '/_lib/proxy/proxyModule.js'    ;
 import  {dbClass        }   from '/_lib/db/dbModule.js'          ;
-import  {tableUxClass   }   from '/_lib/UX/tableUxModule.js'     ;
+import  {tableUxClass   }   from '/_lib/db/tableUxModule.js'     ;
 import  {nodes2htmlClass}   from '/_lib/UX/nodes2htmlModule.js'  ;
 import  {calendarEditClass} from '/_lib/UX/calendarEditModule.js';
 
@@ -71,7 +71,7 @@ addEvents(
   
       // tableUxClass("calendar"  is hardcoded, change at some point
       this.tableUx = new tableUxClass(dom,`${this.#appRef}.tableUx`); // create way to display table
-      this.tableUx.setModel( this.db, "weekCal");                  // associate data with disply widget
+      this.tableUx.setModel( this.db, "weekCal");                     // associate data with disply widget
       this.tableUx.paging.lines = 3;    // should use a method to do this
       this.windowActive = false;        // toggle for pop up window
       this.tableUx.setStatusLineData( [
@@ -307,9 +307,18 @@ k  // this.graph.edges[k] returns the edge
 
 async buildTable(  // calendarClass  client-side
 ) {   // converts calendar data from graph to a table
-  const t        = this.db.getTable("weekCal");  // t -> table we will put event data in to display
-  t.clearRows();
-  t.setHeader( ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday "] );
+  const t      = this.db.getTable("weekCal");  // t -> table we will put event data in to display
+  //t.clearRows();  // may need to write cashe clear
+  const fields = t.meta_get("fields");
+  fields["0"]  = {"header":"Sunday"   };
+  fields["1"]  = {"header":"Monday"   };
+  fields["2"]  = {"header":"Tuesday"  };
+  fields["3"]  = {"header":"Wednesday"};
+  fields["4"]  = {"header":"Thursday" };
+  fields["5"]  = {"header":"Friday"   };
+  fields["6"]  = {"header":"Saturday" };
+
+  t.set_select(["0","1","2","3","4","5","6"]);  // select all the fields
 
   const today     = new Date();
   const start     = new Date(this.year, 0, 1);   // current date/time

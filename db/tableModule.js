@@ -21,10 +21,14 @@ url
   // data
   const page   = window.location;
   const urlEsc = new URL(`${page.protocol}//${page.host}/${url}`);
+  this.header = [];
+  this.select = [];
   this.#url   = urlEsc.toString();
   
   this.#json  = {
-    "description":""        // what is this table for
+    "meta"   : {fields:{}}
+    ,"cashe" : {}          // {pk1:{},p2:{}....pkN:{}}  converted to json object
+    //"description":""        // what is this table for
     ,"field":{}             // calculated field from fieldA
     ,"fieldA":[]            // array of names to access field in rows
                             // search is optional array of size of search input
@@ -44,6 +48,13 @@ url
     ,"rowsBuffer": []       // array of arrays: buffer data for add, select, dupp, will change rows data if saved
                             // [rowIndex,[changes made]]  index of <0 is new row to be appended at end if saved
   }
+}
+
+
+meta_get(  // tableClass - client-side
+  name // meta attribute name
+  ){  
+  return this.#json.meta[name];
 }
 
 
