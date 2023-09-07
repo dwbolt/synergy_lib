@@ -50,6 +50,19 @@ url
   }
 }
 
+set_select(  // tableClass - client-side
+  filed_names  // array of field names
+){
+  this.#json.meta.select = filed_names;
+
+  // set header based on select - seems like this should be in UX module (dwb)
+  this.#json.meta.header=[];
+  for(var i=0; i<this.#json.meta.select.length; i++) {
+    let field_name =  this.#json.meta.select[i];
+    this.#json.meta.header.push( this.#json.meta.fields[field_name].header);
+  }
+}
+
 
 meta_get(  // tableClass - client-side
   name // meta attribute name

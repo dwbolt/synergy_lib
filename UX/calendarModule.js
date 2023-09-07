@@ -283,7 +283,7 @@ k  // this.graph.edges[k] returns the edge
   for (let month = new Date(start.getFullYear(), start.getMonth(), 1) ;
        month < edge.endGMT_repeat;  
        month=new Date(start.getFullYear(), start.getMonth()+ ++monthOffset, 1)) {
-    // chang
+   
     edge.days.forEach((day, ii) => {  // day=[day number, week number] day number 0 -> sunday     :  [1,2] -> second monday of month
       // find first target day of week in the the month
       let offset = day[0] - month.getDay(); // day[0] is the target day of week
