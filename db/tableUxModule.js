@@ -1,5 +1,7 @@
-import {groupByClass}  from '/_lib/db/groupByModule.js';
+import {dbClass      } from '/_lib/db/dbModule.js'      ;
+import {groupByClass } from '/_lib/db/groupByModule.js' ;
 import {recordUxClass} from '/_lib/db/recordUxModule.js';
+
 
 class tableUxClass { // tableUxClass - client-side
 
