@@ -49,7 +49,7 @@ parseCSV(  // csvClass: client-side
 
   if (header) {
     // header passed in
-    this.table.setHeader( header);
+    //this.table.setHeader( header);    will 
   } else {
     // assume first row is header
     const header = this.parseRow();

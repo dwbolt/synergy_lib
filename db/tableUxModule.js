@@ -234,17 +234,17 @@ displaySearch(){
 }
 
 
-// tableUxClass - client-side
-displayColumnTitles(){
+displayColumnTitles( // tableUxClass - client-side
+){
   // add header    //  this.json[table].DOMid = domID; // remember where table was displayed
   this.skip_columns = 0;
   let line=""; if (this.lineNumberVisible) {line = "<th>line</th>"; this.skip_columns++}
   let row =""; if (this.rowNumberVisible ) {row  = "<th>row</th>" ; this.skip_columns++}
   let html = `<tr>${line}${row}`;
 
-  const fields = this.model.meta_get("fields")
-  for(var i=0; i<7; i++){
-    html += "<th>" +fields[i.toString()].header + "</th>";
+  const header = this.model.meta_get("header");
+  for(var i=0; i<header.length; i++){
+    html += "<th>" +header[i] + "</th>";
   };
 
  html += "</tr>";
@@ -367,7 +367,7 @@ statusLine(   // tableUxClass - client-side
         html += `<input type="button" onclick="${this.globalName}.export()" value="Download CSV"/> <a id='download_link'></a>`
         break;
       case "groupBy":
-        html += `<input type="button" onclick="app.page.tableUX.groupBy()" value="Group"/>`
+        html += `<input type="button" onclick="${this.globalName}.groupBy()" value="Group"/>`
         break;
       default:
         // custom
@@ -413,7 +413,6 @@ displayFooter(){  // tableUxClass - client-side
 
 
 groupBy(// tableUxClass - client-side
-
 ){
 alert("not imlimented yet");
 //this.groupBy   = new groupByClass();

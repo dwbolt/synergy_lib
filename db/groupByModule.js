@@ -23,10 +23,12 @@ groupBy(  // groupByClass - client-side
   let j=table.json;
 
   // covert array of string field names to array of index values
+  /*
   const a_gv = [];
   a_g.forEach((fieldName, i) => {
     a_gv.push(j.field[fieldName]);
   });
+*/
 
   let field = j.field;
   // walk through table list
