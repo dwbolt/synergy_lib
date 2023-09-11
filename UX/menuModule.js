@@ -7,7 +7,7 @@ this can be thought of as "colmn menu" simlar to selecting files in column view.
 
 #DOMid
 
-constructor(DOMid){ // calendarEditClass  client-side
+constructor(DOMid){ // menuClass- client side  client-side
   this.#DOMid = DOMid;   // where menu is displayed
   document.getElementById(DOMid).innerHTML = `
   <table>

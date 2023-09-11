@@ -1,6 +1,7 @@
-import {dbClass      } from '/_lib/db/dbModule.js'      ;
-import {groupByClass } from '/_lib/db/groupByModule.js' ;
-import {recordUxClass} from '/_lib/db/recordUxModule.js';
+import {dbClass            } from '/_lib/db/dbModule.js'           ;
+import {groupByClass       } from '/_lib/db/groupByModule.js'      ;
+import {recordUxClass      } from '/_lib/db/recordUxModule.js'     ;
+import {select_order_class } from '/_lib/UX/select_order_module.js';
 
 
 class tableUxClass { // tableUxClass - client-side
@@ -90,7 +91,33 @@ display(        // tableUxClass - client-side
   <thead></thead>
   <tbody></tbody>
   <tfoot></tfoot>
-  </table>`;
+  </table>
+  <div id ="${this.DOMid}__group_by" hidden=true>
+  <p id="${this.DOMid}__group_by_fields"></p>
+  <p id="${this.DOMid}__group_by_table">group by table</p>
+  </div>`;
+
+  // add fields to group by
+  this.groupby_fields = new select_order_class(`${this.DOMid}__group_by_fields`);
+  const fields = tableUx.model.meta_get("fields");
+  this.tableUx.model.meta_get("select").forEach((field, i) => {
+    this.groupby_fields.add_choice(field,{"display": fields[field].header});
+  });
+
+
+/*
+displayGroupBy(){  // appClass  client-side
+  // put buttons for each field
+  let html = "<b>Group By Fields:</b>";
+  const fields = this.tableUx.model.meta_get("fields");
+  this.tableUx.model.meta_get("select").forEach((field, i) => {
+    html += `<input type="button" value="${fields[field].header}" onclick="app.groupBy('${field}')"> `
+  });
+
+  document.getElementById("groupByMenu").innerHTML = html;
+}
+*/
+
 
   // fill in empty table
   //this.statusLine();
@@ -414,8 +441,9 @@ displayFooter(){  // tableUxClass - client-side
 
 groupBy(// tableUxClass - client-side
 ){
-alert("not imlimented yet");
-//this.groupBy   = new groupByClass();
+  // toggle group_by_div
+  const div = document.getElementById(`${this.DOMid}__group_by`);
+  div.hidden  = !div.hidden;
 }
 
 
