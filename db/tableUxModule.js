@@ -98,33 +98,20 @@ display(        // tableUxClass - client-side
   </div>`;
 
   // add fields to group by
-  this.groupby_fields = new select_order_class(`${this.DOMid}__group_by_fields`);
-  const fields = tableUx.model.meta_get("fields");
-  this.tableUx.model.meta_get("select").forEach((field, i) => {
-    this.groupby_fields.add_choice(field,{"display": fields[field].header});
+  this.groupby_fields = new select_order_class(`${this.DOMid}__group_by_fields`,`${this.globalName}.groupby_fields`);
+  const fields = this.model.meta_get("fields");
+  this.model.meta_get("select").forEach((field, i) => {
+    this.groupby_fields.add_choice(field,{"text": fields[field].header});
   });
 
-
-/*
-displayGroupBy(){  // appClass  client-side
-  // put buttons for each field
-  let html = "<b>Group By Fields:</b>";
-  const fields = this.tableUx.model.meta_get("fields");
-  this.tableUx.model.meta_get("select").forEach((field, i) => {
-    html += `<input type="button" value="${fields[field].header}" onclick="app.groupBy('${field}')"> `
-  });
-
-  document.getElementById("groupByMenu").innerHTML = html;
-}
-*/
+  this.groupby_fields.add_choices();
 
 
   // fill in empty table
-  //this.statusLine();
-  this.displaySearch();
+  this.displaySearch()      ;
   this.displayColumnTitles();
-  this.displayData();  // will display statusLine
-  this.displayFooter();
+  this.displayData()        ;  // will display statusLine
+  this.displayFooter()      ;
 }
 
 

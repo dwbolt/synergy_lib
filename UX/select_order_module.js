@@ -19,17 +19,31 @@ constructor( // select_order_class - client side
 	this.DOMid      = DOMid;     // remember where table will be displayed
 	this.globalName = globalName; // remember is used in UX on onChange, onClick etc events
 	this.clear_choices();
+	this.set_template();
+}
 
+
+clear_choices(){  // select_order_class - client side
+	this.count   = 0;
+	this.choices = {}
+	this.order   = [];  // display order of choices by value
+}
+
+
+set_template() {  // select_order_class - client side
 	document.getElementById(this.DOMid).innerHTML = `
 	<table>
 	<tr>
 	<td>
-	<select id="${this.DOMid}_choice" size="4" >
+	Choose<br>
+	<select id="${this.DOMid}_choice" onclick="${this.globalName}.choose(this)"  size="5">
+
 	</select>
 	</td>
 
 	<td>
-	<select id="${this.DOMid}_selected" size="4">
+	selected<br>
+	<select id="${this.DOMid}_selected" onclick="${this.globalName}.move_to_selected(this)" size="5">
 	</select>
 	</td>
 
@@ -41,26 +55,26 @@ constructor( // select_order_class - client side
 	`
 }
 
-/*
-let html = `<select size="4" onclick="app.page.database_select(this)">`;
-// build list of databases to choose
-for(let i=0; i<dbkey.length; i++ ) {
-  html += `<option value="${dbkey[i]}">${dbkey[i]}</option>`;
-}
-html += "</select>"
-*/
+
+move_to_selected(   // select_order_class - client side
+	dom //
+){
+	const value = dom.value;
+	// remove from choice
+	dom.remove(dom.selectedIndex);
+
+	// add to selected
+	const selected = document.getElementById(`${this.DOMid}_selected`);
+	const option   = document.createElement("option");
+    option.text  = this.choices[value].text;
+	option.value = value;
+x.add(option, x[0]);
 
 
-clear_choices(){  // select_order_class - client side
-	this.count   = 1;
-	this.choices = {}
-	this.order   = [];  // display order of choices by value
+	selected.add()
+
 }
 
-get_DOM_choice(){
-	// return DOM element that 
-	return document.getElementById("${this.DOMid}_choice");
-}
 
 add_choice(  // select_order_class - client side
 	value    // value returned when selected
@@ -69,6 +83,27 @@ add_choice(  // select_order_class - client side
 	this.choices[value] = obj;             // store choice in object
 	obj.order           = this.count++;    // remember order choice was added
 	this.order.push(value);                // add choice to list, will be displayed
+}
+
+
+add_choices( // select_order_class - client side
+){
+	const choices = document.getElementById(`${this.DOMid}_choice`);
+	let html = "";
+	for(var i=0; i<this.count; i++) {
+		let value = this.order[i]
+		html  += `<option value='${value}'>${this.choices[value].text}</option>`
+	}
+	choices.innerHTML = html;
+}
+
+
+
+get_DOM_choice(   // select_order_class - client side
+
+){
+	// return DOM element that 
+	return document.getElementById("${this.DOMid}_choice");
 }
 
 
