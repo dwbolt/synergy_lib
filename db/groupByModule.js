@@ -20,7 +20,7 @@ groupBy(  // groupByClass - client-side
 //  ,l = null     // null -> entire table, list of rows to group [3,5, 3 ...]  usually  a subset of the the table
 ) {
   this.table = table;  // save the table pointer for later methods
-  let j=table.json;
+  let j=table.getJSON();  // 
 
   // covert array of string field names to array of index values
   /*
@@ -32,7 +32,7 @@ groupBy(  // groupByClass - client-side
 
   let field = j.field;
   // walk through table list
-  table.json.rows.forEach((row, i) => {
+  j.rows.forEach((row, i) => {
     // now see if there is alreay a GROUP
     let attributeName = "";
     a_gv.forEach((fieldIndex) => {

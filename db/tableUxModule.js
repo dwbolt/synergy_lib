@@ -94,11 +94,14 @@ display(        // tableUxClass - client-side
   </table>
   <div id ="${this.DOMid}__group_by" hidden=true>
   <p id="${this.DOMid}__group_by_fields"></p>
-  <p id="${this.DOMid}__group_by_table">group by table</p>
+  <p id="${this.DOMid}__group_by_table"></p>
   </div>`;
 
   // add fields to group by
   this.groupby_fields = new select_order_class(`${this.DOMid}__group_by_fields`,`${this.globalName}.groupby_fields`);
+  this.groupby_fields.set_template(
+    `<input type="button" value="group by" onclick="${this.globalName}.groupby()">`
+  );
   const fields = this.model.meta_get("fields");
   this.model.meta_get("select").forEach((field, i) => {
     this.groupby_fields.add_choice(field,{"text": fields[field].header});
@@ -115,8 +118,35 @@ display(        // tableUxClass - client-side
 }
 
 
-// tableUxClass - client-side
-displayBuffer(        // display table - for first time
+groupby(  // tableUxClass - client-side  
+){
+  // user clicked group by button, so create a group by table and display it
+
+  // create groupby instance   
+  const g = new groupByClass();           
+  g.groupBy(this.model, this.groupby_fields.selected()); // create groups
+
+  // convert info in groupByClass to table
+  const t = new tableClass();           // create blank table to put data in
+  t.setHeader([field,"Count"]);
+  const keys = Object.keys(g.groups);  // keys an array of
+
+  // walk the group object, append a table row for each object
+  keys.forEach((key, index) => {
+    t.appendRow([key,g.groups[key].rowIndex.length])
+  });
+
+
+  // display table
+  this.tableUxG.model     = t;               // attach table data to tableUX
+  this.tableUxG.tableName = this.tableName+"-GroupBy";  //
+  this.tableUxG.display();                   // show table to user
+  
+}
+
+
+displayBuffer(        // tableUxClass - client-side  
+  // display table - for first time
 ) {
   //this.tags = {}  // remove any previous tags
 
@@ -381,7 +411,7 @@ statusLine(   // tableUxClass - client-side
         html += `<input type="button" onclick="${this.globalName}.export()" value="Download CSV"/> <a id='download_link'></a>`
         break;
       case "groupBy":
-        html += `<input type="button" onclick="${this.globalName}.groupBy()" value="Group"/>`
+        html += `<input type="button" onclick="${this.globalName}.groupBy_toggle()" value="Group"/>`
         break;
       default:
         // custom
@@ -426,7 +456,7 @@ displayFooter(){  // tableUxClass - client-side
 }
 
 
-groupBy(// tableUxClass - client-side
+groupBy_toggle(// tableUxClass - client-side
 ){
   // toggle group_by_div
   const div = document.getElementById(`${this.DOMid}__group_by`);
