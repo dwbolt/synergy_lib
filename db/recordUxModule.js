@@ -17,18 +17,6 @@ constructor( // recordUxClass - client-side
 ) {
   this.tableUX = tableUX
 }
-/*
-
-    ,["","","<input hidden type='button' value='New'       onclick='app.page.recordNew()'>  "]
-    ,["","","<input hidden type='button' value='Add'       onclick='app.page.recordAdd()'>  "]
-    ,["","","<input hidden type='button' value='Duplicate' onclick='app.page.recordDuplicate()'> "]
-
-    ,["",""," &nbsp <input hidden type='button' value='Edit' onclick='app.page.recordEdit(true)'> "]
-    ,["","","<input hidden type='button' value='Delete'      onclick='app.page.recordDelete()'> "]
-    ,["","","<input hidden type='button' value='Save'        onclick='app.page.recordSave()'> "]
-
-    ,["",""," &nbsp <input hidden type='button' value='Cancel'    onclick='app.page.recordCancel()'> </p>"]
-*/
 
 show(  // client side dbUXClass - for a page
   element // dom element
@@ -38,14 +26,17 @@ show(  // client side dbUXClass - for a page
   let html = `<b>Table: ${this.tableUX.tableName}</b><br><table>`;
   if (element) {
     // user clicked on elemnt, remember primary key for other record methodes
-    this.#primary_key_value = parseInt(element.innerText,10); 
+    //this.#primary_key_value = parseInt(element.innerText,10); 
+    this.#primary_key_value = parseInt(element.parentElement.getAttribute("data-row"),10); 
   }
-  const  row = table.PK_get(this.#primary_key_value); 
-  const  header = table.getHeader();
+ // const  row = table.PK_get(this.#primary_key_value); 
+  const  select = table.meta_get("select");
+  const  fields = table.meta_get("fields");
   let rowValue,location;
-  for(var i=0; i<header.length; i++) {
-    location = table.get_field(i,"location");
-
+  for(var i=0; i<select.length; i++) {
+    rowValue = table.get_value(this.#primary_key_value, select[i]);
+/*
+location = table.get_field(i,"location");
     switch(location) {
       case "row":
         rowValue = row[i];
@@ -64,13 +55,25 @@ show(  // client side dbUXClass - for a page
         // error
         alert(`error class="dbUXClass" method="recordShow"`);
     }
-
+*/
     if (typeof(rowValue) === "undefined") {
       rowValue = "";
     }
-    html += `<tr><td>${i+1}</td> <td>${header[i]}</td> <td>${rowValue}</td></tr>`
+    html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td> <td>${rowValue}</td></tr>`
   }
   html += "</table>"
+
+  html += `<p id="buttons_record">
+    <input hidden type='button' value='New'       onclick='app.page.recordNew()'>
+    <input hidden type='button' value='Add'       onclick='app.page.recordAdd()'>
+    <input hidden type='button' value='Duplicate' onclick='app.page.recordDuplicate()'>
+
+    <input hidden type='button' value='Edit'       onclick='app.page.recordEdit(true)'> 
+    <input hidden type='button' value='Delete'     onclick='app.page.recordDelete()'> 
+    <input hidden type='button' value='Save'       onclick='app.page.recordSave()'>
+
+    <input hidden type='button' value='Cancel'    onclick='app.page.recordCancel()'> </p>
+`
   document.getElementById(this.tableUX.DOMid + "_record").innerHTML = html;
 
   // show buttons
@@ -81,6 +84,19 @@ show(  // client side dbUXClass - for a page
   this.display_relations("tableUXRelations");
 }
 
+
+buttonsShow( // client side dbUXClass - for a page
+  // "New Add  Edit Duplicate Delete Save  Cancel"
+  s_values   // walk through id=Buttons and show all in the list   
+){  // client side dbUXClass - for a page
+  let button = document.getElementById("buttons_record").firstChild;
+  while(button) {
+    button.hidden = (s_values.includes(button.value) ? 
+      false  // show button
+    : true  )// hide button
+    button = button.nextSibling;
+  }
+}
 
 edit(  // client side dbUXClass
   edit_type // true -> edit table record    false -> edit buffer record
