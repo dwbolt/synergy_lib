@@ -19,98 +19,71 @@ constructor(  // csvClass: client-side
 //  this.fsp  = require('fs').promises;   // asycn wrapper on fs
   this.csv;                 // cvs file in memory to convert to JSON
   //this.rowDebug  = 999;   // can be used to debug
-  this.error     = false;   // will be set to true if a parsing error occures
-  this.table     = table;   // place to put parsed data
-  this.insertID  = false;   // do not insert ID column
-  this.id        =     1;   // 
+  this.error      = false;   // will be set to true if a parsing error occures
+  this.table      = table;   // place to put parsed data
+  this.insertID   = false;   // do not insert ID column
+  this.id         =     1;   // 
+  this.column     = 0    ;
+  this.column_max = 0;
 }
 
 
 parseCSV(  // csvClass: client-side
-   file          // file in memory to be parseHeader
+   file          // file in memory to be parser
   ,DOMid         // DOMid  -> (optional) place to put status of current row being parsed
-  ,header=false  // if not passed, assume first row is header
 ) {
-  // init class variables
-  this.json = {};           // will be the JSON object we write to file
-  this.json.fields="";      // build initial json field list
-  this.json.len = [];       // this.json.len[36] returns an array of all rows that had 36 fields in it.  All rows should contain the same lenght
+  this.csv        = file;     //  file in memory to parse
+  this.DOM        = document.getElementById(DOMid);
 
+  // init class variables
   this.rowStart   = 0;        // pointer to where we are parsing
-  this.valuesPerRow  ;        // expected values in each row, set in parseHeader()
   this.valueStart = 0;        // start of valueStart
   this.row        = 0;        // row of csv file we have completed parsing
   this.rowEnd     = false;
   this.delimiter  = ',';      // assume our delimter is a Comma
   this.quote      = '"';      // assume strings with quotes, comma's or crlf are quoted with double quotes
-  this.DOM        = document.getElementById(DOMid);
-
-  this.csv        = file;     //  file in memory to parse
-
-  if (header) {
-    // header passed in
-    //this.table.setHeader( header);    will 
-  } else {
-    // assume first row is header
-    const header = this.parseRow();
-    if (header[0] !== "ID") {
-      // insert id column
-      this.insertID = true;
-      header.splice(0, 0, "ID"); 
-    }
-    this.table.setHeader( header );
-  }
 
   // now loop and put everything else in json.rows
   while ( this.valueStart < this.csv.length) {
     // now add all the data
-    this.table.appendRow( this.parseRow() );
+    this.parseRow();
     if (typeof(this.DOM) === "object") {
       // if DOMid was passed in, let user know status of parse
-      this.DOM.innerHTML = this.row+"parsed";
+      this.DOM.innerHTML = this.row + " rows parsed";
     }
   }
 
-  // assume first row is primary index - need to work on this
-  //this.table.index_primary();
-  this.table.PK_create();
-}
-
-
-parseHeader() { // csvClass: client-side
-  // the lenght of the hearder row, set the expected lenght of the remaining rows
-  const a = [];   // returns this array with each element one field in the array
-  while (!this.rowEnd) {
-    a.push( this.parseValue() );
+  // create meta data
+  const select = this.table.meta_get("select");
+  const fields = this.table.meta_get("fields");
+  const header = this.table.meta_get("fiheaderelds");
+  // select all the fields imported
+  for(var i=0; i<this.column_max; i++){
+    let field = i.toString();  // "0","1","2".....
+    select.push(field); 
+    fields[field] = {"header":field, "type": "string", "location":"column"}  // some maybe numbers, bool or other.
   }
-  this.valuesPerRow = a.length;
-  this.rowEnd = false;
-  return a;
 }
 
 
 parseRow() {  // csvClass: client-side
-  const a = [];   // returns this array with each element one field in the array
-
-  while (!this.rowEnd) {
-    a.push( this.parseValue() );
+  while (!this.rowEnd) {  
+    this.table.add_column_value(this.row.toString(), this.column.toString(),this.parseValue());
+    this.column++; // goto next column
     if (this.rowEnd) {
-      if        (a.length < this.valuesPerRow) {
-        this.error(`error on row ${this.row} short, column=${a.length}, expected ${this.valuesPerRow} `);
-      } else if (a.length > this.valuesPerRow) {
-        this.error(`error on row ${this.row} long , column=${a.length}, expected ${this.valuesPerRow}`);
+      if(this.column_max<this.column) {
+        this.column_max = this.column;
+      }
+      if        (! this.column === this.column_max) {
+        this.error(`error on row ${this.row}, column=${this.column }, expected ${this.column_max} `);
       }
     }
   }
 
-  this.column=0;
+  // init for next row
+  this.column = 0;
   this.rowEnd = false;
   this.row++;
-  if (this.insertID) {
-    // create an id for row
-    a.splice(0, 0, this.id++);
-  }
-  return a;
 }
 
 

@@ -21,18 +21,15 @@ url
   // data
   const page   = window.location;
   const urlEsc = new URL(`${page.protocol}//${page.host}/${url}`);
-  this.header = [];
-  this.select = [];
   this.#url   = urlEsc.toString();
   
   this.#json  = {
-    "meta"   : {fields:{}}
-    ,"cashe" : {}          // {pk1:{},p2:{}....pkN:{}}  converted to json object
+    "meta"   : {fields:{},"select" : []}
     //"description":""        // what is this table for
     ,"field":{}             // calculated field from fieldA
     ,"fieldA":[]            // array of names to access field in rows
                             // search is optional array of size of search input
-    ,"header" : []          // what is displayed for the header
+              // what is displayed for the header
     ,"index"  : []          // array of index fields
     ,"deleted": {}          // {key: true, key2, true .....} listed of keys stored that are logally deleted
     ,"changes": {}          // current changed memory value
@@ -43,12 +40,54 @@ url
         ..
       }
       ,"key2":{...}
-    }   */      
+    }   */
+    ,"PK"        : {}
+    ,"columns"   : {}
     ,"rows"      : []       // row data, one array for each row 
     ,"rowsBuffer": []       // array of arrays: buffer data for add, select, dupp, will change rows data if saved
                             // [rowIndex,[changes made]]  index of <0 is new row to be appended at end if saved
   }
 }
+
+
+get_value(  // tableClass - client-side
+  pk
+  ,field
+) {
+  const location = this.#json.meta.fields[field].location;
+  switch(location) {
+    case "column":
+      return this.#json.columns[field][pk];
+      break;
+
+    case "row":
+      // code block
+    case "multi":
+      // code block
+    default:
+      // code block
+      alert(`error tableModule.js method:get_value location=${location}`)
+  }
+}
+
+add_column_value( // tableClass - client-side
+  pk // primary key
+  ,column_name //
+  ,column_value //
+){
+
+  if (typeof(this.#json.PK[pk]) === "undefined") {
+    // assume all data is stored in column, may cause problems untill all row data is gone;
+    // add Primary key
+    this.#json.PK[pk]=true;
+  }
+  if (typeof(this.#json.columns[column_name]) === "undefined") {
+    this.#json.columns[column_name] = {};
+  }
+
+  this.#json.columns[column_name][pk] = column_value;
+}
+
 
 set_select(  // tableClass - client-side
   filed_names  // array of field names
@@ -358,9 +397,7 @@ get_multi(  // tableClass - client-side
  
 
 getValue(rowIndex,fieldName)  // tableClass - client-side
-                {return this.#json.rows[rowIndex][this.#json.field[fieldName]] ;}
-
-getHeader()      {return this.#json.meta.header        ;} // tableClass - client-side
+    {return this.#json.rows[rowIndex][this.#json.field[fieldName]] ;}
 
 
 setHeader(   // tableClass - client-side
@@ -378,7 +415,7 @@ value = null  //
   const fields           = this.#json.meta.fields;  // point to field meta data
   const select           = this.#json.meta.select;  // array of field names to be displayed
   for(let i=0; i<select.length; i++) {
-    this.#json.meta.header.push(fields[select[i]][0]);   // *** hardcode  0 refers to header, 1-> data type, 2->location
+    this.#json.meta.header.push(fields[select[i]].header); 
   }
 } 
 

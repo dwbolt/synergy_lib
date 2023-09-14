@@ -267,7 +267,7 @@ displaySearch(){
   } else {
     search = "";
   }
-  this.model.getHeader().forEach((item, i) => {
+  this.model.meta_get("select").forEach((item, i) => {
     html += `<th>${search}</th>`;
   });
   html += "</tr>";
@@ -286,9 +286,10 @@ displayColumnTitles( // tableUxClass - client-side
   let row =""; if (this.rowNumberVisible ) {row  = "<th>row</th>" ; this.skip_columns++}
   let html = `<tr>${line}${row}`;
 
-  const header = this.model.meta_get("header");
-  for(var i=0; i<header.length; i++){
-    html += "<th>" +header[i] + "</th>";
+  const select = this.model.meta_get("select");
+  const fields = this.model.meta_get("fields");
+  for(var i=0; i<select.length; i++){
+    html += `<th>${fields[select[i]].header}</th>`;
   };
 
  html += "</tr>";
@@ -508,7 +509,7 @@ appendHTMLrow(  // tableUxClass - client-side
     // display subset of rows in tag
     if (arrayIndex < this.tags[this.tag].length) {
       PK = this.tags[this.tag][arrayIndex];
-      row          = this.model.PK_get( PK);
+  //    row          = this.model.PK_get( PK);
     } else {
       return ""; // no more data
     }
@@ -525,15 +526,15 @@ appendHTMLrow(  // tableUxClass - client-side
   let html   = `<tr ${selected} data-row=${PK}>${lineNum}${rowNum}`;
 
   let value;
-  const length = this.model.getHeader().length;
+  const length = this.model.meta_get("select").length;
+  const select = this.model.meta_get("select");
   for(let i=0; i<length; i++) {
-  //row.forEach((field,ii) => {
     // create display form of field
-    let field = row[i]
-    if (field===null || typeof(field)==="undefined") {
+    let fieldValue = this.model.get_value(PK,select[i]);
+    if (fieldValue===null || typeof(fieldValue)==="undefined") {
       value=""; // display null values as blank
     } else {
-      value = field;
+      value = fieldValue;
     }
 
     html += this.formatTransform(value, i);
