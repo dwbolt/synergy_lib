@@ -39,19 +39,33 @@ parseCSV(  // csvClass: client-side
   this.rowStart   = 0;        // pointer to where we are parsing
   this.valueStart = 0;        // start of valueStart
   this.row        = 0;        // row of csv file we have completed parsing
+  this.row_old    = 0;
   this.rowEnd     = false;
   this.delimiter  = ',';      // assume our delimter is a Comma
   this.quote      = '"';      // assume strings with quotes, comma's or crlf are quoted with double quotes
-
+  this.display    = new Date();
   // now loop and put everything else in json.rows
   while ( this.valueStart < this.csv.length) {
     // now add all the data
     this.parseRow();
-    if (typeof(this.DOM) === "object") {
-      // if DOMid was passed in, let user know status of parse
-      this.DOM.innerHTML = this.row + " rows parsed";
+    if (1000 < (new Date() - this.display)  ) {
+      // display progress every second
+      /*
+      this.DOM.innerHTML = 
+      `${this.row} rows parsed total - ${this.row - this.row_old} rows parsed this time slice `;
+             */
+
+      console.log(`${this.row} rows parsed total - ${this.row - this.row_old} rows parsed this time slice `);
+      this.row_old = this.row;
+      this.display = new Date();
+
     }
   }
+
+  // force save if use presses save button
+  const changes = this.table.getJSON().changes;
+  changes.import = true;  
+
 
   // create meta data
   const select = this.table.meta_get("select");
@@ -163,6 +177,7 @@ parse(){  // csvClass: client-side
   }
 
   this.testEndRow(e);
+  //return(v)
   if (isNaN(v)) {
     return(v); // return string value in array
   } else {

@@ -310,13 +310,13 @@ async buildTable(  // calendarClass  client-side
   const t      = this.db.getTable("weekCal");  // t -> table we will put event data in to display
   //t.clearRows();  // may need to write cashe clear
   const fields = t.meta_get("fields");
-  fields["0"]  = {"header":"Sunday"   };
-  fields["1"]  = {"header":"Monday"   };
-  fields["2"]  = {"header":"Tuesday"  };
-  fields["3"]  = {"header":"Wednesday"};
-  fields["4"]  = {"header":"Thursday" };
-  fields["5"]  = {"header":"Friday"   };
-  fields["6"]  = {"header":"Saturday" };
+  fields["0"]  = {"header":"Sunday"   ,"location": "column"};
+  fields["1"]  = {"header":"Monday"   ,"location": "column"};
+  fields["2"]  = {"header":"Tuesday"  ,"location": "column"};
+  fields["3"]  = {"header":"Wednesday","location": "column"};
+  fields["4"]  = {"header":"Thursday" ,"location": "column"};
+  fields["5"]  = {"header":"Friday"   ,"location": "column"};
+  fields["6"]  = {"header":"Saturday" ,"location": "column"};
 
   t.set_select(["0","1","2","3","4","5","6"]);  // select all the fields
 
@@ -331,7 +331,7 @@ async buildTable(  // calendarClass  client-side
   this.login_status = await app.login.getStatus();  // cashe login status for duration of load and buil
 
   for (let x=0; start.getFullYear()<=year ;x++) {
-    let row = []; // init week
+    //let row = []; // init week
     for (let y=0; y<=6; y++) {
       // add days for week
       let m = start.getMonth()+1;
@@ -365,10 +365,11 @@ async buildTable(  // calendarClass  client-side
         html += `<p>${editButton}<a  href="${edge.url}"   target="_blank" class="${repeat_class}">${edge.name}</a></p>`
       }
 
-      row.push(html + "</br>")
+      //row.push(html + "</br>")
+      t.add_column_value(x.toString(),y.toString(), html + "</br>")
       start.setDate( start.getDate() + 1 ); // move to next day
     }
-    t.appendRow(row);  // append row to table
+    //t.appendRow(row);  // append row to table
   }
 }
   

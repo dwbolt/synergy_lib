@@ -7,9 +7,9 @@ provides methods that agreate rows similar to SQL groupBY
 
 
 constructor() { // groupByClass - client-side
-  this.aggObj = {};  // place to put info from agg call back functions;
+  //this.aggObj = {};  // place to put info from agg call back functions;
   this.table;        // pointer to table object
-  this.groups = {};  // object, each attribute is a group name with an object value with group details,
+  //this.groups = {};  // object, each attribute is a group name with an object value with group details,
 }
 
 
@@ -20,7 +20,24 @@ groupBy(  // groupByClass - client-side
 //  ,l = null     // null -> entire table, list of rows to group [3,5, 3 ...]  usually  a subset of the the table
 ) {
   this.table = table;  // save the table pointer for later methods
-  let j=table.getJSON();  // 
+  //let j=table.getJSON();  // 
+
+  // walking the columns -- only works for an array with one value for now.
+  const ret = {}
+  for(var i=0; i<a_g.length; i++){
+    let field = table.getJSON().columns[a_g[i]];
+    let pk = Object.keys(field);
+    // walking values column
+    for(var ii=0; ii<pk.length; ii++){
+      let value = field[pk[ii]];
+      if (typeof(ret[value]) === "undefined") {
+        ret[value] = [];
+      }
+      ret[value].push(pk[ii]);  //  add the PK to array
+    }
+  }
+
+  return ret;
 
   // covert array of string field names to array of index values
   /*
@@ -28,7 +45,7 @@ groupBy(  // groupByClass - client-side
   a_g.forEach((fieldName, i) => {
     a_gv.push(j.field[fieldName]);
   });
-*/
+
 
   let field = j.field;
   // walk through table list
@@ -50,7 +67,7 @@ groupBy(  // groupByClass - client-side
       // add rowindex to existing group
       this.groups[attributeName].rowIndex.push(i);
     }
-  });
+  });*/
 }
 
 

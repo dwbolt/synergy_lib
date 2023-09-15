@@ -479,7 +479,7 @@ addNewRepeatMonthy(  // calendarEditClass  client-side
     <option value="5">          Friday   </option>
     <option value="6">          Saturday </option>
   </select>
-  <a onclick="app.calendar.edit.removeMonthlySelector(this)" class="removeMonthlySelectorButton">-</a>
+  <a onclick="app.page.edit.removeMonthlySelector(this)" class="removeMonthlySelectorButton">-</a>
 </div>
 `
 }

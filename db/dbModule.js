@@ -36,20 +36,21 @@ async load(  // dbClass - client-side
   this.#url     = url;
 
   // load list of tables in database
-  let obj;
-  do {
-    obj  = await app.proxy.getJSONwithError(this.#url);   // get list of tables
+  const obj = await app.proxy.getJSONwithError(this.#url);   // get list of tables;
+  //do {
     if(obj.json === null) {
-      alert(`missing or bad file="${this.#url}", replacing with default table list`);
+      alert(`dbModule.js method="load" missing or bad file="${this.#url}"`);
       // missing or ill formed json file, so store an empty good one 
+      /*
       await app.proxy.RESTpost(
         `{
           "meta":{
             "tables": {"people":{"location":"people"}}
           }}`
         ,this.#url)
+        */
     }
-  } while (obj.json === null);
+//  } while (obj.json === null);
   this.#json  = obj.json; 
 
   // load json table file
@@ -93,7 +94,7 @@ displayMenu( // dbClass - client-side
   ,selectTable  // onchange function to execute
 ) {
   // build menu list
-  let html = `<select size="4" onclick="${selectTable}">`;
+  let html = `<select size="9" onclick="${selectTable}">`;
 
   Object.entries(this.tables).forEach((table, i) => {
     html += `<option value="${table[0]}">${table[0]}</option>`;
@@ -133,28 +134,26 @@ clearData( // dbClass - client-side
 async save(  // dbClass - client-side
   // save changed loaded tables to disk
 ) {
+  let save_new_meta  = false
   const keys = Object.keys(this.tables);  // keys to loaded tables
-  let save_meta = false;                  // assume no new tables were created
-
   // walking all tables in database to see if they have canged or or new
   for(var i=0; i< keys.length; i++) {
     // save all loaded tables that have changed
     await this.tables[keys[i]].save2file();  // will return quickly if no changes
     if ( typeof(this.#json.meta.tables[keys[i]]) ===  "undefined") {
-      // have a new table, add it to meta data
       this.#json.meta.tables[keys[i]] = {"location": keys[i], comments: "imported table"}
-      save_meta = true;
+      save_new_meta = true;
     }
   }
 
-  if (save_meta) {
-    // there is a new table so save updated meta data for database
+  if (save_new_meta) {
+    // have a new table or tables, add it to meta data
     await app.proxy.RESTpost(
-`{
-  "meta":{
-    "tables": ${JSON.stringify(this.#json.meta.tables)}
-  }
-}`, this.#url);
+      `{
+        "meta":{
+          "tables": ${JSON.stringify(this.#json.meta.tables)}
+        }
+      }`, this.#url);
   }
 }
 

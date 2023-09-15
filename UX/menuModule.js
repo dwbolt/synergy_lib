@@ -9,7 +9,10 @@ this can be thought of as "colmn menu" simlar to selecting files in column view.
 
 constructor(DOMid){ // menuClass- client side  client-side
   this.#DOMid = DOMid;   // where menu is displayed
-  document.getElementById(DOMid).innerHTML = `
+}
+
+init(){
+  document.getElementById(this.#DOMid).innerHTML = `
   <table>
   <caption></caption>
   <tr id='${this.#DOMid}_row'></tr>

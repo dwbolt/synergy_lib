@@ -237,8 +237,8 @@ dateNode(  // nodes2htmlClass - client-side
   const now = new Date();
 
   a_date.forEach((date, i) => {
-    start =    app.calendar.createDate(date);
-    end   =    app.calendar.createDate(date,true);
+    start =    app.page.createDate(date);
+    end   =    app.page.createDate(date,true);
     if (start<now && now<end) { // current date is in between start and end
       if        (date.repeat === "monthly") {
         let day   =    app.format.getDayOfWeek(date.days[0][0]);

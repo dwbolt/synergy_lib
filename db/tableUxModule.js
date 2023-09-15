@@ -1,6 +1,7 @@
 import {dbClass            } from '/_lib/db/dbModule.js'           ;
 import {groupByClass       } from '/_lib/db/groupByModule.js'      ;
 import {recordUxClass      } from '/_lib/db/recordUxModule.js'     ;
+import {tableClass         } from '/_lib/db/tableModule.js'     ;
 import {select_order_class } from '/_lib/UX/select_order_module.js';
 
 
@@ -123,17 +124,37 @@ groupby(  // tableUxClass - client-side
   // user clicked group by button, so create a group by table and display it
 
   // create groupby instance   
-  const g = new groupByClass();           
-  g.groupBy(this.model, this.groupby_fields.selected()); // create groups
+  const groupby_fields = this.groupby_fields.selected();     // user selected
+  const g              = new groupByClass();      
+  const list = g.groupBy(this.model, groupby_fields); // create groups
 
   // convert info in groupByClass to table
-  const t = new tableClass();           // create blank table to put data in
-  t.setHeader([field,"Count"]);
-  const keys = Object.keys(g.groups);  // keys an array of
+  const table  = new tableClass();           // create blank table to put data in
+  const fields = table.meta_get("fields");
+  groupby_fields.forEach((field, index) => {
+    fields[field]          = {};
+    fields[field].header   = index;
+    fields[field].location = "column";
+    fields[field].type     = "string";
+  });
+  fields.count            = {};
+  fields.count.header     = "Count";
+  fields.count.location   = "column";
+  fields.count.type       = "number";
 
-  // walk the group object, append a table row for each object
+  fields.pk_list          = {};
+  fields.pk_list.header   = "pk_list";
+  fields.pk_list.location = "column";
+  fields.pk_list.type     = "array";
+
+  const keys = Object.keys(list);  // keys an array of
+
+  // add data to table
   keys.forEach((key, index) => {
-    t.appendRow([key,g.groups[key].rowIndex.length])
+    //t.appendRow([key,g.groups[key].rowIndex.length])
+    table.add_column_value(key,"0"      ,key             );
+    table.add_column_value(key,"count"  ,list[key].length);
+    table.add_column_value(key,"array"  ,list[key]       );
   });
 
 

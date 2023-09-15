@@ -54,26 +54,24 @@ get_value(  // tableClass - client-side
   pk
   ,field
 ) {
-  const location = this.#json.meta.fields[field].location;
-  switch(location) {
+  const meta_field = this.#json.meta.fields[field];
+  switch(meta_field.location) {
     case "column":
       return this.#json.columns[field][pk];
-      break;
-
     case "row":
-      // code block
+      return this.#json.rows[this.#json.PK[pk]][meta_field.parm];
     case "multi":
-      // code block
+      return this.#json.multi[this.#json.PK[pk]]
     default:
       // code block
-      alert(`error tableModule.js method:get_value location=${location}`)
+      alert(`error tableModule.js method:get_value meta_field.location=${meta_field.location}`)
   }
 }
 
 add_column_value( // tableClass - client-side
-  pk // primary key
-  ,column_name //
-  ,column_value //
+   pk             // primary key
+  ,column_name    //
+  ,column_value   //
 ){
 
   if (typeof(this.#json.PK[pk]) === "undefined") {
@@ -122,14 +120,16 @@ async load(  // tableClass - client-side
   ) { 
   this.#url = url;
   let obj;
-  do {
+  //do {
     obj  = await app.proxy.getJSONwithError(this.#url);   // get table in database
     if(obj.json === null) {
-      alert(`missing or bad file="${this.#url}", replacing with default table struture`);
+      alert(`missing or bad file="${this.#url}"`);
+      // add code to not show table in db menu
+      return;
       // missing or ill formed json file, so store an empty good one 
-      await app.proxy.RESTpost(this.default_table_structure() ,this.#url)
+      //await app.proxy.RESTpost(this.default_table_structure() ,this.#url)
     }
-  } while (obj.json === null);
+  //} while (obj.json === null);
   this.#json  = obj.json; 
   this.setHeader();
 
@@ -248,7 +248,8 @@ async save2file( // tableClass - client-side
   if (0<changes.length) {
     // only save file if there are changes to the table or it is new
     //const msg   = await app.proxy.RESTpost( this.genTable() ,this.#url);
-    const msg   = await app.proxy.RESTpost( app.format.obj2string(this.#json) ,this.#url);
+    const file = app.format.obj2string(this.#json) 
+    const msg   = await app.proxy.RESTpost( file, this.#url);
 
     alert(`
       file=${this.#url}

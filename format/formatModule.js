@@ -163,7 +163,7 @@ obj2string( // formatClass - client-side
   try {
     if        (typeof(obj) === "string") {
       str = `"${this.escStringForJson(obj)}"`;
-    } else if (typeof(obj) === "number") {
+    } else if (typeof(obj) === "number" || typeof(obj) === "boolean") {
       str = obj.toString();
     } else if (Array.isArray(obj)) {                  // code assume array has no gaps   a[0]=""   a[2]=""  has gap of a[]1
       str = "";  // add new line for object
