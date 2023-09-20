@@ -92,11 +92,16 @@ display(        // tableUxClass - client-side
   <thead></thead>
   <tbody></tbody>
   <tfoot></tfoot>
-  </table>
-  <div id ="${this.DOMid}__group_by" hidden=true>
-  <p id="${this.DOMid}__group_by_fields"></p>
-  <p id="${this.DOMid}__group_by_table"></p>
-  </div>`;
+  </table>`;
+debugger;
+/*
+  document.getElementById(this.DOMid)_group_agg.innerHTML = `
+<p id="${this.DOMid}_columns_group_by"></p>
+<p id="${this.DOMid}_columns_agg"></p>
+</div>`
+;
+*/
+
 
   // add fields to group by
   this.groupby_fields = new select_order_class(`${this.DOMid}__group_by_fields`,`${this.globalName}.groupby_fields`);
