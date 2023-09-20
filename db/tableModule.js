@@ -123,7 +123,7 @@ async load(  // tableClass - client-side
   //do {
     obj  = await app.proxy.getJSONwithError(this.#url);   // get table in database
     if(obj.json === null) {
-      alert(`missing or bad file="${this.#url}"`);
+      alert(`file="tableModule.js" method="load" missing or bad file="${this.#url}"`);
       // add code to not show table in db menu
       return;
       // missing or ill formed json file, so store an empty good one 

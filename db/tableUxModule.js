@@ -93,7 +93,6 @@ display(        // tableUxClass - client-side
   <tbody></tbody>
   <tfoot></tfoot>
   </table>`;
-debugger;
 /*
   document.getElementById(this.DOMid)_group_agg.innerHTML = `
 <p id="${this.DOMid}_columns_group_by"></p>
