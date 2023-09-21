@@ -2,19 +2,19 @@ import  {proxyClass   }   from '/_lib/proxy/proxyModule.js'  ;
 
 class loginClass { // loginClass - client side
 
-/* code modifed from harmony
-  constructor(
-buildForm(
-onEnter  - looks ad key press and tries to logsin if ender in pressed
-getStatus
-login - send to server and try to login
-logout() - logs user out of server
+  /*
+  state: not logged in
+    login
+    create user
 
-// move to server?
-string2digestBase64(
-  -----------
-*/
+  state: logged in
+    logout
+    update info
+      change pasword
+      update user data
 
+
+  */
 
 constructor(  // loginClass - client side
 ) {
@@ -248,7 +248,7 @@ async login( // loginClass - client side
 
 
 displayUser( dom){
-  document.getElementById(dom).innerHTML = `${sessionStorage.user} - ${localStorage.nameLast }, ${localStorage.nameFirst} `
+  document.getElementById(dom).innerHTML = `${localStorage.user} - ${localStorage.nameLast }, ${localStorage.nameFirst} `
 }
 
 
