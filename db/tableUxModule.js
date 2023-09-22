@@ -93,19 +93,11 @@ display(        // tableUxClass - client-side
   <tbody></tbody>
   <tfoot></tfoot>
   </table>`;
-/*
-  document.getElementById(this.DOMid)_group_agg.innerHTML = `
-<p id="${this.DOMid}_columns_group_by"></p>
-<p id="${this.DOMid}_columns_agg"></p>
-</div>`
-;
-*/
-
 
   // add fields to group by
   this.groupby_fields = new select_order_class(`${this.DOMid}__group_by_fields`,`${this.globalName}.groupby_fields`);
   this.groupby_fields.set_template(
-    `<input type="button" value="Search"   onclick="${this.globalName}.displayIntersection()"><br>
+    `<input type="button" value="Search"   onclick="${this.globalName}.display_intersection()"><br>
      <input type="button" value="group by" onclick="${this.globalName}.groupby()">
     `
   );
@@ -122,6 +114,14 @@ display(        // tableUxClass - client-side
   this.displayColumnTitles();
   this.displayData()        ;  // will display statusLine
   this.displayFooter()      ;
+}
+
+
+display_intersection(  // tableUxClass - client-side 
+
+){
+  const fields = this.groupby_fields.selected();
+// walk the fields and create 
 }
 
 
@@ -766,7 +766,7 @@ search( // tableUxClass - client-side
    eDom      // element where search and display is done.
   //,index = 2 // skip first two columns, there is not search values there
 ) {
-  let i, col;
+  let i;
   const c = eDom.children;  // array of <th> tags were search criteria are stored
   let searched = false;
   // look at search field, if something is not empty search for all
