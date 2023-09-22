@@ -105,7 +105,9 @@ display(        // tableUxClass - client-side
   // add fields to group by
   this.groupby_fields = new select_order_class(`${this.DOMid}__group_by_fields`,`${this.globalName}.groupby_fields`);
   this.groupby_fields.set_template(
-    `<input type="button" value="group by" onclick="${this.globalName}.groupby()">`
+    `<input type="button" value="Search"   onclick="${this.globalName}.displayIntersection()"><br>
+     <input type="button" value="group by" onclick="${this.globalName}.groupby()">
+    `
   );
   const fields = this.model.meta_get("fields");
   this.model.meta_get("select").forEach((field, i) => {
@@ -401,7 +403,7 @@ genTags(){ // tableUxClass - client-side
     options+=`<option value="${item}">${item}</option>`;
   });
 
-  return `<select onchange="app.tableUx.displayTagSelected(this)">
+  return `<select onchange="${this.globalName}.displayTagSelected(this)">
 <option value=null>all</option>
 ${options}
 </select>`

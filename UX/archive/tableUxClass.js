@@ -281,7 +281,7 @@ genTags(){
     options+=`<option value="${item}">${item}</option>`;
   });
 
-  return `<select onchange="app.tableUx.displayTagSelected(this)">
+  return `<select onchange="${this.globalName}.displayTagSelected(this)">
 <option value=null>all</option>
 ${options}
 </select>`
@@ -312,9 +312,9 @@ statusLine(
     } else if (item === "rows/page") {
       html += `rows/page: <input type="number" min="1" max="999" value="${this.paging.lines}" onchange="${this.globalName}.changePageSize(this)"/>`
     } else if (item === "download") {
-      html += `<input type="button" onclick="app.tableUx.export()" value="Download CSV"/> <a id='download_link'>ddd</a>`
+      html += `<input type="button" onclick="${this.globalName}.export()" value="Download CSV"/> <a id='download_link'>ddd</a>`
     } else if (item === "groupBy") {
-      html += `<input type="button" onclick="app.tableUx.groupBy()" value="Group"/>`
+      html += `<input type="button" onclick="${this.globalName}.groupBy()" value="Group"/>`
     } else {
       // custom
       html += item;
