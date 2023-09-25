@@ -118,10 +118,29 @@ display(        // tableUxClass - client-side
 
 
 display_intersection(  // tableUxClass - client-side 
-
 ){
-  const fields = this.groupby_fields.selected();
-// walk the fields and create 
+  const DOM    = document.getElementById(`${this.DOMid}__intersection`);  // get DOM to fill with select values
+  const fields = this.groupby_fields.selected();                          // fields to intersect search
+  let f        = this.model.meta_get("fields");                           // 
+  let html     = ""                                                       // init html
+
+  for (var i=0; i<  fields.length; i++) {
+    // add selection and file with values
+    html += `<input  id="${this.DOMid}_${f[i]}_search” type=“text” onchange="alert('change')"><br>`;
+/*
+    html += `<div style="width: 200px;  resize:both; overflow:scroll;'">
+    <select id="${this.DOMid}_${f[i]}" size="15">`
+    */
+    html += `<select id="${this.DOMid}_${fields[i]}" size=10 style="width:600; resize:both; overflow:scroll;">`
+
+    let unique_values = this.model.get_unique_values(fields[i]);
+    for(var ii=0; ii<unique_values.length; ii++) {
+      html += `<option>${unique_values[ii]}</option>`
+    }
+    html + "<select>";
+  } 
+
+  DOM.innerHTML = html;
 }
 
 

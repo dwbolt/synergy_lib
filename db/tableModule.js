@@ -68,6 +68,38 @@ get_value(  // tableClass - client-side
   }
 }
 
+
+get_unique_values(// tableClass - client-side
+  field_name
+){
+  if (!this.#json.unique_values            )  {
+    // init if needed
+    this.#json.unique_values             = {}
+  }
+
+  if (!this.#json.unique_values[field_name])  {;
+    // build, if it does not exist
+    const unique_values = this.#json.unique_values[field_name] = {};
+    let pk = this.get_PK();
+    // walk entire column/field
+    for(var i=0; i<pk.length; i++){
+      let value = this.get_value(pk[i],field_name);
+      if(value) {
+        if(!unique_values[value]) {
+          // init
+          unique_values[value] = []
+        }
+        // add pk to list for value
+        unique_values[value].push(pk[i]);  // remember pk assocated with value
+      }
+    }
+  }
+
+  // make sure this.#json.unique_values is changed
+  return Object.keys(this.#json.unique_values[field_name] );
+}
+
+
 add_column_value( // tableClass - client-side
    pk             // primary key
   ,column_name    //
@@ -111,7 +143,8 @@ meta_get(  // tableClass - client-side
 get_PK( // tableClass - client-side
 ) {
   // array of PK keys for entire table;
-  return Object.keys(this.#json.meta.PK);
+  //return Object.keys(this.#json.meta.PK);
+  return Object.keys(this.#json.PK);
 }
 
 
