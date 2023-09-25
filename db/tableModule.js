@@ -100,6 +100,15 @@ get_unique_values(// tableClass - client-side
 }
 
 
+
+get_unique_pks(// tableClass - client-side
+  field_name
+  ,value
+){
+  // return list of pks that have
+  return this.#json.unique_values[field_name][value];
+}
+
 add_column_value( // tableClass - client-side
    pk             // primary key
   ,column_name    //

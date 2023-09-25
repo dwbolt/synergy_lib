@@ -127,17 +127,15 @@ display_intersection(  // tableUxClass - client-side
   for (var i=0; i<  fields.length; i++) {
     // add selection and file with values
     html += `<input  id="${this.DOMid}_${f[i]}_search” type=“text” onchange="alert('change')"><br>`;
-/*
-    html += `<div style="width: 200px;  resize:both; overflow:scroll;'">
-    <select id="${this.DOMid}_${f[i]}" size="15">`
-    */
-    html += `<select id="${this.DOMid}_${fields[i]}" size=10 style="width:600; resize:both; overflow:scroll;">`
-
+    html += `<div id="${this.DOMid}_${fields[i]}" style="display:grid; grid-template-columns:100px 600px;">`
+    html += `<div><b>Count</b></div><div><b>${fields[i]}</b></div>` // header
     let unique_values = this.model.get_unique_values(fields[i]);
-    for(var ii=0; ii<unique_values.length; ii++) {
-      html += `<option>${unique_values[ii]}</option>`
+    for(var ii=0; ii<Math.min(10,unique_values.length); ii++) {
+      html += 
+      `<div>${this.model.get_unique_pks(fields[i],unique_values[ii]).length}</div>
+      <div>${unique_values[ii]}</div>`
     }
-    html + "<select>";
+    html + "</div>";
   } 
 
   DOM.innerHTML = html;
