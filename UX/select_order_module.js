@@ -30,7 +30,10 @@ clear_choices(){  // select_order_class - client side
 
 
 set_template(buttons) {  // select_order_class - client side
-	document.getElementById(this.DOMid).innerHTML = `
+	const dom = document.getElementById(this.DOMid);
+	if (!dom) return;  // do not like this code, refactor dwb 09/25/23
+
+	dom.innerHTML = `
 	<table>
 	<tr>
 	<td>
@@ -86,6 +89,8 @@ add_choice(  // select_order_class - client side
 add_choices( // select_order_class - client side
 ){
 	const choices = document.getElementById(`${this.DOMid}_choice`);
+	if(!choices) {return;}  // refactor
+
 	let html = "";
 	for(var i=0; i<this.count; i++) {
 		let value = this.order[i]
