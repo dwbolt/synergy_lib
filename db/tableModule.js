@@ -260,6 +260,9 @@ PK_create(){
   
   // walk to entire table and index on column key
   const rows = this.getRows();
+  if (!rows) {
+    return;  // no rows, so return
+  }
   for (var i=0; i< rows.length; i++) {
     let value = rows[i][0];  // the PK is always the starting column
     this.#json.PK[value]=i;  // store the row number 

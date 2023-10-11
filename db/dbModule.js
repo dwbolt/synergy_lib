@@ -62,7 +62,8 @@ async load(  // dbClass - client-side
   this.tables = {};
   for (let i=0; i<table_names.length; i++) {
     const table = new tableClass();
-    await table.load(`${this.#urlList}/${table_names[i]}/_.json`);
+    const table_url = `${this.#urlList}/${table_names[i]}/_.json`;
+    await table.load(table_url);
     this.tables[table_names[i]] = table;  // add table to database
   }
 }
