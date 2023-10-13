@@ -59,7 +59,7 @@ get_value(  // tableClass - client-side
     case "column":
       return this.#json.columns[field][pk];
     case "row":
-      return this.#json.rows[this.#json.PK[pk]][meta_field.parm];
+      return this.#json.rows[this.#json.PK[pk]][meta_field.param];
     case "multi":
       return this.#json.multi[this.#json.PK[pk]]
     default:
@@ -191,12 +191,29 @@ get_object( // tableClass - client-side
   id        // primary key of row/object
   ){ 
   // 
-  let object = {};
+  let object = {}, value;
   const select = this.#json.meta.select;  // list of object attributes 
+
   for(let i=0; i<select.length ;i++){
     // assume row, need to add other cases
-    let row_number = this.#json.meta.PK[id]; // ger row number from primary key index
-    let value = this.#json.rows[row_number][this.get_field(i,"param")];
+    const field_name = select[i];
+    const  location = this.#json.meta.fields[field_name].location;
+    switch(location) {
+      case "row":
+        // data is in row
+        let row_number = this.#json.meta.PK[id]; // ger row number from primary key index
+        value = this.#json.rows[row_number][this.get_field(i,"param")];
+        break;
+      case "column":
+        // data is in column
+        value = this.#json.columns[field_name][id];
+        break;
+      default:
+        // code block
+        alert(`error: class="tableClass" method="get_object" location="${location}"`)
+    }
+
+
     if (value) {
       object[select[i]] = value;
     }
@@ -392,7 +409,7 @@ get_field( // tableClass - client-side
   ,attribute  // header or type or location..
   ){
   const field_name = this.#json.meta.select[i];
-
+  /*
   switch(attribute){
   case "header":
     return this.#json.meta.fields[field_name][0];
@@ -405,7 +422,8 @@ get_field( // tableClass - client-side
   default:
     alert(`error in "tableModule.js" method="get_field" i="${i}"  field="${field}"`); 
   }
-  return null;
+  */
+  return this.#json.meta.fields[field_name][attribute];
   }
 
 

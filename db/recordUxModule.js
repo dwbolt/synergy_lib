@@ -1,5 +1,3 @@
-//import {groupByClass} from '/_lib/db/groupByModule.js';
-
 class recordUxClass { // recordUxClass - client-side
 
   //////////////////////////////////////////////////////
@@ -15,7 +13,8 @@ class recordUxClass { // recordUxClass - client-side
 constructor( // recordUxClass - client-side
    tableUX       // where table will be displayed
 ) {
-  this.tableUX = tableUX
+  this.tableUX    = tableUX;
+  this.globalName = tableUX.globalName + ".recordUX";
 }
 
 show(  // client side dbUXClass - for a page
@@ -62,26 +61,26 @@ location = table.get_field(i,"location");
     html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td> <td>${rowValue}</td></tr>`
   }
   html += "</table>"
-
-  html += `<p id="buttons_record">
-    <input hidden type='button' value='New'       onclick='app.page.recordNew()'>
-    <input hidden type='button' value='Add'       onclick='app.page.recordAdd()'>
-    <input hidden type='button' value='Duplicate' onclick='app.page.recordDuplicate()'>
-
-    <input hidden type='button' value='Edit'       onclick='app.page.recordEdit(true)'> 
-    <input hidden type='button' value='Delete'     onclick='app.page.recordDelete()'> 
-    <input hidden type='button' value='Save'       onclick='app.page.recordSave()'>
-
-    <input hidden type='button' value='Cancel'    onclick='app.page.recordCancel()'> </p>
-`
   document.getElementById(this.tableUX.DOMid + "_record").innerHTML = html;
 
   // show buttons
+  document.getElementById(this.tableUX.DOMid + "_record_buttons").innerHTML =
+  `
+  <input hidden type='button' value='New'       onclick='${this.globalName}.new()'>
+  <input hidden type='button' value='Add'       onclick='${this.globalName}.add()'>
+  <input hidden type='button' value='Duplicate' onclick='${this.globalName}.duplicate()'>
+
+  <input hidden type='button' value='Edit'       onclick='${this.globalName}.edit(true)'> 
+  <input hidden type='button' value='Delete'     onclick='${this.globalName}.delete()'> 
+  <input hidden type='button' value='Save'       onclick='${this.globalName}.save()'>
+
+  <input hidden type='button' value='Cancel'    onclick='${this.globalName}.cancel()'>
+`
   this.buttonsShow("New Duplicate Edit  Delete Cancel");
 
   // show relations
   // need to set filters to only things connected to record
-  this.display_relations("tableUXRelations");
+  app.spa.display_relations("tableUXRelations");
 }
 
 
@@ -89,7 +88,7 @@ buttonsShow( // client side dbUXClass - for a page
   // "New Add  Edit Duplicate Delete Save  Cancel"
   s_values   // walk through id=Buttons and show all in the list   
 ){  // client side dbUXClass - for a page
-  let button = document.getElementById("buttons_record").firstChild;
+  let button = document.getElementById(this.tableUX.DOMid + "_record_buttons").firstChild;
   while(button) {
     button.hidden = (s_values.includes(button.value) ? 
       false  // show button
@@ -200,8 +199,8 @@ save(){  // client side dbUXClass - for a page
 new(){// client side dbUXClass - for a page
   //
   const table = this.tableUX.getModel();  // get tableClass being displayed
-  table.bufferCreateEmpty(1);
-  this.recordEdit(false);
+  //table.bufferCreateEmpty(1);
+  this.edit(false);
   this.buttonsShow("Add Cancel");
 }
 
