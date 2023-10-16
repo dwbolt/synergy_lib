@@ -15,6 +15,20 @@ constructor( // recordUxClass - client-side
 ) {
   this.tableUX    = tableUX;
   this.globalName = tableUX.globalName + ".recordUX";
+
+  // create buttons
+  document.getElementById(this.tableUX.DOMid + "_record_buttons").innerHTML =
+  `
+  <input hidden type='button' value='New'       onclick='${this.globalName}.new()'>
+  <input hidden type='button' value='Add'       onclick='${this.globalName}.add()'>
+  <input hidden type='button' value='Duplicate' onclick='${this.globalName}.duplicate()'>
+
+  <input hidden type='button' value='Edit'       onclick='${this.globalName}.edit(true)'> 
+  <input hidden type='button' value='Delete'     onclick='${this.globalName}.delete()'> 
+  <input hidden type='button' value='Save'       onclick='${this.globalName}.save()'>
+
+  <input hidden type='button' value='Cancel'    onclick='${this.globalName}.cancel()'>
+`
 }
 
 show(  // client side dbUXClass - for a page
@@ -64,18 +78,6 @@ location = table.get_field(i,"location");
   document.getElementById(this.tableUX.DOMid + "_record").innerHTML = html;
 
   // show buttons
-  document.getElementById(this.tableUX.DOMid + "_record_buttons").innerHTML =
-  `
-  <input hidden type='button' value='New'       onclick='${this.globalName}.new()'>
-  <input hidden type='button' value='Add'       onclick='${this.globalName}.add()'>
-  <input hidden type='button' value='Duplicate' onclick='${this.globalName}.duplicate()'>
-
-  <input hidden type='button' value='Edit'       onclick='${this.globalName}.edit(true)'> 
-  <input hidden type='button' value='Delete'     onclick='${this.globalName}.delete()'> 
-  <input hidden type='button' value='Save'       onclick='${this.globalName}.save()'>
-
-  <input hidden type='button' value='Cancel'    onclick='${this.globalName}.cancel()'>
-`
   this.buttonsShow("New Duplicate Edit  Delete Cancel");
 
   // show relations
@@ -88,7 +90,7 @@ buttonsShow( // client side dbUXClass - for a page
   // "New Add  Edit Duplicate Delete Save  Cancel"
   s_values   // walk through id=Buttons and show all in the list   
 ){  // client side dbUXClass - for a page
-  let button = document.getElementById(this.tableUX.DOMid + "_record_buttons").firstChild;
+  let button = document.getElementById(this.tableUX.DOMid + "_record_buttons").firstElementChild;
   while(button) {
     button.hidden = (s_values.includes(button.value) ? 
       false  // show button
@@ -97,6 +99,7 @@ buttonsShow( // client side dbUXClass - for a page
   }
 }
 
+/* old row based edit
 edit(  // client side dbUXClass
   edit_type // true -> edit table record    false -> edit buffer record
 ){// client side dbUXClass - for a page
@@ -154,7 +157,65 @@ edit(  // client side dbUXClass
   document.getElementById("record").innerHTML = html;
   this.buttonsShow("Save Cancel");
 }
+*/
 
+edit(  // client side dbUXClass
+  edit_type // true -> edit table record    false -> edit new record
+){// client side dbUXClass - for a page
+  this.#edit_type = edit_type;
+  let html = "<table>";
+  const table  = this.tableUX.getModel();  // get tableClass being displayed
+  const select = table.meta_get("select"); // array of fields to work with
+  const header = table.getHeader();
+  
+  let multi_value,location,type,field;
+  for(var i=0; i<select.length; i++) {
+    field    = select[i];
+    location = table.get_field(i,"location");
+    type     = table.get_field(i,"type");
+    if (type === "PK") {
+      // do not allow editing of primary key
+      html += `<tr><td>${header[i]}</td> <td>${row[table.get_field(i,"param")]}</td></tr>`
+      this.#primary_key_value = row[i];
+    } else {
+      let value;  
+      switch(location) {
+        case "multi":
+          // multi value
+          let multi = table.get_multi(this.#primary_key_value, i);
+          html += `<tr><td>${header[i]}</td> <td>`;
+          for(let ii=0; ii<multi.length; ii++){
+            html += 
+            `<input id='edit-${type}-label-${ii}'   type='text' value='${multi[ii][0]}'></input>
+            <input id='edit-${type}-value-${ii}'   type='text' value='${multi[ii][1]}'></input>
+            <input id='edit-${type}-comment-${ii}' type='text' value='${multi[ii][2]}'></input><br>
+            `
+          }
+          html += "</td></tr>";
+          break;
+        case "row":
+          // single value
+          value = row[table.get_field(i,"param")];
+          if (typeof(value) === "undefined") {
+            value="";  // assume string, code neeed to init default type.
+          }
+          html += `<tr><td>${header[i]}</td> <td><input id='edit-${i}' type='text' value='${value}'></td></tr>`
+          break;
+        case "column":
+          // single value
+          value = table.get_column(this.#primary_key_value,i);
+          html += `<tr><td>${header[i]}</td> <td><input id='edit-${i}' type='text' value='${value}'></td></tr>`
+          break;
+        default:
+          // 
+      }
+      
+    }
+  }
+  html += "</table>";
+  document.getElementById("record").innerHTML = html;
+  this.buttonsShow("Save Cancel");
+}
 
 save(){  // client side dbUXClass - for a page
   // save to memory
