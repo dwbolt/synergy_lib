@@ -570,8 +570,131 @@ genCSVrow( // tableClass - client-side
 }
 
 
-//////////////////////////////////     buffer methods
+genRows() {  // tableClass - client-side
+  // creating text file to save
+  let txt="";
 
+  this.#json.rows.forEach((r, i) => {
+    // will only work for numbers, strings, boolean
+    //  Will not work for dates, objects, etc...
+    txt += ","+JSON.stringify(r)+"\n"
+  })
+
+  return " "+ txt.slice(1)  // replace leading comma with a space
+}
+
+
+genTable(  // tableClass - client-side
+// create JSON file to store table for later retrivial
+) {
+  return `{
+ "fieldA"      :${JSON.stringify(this.#json.fieldA     )}
+,"header"     :${JSON.stringify(this.#json.header      )}
+,"deleted"    :${JSON.stringify(this.#json.deleted     )} 
+,"PK"         :${JSON.stringify(this.#json.PK          )}
+,"PK_max"     :${JSON.stringify(this.#json.PK_max      )}
+
+,"rows": [
+${this.genRows()}]
+}`;
+}
+
+
+getColumnFormat(i) { // tableClass - client-side
+  let f = this.#json.columnFormat[i];
+  if (f === undefined) return "";
+  return f;
+}
+
+
+clearRows() {this.#json.rows = [];}  // tableClass - client-side
+
+
+total(  // tableClass - client-side
+  col  // integer of column
+) {
+  // add error checking for non-numbers
+  let total = 0;
+
+  // add col rows
+  this.#json.rows.forEach((row, i) => {
+    total += row[col];
+  });
+
+  return total;
+}
+
+
+unique(s_field) {  // tableClass - client-side
+  // return all the unique values in a table for the given field
+  const a=[];
+  const f=this.#json.field;
+  this.#json.rows.forEach((r) => {
+    let v = r[f[s_field]];
+    if (!a.includes(v)) {
+      a.push(v);
+    }
+  });
+
+  return a;
+}
+
+
+select(   // tableClass - client-side
+  f  // f is boolean function, returns true if we want the row included in the list
+) {
+  let a=[]  // return a list of indexes of table that match the selection criteria
+  let field = this.#json.field;
+  this.#json.rows.forEach((r, i) => {
+    // need to pass the test into the function, for now hard code
+    try {
+      if ( f(field, r) ) {
+        a.push(i);
+      }
+    }  catch(err) {
+      alert(`tableClass.select error=${err}`)
+    }
+  });
+  return a;
+}
+
+
+filter(  // tableClass - client-side
+  f  // f is boolean function, returns true if we want the row included in the list
+) {
+  return this.#json.rows.filter(f);
+}
+
+
+setJSON(j) {  // tableClass - client-side
+  // replace place holder of new table with data from loaded file
+  Object.entries(j).forEach((item, i) => {
+    this.#json[item[0]] = item[1];  // replace default value with loaded value
+  });
+}
+
+
+f(fieldName) { // tableClass - client-side
+  return this.#json.field[fieldName];
+}
+
+
+field( // tableClass - client-side
+  fieldA   // create the field attribute from the fieldA
+) {
+  if (fieldA) {
+    // set the field Array
+    this.#json.fieldA = fieldA
+  }
+
+  this.#json.field = {};
+  this.#json.fieldA.forEach((item, i) => {
+    this.#json.field[item] = i;
+  });
+}
+
+//////////////////////////////////     buffer methods
+/*
 getRowBuffer(index) {return (index ? this.#json.rowsBuffer[index] : this.#json.rowsBuffer);}
 
 
@@ -706,131 +829,7 @@ bufferAppend(  // tableClass - client-side
 
   // need to update other indexes
 }
-
-
-genRows() {  // tableClass - client-side
-  // creating text file to save
-  let txt="";
-
-  this.#json.rows.forEach((r, i) => {
-    // will only work for numbers, strings, boolean
-    //  Will not work for dates, objects, etc...
-    txt += ","+JSON.stringify(r)+"\n"
-  })
-
-  return " "+ txt.slice(1)  // replace leading comma with a space
-}
-
-
-genTable(  // tableClass - client-side
-// create JSON file to store table for later retrivial
-) {
-  return `{
- "fieldA"      :${JSON.stringify(this.#json.fieldA     )}
-,"header"     :${JSON.stringify(this.#json.header      )}
-,"deleted"    :${JSON.stringify(this.#json.deleted     )} 
-,"PK"         :${JSON.stringify(this.#json.PK          )}
-,"PK_max"     :${JSON.stringify(this.#json.PK_max      )}
-
-,"rows": [
-${this.genRows()}]
-}`;
-}
-
-
-getColumnFormat(i) { // tableClass - client-side
-  let f = this.#json.columnFormat[i];
-  if (f === undefined) return "";
-  return f;
-}
-
-
-clearRows() {this.#json.rows = [];}  // tableClass - client-side
-
-
-total(  // tableClass - client-side
-  col  // integer of column
-) {
-  // add error checking for non-numbers
-  let total = 0;
-
-  // add col rows
-  this.#json.rows.forEach((row, i) => {
-    total += row[col];
-  });
-
-  return total;
-}
-
-
-unique(s_field) {  // tableClass - client-side
-  // return all the unique values in a table for the given field
-  const a=[];
-  const f=this.#json.field;
-  this.#json.rows.forEach((r) => {
-    let v = r[f[s_field]];
-    if (!a.includes(v)) {
-      a.push(v);
-    }
-  });
-
-  return a;
-}
-
-
-select(   // tableClass - client-side
-  f  // f is boolean function, returns true if we want the row included in the list
-) {
-  let a=[]  // return a list of indexes of table that match the selection criteria
-  let field = this.#json.field;
-  this.#json.rows.forEach((r, i) => {
-    // need to pass the test into the function, for now hard code
-    try {
-      if ( f(field, r) ) {
-        a.push(i);
-      }
-    }  catch(err) {
-      alert(`tableClass.select error=${err}`)
-    }
-  });
-  return a;
-}
-
-
-filter(  // tableClass - client-side
-  f  // f is boolean function, returns true if we want the row included in the list
-) {
-  return this.#json.rows.filter(f);
-}
-
-
-setJSON(j) {  // tableClass - client-side
-  // replace place holder of new table with data from loaded file
-  Object.entries(j).forEach((item, i) => {
-    this.#json[item[0]] = item[1];  // replace default value with loaded value
-  });
-}
-
-
-f(fieldName) { // tableClass - client-side
-  return this.#json.field[fieldName];
-}
-
-
-field( // tableClass - client-side
-  fieldA   // create the field attribute from the fieldA
-) {
-  if (fieldA) {
-    // set the field Array
-    this.#json.fieldA = fieldA
-  }
-
-  this.#json.field = {};
-  this.#json.fieldA.forEach((item, i) => {
-    this.#json.field[item] = i;
-  });
-}
-
+*/
 
 } //  end  of // tableClass - client-side
 

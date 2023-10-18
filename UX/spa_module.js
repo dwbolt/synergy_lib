@@ -45,6 +45,17 @@ async main() { // appClass - client side
 	document.getElementById("main").innerHTML = await this.proxy.getText(`/synergyData/${this.pageName}/m_main.html`);
 }
 
+show(dom){ // appClass - client side
+	document.getElementById(dom).hidden = false;
+	document.getElementById(dom).style.visibility = true;
+}
+
+
+hide(dom) { // appClass - client side
+	document.getElementById(dom).hidden = true;
+	document.getElementById(dom).style.visibility = false;
+}
+
 
 } // end spa_class
 

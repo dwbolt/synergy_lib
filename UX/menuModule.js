@@ -12,6 +12,33 @@ constructor(DOMid){ // menuClass- client side  client-side
 }
 
 init(){
+
+}
+
+
+add(  // menuClass- client side
+  html    // html for menu
+  ){
+  const newMenue     = document.createElement('div');
+  newMenue.innerHTML = html;
+  newMenue.style     = "border-style: solid; margin:5px 5px 5px 5px; padding:5px 5px 5px 5px;";
+  document.getElementById(`${this.#DOMid}`).appendChild(newMenue);
+}
+
+
+deleteTo(  // menuClass- client side
+  index //
+  ) {
+  const e = document.getElementById(`${this.#DOMid}`);
+
+  while ( index < e.childElementCount ) {
+    e.removeChild(e.lastElementChild);
+  }
+}
+
+
+/*
+init(){
   document.getElementById(this.#DOMid).innerHTML = `
   <table>
   <caption></caption>
@@ -39,7 +66,9 @@ deleteTo(  // menuClass- client side
     e.removeChild(e.lastElementChild);
   }
 }
-  
+*/
+
+
 } // menuClass client-side  -end class
 
 export {menuClass} 

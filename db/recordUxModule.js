@@ -31,7 +31,7 @@ constructor( // recordUxClass - client-side
 `
 }
 
-show(  // client side dbUXClass - for a page
+show(  // client side recordUxClass - for a page
   element // dom element
 ){
   // recordShow
@@ -86,10 +86,10 @@ location = table.get_field(i,"location");
 }
 
 
-buttonsShow( // client side dbUXClass - for a page
+buttonsShow( // client side recordUxClass - for a page
   // "New Add  Edit Duplicate Delete Save  Cancel"
   s_values   // walk through id=Buttons and show all in the list   
-){  // client side dbUXClass - for a page
+){  // client side recordUxClass - for a page
   let button = document.getElementById(this.tableUX.DOMid + "_record_buttons").firstElementChild;
   while(button) {
     button.hidden = (s_values.includes(button.value) ? 
@@ -102,7 +102,7 @@ buttonsShow( // client side dbUXClass - for a page
 /* old row based edit
 edit(  // client side dbUXClass
   edit_type // true -> edit table record    false -> edit buffer record
-){// client side dbUXClass - for a page
+){// client side recordUxClass - for a page
   this.#edit_type = edit_type;
   let html = "<table>";
   const table  = this.tableUX.getModel();  // get tableClass being displayed
@@ -161,29 +161,30 @@ edit(  // client side dbUXClass
 
 edit(  // client side dbUXClass
   edit_type // true -> edit table record    false -> edit new record
-){// client side dbUXClass - for a page
+){// client side recordUxClass - for a page
   this.#edit_type = edit_type;
   let html = "<table>";
   const table  = this.tableUX.getModel();  // get tableClass being displayed
   const select = table.meta_get("select"); // array of fields to work with
-  const header = table.getHeader();
-  
-  let multi_value,location,type,field;
+  const fields = table.meta_get("fields");
+  let multi_value,location,type,field,value;
+
   for(var i=0; i<select.length; i++) {
+    // walk the fields and creat edit html
     field    = select[i];
     location = table.get_field(i,"location");
     type     = table.get_field(i,"type");
     if (type === "PK") {
       // do not allow editing of primary key
-      html += `<tr><td>${header[i]}</td> <td>${row[table.get_field(i,"param")]}</td></tr>`
-      this.#primary_key_value = row[i];
+      value = edit_type ? row[table.get_field(i,"param")] : "New Record" ;
+      html += `<tr><td>${fields[field].header}}</td> <td>${value}</td></tr>`
+      //this.#primary_key_value = row[i];
     } else {
-      let value;  
       switch(location) {
         case "multi":
           // multi value
           let multi = table.get_multi(this.#primary_key_value, i);
-          html += `<tr><td>${header[i]}</td> <td>`;
+          html += `<tr><td>${fields[field].header}</td> <td>`;
           for(let ii=0; ii<multi.length; ii++){
             html += 
             `<input id='edit-${type}-label-${ii}'   type='text' value='${multi[ii][0]}'></input>
@@ -195,16 +196,16 @@ edit(  // client side dbUXClass
           break;
         case "row":
           // single value
-          value = row[table.get_field(i,"param")];
+          value = edit_type ? row[table.get_field(i,"param")] : "";
           if (typeof(value) === "undefined") {
             value="";  // assume string, code neeed to init default type.
           }
-          html += `<tr><td>${header[i]}</td> <td><input id='edit-${i}' type='text' value='${value}'></td></tr>`
+          html += `<tr><td>${fields[field].header}</td> <td><input id='edit-${i}' type='text' value='${value}'></td></tr>`
           break;
         case "column":
           // single value
-          value = table.get_column(this.#primary_key_value,i);
-          html += `<tr><td>${header[i]}</td> <td><input id='edit-${i}' type='text' value='${value}'></td></tr>`
+          value = edit_type ? table.get_column(this.#primary_key_value,i) : "";
+          html += `<tr><td>${fields[field].header}</td> <td><input id='edit-${i}' type='text' value='${value}'></td></tr>`
           break;
         default:
           // 
@@ -213,30 +214,50 @@ edit(  // client side dbUXClass
     }
   }
   html += "</table>";
-  document.getElementById("record").innerHTML = html;
-  this.buttonsShow("Save Cancel");
+  document.getElementById(this.tableUX.DOMid + "_record").innerHTML = html;
+  if (edit_type) {
+    this.buttonsShow("Save Cancel");
+  } {
+    this.buttonsShow("Add Cancel");
+  }
 }
 
-save(){  // client side dbUXClass - for a page
+save(){  // client side recordUxClass - for a page
   // save to memory
   const table     = this.tableUX.getModel();  // get tableClass being displayed
-  const row       = table.PK_get(this.#primary_key_value);    
-  const rowEdited = [];
+  //const row       = table.PK_get(this.#primary_key_value);    
+  //const rowEdited = [];
+
+  const obj = {}  // move data from from to obj
 
   // fill rowEdited with values from edit form
-  const header = table.getHeader();
-  for(var i=0; i<header.length; i++)  {
+  const  select = table.meta_get("select");  // get array of fields to work with
+  const  fields = table.meta_get("fields");  // meta data about fields
+  let field_name;
+  for(var i=0; i<select.length; i++) {
     // walk the form 
+    field_name = select[i];
     let location = table.get_field(i,"location");   
+    switch (location) {
+    case "column":
+      let edit = document.getElementById(`edit-${i}`);
+      obj[field_name] = edit.value
+      break;
+    
+    default:
+      alert(`error, file="recordUxModule.js" method="save" location="${location}"`)
+        break;
+    }
+/*
     if (typeof(location) === "number") {
       // single value
       let edit = document.getElementById(`edit-${i}`);
       if (edit) {
         // value input
-        rowEdited[i] = edit.value;
+        obj[field_name] = edit.value;
       }
     } else {
-      // multi value
+      // multi value - 
       let type     = table.get_field(i,"type"); // PK, string, number, phone, url
       rowEdited[i] = [];                        // start empty, build from form
       let ii=0;
@@ -249,46 +270,47 @@ save(){  // client side dbUXClass - for a page
         label = document.getElementById(`edit-${type}-label-${ii}`  );
       }
     }
+    */
   }
 
-  table.save2memory(this.#primary_key_value, rowEdited);
+  table.save2memory(this.#primary_key_value, obj);
   this.show_changes();
-  this.recordShow();
+  this.show();
 }
 
 
-new(){// client side dbUXClass - for a page
+new(){// client side recordUxClass - for a page
   //
-  const table = this.tableUX.getModel();  // get tableClass being displayed
+  //const table = this.tableUX.getModel();  // get tableClass being displayed
   //table.bufferCreateEmpty(1);
   this.edit(false);
-  this.buttonsShow("Add Cancel");
+  //this.buttonsShow("Add Cancel");
 }
 
 
-add(){// client side dbUXClass - for a page
+add(){// client side recordUxClass - for a page
   // similar to save, move data from buffer to memory, then save
   const table = this.tableUX.getModel();  // get tableClass being displayed
 
-  table.bufferAppend();       // move buffer data to table
-  this.recordSave();          // update table data from form
+  //table.bufferAppend();       // move buffer data to table
+  this.save();          // update table data from form
   this.tableUX.display(table.PK_get() );  // redisplay data
   this.show_changes();                    // show changes
 }
 
 
-cancel(){// client side dbUXClass - for a page
+cancel(){// client side recordUxClass - for a page
   // similar to save, move data from buffer to memory, then save
   document.getElementById("record").innerHTML = "";
   this.buttonsShow("New");
 }
 
-recordDuplicate(){// client side dbUXClass - for a page
+recordDuplicate(){// client side recordUxClass - for a page
   alert("recordDuplicate from memery, not implemented yet")
 }
 
 
-delete(){// client side dbUXClass - for a page
+delete(){// client side recordUxClass - for a page
   //alert("recordDelete from memery, not implemented yet")
   //return;
   const table = this.tableUX.getModel();  // get tableClass being displayed

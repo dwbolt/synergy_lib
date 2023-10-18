@@ -109,6 +109,18 @@ buttonURL() {  // appClass - client side
 }
 
 
+show(dom){ // appClass - client side
+	document.getElementById(dom).hidden = false;
+	document.getElementById(dom).style.visibility = true;
+}
+
+
+hide(dom) { // appClass - client side
+	document.getElementById(dom).hidden = true;
+	document.getElementById(dom).style.visibility = false;
+}
+
+
 } // end appClass
 
 export { appClass };
