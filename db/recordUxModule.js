@@ -17,18 +17,22 @@ constructor( // recordUxClass - client-side
   this.globalName = tableUX.globalName + ".recordUX";
 
   // create buttons
-  document.getElementById(this.tableUX.DOMid + "_record_buttons").innerHTML =
+  let dombuttons = document.getElementById(this.tableUX.DOMid + "_record_buttons");
+  if (dombuttons) {
+    // if dombuttons is null, assume no UX for records will be needed
+    dombuttons.innerHTML =
+    `
+    <input hidden type='button' value='New'       onclick='${this.globalName}.new()'>
+    <input hidden type='button' value='Add'       onclick='${this.globalName}.add()'>
+    <input hidden type='button' value='Duplicate' onclick='${this.globalName}.duplicate()'>
+  
+    <input hidden type='button' value='Edit'       onclick='${this.globalName}.edit(true)'> 
+    <input hidden type='button' value='Delete'     onclick='${this.globalName}.delete()'> 
+    <input hidden type='button' value='Save'       onclick='${this.globalName}.save()'>
+  
+    <input hidden type='button' value='Cancel'    onclick='${this.globalName}.cancel()'>
   `
-  <input hidden type='button' value='New'       onclick='${this.globalName}.new()'>
-  <input hidden type='button' value='Add'       onclick='${this.globalName}.add()'>
-  <input hidden type='button' value='Duplicate' onclick='${this.globalName}.duplicate()'>
-
-  <input hidden type='button' value='Edit'       onclick='${this.globalName}.edit(true)'> 
-  <input hidden type='button' value='Delete'     onclick='${this.globalName}.delete()'> 
-  <input hidden type='button' value='Save'       onclick='${this.globalName}.save()'>
-
-  <input hidden type='button' value='Cancel'    onclick='${this.globalName}.cancel()'>
-`
+  }
 }
 
 show(  // client side recordUxClass - for a page
@@ -167,87 +171,73 @@ edit(  // client side dbUXClass
   const table  = this.tableUX.getModel();  // get tableClass being displayed
   const select = table.meta_get("select"); // array of fields to work with
   const fields = table.meta_get("fields");
-  let multi_value,location,type,field,value;
+  let multi_value,location,type,field,value,readonly;
 
   for(var i=0; i<select.length; i++) {
     // walk the fields and creat edit html
     field    = select[i];
     location = table.get_field(i,"location");
     type     = table.get_field(i,"type");
-    if (type === "PK") {
-      // do not allow editing of primary key
-      value = edit_type ? row[table.get_field(i,"param")] : "New Record" ;
-      html += `<tr><td>${fields[field].header}}</td> <td>${value}</td></tr>`
-      //this.#primary_key_value = row[i];
-    } else {
-      switch(location) {
-        case "multi":
-          // multi value
-          let multi = table.get_multi(this.#primary_key_value, i);
-          html += `<tr><td>${fields[field].header}</td> <td>`;
-          for(let ii=0; ii<multi.length; ii++){
-            html += 
-            `<input id='edit-${type}-label-${ii}'   type='text' value='${multi[ii][0]}'></input>
-            <input id='edit-${type}-value-${ii}'   type='text' value='${multi[ii][1]}'></input>
-            <input id='edit-${type}-comment-${ii}' type='text' value='${multi[ii][2]}'></input><br>
-            `
-          }
-          html += "</td></tr>";
-          break;
-        case "row":
-          // single value
-          value = edit_type ? row[table.get_field(i,"param")] : "";
-          if (typeof(value) === "undefined") {
-            value="";  // assume string, code neeed to init default type.
-          }
-          html += `<tr><td>${fields[field].header}</td> <td><input id='edit-${i}' type='text' value='${value}'></td></tr>`
-          break;
-        case "column":
-          // single value
-          value = edit_type ? table.get_column(this.#primary_key_value,i) : "";
-          html += `<tr><td>${fields[field].header}</td> <td><input id='edit-${i}' type='text' value='${value}'></td></tr>`
-          break;
-        default:
-          // 
-      }
-      
+
+    switch(location) {
+      case "multi":
+        // multi value
+        let multi = table.get_multi(this.#primary_key_value, i);
+        html += `<tr><td>${fields[field].header}</td> <td>`;
+        for(let ii=0; ii<multi.length; ii++){
+          html += 
+          `<input id='edit-${type}-label-${ii}'   type='text' value='${multi[ii][0]}'></input>
+          <input id='edit-${type}-value-${ii}'   type='text' value='${multi[ii][1]}'></input>
+          <input id='edit-${type}-comment-${ii}' type='text' value='${multi[ii][2]}'></input><br>
+          `
+        }
+        html += "</td></tr>";
+        break;
+      default:
+        // single value- column or row
+        if (type === "PK") {
+          // do not allow editing of primary key
+          value = edit_type ? table.get_value(this.#primary_key_value,field) : "New Record" ;
+          readonly = "readonly";
+        } else {
+          value = edit_type ? table.get_value(this.#primary_key_value,field) : "";
+          readonly = "";
+        }
+
+        html += `<tr><td>${fields[field].header}</td> <td>
+          <input ${readonly} id='edit-${i}' type='text' value='${value}'> ${readonly}</td></tr>`
     }
   }
+
   html += "</table>";
   document.getElementById(this.tableUX.DOMid + "_record").innerHTML = html;
   if (edit_type) {
     this.buttonsShow("Save Cancel");
-  } {
+  } else {
     this.buttonsShow("Add Cancel");
   }
 }
 
-save(){  // client side recordUxClass - for a page
-  // save to memory
-  const table     = this.tableUX.getModel();  // get tableClass being displayed
-  //const row       = table.PK_get(this.#primary_key_value);    
-  //const rowEdited = [];
 
-  const obj = {}  // move data from from to obj
+save( // client side recordUxClass - for a page
+) {  
+  // save to memory
+  const table  = this.tableUX.getModel();  // get tableClass being displayed
+  const obj    = {}                     ;  // move data from from to obj
 
   // fill rowEdited with values from edit form
   const  select = table.meta_get("select");  // get array of fields to work with
-  const  fields = table.meta_get("fields");  // meta data about fields
   let field_name;
   for(var i=0; i<select.length; i++) {
     // walk the form 
-    field_name = select[i];
-    let location = table.get_field(i,"location");   
-    switch (location) {
-    case "column":
-      let edit = document.getElementById(`edit-${i}`);
-      obj[field_name] = edit.value
-      break;
-    
-    default:
-      alert(`error, file="recordUxModule.js" method="save" location="${location}"`)
-        break;
-    }
+    field_name      = select[i];
+    obj[field_name] = document.getElementById(`edit-${i}`).value;
+  }
+  table.save2memory(this.#primary_key_value, obj);
+  this.show_changes();
+  this.show();
+}
+
 /*
     if (typeof(location) === "number") {
       // single value
@@ -271,24 +261,14 @@ save(){  // client side recordUxClass - for a page
       }
     }
     */
-  }
-
-  table.save2memory(this.#primary_key_value, obj);
-  this.show_changes();
-  this.show();
-}
 
 
 new(){// client side recordUxClass - for a page
-  //
-  //const table = this.tableUX.getModel();  // get tableClass being displayed
-  //table.bufferCreateEmpty(1);
   this.edit(false);
-  //this.buttonsShow("Add Cancel");
 }
 
 
-add(){// client side recordUxClass - for a page
+add(){ // client side recordUxClass - for a page
   // similar to save, move data from buffer to memory, then save
   const table = this.tableUX.getModel();  // get tableClass being displayed
 
