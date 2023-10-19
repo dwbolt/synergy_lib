@@ -34,27 +34,21 @@ set_template(buttons) {  // select_order_class - client side
 	if (!dom) return;  // do not like this code, refactor dwb 09/25/23
 
 	dom.innerHTML = `
-	<table>
-	<tr>
-	<td>
-	Choose<br>
-	<select id="${this.DOMid}_choice" onclick="${this.globalName}.move_to(this,'_selected')"  size="5">
+	<div  style="display:flex;">
+		<div>
+		Choose<br>
+		<select id="${this.DOMid}_choice" onclick="${this.globalName}.move_to(this,'_selected')"  size="5"></select>
+		</div>
 
-	</select>
-	</td>
+		<div>
+		selected<br>
+		<select id="${this.DOMid}_selected" onclick="${this.globalName}.move_to(this,'_choice')" size="5"></select>
+		</div>
 
-	<td>
-	selected<br>
-	<select id="${this.DOMid}_selected" onclick="${this.globalName}.move_to(this,'_choice')" size="5">
-	</select>
-	</td>
-
-	<td>
-	${buttons}
-	</td>
-	</tr>
-	</table>
-	`
+		<div>
+		${buttons}
+		</div>
+	</div>`
 }
 
 
