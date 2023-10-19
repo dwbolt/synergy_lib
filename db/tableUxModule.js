@@ -42,10 +42,10 @@ constructor(
 
   this.selected    = [];    // list of rows the user has selected for, (delete, copy, edit, make list)
 
-  this.paging       = {}     // store paging states
-  this.paging.lines = 10;    // number of lines per page
-  this.paging.row   =  0;    // row number of first line, start with 0
-  this.paging.rowMax =20;    // max row of talalbe or rowArray
+  this.paging        = {}     // store paging states
+  this.paging.lines  = 10;    // number of lines per page
+  this.paging.row    =  0;    // row number of first line, start with 0
+  this.paging.rowMax = null    // max row of table or rowArray
 
   this.selectedFields = [3]; // used by groupby, sort hardcode to test
 
@@ -78,11 +78,11 @@ display(        // tableUxClass - client-side
     // create tag with rowArray and display
     this.tag = "filtered";
     this.tags.filtered = rowArray;
-    this.paging.rowMax = rowArray.length;
+  //  this.paging.rowMax = rowArray.length;
   } else {
     // display full table
     this.tag = null;
-    this.paging.rowMax = this.getModel().getRows().length;
+  //  this.paging.rowMax = this.getModel().get_PK().length;
   }
 
   // add status line and empty table to DOM
@@ -383,7 +383,7 @@ displayData(){   // tableUxClass - client-side
     this.paging.rowMax = this.model.getRowBuffer().length;
   } else if (this.tag === "null"  || this.tag === null) {
     // display all data
-    this.paging.rowMax = this.model.getRows().length;
+    this.paging.rowMax = this.getModel().get_PK().length;
   } else {
     // display subset of rows in tag
     this.paging.rowMax = this.tags[this.tag].length;
@@ -435,7 +435,8 @@ statusLine(   // tableUxClass - client-side
   this.statusLineData.forEach((item, i) => {
     switch(item) {
       case "nextPrev":
-        html += `<input id="prev" type="button" onclick ="${this.globalName}.prev()" value="Prev"/><input id="next" type="button" onclick ="${this.globalName}.next()" value="Next"/>`
+        html += `<input id="prev" type="button" onclick ="${this.globalName}.prev()" value="Prev"/>
+                 <input id="next" type="button" onclick ="${this.globalName}.next()" value="Next"/>`
         break;
       case "firstLast":
         html += `<input id="first" type="button" onclick ="${this.globalName}.first()" value="First"/><input id="last" type="button" onclick ="${this.globalName}.last()" value="Last"/>`
