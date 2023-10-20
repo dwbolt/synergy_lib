@@ -59,8 +59,14 @@ get_value(  // tableClass - client-side
       return this.#json.columns[field][pk];
     case "row":
       return this.#json.rows[this.#json.PK[pk]][meta_field.param];
-    case "multi":
-      return this.#json.multi[this.#json.PK[pk]]
+    case "relation":
+      //return this.#json.relation[this.#json.PK[pk]]
+      if (this.#json.relation[pk] && this.#json.relation[pk][field]) {
+        return this.#json.relation[pk][field];
+      } else {
+        return "";
+      }
+      
     default:
       // code block
       alert(`error tableModule.js method:get_value meta_field.location=${meta_field.location}`)
@@ -408,24 +414,11 @@ get_field( // tableClass - client-side
   ,attribute  // header or type or location..
   ){
   const field_name = this.#json.meta.select[i];
-  /*
-  switch(attribute){
-  case "header":
-    return this.#json.meta.fields[field_name][0];
-  case "type":
-    return this.#json.meta.fields[field_name][1];
-  case "location":
-    return this.#json.meta.fields[field_name][2];
-  case "param":
-    return this.#json.meta.fields[field_name][3];
-  default:
-    alert(`error in "tableModule.js" method="get_field" i="${i}"  field="${field}"`); 
-  }
-  */
   return this.#json.meta.fields[field_name][attribute];
   }
 
-
+  
+/*
 get_multi(  // tableClass - client-side
   pk  // primary key
   ,i  // select index into header/select
@@ -443,7 +436,7 @@ get_multi(  // tableClass - client-side
    if (!Array.isArray(multi)){multi = []} // make empty array if not already an array
    return multi;
  }
-
+*/
 
  get_column(  // tableClass - client-side
   pk  // primary key

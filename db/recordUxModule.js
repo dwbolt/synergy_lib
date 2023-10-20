@@ -49,34 +49,25 @@ show(  // client side recordUxClass - for a page
  // const  row = table.PK_get(this.#primary_key_value); 
   const  select = table.meta_get("select");
   const  fields = table.meta_get("fields");
-  let rowValue,location;
+  let rowValue;
   for(var i=0; i<select.length; i++) {
     rowValue = table.get_value(this.#primary_key_value, select[i]);
-/*
-location = table.get_field(i,"location");
-    switch(location) {
-      case "row":
-        rowValue = row[i];
-        break;
-      case "column":
-        rowValue = table.get_column(this.#primary_key_value,i);
-        break;
-      case "multi":
-        rowValue = "";
-        let multi = table.get_multi(this.#primary_key_value, i);
-        for(let ii=0; ii<multi.length; ii++){
-          rowValue += `${multi[ii][0]}:${multi[ii][1]} - ${multi[ii][2]} <br>`;
-        }
-        break;
-      default:
-        // error
-        alert(`error class="dbUXClass" method="recordShow"`);
-    }
-*/
     if (typeof(rowValue) === "undefined") {
       rowValue = "";
     }
-    html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td> <td>${rowValue}</td></tr>`
+    if (fields[select[i]].location === "relation") {
+      html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td><td>`;
+      for(var ii=0; ii<rowValue.length; ii++) {
+        let row = rowValue[ii];
+        for(var iii=0; iii<row.length; iii++) {
+          html += `${row[iii]} `;
+        }
+        html += "<br>";
+      }
+      html += "</td></tr>";
+    } else {
+      html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td> <td>${rowValue}</td></tr>`
+    }
   }
   html += "</table>"
   document.getElementById(this.tableUX.DOMid + "_record").innerHTML = html;
@@ -180,9 +171,9 @@ edit(  // client side dbUXClass
     type     = table.get_field(i,"type");
 
     switch(location) {
-      case "multi":
+      case "relation":
         // multi value
-        let multi = table.get_multi(this.#primary_key_value, i);
+        let multi = table.get_value(this.#primary_key_value, field);
         html += `<tr><td>${fields[field].header}</td> <td>`;
         for(let ii=0; ii<multi.length; ii++){
           html += 
@@ -203,7 +194,10 @@ edit(  // client side dbUXClass
           value = edit_type ? table.get_value(this.#primary_key_value,field) : "";
           readonly = "";
         }
-
+        if (!value) {
+          // undifined, null
+          value = "";
+        }
         html += `<tr><td>${fields[field].header}</td> <td>
           <input ${readonly} id='edit-${i}' type='text' value='${value}'> ${readonly}</td></tr>`
     }
@@ -237,30 +231,6 @@ save( // client side recordUxClass - for a page
   this.show_changes();
   this.show();
 }
-
-/*
-    if (typeof(location) === "number") {
-      // single value
-      let edit = document.getElementById(`edit-${i}`);
-      if (edit) {
-        // value input
-        obj[field_name] = edit.value;
-      }
-    } else {
-      // multi value - 
-      let type     = table.get_field(i,"type"); // PK, string, number, phone, url
-      rowEdited[i] = [];                        // start empty, build from form
-      let ii=0;
-      let label = document.getElementById(`edit-${type}-label-${0}`);
-      while (label) {
-        let value   = document.getElementById(`edit-${type}-value-${ii}`  );
-        let comment = document.getElementById(`edit-${type}-comment-${ii}`);
-        rowEdited[i].push([label.value, value.value, comment.value]);
-        ii++;
-        label = document.getElementById(`edit-${type}-label-${ii}`  );
-      }
-    }
-    */
 
 
 new(){// client side recordUxClass - for a page
