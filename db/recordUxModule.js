@@ -31,22 +31,22 @@ constructor( // recordUxClass - client-side
     <input hidden type='button' value='Save'       onclick='${this.globalName}.save()'>
   
     <input hidden type='button' value='Cancel'    onclick='${this.globalName}.cancel()'>
+    <input hidden type='button' value='Clear'     onclick='${this.globalName}.clear()'>
   `
   }
 }
 
 show(  // client side recordUxClass - for a page
-  element // dom element
+  element=null // dom element
 ){
   // recordShow
   const table             = this.tableUX.getModel()  // get tableClass being displayed
   let html = `<b>Table: ${this.tableUX.tableName}</b><br><table>`;
   if (element) {
     // user clicked on elemnt, remember primary key for other record methodes
-    //this.#primary_key_value = parseInt(element.innerText,10); 
     this.#primary_key_value = parseInt(element.parentElement.getAttribute("data-row"),10); 
   }
- // const  row = table.PK_get(this.#primary_key_value); 
+
   const  select = table.meta_get("select");
   const  fields = table.meta_get("fields");
   let rowValue;
@@ -73,7 +73,7 @@ show(  // client side recordUxClass - for a page
   document.getElementById(this.tableUX.DOMid + "_record").innerHTML = html;
 
   // show buttons
-  this.buttonsShow("New Duplicate Edit  Delete Cancel");
+  this.buttonsShow("New Duplicate Edit  Delete Clear");
 
   // show relations
   // need to set filters to only things connected to record
@@ -94,65 +94,6 @@ buttonsShow( // client side recordUxClass - for a page
   }
 }
 
-/* old row based edit
-edit(  // client side dbUXClass
-  edit_type // true -> edit table record    false -> edit buffer record
-){// client side recordUxClass - for a page
-  this.#edit_type = edit_type;
-  let html = "<table>";
-  const table  = this.tableUX.getModel();  // get tableClass being displayed
-  const row    = (this.#edit_type ? 
-    table.PK_get(this.#primary_key_value) :
-    table.bufferGet(0));  // hard code for one record case 
-  const header = table.getHeader();
-  let multi_value,location,type;
-  for(var i=0; i<header.length; i++) {
-    location = table.get_field(i,"location");
-    type     = table.get_field(i,"type");
-    if (type === "PK") {
-      // do not allow editing of primary key
-      html += `<tr><td>${header[i]}</td> <td>${row[table.get_field(i,"param")]}</td></tr>`
-      this.#primary_key_value = row[i];
-    } else {
-      let value;  
-      switch(location) {
-        case "multi":
-          // multi value
-          let multi = table.get_multi(this.#primary_key_value, i);
-          html += `<tr><td>${header[i]}</td> <td>`;
-          for(let ii=0; ii<multi.length; ii++){
-            html += 
-            `<input id='edit-${type}-label-${ii}'   type='text' value='${multi[ii][0]}'></input>
-            <input id='edit-${type}-value-${ii}'   type='text' value='${multi[ii][1]}'></input>
-            <input id='edit-${type}-comment-${ii}' type='text' value='${multi[ii][2]}'></input><br>
-            `
-          }
-          html += "</td></tr>";
-          break;
-        case "row":
-          // single value
-          value = row[table.get_field(i,"param")];
-          if (typeof(value) === "undefined") {
-            value="";  // assume string, code neeed to init default type.
-          }
-          html += `<tr><td>${header[i]}</td> <td><input id='edit-${i}' type='text' value='${value}'></td></tr>`
-          break;
-        case "column":
-          // single value
-          value = table.get_column(this.#primary_key_value,i);
-          html += `<tr><td>${header[i]}</td> <td><input id='edit-${i}' type='text' value='${value}'></td></tr>`
-          break;
-        default:
-          // 
-      }
-      
-    }
-  }
-  html += "</table>";
-  document.getElementById("record").innerHTML = html;
-  this.buttonsShow("Save Cancel");
-}
-*/
 
 edit(  // client side dbUXClass
   edit_type // true -> edit table record    false -> edit new record
@@ -249,10 +190,16 @@ add(){ // client side recordUxClass - for a page
 }
 
 
+clear(){ // client side recordUxClass - for a page
+  document.getElementById(this.tableUX.DOMid + "_record").innerHTML = "";
+  this.buttonsShow("New");
+}
+
+
 cancel(){// client side recordUxClass - for a page
   // similar to save, move data from buffer to memory, then save
-  document.getElementById("record").innerHTML = "";
-  this.buttonsShow("New");
+  this.show();
+
 }
 
 recordDuplicate(){// client side recordUxClass - for a page

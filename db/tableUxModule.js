@@ -789,21 +789,25 @@ search( // tableUxClass - client-side
   let searched = false;
   // look at search field, if something is not empty search for all
   for (i=this.skip_columns; i<c.length; i++) {
-    this.searchValue = c[i].firstChild.value.toLowerCase();  // get value of text search box
-    if ( 0 < this.searchValue.length) {
+    this.search_value = c[i].firstChild.value.toLowerCase();  // get value of text search box
+    if ( 0 < this.search_value.length) {
       // found search string
       searched = true;
       this.tags.search = []
-      const rows = this.getModel().getRows();
-      for(let ii=0; ii<rows.length; ii++) {
-        let str=rows[ii][i-this.skip_columns]; 
+      const pks = this.getModel().get_PK();
+      const field = this.model.meta_get("select")[i-this.skip_columns];
+      // search for string in data
+      for(let ii=0; ii<pks.length; ii++) {
+        let value = this.model.get_value(pks[ii],field); 
         if (typeof(str) ==="number" ){str = str.toString();}
         if (str && str.toLowerCase().includes(this.searchValue)) {
-          this.tags.search.push(rows[ii][0]);  // push the primary key
+          this.tags.search.push(pks[ii]);  // push the primary key
         }
       }
+      i=c.length;  // end loop
     }
   }
+
   if (searched) {
     // display found records
     this.displayTag("search");
