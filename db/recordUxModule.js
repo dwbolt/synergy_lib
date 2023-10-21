@@ -44,18 +44,20 @@ show(  // client side recordUxClass - for a page
   let html = `<b>Table: ${this.tableUX.tableName}</b><br><table>`;
   if (element) {
     // user clicked on elemnt, remember primary key for other record methodes
-    this.#primary_key_value = parseInt(element.parentElement.getAttribute("data-row"),10); 
+    this.#primary_key_value = element.parentElement.getAttribute("data-row"); 
   }
 
   const  select = table.meta_get("select");
   const  fields = table.meta_get("fields");
   let rowValue;
   for(var i=0; i<select.length; i++) {
-    rowValue = table.get_value(this.#primary_key_value, select[i]);
+    rowValue = table.get_value_relation(this.#primary_key_value, select[i]);
     if (typeof(rowValue) === "undefined") {
       rowValue = "";
     }
-    if (fields[select[i]].location === "relation") {
+    html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td> <td>${rowValue}</td></tr>`
+
+/*    if (fields[select[i]].location === "relation") {
       html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td><td>`;
       for(var ii=0; ii<rowValue.length; ii++) {
         let row = rowValue[ii];
@@ -67,7 +69,7 @@ show(  // client side recordUxClass - for a page
       html += "</td></tr>";
     } else {
       html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td> <td>${rowValue}</td></tr>`
-    }
+    }*/
   }
   html += "</table>"
   document.getElementById(this.tableUX.DOMid + "_record").innerHTML = html;
@@ -114,16 +116,9 @@ edit(  // client side dbUXClass
     switch(location) {
       case "relation":
         // multi value
-        let multi = table.get_value(this.#primary_key_value, field);
-        html += `<tr><td>${fields[field].header}</td> <td>`;
-        for(let ii=0; ii<multi.length; ii++){
-          html += 
-          `<input id='edit-${type}-label-${ii}'   type='text' value='${multi[ii][0]}'></input>
-          <input id='edit-${type}-value-${ii}'   type='text' value='${multi[ii][1]}'></input>
-          <input id='edit-${type}-comment-${ii}' type='text' value='${multi[ii][2]}'></input><br>
-          `
-        }
-        html += "</td></tr>";
+        //let multi = table.get_value(this.#primary_key_value, field);   // get array of edes
+        html += `<tr><td>${fields[field].header}</td> 
+                 <td>${table.get_value_relation(this.#primary_key_value,field)}</td></tr>`;
         break;
       default:
         // single value- column or row
@@ -139,8 +134,7 @@ edit(  // client side dbUXClass
           // undifined, null
           value = "";
         }
-        html += `<tr><td>${fields[field].header}</td> <td>
-          <input ${readonly} id='edit-${i}' type='text' value='${value}'> ${readonly}</td></tr>`
+        html += `<tr><td>${fields[field].header}</td> <td><input ${readonly} id='edit-${i}' type='text' value='${value}'> ${readonly}</td></tr>`
     }
   }
 

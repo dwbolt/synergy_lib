@@ -49,11 +49,13 @@ url
   }
 }
 
-set_db(db){this.db = db;}
+set_db( db){this.db   = db;}
+set_name(n){this.name = n;}
+
 
 get_value(  // tableClass - client-side
-  pk
-  ,field
+  pk        // table primary key
+  ,field    // field name we want value of
 ) {
   const meta_field = this.#json.meta.fields[field];
   switch(meta_field.location) {
@@ -85,19 +87,39 @@ pk
     // value is an array of PK, convert to human readable
     let r_value="";
     for(var i=0; i<value.length; i++){
-      let pk=value[i]; // relation pk
-      let relation = this.db.getTable("relation").get_object(pk);  // get relation object 
-      if (relation.) {
-
+      let pkr=value[i]; // relation pk
+      let relation = this.db.getTable("relations").get_object(pkr);  // get relation object 
+      if        (relation.table_1 === this.name && relation.pk_1 === pk) {
+        // related to table 2
+        r_value += this.format_values(2, relation);
+      } else if (relation.table_2 === this.name && relation.pk_2 === pk) {
+        // related to table 1
+        r_value += this.format_values(1, relation);
       } else {
-
+        // error
+        alert(`error file="tableModule.js" method="get_value_relation" pk="${pk}" this.name="${this.name}" relationn=${JSON.stringify(relation)}`);
       }
-
     }
     value = r_value;
   } 
 
   return value;
+}
+
+
+format_values(
+   table_number  // 
+  ,relation
+  ){
+  let html = "";
+  const fields=["label","display","comment"];
+  for(var i=0; i<fields.length; i++) {
+    let table_name = relation[`table_${table_number}`];
+    let pk         = relation[`pk_${table_number}`];
+    let table      = this.db.getTable(table_name);
+    html += table.get_value(pk,fields[i]) +" - "; 
+  }
+  return html+"<br>";
 }
 
 
