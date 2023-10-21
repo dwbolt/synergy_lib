@@ -37,20 +37,9 @@ async load(  // dbClass - client-side
 
   // load list of tables in database
   const obj = await app.proxy.getJSONwithError(this.#url);   // get list of tables;
-  //do {
-    if(obj.json === null) {
-      alert(`dbModule.js method="load" missing or bad file="${this.#url}"`);
-      // missing or ill formed json file, so store an empty good one 
-      /*
-      await app.proxy.RESTpost(
-        `{
-          "meta":{
-            "tables": {"people":{"location":"people"}}
-          }}`
-        ,this.#url)
-        */
-    }
-//  } while (obj.json === null);
+  if(obj.json === null) {
+    alert(`dbModule.js method="load" missing or bad file="${this.#url}"`);
+  }
   this.#json  = obj.json; 
 
   // load json table file
@@ -64,6 +53,7 @@ async load(  // dbClass - client-side
     const table = new tableClass();
     const table_url = `${this.#urlList}/${table_names[i]}/_.json`;
     await table.load(table_url);
+    table.set_db(this);                   // allow tables to get to other tables in the database
     this.tables[table_names[i]] = table;  // add table to database
   }
 }

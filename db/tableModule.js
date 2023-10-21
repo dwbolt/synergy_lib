@@ -22,7 +22,7 @@ url
   const page   = window.location;
   const urlEsc = new URL(`${page.protocol}//${page.host}/${url}`);
   this.#url   = urlEsc.toString();
-  
+  this.db     = null; 
   this.#json  = {
     "meta"   : {fields:{},"select" : []}
     //"description":""        // what is this table for
@@ -49,6 +49,8 @@ url
   }
 }
 
+set_db(db){this.db = db;}
+
 get_value(  // tableClass - client-side
   pk
   ,field
@@ -69,8 +71,33 @@ get_value(  // tableClass - client-side
       
     default:
       // code block
-      alert(`error tableModule.js method:get_value meta_field.location=${meta_field.location}`)
+      alert(`error tableModule.js method:get_value meta_field.location=${meta_field.location}`);
   }
+}
+
+
+get_value_relation(  // tableClass - client-side
+pk
+,field
+) {
+  let value = this.get_value(pk,field);
+  if (this.meta_get("fields")[field].location === "relation") {
+    // value is an array of PK, convert to human readable
+    let r_value="";
+    for(var i=0; i<value.length; i++){
+      let pk=value[i]; // relation pk
+      let relation = this.db.getTable("relation").get_object(pk);  // get relation object 
+      if (relation.) {
+
+      } else {
+
+      }
+
+    }
+    value = r_value;
+  } 
+
+  return value;
 }
 
 
@@ -417,26 +444,6 @@ get_field( // tableClass - client-side
   return this.#json.meta.fields[field_name][attribute];
   }
 
-  
-/*
-get_multi(  // tableClass - client-side
-  pk  // primary key
-  ,i  // select index into header/select
- ) {
-   const type       = this.get_field(i,"type");
-   let multi;
-   try {
-    multi = this.#json.multi[pk][type];
-  } catch (e) {
-    // it is not defined, so return an empty array
-    multi = [];
-  }
-
-
-   if (!Array.isArray(multi)){multi = []} // make empty array if not already an array
-   return multi;
- }
-*/
 
  get_column(  // tableClass - client-side
   pk  // primary key
@@ -529,36 +536,25 @@ change_summary(  // tableClass - client-side
 }
 
 
-genCSV( // tableClass - client-side
-) { // create a string in CSV of the table
-    // add a_header
-
-    let csv = this.genCSVrow(this.#json.header);
-    /*
-    if (tag === null) {
-      // all data 
-      this.#json.rows.forEach((r, i) => {
-        csv += this.genCSVrow(r);
-      });
-    } else {
-      let rows = this.#json.rows;
-      let index = this.tags[tag];
-      for(var i=0; i<index.length; i++) {
-        csv += this.genCSVrow(rows[index[i]]);
-      }
-    }
-*/
-    //return csv.substr(1)  // remove leading comma on first line
-    return csv  // remove leading comma on first line
-}
-
-
 genCSVrow( // tableClass - client-side
-  row) {
+  pk) {
   // will only work for numbers, strings, boolean
   // Will not  work for dates, objects, etc...
-  let line = JSON.stringify(row);
-  return  line.slice(1, line.length-1) +"\r\n";     // get rid of [   ]
+  let line = "";
+  let fields = this.meta_get("select");
+  for(var i=0; i<fields.length; i++){
+    let value = this.get_value(pk,fields[i]);
+    if(!value){
+      value="";   // empty string is value is not defined
+    }
+    let location = this.meta_get("fields")[fields[i]].location;
+    if (location==="relation") {
+      // add "[]"" so it only takes up one field location in the csv file
+      value = `"[${value}]"`;
+    }
+    line += `${value},`;
+  }
+  return  line.slice(0, line.length-1) +"\r\n";     // get rid of trailing comma
 }
 
 

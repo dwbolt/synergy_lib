@@ -245,14 +245,15 @@ setBuffer(         tableUx) {this.tableUxB          = tableUx;}  // rember the t
 export( // tableUxClass - client-side
 ){ // as CSV file
   const table = this.getModel();    // get access to class holding the table data
-  const rows  = table.getRows();    // get access to array of rows
-  let csv     = table.genCSVrow(table.getHeader()); // export header
+  const pks  = table.get_PK();    // get access to array of rows
+  //let csv     = table.genCSVrow(table.meta_get("header")); // export header
+  let csv = "";
 
   if(this.tag) {
     // export just records that are in the tag
     const index = this.tags[this.tag];
     for(var i=0; i<index.length; i++) {
-      csv += table.genCSVrow(rows[index[i]]);
+      csv += table.genCSVrow(index[i]);
     };
   } else {
     // export entire table
@@ -570,16 +571,13 @@ appendHTMLrow(  // tableUxClass - client-side
      {selected="class='selected'";}
   let html   = `<tr ${selected} data-row=${PK}>${lineNum}${rowNum}`;
 
-  let value;
-  const length = this.model.meta_get("select").length;
   const select = this.model.meta_get("select");
-  for(let i=0; i<length; i++) {
+  for(let i=0; i<select.length; i++) {
     // create display form of field
-    let fieldValue = this.model.get_value(PK,select[i]);
-    if (fieldValue===null || typeof(fieldValue)==="undefined") {
+    let value = this.model.get_value_relation(PK,select[i]);
+
+    if (value===null || typeof(value)==="undefined") {
       value=""; // display null values as blank
-    } else {
-      value = fieldValue;
     }
 
     html += this.formatTransform(value, i);
