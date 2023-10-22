@@ -124,7 +124,7 @@ edit(  // client side dbUXClass
         // single value- column or row
         if (type === "PK") {
           // do not allow editing of primary key
-          value = edit_type ? table.get_value(this.#primary_key_value,field) : "New Record" ;
+          value = edit_type ? table.get_value(this.#primary_key_value,field) : null ;
           readonly = "readonly";
         } else {
           value = edit_type ? table.get_value(this.#primary_key_value,field) : "";
@@ -160,13 +160,20 @@ save( // client side recordUxClass - for a page
   for(var i=0; i<select.length; i++) {
     // walk the form 
     field_name      = select[i];
-    obj[field_name] = document.getElementById(`edit-${i}`).value;
+    let edit = document.getElementById(`edit-${i}`);  // will be undivend for relation
+    if (edit) {
+      obj[field_name] = edit.value;
+    }
   }
   table.save2memory(this.#primary_key_value, obj);
   this.show_changes();
   this.show();
 }
 
+
+show_changes(){
+  // need to update app info
+}
 
 new(){// client side recordUxClass - for a page
   this.edit(false);

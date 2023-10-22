@@ -386,32 +386,36 @@ save2memory( // tableClass - client-side
   primary_key_value  // positive number edit exiting row,  negative number create new row
   ,record            // new record values
   ) {
+  if(!primary_key_value || primary_key_value==="") {
+    // get next primary key
+    primary_key_value = (++this.#json.meta.PK_max).toString();
+  }
+
   // get change log for row
   let changes = this.changes_get(primary_key_value);
   // see what fields changed for the row
-  for(var i=0; i< record.length; i++) {
-    if (i !== 0) {  // skip primary key
-      // not on primary key
-      let edited_value   = record[i];  // from edit form
-      let current_value  = this.PK_get(primary_key_value)[i];  // from table memory
+  const fields = Object.keys(record);
+  for(var i=0; i< fields.length; i++) {
+    let field = fields[i];
+    let edited_value   = record[field];                             // from edit form
+    let current_value  = this.get_value(primary_key_value,field);  // from table memory
 
-      // update change log
-      if (edited_value !== current_value ) {
-        // change was made to field
-        if (typeof(changes[i]) === "undefined") {
-          // first time field has changed for this row, add change log for field
-          changes[i] = {"original":current_value, "new_value":edited_value};
-        } else if (edited_value  === changes[primary_key_value][i]["original"]) {
-          // original value was restored, so delete session change log
-          delete changes[i];
-        } else {
-          // replace new_value
-          changes[primary_key_value][i].new_value = edited_value;
-        }
-
-        // update memery row
-        this.PK_get(primary_key_value)[i]  = edited_value;
+    // update change log
+    if (edited_value !== current_value ) {
+      // change was made to field
+      if (typeof(changes[field]) === "undefined") {
+        // first time field has changed for this row, add change log for field
+        changes[field] = {"original":current_value, "new_value":edited_value};
+      } else if (edited_value  === changes[primary_key_value][i]["original"]) {
+        // original value was restored, so delete session change log
+        delete changes[field];
+      } else {
+        // replace new_value
+        changes[primary_key_value][field].new_value = edited_value;
       }
+
+      // update memery row
+      this.set_value(primary_key_value,edited_value);
     }
   }
 
