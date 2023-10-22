@@ -56,20 +56,6 @@ show(  // client side recordUxClass - for a page
       rowValue = "";
     }
     html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td> <td>${rowValue}</td></tr>`
-
-/*    if (fields[select[i]].location === "relation") {
-      html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td><td>`;
-      for(var ii=0; ii<rowValue.length; ii++) {
-        let row = rowValue[ii];
-        for(var iii=0; iii<row.length; iii++) {
-          html += `${row[iii]} `;
-        }
-        html += "<br>";
-      }
-      html += "</td></tr>";
-    } else {
-      html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td> <td>${rowValue}</td></tr>`
-    }*/
   }
   html += "</table>"
   document.getElementById(this.tableUX.DOMid + "_record").innerHTML = html;
@@ -199,8 +185,13 @@ clear(){ // client side recordUxClass - for a page
 
 cancel(){// client side recordUxClass - for a page
   // similar to save, move data from buffer to memory, then save
-  this.show();
-
+  if (this.#edit_type ) {
+     // cancled from edit
+    this.show();
+  } else {
+    // cancled from new
+    this.clear();
+  }
 }
 
 recordDuplicate(){// client side recordUxClass - for a page
