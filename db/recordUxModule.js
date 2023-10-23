@@ -162,6 +162,7 @@ show_changes(){
 }
 
 new(){// client side recordUxClass - for a page
+  this.#primary_key_value = null;   // should be able todo this in one statement
   this.edit(false);
 }
 

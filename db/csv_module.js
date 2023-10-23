@@ -1,4 +1,4 @@
-class csvClass { // csvClass: client-side
+class csvClass { // csvClass: client-side   _lib/db/csv_module.js
 
   /*
 
@@ -36,7 +36,6 @@ parseCSV(  // csvClass: client-side
   this.DOM        = document.getElementById(DOMid);
 
   // init class variables
-  this.rowStart   = 0;        // pointer to where we are parsing
   this.valueStart = 0;        // start of valueStart
   this.row        = 0;        // row of csv file we have completed parsing
   this.row_old    = 0;
@@ -49,16 +48,9 @@ parseCSV(  // csvClass: client-side
     // now add all the data
     this.parseRow();
     if (1000 < (new Date() - this.display)  ) {
-      // display progress every second
-      /*
-      this.DOM.innerHTML = 
-      `${this.row} rows parsed total - ${this.row - this.row_old} rows parsed this time slice `;
-             */
-
       console.log(`${this.row} rows parsed total - ${this.row - this.row_old} rows parsed this time slice `);
       this.row_old = this.row;
       this.display = new Date();
-
     }
   }
 
@@ -108,7 +100,10 @@ error(message){  // csvClass: client-side
 
 
 parseValue() {  // csvClass: client-side
-  if      (this.csv[this.valueStart] === this.delimiter
+  const start = this.csv[this.valueStart];
+
+  if      ( 
+          (start === this.delimiter && this.csv[this.valueStart+1] ===this.delimiter)
       ||   this.csv[this.valueStart] === "\n"
       ||  (this.csv[this.valueStart] === "\r" && this.csv[this.valueStart+1] === "\n" ) ) {
     // /r/n -> parseNull
@@ -130,54 +125,65 @@ parseValue() {  // csvClass: client-side
 }
 
 
-parseQuote(){  // csvClass: client-side
+parseQuote() {  // csvClass: client-side
   // find the end of the quote   "            ",
-  let e1 = this.csv.indexOf('",', this.valueStart+1);   // was +2
-  let e2 = this.csv.indexOf('"\r', this.valueStart+1);  // was +2
-  let e=Math.min(e1,e2);
-  if (e<0) {e=Math.max(e1,e2);} // one e1 or e2 not found so use max
-  let v = this.csv.slice( this.valueStart+1, e );
-  if (e === e2) {
-    // at end of row
-    this.rowEnd = true;
+  const end_quote  = this.csv.indexOf('",' , this.valueStart+1); 
+  const end_lineN  = this.csv.indexOf('\n' , this.valueStart+1);
+
+  const end;
+  if        (end_quote < end_lineN && 0<end_quote) {
+    // most common case, end_quote inside line
+    end = end_quote;
+  } else if ( end_lineN < end_quote && 0<end_lineN) {
+    // end_quote at end of line
+    if        (this.csv[end_lineN-1] === '"') {
+      end--;  // line ends with "/n
+    } else if (this.csv[end_lineN-1] === '\r' && this.csv[end_lineN-2] === '"' )  {
+      end = end -2;  // line ends with "/r/n
+    } else {
+      alert(`error: file="csv_module.js" method="parseQuote" end_quote="${end_quote}" end_LineN="${end_lineN}"`);
+    }
+  } else if (end_quote === -1 && end_lineN === -1) {
+    // end of file without closing line
+    end=this.csv.length;  // not sure this is right, test
   }
-  if ( this.rowEnd = true && this.csv[e+2] === "\n") {
-    // row ends with /r/n
-    this.valueStart = e+3;
-  } else {
-    // row ends with /r
-    this.valueStart = e+2;
-  }
+
+  let v = this.csv.slice( this.valueStart+1, this.find_end());
+  this.testEndRow(end);
 
   return(v); // return string value in array
 }
 
 
+
+
+}
+
 parse(){  // csvClass: client-side
   // find the end of the value, may come at next delimiter or end of line  \r\n or \n
-  let ed=this.csv.indexOf(this.delimiter, this.valueStart);
-  let en=this.csv.indexOf('\n'          , this.valueStart);
-  let e=Math.min(ed,en);
+  let ed  = this.csv.indexOf(this.delimiter, this.valueStart);
+  let en  = this.csv.indexOf('\n'          , this.valueStart);
+  let end = Math.min(ed,en);
   let newValueStart,v;
 
-  if (e<0) {
+  if (end<0) {
     // did not find delimiter or did not find \n, try using max
     e=Math.max(ed,en);
   }
-  if (e<0) {
+  if (end<0) {
     // at end of file with out end of row delimter
-    e=this.csv.length;
+    end=this.csv.length;
   }
 
-  if (e === en && this.csv[e-1] === '\r') {
+  if (end === en && this.csv[end-1] === '\r') {
     // end of line was a \r\n,  get ride of \r
-    v = this.csv.slice( this.valueStart, e-1 )
+    v = this.csv.slice( this.valueStart, end-1 )
   } else {
-    v = this.csv.slice( this.valueStart, e )
+    v = this.csv.slice( this.valueStart, end )
   }
 
-  this.testEndRow(e);
-  //return(v)
+  this.testEndRow(end);
+
   if (isNaN(v)) {
     return(v); // return string value in array
   } else {
@@ -192,16 +198,19 @@ parseNull() { // csvClass: client-side
 }
 
 
-testEndRow(e) {  // csvClass: client-side
-  if (this.csv[e] === "\n"  || this.csv.length === e) {
+testEndRow(end) {  // csvClass: client-side
+  if (this.csv[end] === "\n"  || this.csv.length === end) {
     this.rowEnd = true;
   }
-  this.valueStart = e+1;
-}
-
-
-exportCSV() { // csvClass: client-side
- const rows = this.table.getRows();
+  this.valueStart = end+1;
+/*
+    // find new start value
+    if ( this.rowEnd === true && this.csv[e+2] === "\n") {
+      this.valueStart = e+3;  // row ends with /r/n
+    } else {
+      this.valueStart = e+2;  // in mid line or row ends with /r
+    }
+    */
 }
 
 

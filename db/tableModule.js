@@ -52,6 +52,38 @@ url
 set_db( db){this.db   = db;}
 set_name(n){this.name = n;}
 
+set_value(  // tableClass - client-side
+  pk        // table primary key
+  ,field    // field name we want value of
+  ,value 
+) {
+  const meta_field = this.#json.meta.fields[field];
+  switch(meta_field.location) {
+    case "column":
+      this.#json.columns[field][pk] = value;
+      break;
+      
+    case "row":
+      if (this.#json.meta.PK[pk]  && this.#json.rows[this.#json.meta.PK[pk]]) {
+        return this.#json.rows[this.#json.meta.PK[pk]][meta_field.param];
+      } else {
+        return null;
+      }
+      
+    case "relation":
+      //return this.#json.relation[this.#json.PK[pk]]
+      if (this.#json.relation[pk] && this.#json.relation[pk][field]) {
+        return this.#json.relation[pk][field];
+      } else {
+        return "";
+      }
+      
+    default:
+      // code block
+      alert(`error tableModule.js method:get_value meta_field.location=${meta_field.location}`);
+  }
+}
+
 
 get_value(  // tableClass - client-side
   pk        // table primary key
@@ -61,8 +93,14 @@ get_value(  // tableClass - client-side
   switch(meta_field.location) {
     case "column":
       return this.#json.columns[field][pk];
+
     case "row":
-      return this.#json.rows[this.#json.PK[pk]][meta_field.param];
+      if (this.#json.meta.PK[pk]  && this.#json.rows[this.#json.meta.PK[pk]]) {
+        return this.#json.rows[this.#json.meta.PK[pk]][meta_field.param];
+      } else {
+        return null;
+      }
+      
     case "relation":
       //return this.#json.relation[this.#json.PK[pk]]
       if (this.#json.relation[pk] && this.#json.relation[pk][field]) {
@@ -327,7 +365,7 @@ default_table_structure() {
 PK_create(){
   // create primary key index 
   this.#json.PK     = {};
-  this.#json.PK_max = 0; 
+  this.#json.meta.PK_max= 0; 
   
   // walk to entire table and index on column key
   const rows = this.getRows();
@@ -338,9 +376,9 @@ PK_create(){
     let value = rows[i][0];  // the PK is always the starting column
     this.#json.PK[value]=i;  // store the row number 
 
-    if (this.#json.PK_max < value) {
+    if (this.#json.meta.PK_max< value) {
       // find largest key value, primary key is an integer number that increments
-      this.#json.PK_max = value;
+      this.#json.meta.PK_max= value;
     }
   }
 }
@@ -415,7 +453,7 @@ save2memory( // tableClass - client-side
       }
 
       // update memery row
-      this.set_value(primary_key_value,edited_value);
+      this.set_value(primary_key_value, field, edited_value);
     }
   }
 
@@ -606,7 +644,7 @@ genTable(  // tableClass - client-side
 ,"header"     :${JSON.stringify(this.#json.header      )}
 ,"deleted"    :${JSON.stringify(this.#json.deleted     )} 
 ,"PK"         :${JSON.stringify(this.#json.PK          )}
-,"PK_max"     :${JSON.stringify(this.#json.PK_max      )}
+,"PK_max"     :${JSON.stringify(this.#json.meta.PK_max     )}
 
 ,"rows": [
 ${this.genRows()}]
@@ -707,143 +745,6 @@ field( // tableClass - client-side
   });
 }
 
-//////////////////////////////////     buffer methods
-/*
-getRowBuffer(index) {return (index ? this.#json.rowsBuffer[index] : this.#json.rowsBuffer);}
-
-
-table2buffer(  // tableClass - client-side
-  a_index  // a_index-> array of row numbers into
-) {
-  // clear the buffer
-  this.#json.rowsBuffer = [];
-
-  // make a copy of the data for the buffer so change buffer does not change data in table
-  a_index.forEach((rowNumber, i) => {
-    // make copy of row and add row number at end
-    this.#json.rowsBuffer.push(
-      Array.from(this.#json.rows[rowNumber]).concat(rowNumber));
-  });
-}
-
-
-bufferGet( // tableClass - client-side
-  row  //
-) {
-  if (typeof(row) === "number") {
-    return this.#json.rowsBuffer[row];
-  } else {
-    return this.#json.rowsBuffer;
-  }
-}
-
-
-bufferSetType( // tableClass - client-side
-) { // convert all strings that should be numbers to numbers
-  this.#json.fieldA.forEach((column, i) => {
-    if (column.startsWith("n_")) {
-      // found a number column
-      this.#json.rowsBuffer.forEach((r, ii) => {
-        // convert that column to a number
-        r[1][i] = Number(r[1][i]);
-      });
-    }
-  });
-}
-
-
-bufferSave(  // tableClass - client-side
-) {  // to table in memory
-  this.bufferSetType();
-  this.#json.rowsBuffer.forEach((item, i) => {
-    // does not handle the case of growing or srinking the number of items in the buffer
-    this.#json.rows[item[0]] = item[1];
-  });
-}
-
-
-bufferInput2Json( // tableClass - client-side
-  // move data from DOM to table buffer
-) {
-  let r,col;
-  // a_rows ->  an array of rows of input buffer data
-  const a_rows = document.getElementById(this.DOMid.buffer).firstChild.firstChild.children;
-  for (r=1; r<a_rows.length; r++) {  // skip first row, it is the header
-    let empty = true;
-    for (col=1; col<=this.#json.fieldA.length; col++) { // skip first column, it has the row number
-      let v = a_rows[r].children[col].firstChild.value;  // read html input value
-      if (empty && v!=="") {
-        empty = false;  // will keep this row, it has data
-      }
-      this.#json.rowsBuffer[r-1][1][col-1] = v;   // set json value
-    }
-    if (empty) {
-      // do not save empty row in data
-      this.#json.rowsBuffer.pop();
-    }
-  }
-
-  // make sure it was stored correctly and apply any formating
-  this.bufferDisplay();
-}
-
-
-bufferAppendRow(  // tableClass - client-side
-  row,i) {
-  let html = `<tr><td>${i+1}</td>`;
-  let format;
-
-  row[1].forEach((field,ii) => {
-    if (field===null) {
-      field="";
-    }
-    format = this.getColumnFormat(ii);
-
-    html += `<td${format}><input type="text" value="${field}"></td>`;
-
-  });
-  html += "</tr>";
-  return html;
-}
-
-
-bufferCreateEmpty(  // tableClass - client-side
-  // bufferCreateEmpty bufferAppend can fail if more than one instance of tableModule is running. a second Buffer append could overwrite the first
-  n_rows  // adding
-) {
-  this.#json.rowsBuffer = [];
-
-  let i,ii;
-
-  // create n_rows
-  for(i=1; i<n_rows+1; i++) {
-    let empty = []; // create emty row
-    for(ii=0; ii<this.getHeader().length; ii++) {
-      empty.push(""); // create an array of null as long as the header
-    }
-    empty[0] = this.#json.PK_max+i;
-    this.#json.rowsBuffer.push(empty);  // -1 -> a new row, a positive number is an edit
-  }
-}
-
-
-bufferAppend(  // tableClass - client-side
-// append buffer to main data
-) {  
-  // copy rows from buffer to memory
-  this.bufferSetType();
-  this.#json.rowsBuffer.forEach((item, i) => {
-    // copy from buffer to memory
-    this.#json.PK_max = item[0];
-    this.#json.rows.push( item );
-    // update primary key index
-    const PK = item[0];  // get PK value
-    this.#json.PK[PK] = this.#json.rows.length-1;   // Point index to row
-  });
-
-  // need to update other indexes
-}
-*/
 
 } //  end  of // tableClass - client-side
 
