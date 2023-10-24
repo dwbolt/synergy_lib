@@ -130,7 +130,8 @@ parseQuote() {  // csvClass: client-side
   const end_quote  = this.csv.indexOf('",' , this.valueStart+1); 
   const end_lineN  = this.csv.indexOf('\n' , this.valueStart+1);
 
-  const end;
+  let end;
+
   if        (end_quote < end_lineN && 0<end_quote) {
     // most common case, end_quote inside line
     end = end_quote;
@@ -148,16 +149,12 @@ parseQuote() {  // csvClass: client-side
     end=this.csv.length;  // not sure this is right, test
   }
 
-  let v = this.csv.slice( this.valueStart+1, this.find_end());
+  let v = this.csv.slice( this.valueStart+1, end);
   this.testEndRow(end);
 
   return(v); // return string value in array
 }
 
-
-
-
-}
 
 parse(){  // csvClass: client-side
   // find the end of the value, may come at next delimiter or end of line  \r\n or \n
