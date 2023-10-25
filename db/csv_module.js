@@ -50,7 +50,6 @@ parse_CSV(  // csvClass: client-side
     this.get_line();
     this.parse_line();
 
- 
     if (1000 < (new Date() - this.display)  ) {
       console.log(`${this.row} rows parsed total - ${this.row - this.row_old} rows parsed this time slice `);
       this.row_old = this.row;
@@ -58,10 +57,9 @@ parse_CSV(  // csvClass: client-side
     }
   }
 
-  // force save if use presses save button
+  // let user know there are unsaved changes
   const changes = this.table.getJSON().changes;
   changes.import = true;  
-
 
   // create meta data
   const select = this.table.meta_get("select");
@@ -79,9 +77,9 @@ parse_CSV(  // csvClass: client-side
 get_line(){
   this.end_lineN  = this.csv.indexOf('\n' , this.valueStart+1);
   if (this.csv[this.end_lineN-1] === "\r") {
-    this.end_parse = this.end_lineN - 1;  // line ends in cr lf, get rid of cr
+    this.end_parse = this.end_lineN - 2;  // line ends in cr lf, get rid of cr
   } else {
-    this.end_parse = this.end_lineN;
+    this.end_parse = this.end_lineN - 1;
   }
 }
 
@@ -91,11 +89,11 @@ parse_line() {  // csvClass: client-side
     this.table.add_column_value(this.row.toString(), this.column.toString(),this.parse_value());
     this.column++; // goto next column
     if (this.rowEnd) {
-      if(this.column_max < this.column) {
+      if (this.column_max < this.column) {
         // set highwater mark for column parsed
          this.column_max = this.column;
       }
-      if        (! this.column === this.column_max) {
+      if (this.column != this.column_max) {
         // logg error if all lines do not have same number of columns - what does the spec say?
         this.error(`error on row ${this.row}, column=${this.column }, expected ${this.column_max} `);
       }
@@ -144,29 +142,21 @@ parse_value() {  // csvClass: client-side
 parseQuote() {  // csvClass: client-side
   // find the end of the quote   "            ",
   const end_quote  = this.csv.indexOf('",' , this.valueStart+1); 
-
-
   let end;
 
-  if        (end_quote < end_lineN && 0<end_quote) {
+  if        (end_quote < this.end_parse  && 0<end_quote) {
     // most common case, end_quote inside line
     end = end_quote;
-  } else if ( end_lineN < end_quote && 0<end_lineN) {
+  } else if ( this.end_parse < end_quote && 0 < this.end_parse) {
     // end_quote at end of line
-    if        (this.csv[end_lineN-1] === '"') {
-      end--;  // line ends with "/n
-    } else if (this.csv[end_lineN-1] === '\r' && this.csv[end_lineN-2] === '"' )  {
-      end = end -2;  // line ends with "/r/n
-    } else {
-      alert(`error: file="csv_module.js" method="parseQuote" end_quote="${end_quote}" end_LineN="${end_lineN}"`);
-    }
-  } else if (end_quote === -1 && end_lineN === -1) {
+    end = this.end_parse
+  } else if (end_quote === -1 ) {
     // end of file without closing line
     end=this.csv.length;  // not sure this is right, test
   }
 
   let v = this.csv.slice( this.valueStart+1, end);
-  this.testEndRow(end);
+  this.testEndRow(end+1); // get on the other side of "
 
   return(v); // return string value in array
 }
@@ -175,25 +165,16 @@ parseQuote() {  // csvClass: client-side
 parse(){  // csvClass: client-side
   // find the end of the value, may come at next delimiter or end of line  \r\n or \n
   let ed  = this.csv.indexOf(this.delimiter, this.valueStart);
-  let en  = this.csv.indexOf('\n'          , this.valueStart);
-  let end = Math.min(ed,en);
-  let newValueStart,v;
+  let end, newValueStart,v;
 
-  if (end<0) {
-    // did not find delimiter or did not find \n, try using max
-    e=Math.max(ed,en);
-  }
-  if (end<0) {
-    // at end of file with out end of row delimter
-    end=this.csv.length;
-  }
-
-  if (end === en && this.csv[end-1] === '\r') {
-    // end of line was a \r\n,  get ride of \r
-    v = this.csv.slice( this.valueStart, end-1 )
+  if (ed<0) {
+    // did not find ending delimiter -> at end of file
+    end = this.end_parse;
   } else {
-    v = this.csv.slice( this.valueStart, end )
+    end = Math.min(ed, this.end_parse);
   }
+
+  v = this.csv.slice( this.valueStart, end )
 
   this.testEndRow(end);
 
@@ -212,18 +193,12 @@ parseNull() { // csvClass: client-side
 
 
 testEndRow(end) {  // csvClass: client-side
-  if (this.csv[end] === "\n"  || this.csv.length === end) {
-    this.rowEnd = true;
-  }
   this.valueStart = end+1;
-/*
-    // find new start value
-    if ( this.rowEnd === true && this.csv[e+2] === "\n") {
-      this.valueStart = e+3;  // row ends with /r/n
-    } else {
-      this.valueStart = e+2;  // in mid line or row ends with /r
-    }
-    */
+
+  if ( this.end_lineN <= this.valueStart) {
+    this.rowEnd     = true;
+    this.valueStart = this.end_lineN+1;
+  }
 }
 
 
