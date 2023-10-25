@@ -16,9 +16,10 @@ class csvClass { // csvClass: client-side   _lib/db/csv_module.js
 constructor(  // csvClass: client-side
   table   // place to put parsed data
 ) {
-//  this.fsp  = require('fs').promises;   // asycn wrapper on fs
-  this.csv;                 // cvs file in memory to convert to JSON
-  //this.rowDebug  = 999;   // can be used to debug
+  this.csv        = null ;   // csv file in memory to parse and put into database
+  this.end_lineN  = null ;   // index into csv where the line being parses ends at /n
+  this.valueStart = null ;   // index into csv  where column parse starts
+
   this.error      = false;   // will be set to true if a parsing error occures
   this.table      = table;   // place to put parsed data
   this.insertID   = false;   // do not insert ID column
@@ -28,7 +29,7 @@ constructor(  // csvClass: client-side
 }
 
 
-parseCSV(  // csvClass: client-side
+parse_CSV(  // csvClass: client-side
    file          // file in memory to be parser
   ,DOMid         // DOMid  -> (optional) place to put status of current row being parsed
 ) {
@@ -36,17 +37,20 @@ parseCSV(  // csvClass: client-side
   this.DOM        = document.getElementById(DOMid);
 
   // init class variables
-  this.valueStart = 0;        // start of valueStart
+  this.valueStart = 0;        
   this.row        = 0;        // row of csv file we have completed parsing
-  this.row_old    = 0;
+  this.row_old    = 0;        // keep track of rows parsed since last user update
   this.rowEnd     = false;
   this.delimiter  = ',';      // assume our delimter is a Comma
   this.quote      = '"';      // assume strings with quotes, comma's or crlf are quoted with double quotes
   this.display    = new Date();
-  // now loop and put everything else in json.rows
+
   while ( this.valueStart < this.csv.length) {
-    // now add all the data
-    this.parseRow();
+    // now add all the data to columns
+    this.get_line();
+    this.parse_line();
+
+ 
     if (1000 < (new Date() - this.display)  ) {
       console.log(`${this.row} rows parsed total - ${this.row - this.row_old} rows parsed this time slice `);
       this.row_old = this.row;
@@ -72,15 +76,27 @@ parseCSV(  // csvClass: client-side
 }
 
 
-parseRow() {  // csvClass: client-side
+get_line(){
+  this.end_lineN  = this.csv.indexOf('\n' , this.valueStart+1);
+  if (this.csv[this.end_lineN-1] === "\r") {
+    this.end_parse = this.end_lineN - 1;  // line ends in cr lf, get rid of cr
+  } else {
+    this.end_parse = this.end_lineN;
+  }
+}
+
+
+parse_line() {  // csvClass: client-side
   while (!this.rowEnd) {  
-    this.table.add_column_value(this.row.toString(), this.column.toString(),this.parseValue());
+    this.table.add_column_value(this.row.toString(), this.column.toString(),this.parse_value());
     this.column++; // goto next column
     if (this.rowEnd) {
-      if(this.column_max<this.column) {
-        this.column_max = this.column;
+      if(this.column_max < this.column) {
+        // set highwater mark for column parsed
+         this.column_max = this.column;
       }
       if        (! this.column === this.column_max) {
+        // logg error if all lines do not have same number of columns - what does the spec say?
         this.error(`error on row ${this.row}, column=${this.column }, expected ${this.column_max} `);
       }
     }
@@ -99,11 +115,11 @@ error(message){  // csvClass: client-side
 }
 
 
-parseValue() {  // csvClass: client-side
+parse_value() {  // csvClass: client-side
   const start = this.csv[this.valueStart];
 
   if      ( 
-          (start === this.delimiter && this.csv[this.valueStart+1] ===this.delimiter)
+          (start === this.delimiter && this.csv[this.valueStart+1] === this.delimiter)
       ||   this.csv[this.valueStart] === "\n"
       ||  (this.csv[this.valueStart] === "\r" && this.csv[this.valueStart+1] === "\n" ) ) {
     // /r/n -> parseNull
@@ -128,7 +144,7 @@ parseValue() {  // csvClass: client-side
 parseQuote() {  // csvClass: client-side
   // find the end of the quote   "            ",
   const end_quote  = this.csv.indexOf('",' , this.valueStart+1); 
-  const end_lineN  = this.csv.indexOf('\n' , this.valueStart+1);
+
 
   let end;
 
