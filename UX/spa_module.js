@@ -1,5 +1,7 @@
 import  {loginClass     }   from '/_lib/UX/loginModule.js'     ;
 import  {proxyClass     }   from '/_lib/proxy/proxyModule.js'  ;
+import  {formatClass    }   from '/_lib/format/format_module.js'  ;
+
 
 class spa_class { // synergy.SFCKnox.org web site
 
@@ -7,6 +9,7 @@ constructor() {  // spa_class - client side
 	this.urlParams  = new URLSearchParams( window.location.search );
 	this.login      = new loginClass();
 	this.proxy      = new proxyClass();
+	this.format     = new formatClass();
 }
 	
 	
