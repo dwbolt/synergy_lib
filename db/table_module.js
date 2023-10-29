@@ -80,7 +80,7 @@ set_value(  // tableClass - client-side
       
     default:
       // code block
-      alert(`error tableModule.js method:get_value meta_field.location=${meta_field.location}`);
+      alert(`error table_module.js method:get_value meta_field.location=${meta_field.location}`);
   }
 }
 
@@ -111,7 +111,7 @@ get_value(  // tableClass - client-side
       
     default:
       // code block
-      alert(`error tableModule.js method:get_value meta_field.location=${meta_field.location}`);
+      alert(`error table_module.js method:get_value meta_field.location=${meta_field.location}`);
   }
 }
 
@@ -135,7 +135,7 @@ pk
         r_value += this.format_values(1, relation);
       } else {
         // error
-        alert(`error file="tableModule.js" method="get_value_relation" pk="${pk}" this.name="${this.name}" relationn=${JSON.stringify(relation)}`);
+        alert(`error file="table_module.js" method="get_value_relation" pk="${pk}" this.name="${this.name}" relationn=${JSON.stringify(relation)}`);
       }
     }
     value = r_value;
@@ -257,7 +257,7 @@ async load(  // tableClass - client-side
   //do {
     obj  = await app.proxy.getJSONwithError(this.#url);   // get table in database
     if(obj.json === null) {
-      alert(`file="tableModule.js" method="load" missing or bad file="${this.#url}"`);
+      alert(`file="table_module.js" method="load" missing or bad file="${this.#url}"`);
       // add code to not show table in db menu
       return;
       // missing or ill formed json file, so store an empty good one 

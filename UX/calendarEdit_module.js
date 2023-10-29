@@ -406,7 +406,7 @@ form2data_repeat(g){  // calendarEditClass  client-side
 
   default:
     // error
-    alert(`error in "calendarEditModule.js" method="repeat" repeat="${g.repeat}"`);
+    alert(`error in "calendarEdit_module.js" method="repeat" repeat="${g.repeat}"`);
   }
 }
 

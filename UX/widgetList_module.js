@@ -1,4 +1,4 @@
-import  {nodes2htmlClass     }   from '/_lib/UX/nodes2htmlModule.js';
+import  {nodes2htmlClass     }   from '/_lib/UX/nodes2html_module.js';
 
 class widgetListClass {
 

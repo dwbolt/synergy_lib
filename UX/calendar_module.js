@@ -1,9 +1,9 @@
 import  {formatClass    }   from '/_lib/format/format_module.js'  ;
-import  {proxyClass     }   from '/_lib/proxy/proxyModule.js'    ;
-import  {dbClass        }   from '/_lib/db/dbModule.js'          ;
-import  {tableUxClass   }   from '/_lib/db/tableUxModule.js'     ;
-import  {nodes2htmlClass}   from '/_lib/UX/nodes2htmlModule.js'  ;
-import  {calendarEditClass} from '/_lib/UX/calendarEditModule.js';
+import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'    ;
+import  {dbClass        }   from '/_lib/db/db_module.js'          ;
+import  {tableUxClass   }   from '/_lib/db/tableUx_module.js'     ;
+import  {nodes2htmlClass}   from '/_lib/UX/nodes2html_module.js'  ;
+import  {calendarEditClass} from '/_lib/UX/calendarEdit_module.js';
 
 class calendarClass {
   /*

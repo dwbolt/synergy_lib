@@ -1,7 +1,7 @@
-import  {proxyClass     }   from '/_lib/proxy/proxyModule.js'  ;
+import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'  ;
 import  {formatClass    }   from '/_lib/format/format_module.js';
-import  {loginClass     }   from '/_lib/UX/loginModule.js'     ;
-import  {widgetListClass}   from '/_lib/UX/widgetListModule.js';
+import  {loginClass     }   from '/_lib/UX/login_module.js'     ;
+import  {widgetListClass}   from '/_lib/UX/widgetList_module.js';
 
 
 class appClass { // synergy.SFCKnox.org web site

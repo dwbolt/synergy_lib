@@ -1,8 +1,8 @@
-import {dbClass            } from '/_lib/db/dbModule.js'           ;
-import {groupByClass       } from '/_lib/db/groupByModule.js'      ;
-import {recordUxClass      } from '/_lib/db/recordUxModule.js'     ;
-import {tableClass         } from '/_lib/db/tableModule.js'     ;
-import {select_order_class } from '/_lib/UX/select_order_module.js';
+import {dbClass            } from '/_lib/db/db_module.js'           ;
+import {groupByClass       } from '/_lib/db/groupBy_module.js'      ;
+import {recordUxClass      } from '/_lib/db/recordUx_module.js'     ;
+import {tableClass         } from '/_lib/db/table_module.js'        ;
+import {select_order_class } from '/_lib/UX/select_order_module.js' ;
 
 
 class tableUxClass { // tableUxClass - client-side
@@ -87,13 +87,19 @@ display(        // tableUxClass - client-side
 
   // add status line and empty table to DOM
   document.getElementById(this.DOMid).innerHTML = `
+  <div id="${this.DOMid}_status" style="text-align:left;"></div>
+  <div id="${this.DOMid}_table"  style="display: flex "></div>
+  `;
+  
+  /*
+  `
   <table>
   <caption style="text-align:left;">put status line here</caption>
   <thead></thead>
   <tbody></tbody>
   <tfoot></tfoot>
   </table>`;
-
+*/
   // add fields to group by
   this.groupby_fields = new select_order_class(`${this.DOMid}__group_by_fields`,`${this.globalName}.groupby_fields`);
   this.groupby_fields.set_template(
@@ -105,9 +111,7 @@ display(        // tableUxClass - client-side
   this.model.meta_get("select").forEach((field, i) => {
     this.groupby_fields.add_choice(field,{"text": fields[field].header});
   });
-
   this.groupby_fields.add_choices();
-
 
   // fill in empty table
   this.displaySearch()      ;
@@ -188,28 +192,6 @@ groupby(  // tableUxClass - client-side
   
 }
 
-
-displayBuffer(        // tableUxClass - client-side  
-  // display table - for first time
-) {
-  //this.tags = {}  // remove any previous tags
-
-  // add status line and empty table to DOM
-  document.getElementById(this.DOMid).innerHTML = `
-  <table>
-  <caption style="text-align:left;">put status line here</caption>
-  <thead></thead>
-  <tbody></tbody>
-  <tfoot></tfoot>
-  </table>`;
-
-  // fill in empty table
-  this.statusLine();
-  this.displaySearch();
-  this.displayColumnTitles()
-  this.displayDataBuffer();
-  this.displayFooter();
-}
 
 
 displayHeader( // tableUxClass - client-side
@@ -820,7 +802,6 @@ search( // tableUxClass - client-side
 }
 
 
-
 next( // tableUxClass - client-side
 ) { //next page
   this.paging.row = this.paging.row + this.paging.lines;
@@ -855,7 +836,39 @@ last( /// tableUxClass - client-side
 }
 
 
+} // tableUxClass - client-side //  end
+
+
+export {tableUxClass};
+
+
 ///////////////////////////////////////////////  buffer methods
+/*
+displayBuffer(        // tableUxClass - client-side  
+  // display table - for first time
+) {
+  //this.tags = {}  // remove any previous tags
+
+  // add status line and empty table to DOM
+  document.getElementById(this.DOMid).innerHTML = `
+  <table>
+  <caption style="text-align:left;">put status line here</caption>
+  <thead></thead>
+  <tbody></tbody>
+  <tfoot></tfoot>
+  </table>`;
+
+  // fill in empty table
+  this.statusLine();
+  this.displaySearch();
+  this.displayColumnTitles()
+  this.displayDataBuffer();
+  this.displayFooter();
+}
+*/
+
+
+/*
 table2buffer( // tableUxClass - client-side
   a_index //  array of row numbers into
   ) {
@@ -997,8 +1010,4 @@ bufferCreateEmpty( // tableUxClass - client-side
   // save empty buffer
   this.model.json.rows = rows;
 }
-
-} // tableUxClass - client-side //  end
-
-
-export {tableUxClass};
+*/

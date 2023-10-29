@@ -1,4 +1,4 @@
-import  {proxyClass   }   from '/_lib/proxy/proxyModule.js'  ;
+import  {proxyClass   }   from '/_lib/proxy/proxy_module.js'  ;
 
 class nodes2htmlClass {
 

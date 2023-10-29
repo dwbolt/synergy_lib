@@ -1,4 +1,4 @@
-import  {tableClass   }   from '/_lib/db/tableModule.js'    ;
+import  {tableClass   }   from '/_lib/db/table_module.js'    ;
 
 class dbClass {  
 /* db - database classes
@@ -38,7 +38,7 @@ async load(  // dbClass - client-side
   // load list of tables in database
   const obj = await app.proxy.getJSONwithError(this.#url);   // get list of tables;
   if(obj.json === null) {
-    alert(`dbModule.js method="load" missing or bad file="${this.#url}"`);
+    alert(`db_module.js method="load" missing or bad file="${this.#url}"`);
   }
   this.#json  = obj.json; 
 
