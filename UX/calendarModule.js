@@ -1,4 +1,4 @@
-import  {formatClass    }   from '/_lib/format/formatModule.js'  ;
+import  {formatClass    }   from '/_lib/format/format_module.js'  ;
 import  {proxyClass     }   from '/_lib/proxy/proxyModule.js'    ;
 import  {dbClass        }   from '/_lib/db/dbModule.js'          ;
 import  {tableUxClass   }   from '/_lib/db/tableUxModule.js'     ;
