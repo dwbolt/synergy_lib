@@ -88,18 +88,9 @@ display(        // tableUxClass - client-side
   // add status line and empty table to DOM
   document.getElementById(this.DOMid).innerHTML = `
   <div id="${this.DOMid}_status" style="text-align:left;"></div>
-  <div id="${this.DOMid}_table"  style="display: flex "></div>
+  <div id="${this.DOMid}_table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
   `;
   
-  /*
-  `
-  <table>
-  <caption style="text-align:left;">put status line here</caption>
-  <thead></thead>
-  <tbody></tbody>
-  <tfoot></tfoot>
-  </table>`;
-*/
   // add fields to group by
   this.groupby_fields = new select_order_class(`${this.DOMid}__group_by_fields`,`${this.globalName}.groupby_fields`);
   this.groupby_fields.set_template(
@@ -114,10 +105,10 @@ display(        // tableUxClass - client-side
   this.groupby_fields.add_choices();
 
   // fill in empty table
-  this.displaySearch()      ;
+  //this.displaySearch()      ;
   this.displayColumnTitles();
   this.displayData()        ;  // will display statusLine
-  this.displayFooter()      ;
+ // this.displayFooter()      ;
 }
 
 
@@ -190,13 +181,6 @@ groupby(  // tableUxClass - client-side
   this.tableUxG.tableName = this.tableName+"-GroupBy";  //
   this.tableUxG.display();                   // show table to user
   
-}
-
-
-
-displayHeader( // tableUxClass - client-side
-){
-  this.displayColumnTitles();
 }
 
 
@@ -280,7 +264,6 @@ displayTag(
 displaySearch(){
   if (!this.searchVisible) return;
   // add next & prev buttons
-  //<th>
   let html = `
   <tr onchange="${this.globalName}.search(this)" id="search">
   ${( this.lineNumberVisible ? "<th></th>": "") }
@@ -300,8 +283,7 @@ displaySearch(){
   html += "</tr>";
 
   // add to html to DOM
-  const thead = this.getTableDom().children[1]; // should be thead
-  thead.innerHTML = html;
+  document.getElementById(``).innerHTML = html;
 }
 
 
@@ -309,20 +291,20 @@ displayColumnTitles( // tableUxClass - client-side
 ){
   // add header    //  this.json[table].DOMid = domID; // remember where table was displayed
   this.skip_columns = 0;
-  let line=""; if (this.lineNumberVisible) {line = "<th>line</th>"; this.skip_columns++}
-  let row =""; if (this.rowNumberVisible ) {row  = "<th>row</th>" ; this.skip_columns++}
-  let html = `<tr>${line}${row}`;
+  let line=""; if (this.lineNumberVisible) {line = "<div><b>line</b></div>"; this.skip_columns++}
+  let html = line;
 
   const select = this.model.meta_get("select");
   const fields = this.model.meta_get("fields");
   for(var i=0; i<select.length; i++){
-    html += `<th>${fields[select[i]].header}</th>`;
+    html += `<div><b>${fields[select[i]].header}</b></div>`;
   };
 
- html += "</tr>";
+  // set style
+  document.getElementById(`${this.DOMid}_table`).style.setProperty("grid-template-columns",`repeat(${select.length + this.skip_columns},auto)`); 
 
  // add to html to DOM
- this.getTableDom().children[1].innerHTML += html; // append to thead
+ document.getElementById(`${this.DOMid}_table`).innerHTML = html; // append to thead
 }
 
 
@@ -335,11 +317,12 @@ displayData(){   // tableUxClass - client-side
   }
 
   // display data
-  this.getTableDom().children[2].innerHTML = html;
+  document.getElementById(`${this.DOMid}_table`).innerHTML += html;
 
   // format data just appended
   // allow first child of each <td> tag to set attribute of <td> tag, the calenderClass was the first to use this
   // walk tr, then td to change class for td
+  /*
   let tbody = document.getElementById(this.DOMid).children[0].children[2]; // first Child should be <table>   .children[2] should be <tbody>
   for(let i=0; i<tbody.children.length; i++) {
     let tr = tbody.children[i];
@@ -359,7 +342,7 @@ displayData(){   // tableUxClass - client-side
       }
     }
   }
-
+*/
   // figure out maxrow
   if (this.buffer) {
     // display bufffer
@@ -451,8 +434,7 @@ statusLine(   // tableUxClass - client-side
   });
 
   // add to html to DOM
-  const caption     = this.getTableDom().children[0]; // should be caption
-  caption.innerHTML = html;
+ document.getElementById(`${this.DOMid}_status`).innerHTML = html;
 }
 
 
@@ -519,40 +501,37 @@ getModel(){return this.model}  // will be table class
 
 appendHTMLrow(  // tableUxClass - client-side
   // append row from table or tag list
-   i         // is line the row is being displayed on
+   i           // is line the row is being displayed on
   ,arrayIndex  // row data to be displayed
 ) {
 
   // decide if raw data or a tag list is being displayed
-  let row,PK;
+  let PK;
   if (this.buffer) {
     // display bufffer
-    row          = this.model.getRowBuffer(rowIndex)
     PK = rowIndex
   } else if (this.tag === "null"  || this.tag === null) {
     // display all data
     PK = arrayIndex;
-    row          = this.model.getRow(PK);
   } else {
     // display subset of rows in tag
     if (arrayIndex < this.tags[this.tag].length) {
       PK = this.tags[this.tag][arrayIndex];
-  //    row          = this.model.PK_get( PK);
     } else {
       return ""; // no more data
     }
   }
 
   // create html for each column in the row
-  let lineNum=""; if (this.lineNumberVisible ) {lineNum = `<td>${i}</td>`           ;}
-  let rowNum =""; if (this.rowNumberVisible  ) {rowNum  = `<td>${PK}</td>`;}
+  let lineNum=""; if (this.lineNumberVisible ) {lineNum = `<div><a onclick="${this.globalName}.recordUX.show(${PK})">${i}</a></div>`           ;}
+  //let rowNum =""; if (this.rowNumberVisible  ) {rowNum  = `<div>${PK}</div>`;}
 
   let selected = "";
   if (this.selected.find(
     val => val === PK) )
      {selected="class='selected'";}
-  let html   = `<tr ${selected} data-row=${PK}>${lineNum}${rowNum}`;
-
+  //let html   = `<tr ${selected} data-row=${PK}>${lineNum}${rowNum}`;
+  let html   = lineNum;
   const select = this.model.meta_get("select");
   for(let i=0; i<select.length; i++) {
     // create display form of field
@@ -564,7 +543,7 @@ appendHTMLrow(  // tableUxClass - client-side
 
     html += this.formatTransform(value, i);
   };
-  html += "</tr>";
+  //html += "</tr>";
   return html;
 }
 
@@ -582,6 +561,7 @@ formatTransform( // tableUxClass - client-side
   }
 
   const format = this.getColumnFormat(i);
+/*
   if (typeof(value) === "string" && (value.startsWith("https://")  || value.startsWith("http://")) ) {
       // display URL
       html += `<td ${format}><a href="${show}" target="_blank">URL</a></td>`;
@@ -590,6 +570,15 @@ formatTransform( // tableUxClass - client-side
   } else {
       html += `<td ${format}>${show}</td>`;   // display raw data
   }
+*/
+  if (typeof(value) === "string" && (value.startsWith("https://")  || value.startsWith("http://")) ) {
+    // display URL
+    html += `<td ${format}><a href="${show}" target="_blank">URL</a></td>`;
+} else if (!format && typeof(value) === "number" ) { // display number right justified
+    html += `<div align='right'>${show}</div>`;
+} else {
+    html += `<div ${format}>${show}</div>`;   // display raw data
+}
 
   return html;
 }
@@ -805,7 +794,7 @@ search( // tableUxClass - client-side
 next( // tableUxClass - client-side
 ) { //next page
   this.paging.row = this.paging.row + this.paging.lines;
-  this.displayData();
+  this.display();
 }
 
 
@@ -816,14 +805,14 @@ prev( /// tableUxClass - client-side
     // should not be less than 0;
     this.paging.row = 0;
   }
-  this.displayData();
+  this.display();
 }
 
 
 first( /// tableUxClass - client-side
 ){  // first page
   this.paging.row = 0;
-  this.displayData();
+  this.display();
 }
 
 
@@ -832,7 +821,7 @@ last( /// tableUxClass - client-side
 //  this.paging.row = this.model.getRowsLength()  - this.paging.lines
 //  this.paging.row = this.paging.rowMax  - this.paging.lines
   this.paging.row = parseInt(this.paging.rowMax/this.paging.lines) * this.paging.lines;
-  this.displayData();
+  this.display();
 }
 
 

@@ -37,14 +37,14 @@ constructor( // recordUxClass - client-side
 }
 
 show(  // client side recordUxClass - for a page
-  element=null // dom element
+  pk=null // dom element
 ){
   // recordShow
   const table             = this.tableUX.getModel()  // get tableClass being displayed
   let html = `<b>Table: ${this.tableUX.tableName}</b><br><table>`;
-  if (element) {
+  if (!(pk === null)) {
     // user clicked on elemnt, remember primary key for other record methodes
-    this.#primary_key_value = element.parentElement.getAttribute("data-row"); 
+    this.#primary_key_value = pk; 
   }
 
   const  select = table.meta_get("select");

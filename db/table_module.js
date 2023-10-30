@@ -117,6 +117,7 @@ get_value(  // tableClass - client-side
 
 
 get_value_relation(  // tableClass - client-side
+// returns display value for both relation fields and non-relation fields
 pk
 ,field
 ) {
