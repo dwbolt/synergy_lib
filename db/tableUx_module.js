@@ -523,7 +523,7 @@ appendHTMLrow(  // tableUxClass - client-side
   }
 
   // create html for each column in the row
-  let lineNum=""; if (this.lineNumberVisible ) {lineNum = `<div><a onclick="${this.globalName}.recordUX.show(${PK})">${i}</a></div>`           ;}
+  let lineNum=""; if (this.lineNumberVisible ) {lineNum = `<div onclick="${this.globalName}.recordUX.show('${PK}')"><a class="link"> ${i} </a></div>`           ;}
   //let rowNum =""; if (this.rowNumberVisible  ) {rowNum  = `<div>${PK}</div>`;}
 
   let selected = "";
@@ -606,23 +606,6 @@ genRows( // tableUxClass - client-side
 
   return " "+ txt.substr(1)  // replace leading comma wiht a space
 }
-
-
-
-genTable(  //+ tableUxClass - client-side
-  s_tableName
-  ) {//-+
-  let rows = this.genRows();
-
-  return `"${s_tableName}": {
-"fieldA":  ${JSON.stringify(this.json.fieldA)}
-
-,"header": ${JSON.stringify(this.json.header)}
-
-,"rows": [
-${rows}]
-}\n\n`;
-} //-
 
 
 getColumnFormat( // tableUxClass - client-side

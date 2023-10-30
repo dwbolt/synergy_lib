@@ -25,11 +25,6 @@ url
   this.db     = null; 
   this.#json  = {
     "meta"   : {fields:{},"select" : []}
-    //"description":""        // what is this table for
-    ,"field":{}             // calculated field from fieldA
-    ,"fieldA":[]            // array of names to access field in rows
-                            // search is optional array of size of search input
-              // what is displayed for the header
     ,"index"  : []          // array of index fields
     ,"deleted": {}          // {key: true, key2, true .....} listed of keys stored that are logally deleted
     ,"changes": {}          // current changed memory value
@@ -41,11 +36,8 @@ url
       }
       ,"key2":{...}
     }   */
-    ,"PK"        : {}
     ,"columns"   : {}
     ,"rows"      : []       // row data, one array for each row 
-    ,"rowsBuffer": []       // array of arrays: buffer data for add, select, dupp, will change rows data if saved
-                            // [rowIndex,[changes made]]  index of <0 is new row to be appended at end if saved
   }
 }
 
@@ -71,7 +63,6 @@ set_value(  // tableClass - client-side
       }
       
     case "relation":
-      //return this.#json.relation[this.#json.PK[pk]]
       if (this.#json.relation[pk] && this.#json.relation[pk][field]) {
         return this.#json.relation[pk][field];
       } else {
@@ -95,14 +86,13 @@ get_value(  // tableClass - client-side
       return this.#json.columns[field][pk];
 
     case "row":
-      if (this.#json.meta.PK[pk]  && this.#json.rows[this.#json.meta.PK[pk]]) {
+      if (typeof(this.#json.meta.PK[pk]) != "undefined"  && this.#json.rows[this.#json.meta.PK[pk]]) {
         return this.#json.rows[this.#json.meta.PK[pk]][meta_field.param];
       } else {
         return null;
       }
       
     case "relation":
-      //return this.#json.relation[this.#json.PK[pk]]
       if (this.#json.relation[pk] && this.#json.relation[pk][field]) {
         return this.#json.relation[pk][field];
       } else {
@@ -245,8 +235,8 @@ meta_get(  // tableClass - client-side
 get_PK( // tableClass - client-side
 ) {
   // array of PK keys for entire table;
-  //return Object.keys(this.#json.meta.PK);
-  return Object.keys(this.#json.PK);
+  return Object.keys(this.#json.meta.PK);
+  //return Object.keys(this.#json.PK);
 }
 
 
@@ -254,17 +244,14 @@ async load(  // tableClass - client-side
   url        // location of table to load
   ) { 
   this.#url = url;
-  let obj;
-  //do {
-    obj  = await app.proxy.getJSONwithError(this.#url);   // get table in database
-    if(obj.json === null) {
-      alert(`file="table_module.js" method="load" missing or bad file="${this.#url}"`);
-      // add code to not show table in db menu
-      return;
-      // missing or ill formed json file, so store an empty good one 
-      //await app.proxy.RESTpost(this.default_table_structure() ,this.#url)
-    }
-  //} while (obj.json === null);
+  let obj = await app.proxy.getJSONwithError(this.#url);   // get table in database
+  if(obj.json === null) {
+    alert(`file="table_module.js" method="load" missing or bad file="${this.#url}"`);
+    // add code to not show table in db menu
+    return;
+    // missing or ill formed json file, so store an empty good one 
+    //await app.proxy.RESTpost(this.default_table_structure() ,this.#url)
+  }
   this.#json  = obj.json; 
   this.setHeader();
 
@@ -273,7 +260,7 @@ async load(  // tableClass - client-side
   if (typeof(this.#json.deleted) === "undefined") this.#json.deleted = {};
 
   // index primary key
-  if (typeof(this.#json.PK) !== "object") {
+  if (typeof(this.#json.meta.PK) !== "object") {
     // create PK
     this.PK_create(); 
   }
@@ -363,10 +350,13 @@ default_table_structure() {
   }
 }
 
-PK_create(){
+PK_create(){  // tableClass - client-side
+  // this only works for data stored rows, work to depricate
+
+  alert(`file="table_module.js" method="PK_create" URL="${this.#url}" fix data`)
   // create primary key index 
-  this.#json.PK     = {};
-  this.#json.meta.PK_max= 0; 
+  this.#json.meta.PK     = {};
+  this.#json.meta.PK_max = 0; 
   
   // walk to entire table and index on column key
   const rows = this.getRows();
@@ -375,9 +365,9 @@ PK_create(){
   }
   for (var i=0; i< rows.length; i++) {
     let value = rows[i][0];  // the PK is always the starting column
-    this.#json.PK[value]=i;  // store the row number 
+    this.#json.meta.PK[value]=i.toString();  // store the row number 
 
-    if (this.#json.meta.PK_max< value) {
+    if (this.#json.meta.PK_max < value) {
       // find largest key value, primary key is an integer number that increments
       this.#json.meta.PK_max= value;
     }
@@ -389,7 +379,7 @@ PK_get( // tableClass - client-side
   key=null  // primary key, return row
   ){
   if (key === null) {
-    return Object.keys(this.#json.PK);    // array of PK keys - use to walk all rows
+    return Object.keys(this.#json.meta.PK);    // array of PK keys - use to walk all rows
   } else {
     return this.#json.rows[ this.#json.PK[key] ];
   }
@@ -401,8 +391,10 @@ async save2file( // tableClass - client-side
   // see if it is a new table;
   const changes = Object.keys(this.#json.changes);
   if (0<changes.length) {
+    // save changes
+    
+
     // only save file if there are changes to the table or it is new
-    //const msg   = await app.proxy.RESTpost( this.genTable() ,this.#url);
     const file = app.format.obj2string(this.#json) 
     const msg   = await app.proxy.RESTpost( file, this.#url);
 
@@ -636,7 +628,7 @@ genRows() {  // tableClass - client-side
   return " "+ txt.slice(1)  // replace leading comma with a space
 }
 
-
+/*
 genTable(  // tableClass - client-side
 // create JSON file to store table for later retrivial
 ) {
@@ -651,7 +643,7 @@ genTable(  // tableClass - client-side
 ${this.genRows()}]
 }`;
 }
-
+*/
 
 getColumnFormat(i) { // tableClass - client-side
   let f = this.#json.columnFormat[i];
