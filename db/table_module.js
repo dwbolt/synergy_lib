@@ -249,8 +249,6 @@ async load(  // tableClass - client-side
     alert(`file="table_module.js" method="load" missing or bad file="${this.#url}"`);
     // add code to not show table in db menu
     return;
-    // missing or ill formed json file, so store an empty good one 
-    //await app.proxy.RESTpost(this.default_table_structure() ,this.#url)
   }
   this.#json  = obj.json; 
   this.setHeader();
@@ -302,53 +300,6 @@ get_object( // tableClass - client-side
   return object;  // json version of row in table
 }
 
-
-default_table_structure() {
-  const tableName=this.#url.slice(0,this.#url.length-7).split("/");  // take off /_.json, then slit
-  switch(tableName[tableName.length-1]) {
-    case "people":
-      return `{
-  "fieldA" : []
-  ,"header": ["id", "FIRST NAME", "LAST NAME", "EMAIL ADDRESS", "OFFICE NUMBER", "CELL NUMBER", "PERSONAL NOTES"]
-  ,"rows"  : []
-}`
-      
-    case "orgainization":
-      return `
-{
-  "fieldA":      []
-  ,"header":      ["id","NAME"," NOTES "]
-  ,"rows": []
-}`
-
-    case "phone":
-      return `
-{
-"fieldA":      []
-,"header":      ["id","NAME"," NOTES "]
-,"rows": []
-}`
-
-    case "address":
-      return `
-{
-"fieldA":      []
-,"header":      ["id","NAME"," NOTES "]
-,"rows": []
-}`
-
-    case "url":
-      return `
-{
-"fieldA":      []
-,"header":      ["id","NAME"," NOTES "]
-,"rows": []
-}`
-
-    default:
-      // code block
-  }
-}
 
 PK_create(){  // tableClass - client-side
   // this only works for data stored rows, work to depricate
@@ -420,6 +371,7 @@ save2memory( // tableClass - client-side
   if(!primary_key_value || primary_key_value==="") {
     // get next primary key
     primary_key_value = (++this.#json.meta.PK_max).toString();
+    this.#json.meta.PK[primary_key_value] = true;
   }
 
   // get change log for row
@@ -436,7 +388,10 @@ save2memory( // tableClass - client-side
       // change was made to field
       if (typeof(changes[field]) === "undefined") {
         // first time field has changed for this row, add change log for field
-        changes[field] = {"original":current_value, "new_value":edited_value};
+        changes[field] = {"new_value": edited_value};
+        if (typeof(current_value) != "undefined"){
+          changes[field].original = current_value;
+        } 
       } else if (edited_value  === changes[primary_key_value][i]["original"]) {
         // original value was restored, so delete session change log
         delete changes[field];
