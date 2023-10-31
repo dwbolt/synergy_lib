@@ -151,7 +151,8 @@ save( // client side recordUxClass - for a page
       obj[field_name] = edit.value;
     }
   }
-  table.save2memory(this.#primary_key_value, obj);
+  // value of this.#primary_key_value determines add or update
+  table.save2memory(this.#primary_key_value, obj); 
   this.show_changes();
   this.show();
 }
@@ -167,15 +168,16 @@ new(){// client side recordUxClass - for a page
 }
 
 
+/* do not think I need add()
 add(){ // client side recordUxClass - for a page
-  // similar to save, move data from buffer to memory, then save
+  // similar to save, but creating new record
   const table = this.tableUX.getModel();  // get tableClass being displayed
 
-  //table.bufferAppend();       // move buffer data to table
   this.save();          // update table data from form
   this.tableUX.display(table.PK_get() );  // redisplay data
   this.show_changes();                    // show changes
 }
+*/
 
 
 clear(){ // client side recordUxClass - for a page
