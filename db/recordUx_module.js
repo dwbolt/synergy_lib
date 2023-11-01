@@ -8,7 +8,6 @@ class recordUxClass { // recordUxClass - client-side
   */
 
 #primary_key_value  // can these be moved from tableUxClass?
-#edit_type
 
 constructor( // recordUxClass - client-side
    tableUX       // where table will be displayed
@@ -23,10 +22,10 @@ constructor( // recordUxClass - client-side
     dombuttons.innerHTML =
     `
     <input hidden type='button' value='New'       onclick='${this.globalName}.new()'>
-    <input hidden type='button' value='Add'       onclick='${this.globalName}.add()'>
+    <input hidden type='button' value='Add'       onclick='${this.globalName}.save()'>
     <input hidden type='button' value='Duplicate' onclick='${this.globalName}.duplicate()'>
   
-    <input hidden type='button' value='Edit'       onclick='${this.globalName}.edit(true)'> 
+    <input hidden type='button' value='Edit'       onclick='${this.globalName}.edit()'> 
     <input hidden type='button' value='Delete'     onclick='${this.globalName}.delete()'> 
     <input hidden type='button' value='Save'       onclick='${this.globalName}.save()'>
   
@@ -84,9 +83,8 @@ buttonsShow( // client side recordUxClass - for a page
 
 
 edit(  // client side dbUXClass
-  edit_type // true -> edit table record    false -> edit new record
+ //    this.#primary_key_value === null -> edit new record
 ){// client side recordUxClass - for a page
-  this.#edit_type = edit_type;
   let html = "<table>";
   const table  = this.tableUX.getModel();  // get tableClass being displayed
   const select = table.meta_get("select"); // array of fields to work with
@@ -108,12 +106,11 @@ edit(  // client side dbUXClass
         break;
       default:
         // single value- column or row
+        value = table.get_value(this.#primary_key_value,field);
         if (type === "PK") {
           // do not allow editing of primary key
-          value = edit_type ? table.get_value(this.#primary_key_value,field) : null ;
           readonly = "readonly";
         } else {
-          value = edit_type ? table.get_value(this.#primary_key_value,field) : "";
           readonly = "";
         }
         if (!value) {
@@ -126,10 +123,10 @@ edit(  // client side dbUXClass
 
   html += "</table>";
   document.getElementById(this.tableUX.DOMid + "_record").innerHTML = html;
-  if (edit_type) {
-    this.buttonsShow("Save Cancel");
+  if (this.#primary_key_value  === null ) {
+    this.buttonsShow("Add Cancel");  // adding new record
   } else {
-    this.buttonsShow("Add Cancel");
+    this.buttonsShow("Save Cancel"); // edit record
   }
 }
 
@@ -152,7 +149,7 @@ save( // client side recordUxClass - for a page
     }
   }
   // value of this.#primary_key_value determines add or update
-  table.save2memory(this.#primary_key_value, obj); 
+  this.#primary_key_value = table.save2memory(this.#primary_key_value, obj); 
   this.show_changes();
   this.show();
 }
@@ -160,24 +157,13 @@ save( // client side recordUxClass - for a page
 
 show_changes(){
   // need to update app info
+  this.tableUX.display();
 }
 
 new(){// client side recordUxClass - for a page
   this.#primary_key_value = null;   // should be able todo this in one statement
-  this.edit(false);
+  this.edit();
 }
-
-
-/* do not think I need add()
-add(){ // client side recordUxClass - for a page
-  // similar to save, but creating new record
-  const table = this.tableUX.getModel();  // get tableClass being displayed
-
-  this.save();          // update table data from form
-  this.tableUX.display(table.PK_get() );  // redisplay data
-  this.show_changes();                    // show changes
-}
-*/
 
 
 clear(){ // client side recordUxClass - for a page
@@ -188,14 +174,15 @@ clear(){ // client side recordUxClass - for a page
 
 cancel(){// client side recordUxClass - for a page
   // similar to save, move data from buffer to memory, then save
-  if (this.#edit_type ) {
-     // cancled from edit
-    this.show();
-  } else {
+  if (this.#primary_key_value === null ) {
     // cancled from new
     this.clear();
+  } else {
+    // cancled from edit
+    this.show();
   }
 }
+
 
 recordDuplicate(){// client side recordUxClass - for a page
   alert("recordDuplicate from memery, not implemented yet")

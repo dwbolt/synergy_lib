@@ -405,6 +405,7 @@ save2memory( // tableClass - client-side
     }
   }
 
+  return primary_key_value; // was set to new value if null;
   // need to save memory change log to server incase session is lost, so user will not loose there work
   // code here
 }
