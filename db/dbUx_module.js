@@ -176,4 +176,4 @@ displayTable( // dbClass - client-side
 
 } // dbClass - client-side // end /////////////////////////////////////////////////////////////////////////////
 
-export {dbClass};
+export {dbUxClass};
