@@ -29,7 +29,7 @@ constructor() {   // dbClass - client-side
 }
 
 
-async load(  // dbClass - client-side
+async load_meta(  // dbClass - client-side
   // load database tables file from server
   url  // location
   ) {
@@ -38,9 +38,22 @@ async load(  // dbClass - client-side
   // load list of tables in database
   const obj = await app.proxy.getJSONwithError(this.#url);   // get list of tables;
   if(obj.json === null) {
-    alert(`db_module.js method="load" missing or bad file="${this.#url}"`);
+    alert(`db_module.js method="load_meta" missing or bad file="${this.#url}"`);
+    return false;
   }
   this.#json  = obj.json; 
+  return true;
+}
+
+
+async load(  // dbClass - client-side
+  // load database tables file from server
+  url  // location
+  ) {
+  if(!this.load_meta(url)){
+    //error
+    return;
+  }
 
   // load json table file
   this.#urlList = url.slice(1,url.length-7);  // may break if _.json changes
@@ -176,4 +189,4 @@ displayTable( // dbClass - client-side
 
 } // dbClass - client-side // end /////////////////////////////////////////////////////////////////////////////
 
-export {dbUxClass};
+export {dbClass};
