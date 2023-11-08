@@ -20,17 +20,31 @@ save to server
 
 
 #url       // remember where the file came from
-#urlList   // directory where database folders are
-#json      // data loaded from json file
+//#urlList   // directory where database folders are
+#json      // list of data bases 
 
 
 constructor() {   // dbClass - client-side
-  this.tables = {};
-}
+  this.tables = null;  // will list tables once a database is seleected.
+ }
 
 
-async load_meta(  // dbClass - client-side
-  // load database tables file from server
+ get_database_list(){   // dbClass - client-side
+  return Object.keys(this.#json.meta.databases);
+ }
+
+
+ get_database_list_value(
+   // dbClass - client-side
+    database
+   ,attribute
+   ){
+  return this.#json.meta.databases[database][attribute];
+ }
+
+
+async load_db_list(  // dbClass - client-side
+  // load list of databases 
   url  // location
   ) {
   this.#url     = url;
@@ -47,31 +61,34 @@ async load_meta(  // dbClass - client-side
 
 
 async load(  // dbClass - client-side
-  // load database tables file from server
-  url  // location
+  // load database meta data and tables file from server
+  db_name  // name of db to load
   ) {
-  if(!this.load_meta(url)){
+  const url = this.get_database_list_value(db_name,"location");
+  const msg  = await app.proxy.getJSONwithError(url);
+  if(msg.json === null){
     //error
+    alert(`error, file=""_.js method="load" url="${url}"`);
     return;
   }
-
-  // load json table file
-  this.#urlList = url.slice(1,url.length-7);  // may break if _.json changes
+  this.#json = msg.json;
 
   // walk through table data, load and make the table class objects
-  const tables_meta = this.#json.meta.tables;        //
-  const table_names = Object.keys(tables_meta);
   this.tables = {};
+  const table_names = this.get_table_names();
   for (let i=0; i<table_names.length; i++) {
     const table = new tableClass();       // create
-    const table_url = `${this.#urlList}/${table_names[i]}/_.json`;
+    this.tables[table_names[i]] = table;  // add table to database
+    const table_url = msg.json.meta.tables[table_names[i]].location;
     await table.load(table_url);          // load
     table.set_db(this);                   // allow tables to get to other tables in the database
     table.set_name(table_names[i]);       // allow table to know it's database name
-    this.tables[table_names[i]] = table;  // add table to database
   }
 }
 
+get_table_names(){
+  return Object.keys(this.#json.meta.tables);
+}
 
 loadLocal( // dbClass - client-side   -- should be able to share code here
   buffer
@@ -93,34 +110,16 @@ loadLocal( // dbClass - client-side   -- should be able to share code here
 }
 
 
-displayMenu( // dbClass - client-side
-  // create menu of tables to display
-   domID        // where to output menu
-  ,selectTable  // onchange function to execute
-) {
-  // build menu list
-  let html = `<select size="9" onclick="${selectTable}">`;
-
-  Object.entries(this.tables).forEach((table, i) => {
-    html += `<option value="${table[0]}">${table[0]}</option>`;
-  });
-  html += `
-  </select>`;
-
-  document.getElementById(domID).innerHTML = html;
-}
-
-
 getJSON(){return this.#json;}
 
-
+/*
 tableAdd(tableName) { // dbClass - client-side
   // create empty table and add to database
   this.tables[tableName] = new tableClass(`${this.#urlList}/${tableName}/_.json`);
 
   return this.tables[tableName]
 }
-
+*/
 
 getTable( // dbClass - client-side
   s_tableName

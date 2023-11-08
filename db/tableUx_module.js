@@ -401,11 +401,12 @@ statusLine(   // tableUxClass - client-side
   this.statusLineData.forEach((item, i) => {
     switch(item) {
       case "nextPrev":
-        html += `<input id="prev" type="button" onclick ="${this.globalName}.prev()" value="Prev"/>
-                 <input id="next" type="button" onclick ="${this.globalName}.next()" value="Next"/>`
+        html += `<input id="prev" type="button" onclick ='${this.globalName}.prev()' value="Prev"/>
+                 <input id="next" type="button" onclick ='${this.globalName}.next()' value="Next"/>`
         break;
       case "firstLast":
-        html += `<input id="first" type="button" onclick ="${this.globalName}.first()" value="First"/><input id="last" type="button" onclick ="${this.globalName}.last()" value="Last"/>`
+        html += `<input id="first" type="button" onclick ='${this.globalName}.first()' value="First"/>
+                 <input id="last"  type="button" onclick ='${this.globalName}.last()' value="Last"/>`
         break;
       case "tableName":
         html += `<b>Table: ${this.tableName}</b>`
@@ -417,13 +418,13 @@ statusLine(   // tableUxClass - client-side
         html += `tags: ${this.genTags()}`
         break;
       case "rows/page":
-        html += `rows/page: <input type="number" min="1" max="999" value="${this.paging.lines}" onchange="${this.globalName}.changePageSize(this)"/>`
+        html += `rows/page: <input type="number" min="1" max="999" value="${this.paging.lines}" onchange='${this.globalName}.changePageSize(this)'/>`
         break;
       case "download":
-        html += `<input type="button" onclick="${this.globalName}.export()" value="Download CSV"/> <a id='download_link'></a>`
+        html += `<input type="button" onclick='${this.globalName}.export()' value="Download CSV"/> <a id='download_link'></a>`
         break;
       case "groupBy":
-        html += `<input type="button" onclick="${this.globalName}.groupBy_toggle()" value="Group"/>`
+        html += `<input type="button" onclick='${this.globalName}.groupBy_toggle()' value="Group"/>`
         break;
       default:
         // custom
