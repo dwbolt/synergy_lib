@@ -151,9 +151,11 @@ url
       // assume it is the main page
       document.getElementById("heading1").innerHTML += ` ${this.year}`;
     }
-
+    for(let i=0; i<7; i++) {
+      this.tableUx.setColumnFormat(i,`class="day"`);  // set class of each day
+    }
     this.tableUx.display();
-    this.findToday();   // only need to do this is we are displaying the clander
+//    this.findToday();   // only need to do this is we are displaying the clander
   } else {
     // display event in calendar
     await this.displayEvent();
@@ -332,7 +334,6 @@ async buildTable(  // calendarClass  client-side
   this.login_status = await app.login.getStatus();  // cashe login status for duration of load and buil
 
   for (let x=0; start.getFullYear()<=year ;x++) {
-    //let row = []; // init week
     for (let y=0; y<=6; y++) {
       // add days for week
       let m = start.getMonth()+1;
@@ -366,11 +367,9 @@ async buildTable(  // calendarClass  client-side
         html += `<p>${editButton}<a  href="${edge.url}"   target="_blank" class="${repeat_class}">${edge.name}</a></p>`
       }
 
-      //row.push(html + "</br>")
       t.add_column_value(x.toString(),y.toString(), html + "</br>")
       start.setDate( start.getDate() + 1 ); // move to next day
     }
-    //t.appendRow(row);  // append row to table
   }
 }
   
@@ -424,15 +423,15 @@ moveToDate( // calendarClass  client-side
 ) {
   let timeBetweenDays;  // in milliseconds from newDate to first date displayed in first row
   let weeksBetweenDays; // number of rows need to move to make the newDate displayed in first row of calendar
-  const firstDayTD    = document.getElementsByTagName("td")[0];      // grabs the table elements that hold the dates on calendar
-  const firstMonthDay = firstDayTD.firstChild.innerText.split("-");  // grabs the first date at the top left of calendar table
+  const firstDayDiv      = document.getElementById("weeks_table").childNodes[7];      // item 7 should be first day.
+  const firstMonthDay = firstDayDiv.firstChild.innerText.split("-");  // grabs the first date at the top left of calendar table
 
   // convert strings to integers
   const firstMonth = parseInt(firstMonthDay[0]);
   const firstDay   = parseInt(firstMonthDay[1])
 
   // first date of page we are on at the moment
-  const firstYear = (this.tableUx.paging.row ===0 && firstDayTD.className === "notYear") ? (this.year-1) : this.year;
+  const firstYear = (this.tableUx.paging.row ===0 && firstDayDiv.className === "notYear") ? (this.year-1) : this.year;
   const firstDate = new Date(firstYear, firstMonth-1, firstDay);
 
   // find difference in time between dates

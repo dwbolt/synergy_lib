@@ -106,7 +106,6 @@ display(        // tableUxClass - client-side
 
   // fill in empty table
   //this.displaySearch()      ;
-  this.displayColumnTitles();
   this.displayData()        ;  // will display statusLine
  // this.displayFooter()      ;
 }
@@ -310,22 +309,21 @@ displayColumnTitles( // tableUxClass - client-side
 
 displayData(){   // tableUxClass - client-side
   let html="";  // init html
-
+  this.displayColumnTitles();
   // build one row at a time
   for (let i = 0; i < this.paging.lines; i++) {
     html += this.appendHTMLrow(i+1, i+this.paging.row);
   }
 
   // display data
-  document.getElementById(`${this.DOMid}_table`).innerHTML += html;
+  const table_data =  document.getElementById(`${this.DOMid}_table`)
+  table_data.innerHTML += html;
 
   // format data just appended
   // allow first child of each <td> tag to set attribute of <td> tag, the calenderClass was the first to use this
   // walk tr, then td to change class for td
-  /*
-  let tbody = document.getElementById(this.DOMid).children[0].children[2]; // first Child should be <table>   .children[2] should be <tbody>
-  for(let i=0; i<tbody.children.length; i++) {
-    let tr = tbody.children[i];
+  for(let i=0; i<table_data.children.length; i++) {
+    let div = table_data.children[i];
     for (let ii=0; ii<tr.children.length; ii++) {
       let td = tr.children[ii];
       // if we are displaying html, all first element to set parent class
@@ -342,7 +340,7 @@ displayData(){   // tableUxClass - client-side
       }
     }
   }
-*/
+
   // figure out maxrow
   if (this.buffer) {
     // display bufffer
@@ -544,7 +542,6 @@ appendHTMLrow(  // tableUxClass - client-side
 
     html += this.formatTransform(value, i);
   };
-  //html += "</tr>";
   return html;
 }
 
@@ -613,7 +610,7 @@ getColumnFormat( // tableUxClass - client-side
   i
   ) { // return <td> attributes to be added
   let f = this.columnFormat[i];
-  if (f === undefined) {
+  if (typeof(f) === "undefined") {
     return "";
   } else {
     return f;

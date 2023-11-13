@@ -24,7 +24,7 @@ url
   this.#url   = urlEsc.toString();
   this.db     = null; 
   this.#json  = {
-    "meta"   : {fields:{},"select" : []}
+    "meta"   : {fields:{},"select" : [], "PK":{}}
     ,"index"  : []          // array of index fields
     ,"deleted": {}          // {key: true, key2, true .....} listed of keys stored that are logally deleted
     ,"changes": {}          // current changed memory value
@@ -198,10 +198,10 @@ add_column_value( // tableClass - client-side
   ,column_value   //
 ){
 
-  if (typeof(this.#json.PK[pk]) === "undefined") {
+  if (typeof(this.#json.meta.PK[pk]) === "undefined") {
     // assume all data is stored in column, may cause problems untill all row data is gone;
     // add Primary key
-    this.#json.PK[pk]=true;
+    this.#json.meta.PK[pk]=true;
   }
   if (typeof(this.#json.columns[column_name]) === "undefined") {
     this.#json.columns[column_name] = {};
@@ -236,7 +236,6 @@ get_PK( // tableClass - client-side
 ) {
   // array of PK keys for entire table;
   return Object.keys(this.#json.meta.PK);
-  //return Object.keys(this.#json.PK);
 }
 
 
@@ -332,7 +331,7 @@ PK_get( // tableClass - client-side
   if (key === null) {
     return Object.keys(this.#json.meta.PK);    // array of PK keys - use to walk all rows
   } else {
-    return this.#json.rows[ this.#json.PK[key] ];
+    return this.#json.rows[ this.#json.meta.PK[key] ];
   }
 }
 
@@ -410,16 +409,18 @@ save2memory( // tableClass - client-side
   // code here
 }
 
-
+/* test
 delete( // tableClass - client-side
 key  // pK to delete
 ){
 
   this.#json.deleted[key] = true;   // add key to deleted object
-  delete this.#json.PK[key];        // remove key from PK
+  delete this.#json.meta.PK[key];        // remove key from PK
   const changes = this.changes_get(key); // update change log
   changes.deleted=true;
 }
+*/
+
 
 sortList(  // tableClass - client-side
     a_list     // array of row indexes that need to be sorted
@@ -592,8 +593,8 @@ genTable(  // tableClass - client-side
  "fieldA"      :${JSON.stringify(this.#json.fieldA     )}
 ,"header"     :${JSON.stringify(this.#json.header      )}
 ,"deleted"    :${JSON.stringify(this.#json.deleted     )} 
-,"PK"         :${JSON.stringify(this.#json.PK          )}
-,"PK_max"     :${JSON.stringify(this.#json.meta.PK_max     )}
+,"PK"         :${JSON.stringify(this.#json.meta.PK     )}
+,"PK_max"     :${JSON.stringify(this.#json.meta.PK_max )}
 
 ,"rows": [
 ${this.genRows()}]

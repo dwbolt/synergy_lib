@@ -237,8 +237,8 @@ dateNode(  // nodes2htmlClass - client-side
   const now = new Date();
 
   a_date.forEach((date, i) => {
-    start =    app.page.createDate(date);
-    end   =    app.page.createDate(date,true);
+    start =    this.createDate(date);
+    end   =    this.createDate(date,true);
     if (start<now && now<end) { // current date is in between start and end
       if        (date.repeat === "monthly") {
         let day   =    app.format.getDayOfWeek(date.days[0][0]);
@@ -256,6 +256,23 @@ dateNode(  // nodes2htmlClass - client-side
   });
 
   return text;
+}
+
+// based on createDate from calendar_module.js
+createDate(  // calendarClass  client-side
+  // returns a starting or ending date for an event edge
+   edge  //
+  ,end  //  true -> end time, add duration to start
+) {
+  let offset = this.timezones[edge.timeZone] + new Date(0).getTimezoneOffset();  // get offset from event timezone vs user timezone
+  let timeDuration = edge.timeDuration.split(":");                         // timeDuration[0] is hours  timeDuration[1] is minutes
+  if (end) {
+    // date that events ends
+    return new Date(edge.dateEnd[0]   ,edge.dateEnd[1]-1  , edge.dateEnd[2]  , edge.dateStart[3]+ parseInt(timeDuration[0]) , edge.dateStart[4] - offset + parseInt(timeDuration[1]) );
+  } else {
+    // date that events starts
+    return new Date(edge.dateStart[0] +offsets[0] ,edge.dateStart[1]-1 +offsets[1], edge.dateStart[2] +offsets[2], edge.dateStart[3], edge.dateStart[4] - offset);
+  }
 }
 
 

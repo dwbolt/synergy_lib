@@ -25,7 +25,7 @@ save to server
 
 
 constructor() {   // dbClass - client-side
-  this.tables = null;  // will list tables once a database is seleected.
+  this.tables = {};  // init tables to an object.  needed if createing tables in code rather than loading them.
  }
 
 
@@ -110,16 +110,17 @@ loadLocal( // dbClass - client-side   -- should be able to share code here
 }
 
 
-getJSON(){return this.#json;}
+getJSON(){return this.#json;}  // dbClass - client-side
 
-/*
+
 tableAdd(tableName) { // dbClass - client-side
   // create empty table and add to database
-  this.tables[tableName] = new tableClass(`${this.#urlList}/${tableName}/_.json`);
+  //this.tables[tableName] = new tableClass(`${this.#urlList}/${tableName}/_.json`);
+  this.tables[tableName] = new tableClass(`${tableName}/_.json`);  // bad url - rethink 
 
   return this.tables[tableName]
 }
-*/
+
 
 getTable( // dbClass - client-side
   s_tableName
