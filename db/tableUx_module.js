@@ -87,7 +87,7 @@ display(        // tableUxClass - client-side
 
   // add status line and empty table to DOM
   document.getElementById(this.DOMid).innerHTML = `
-  <div id="${this.DOMid}_status" style="text-align:left;"></div>
+  <div id="${this.DOMid}_status" style="text-align:left; margin-bottom:10px"></div>
   <div id="${this.DOMid}_table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
   `;
   
@@ -324,21 +324,21 @@ displayData(){   // tableUxClass - client-side
   // walk tr, then td to change class for td
   for(let i=0; i<table_data.children.length; i++) {
     let div = table_data.children[i];
-    for (let ii=0; ii<tr.children.length; ii++) {
-      let td = tr.children[ii];
+    //for (let ii=0; ii<tr.children.length; ii++) {
+    //  let td = tr.children[ii];
       // if we are displaying html, all first element to set parent class
-      if (0 < td.children.length) {
-        // html is being displayed, see if the first child is seting class
-        let array = eval(td.children[0].getAttribute("data-parentAttribute"));
-         if ( Array.isArray(array)) {
-           td.setAttribute(array[0],array[1]);
-         }
-        let array2 = eval(td.children[0].getAttribute("data-parentAttribute2"));
-         if ( Array.isArray(array2)) {
-           td.setAttribute(array2[0],array2[1]);
-         }
+    if (0 < div.children.length) {
+      // html is being displayed, see if the first child is seting class
+      let array = eval( div.firstChild.getAttribute("data-parentAttribute") ) ;
+      if ( Array.isArray(array)) {
+        div.setAttribute(array[0],array[1]);
+      }
+      array = eval( div.firstChild.getAttribute("data-parentAttribute2") );
+      if ( Array.isArray(array)) {
+        div.setAttribute(array[0],array[1]);
       }
     }
+    //}
   }
 
   // figure out maxrow

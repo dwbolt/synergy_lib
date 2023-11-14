@@ -155,14 +155,14 @@ url
       this.tableUx.setColumnFormat(i,`class="day"`);  // set class of each day
     }
     this.tableUx.display();
-//    this.findToday();   // only need to do this is we are displaying the clander
+    this.findToday();   // only need to do this is we are displaying the clander
   } else {
     // display event in calendar
     await this.displayEvent();
   }
 }
-  
-  
+
+
 createDate(  // calendarClass  client-side
   // returns a starting or ending date for an event edge
     edge  //
@@ -374,7 +374,7 @@ async buildTable(  // calendarClass  client-side
 }
   
 
-style_get(start, firstDate,today) {  // calendarClass  client-side
+style_get(start, firstDate, today) {  // calendarClass  client-side
   if (start<firstDate || start.getFullYear()>this.year) {
     // day is before january 1st of this year  or     // day is after last day of year
     return `data-parentAttribute="['class','notYear']"`
@@ -383,7 +383,7 @@ style_get(start, firstDate,today) {  // calendarClass  client-side
   } else if (start<today) {
     return `data-parentAttribute="['class','past']"`  // tableUxClass will put class='past' in the TD tag
   } else {
-    return  ''
+    return `data-parentAttribute="['class','future']"` 
   }
 }
 
