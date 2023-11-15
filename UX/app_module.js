@@ -2,6 +2,7 @@ import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'  ;
 import  {formatClass    }   from '/_lib/format/format_module.js';
 import  {loginClass     }   from '/_lib/UX/login_module.js'     ;
 import  {widgetListClass}   from '/_lib/UX/widgetList_module.js';
+import  {calendarClass  }   from '/_lib/UX/calendar_module.js';
 
 
 class appClass { // synergy.SFCKnox.org web site
@@ -12,6 +13,8 @@ constructor() {  // appClass - client side
 	this.login      = new loginClass();
 	this.proxy      = new proxyClass();
 	this.format     = new formatClass();
+	this.calendar   = new calendarClass();
+
 	this.widgetList;    // will hold instance of widgetListClass
 	this.css;           // var to hold json css file
 }
