@@ -242,9 +242,11 @@ dateNode(  // nodes2htmlClass - client-side
     repeat  =    app.calendar.createDate(date,"repeat");
     if (start<now && (now<end || now<repeat) ) { // current date is in between start and end
       if        (date.repeat === "monthly") {
-        let day   =    app.format.getDayOfWeek(date.days[0][0]);
-        let time  = `${app.format.timeRange(start, end)}`;
-        text +=  `<p><b>Day:</b> ${app.format.weekNumber(date.days[0][1])} ${day} <br/><b>Time:</b> ${time}</p>`
+        for(let ii=0; ii<date.days.length; ii++) {
+          let day   =    app.format.getDayOfWeek(date.days[ii][0]);
+          let time  = `${app.format.timeRange(start, end)}`;
+          text +=  `<p><b>Day:</b> ${app.format.weekNumber(date.days[ii][1])} ${day} <br/><b>Time:</b> ${time}</p>`
+        }
       } else if (date.repeat === "weekly") {
         // format date for weely event
         let days  =  app.format.getDaysOfWeek(date.weekdays);
