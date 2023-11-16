@@ -40,79 +40,79 @@ addEvents(
     dom
     ,appRef    // how ui calls this class
   ) {
-      this.DOM     = dom;
-      this.#appRef = appRef;
+  this.DOM     = dom;
+  this.#appRef = appRef;
 
-      const today  = new Date();
-      this.year  = today.getFullYear();
-      this.month = today.getMonth();
+  const today  = new Date();
+  this.year  = today.getFullYear();
+  this.month = today.getMonth();
 
-      this.graph = {};                         // where the events are stored in compact form
-      this.edit  = new calendarEditClass(this);
-      // need more though, this is here because calendar class has hardcoded this.format and app.proxy, but I'm using calendarClass is a seperate page too.
+  this.graph = {};                         // where the events are stored in compact form
+  this.edit  = new calendarEditClass(this);
+  // need more though, this is here because calendar class has hardcoded this.format and app.proxy, but I'm using calendarClass is a seperate page too.
 
-      this.format     = new formatClass();  // format time and dates
-      this.proxy      = new proxyClass();   // loads graph data from server
-      this.urlParams  = new URLSearchParams( window.location.search );  // read params send in the URL
-  
-      this.timezones = {"ET":-300, "CT":-360, "MT":-420, "PT":-480};
-  
-      this.eventYear;          // year of event to edit or add
-      this.eventMonth;         // month of event to edit or add
-      this.eventDay;           // day of event to edit or add
-      this.eventData;          // number to access node or edge in data
-      this.popUpHeight;        // holds the height of the pop up form
-      this.canSubmit = false;  // determines whether or not the form is ready to submit
+  this.format     = new formatClass();  // format time and dates
+  this.proxy      = new proxyClass();   // loads graph data from server
+  this.urlParams  = new URLSearchParams( window.location.search );  // read params send in the URL
+
+  this.timezones = {"ET":-300, "CT":-360, "MT":-420, "PT":-480};
+
+  this.eventYear;          // year of event to edit or add
+  this.eventMonth;         // month of event to edit or add
+  this.eventDay;           // day of event to edit or add
+  this.eventData;          // number to access node or edge in data
+  this.popUpHeight;        // holds the height of the pop up form
+  this.canSubmit = false;  // determines whether or not the form is ready to submit
 
   
-      // need for both sfc web site and the stand alone page
-      this.db      = new dbClass();       // create empty database
-      this.db.tableAdd("weekCal");        // create empty table in database, is where events for calendar will be displayed.
-  
-      // tableUxClass("calendar"  is hardcoded, change at some point
-      this.tableUx = new tableUxClass(dom,`${this.#appRef}.tableUx`); // create way to display table
-      this.tableUx.setModel( this.db, "weekCal");                     // associate data with disply widget
-      this.tableUx.paging.lines = 3;    // should use a method to do this
-      this.windowActive = false;        // toggle for pop up window
-      this.tableUx.setStatusLineData( [
-        `<input type="button" id="todayButton" onClick="${this.#appRef}.findToday()" value="Today" />`
-        ,"nextPrev"
-        ,`<select name="months" id="months" onChange="${this.#appRef}.chooseMonth()">
-            <option value="nullMonth" selected>Choose Month</option>
-            <option value="january">01 January</option>
-            <option value="february">02 February</option>
-            <option value="march">03 March</option>
-            <option value="april">04 April</option>
-            <option value="may">05 May</option>
-            <option value="june">06 June</option>
-            <option value="july">07 July</option>
-            <option value="august">08 August</option>
-            <option value="september">09 September</option>
-            <option value="october">10 October</option>
-            <option value="november">11 November</option>
-            <option value="december">12 December</option>
-          </select>`
-        ,`rows/page: <input type="number" min="1" max="10" size=3 value="${this.tableUx.paging.lines}" onchange="${this.#appRef}.tableUx.changePageSize(this)"/>`
-  
-  
-      ]);  // ,"tableName","rows","rows/page","download","tags", "firstLast"
-  
-      this.tableUx.setSearchVisible(false);                 // hide search
-      this.tableUx.setLineNumberVisible(false);             // hide row line numbers
-      this.tableUx.setRowNumberVisible(false);              // hide row numbers
-  
-      this.weeks2display = 2;                              // display 4 weeks of data at a time
-      this.n_pic = 0;
-  
-      // init every day with empty array
-      this.events = []                  // this.events[1][12] for january 12 a list of event nodes for that day - expanded from graph
-      for (let m=1; m<=12; m++) {
-        this.events[m]=[]
-        for (let d=1; d<=31; d++) {
-          this.events[m][d] = [];
-        }
-      }
+  // need for both sfc web site and the stand alone page
+  this.db      = new dbClass();       // create empty database
+  this.db.tableAdd("weekCal");        // create empty table in database, is where events for calendar will be displayed.
+
+  // tableUxClass("calendar"  is hardcoded, change at some point
+  this.tableUx = new tableUxClass(dom,`${this.#appRef}.tableUx`); // create way to display table
+  this.tableUx.setModel( this.db, "weekCal");                     // associate data with disply widget
+  this.tableUx.paging.lines = 3;    // should use a method to do this
+  this.windowActive = false;        // toggle for pop up window
+  this.tableUx.setStatusLineData( [
+    `<input type="button" id="todayButton" onClick="${this.#appRef}.findToday()" value="Today" />`
+    ,"nextPrev"
+    ,`<select name="months" id="months" onChange="${this.#appRef}.chooseMonth()">
+        <option value="nullMonth" selected>Choose Month</option>
+        <option value="january">01 January</option>
+        <option value="february">02 February</option>
+        <option value="march">03 March</option>
+        <option value="april">04 April</option>
+        <option value="may">05 May</option>
+        <option value="june">06 June</option>
+        <option value="july">07 July</option>
+        <option value="august">08 August</option>
+        <option value="september">09 September</option>
+        <option value="october">10 October</option>
+        <option value="november">11 November</option>
+        <option value="december">12 December</option>
+      </select>`
+    ,`rows/page: <input type="number" min="1" max="10" size=3 value="${this.tableUx.paging.lines}" onchange="${this.#appRef}.tableUx.changePageSize(this)"/>`
+
+
+  ]);  // ,"tableName","rows","rows/page","download","tags", "firstLast"
+
+  this.tableUx.setSearchVisible(false);                 // hide search
+  this.tableUx.setLineNumberVisible(false);             // hide row line numbers
+  this.tableUx.setRowNumberVisible(false);              // hide row numbers
+
+  this.weeks2display = 2;                              // display 4 weeks of data at a time
+  this.n_pic = 0;
+
+  // init every day with empty array
+  this.events = []                  // this.events[1][12] for january 12 a list of event nodes for that day - expanded from graph
+  for (let m=1; m<=12; m++) {
+    this.events[m]=[]
+    for (let d=1; d<=31; d++) {
+      this.events[m][d] = [];
+    }
   }
+}
   
   
 // Mutators
@@ -292,10 +292,10 @@ k  // this.graph.edges[k] returns the edge
   const edge = this.graph.edges[k];
   const start = edge.startGMT;
   let monthOffset = 0;
-  for (let month = new Date(start.getFullYear(), start.getMonth(), 1) ;
+  for (let month = new Date(start.getFullYear(), start.getMonth()               , 1,1,1) ;
        month < edge.endGMT_repeat;  
        // add an hour and 1 minute for the case month starts in daylight savings and the date is after daylight savings ends.
-       month=new Date(start.getFullYear(), start.getMonth()+ ++monthOffset, 1,1,1)) {
+           month = new Date(start.getFullYear(), start.getMonth()+ ++monthOffset, 1,1,1)) {
    
     edge.days.forEach((day, ii) => {  // day=[day number, week number] day number 0 -> sunday     :  [1,2] -> second monday of month
       // find first target day of week in the the month
