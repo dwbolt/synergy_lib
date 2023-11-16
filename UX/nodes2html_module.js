@@ -233,20 +233,21 @@ async convertLine(  // nodes2htmlClass - client-side
 dateNode(  // nodes2htmlClass - client-side
   a_date   // array of date generators
 ) {
-  let text = "",start,end;
+  let text = "",start,end,repeat;
   const now = new Date();
 
   a_date.forEach((date, i) => {
-    start =    app.calendar.createDate(date);
-    end   =    app.calendar.createDate(date,true);
-    if (start<now && now<end) { // current date is in between start and end
+    start   =    app.calendar.createDate(date,"start");
+    end     =    app.calendar.createDate(date,"end");
+    repeat  =    app.calendar.createDate(date,"repeat");
+    if (start<now && (now<end || now<repeat) ) { // current date is in between start and end
       if        (date.repeat === "monthly") {
         let day   =    app.format.getDayOfWeek(date.days[0][0]);
         let time  = `${app.format.timeRange(start, end)}`;
         text +=  `<p><b>Day:</b> ${app.format.weekNumber(date.days[0][1])} ${day} <br/><b>Time:</b> ${time}</p>`
       } else if (date.repeat === "weekly") {
         // format date for weely event
-        let days  =  app.format.getDaysOfWeek(start, date.daysOffset);
+        let days  =  app.format.getDaysOfWeek(date.weekdays);
         let time  = `${app.format.timeRange(start, end)}`;
         text +=  `<p><b>Day: </b>${days} <br/><b>Time:</b> ${time}</p>`
       } else if (date.repeat === "yearly") {

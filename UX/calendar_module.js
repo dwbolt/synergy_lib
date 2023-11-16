@@ -166,17 +166,27 @@ url
 createDate(  // calendarClass  client-side
   // returns a starting or ending date for an event edge
     edge  //
-  ,end  //  true -> end time, add duration to start
+  ,type  //  "start" -> start date, "end" -> end time, "repeat" -> end of repeat 
   ,offsets = [0,0,0] // offset from start [yy,mm,dd]
 ) {
   let offset = this.timezones[edge.timeZone] + new Date(0).getTimezoneOffset();  // get offset from event timezone vs user timezone
   let timeDuration = edge.timeDuration.split(":");                         // timeDuration[0] is hours  timeDuration[1] is minutes
-  if (end) {
-    // date that events ends
-    return new Date(edge.dateEnd[0]   ,edge.dateEnd[1]-1  , edge.dateEnd[2]  , edge.dateStart[3]+ parseInt(timeDuration[0]) , edge.dateStart[4] - offset + parseInt(timeDuration[1]) );
-  } else {
-    // date that events starts
+  switch (type) {
+  case "start":
     return new Date(edge.dateStart[0] +offsets[0] ,edge.dateStart[1]-1 +offsets[1], edge.dateStart[2] +offsets[2], edge.dateStart[3], edge.dateStart[4] - offset);
+    break;
+
+  case "end":
+    return new Date(edge.dateEnd[0]   ,edge.dateEnd[1]-1  , edge.dateEnd[2]  , edge.dateStart[3]+ parseInt(timeDuration[0]) , edge.dateStart[4] - offset + parseInt(timeDuration[1]) );
+    break;
+
+  case "repeat":
+    return new Date(edge.repeat_end_date[0]   ,edge.repeat_end_date[1]-1  , edge.repeat_end_date[2]  , edge.repeat_end_date[3]+ parseInt(timeDuration[0]) , edge.repeat_end_date[4] - offset + parseInt(timeDuration[1]) );
+    break;
+
+  default:
+    // error
+    alert(`error, file="calendar_module.js, method="createDate", type="${type}"`)
   }
 }
   
@@ -191,8 +201,8 @@ async loadEvents( // calendarClass  client-side
   Object.keys(this.graph.edges).forEach((k, i) => {
     // generate startGMT, endGMT
     let e = this.graph.edges[k];  // edge we are processing
-    e.startGMT = this.createDate(e,false);  // start date time
-    e.endGMT   = this.createDate(e,true );  // end   date time
+    e.startGMT = this.createDate(e,"start");  // start date time
+    e.endGMT   = this.createDate(e,"end" );  // end   date time
     this.addEvents(k);   // will fill out this.events[[][]...] one array for each day of week for the year
   }); // end Object.keys forEach
 }

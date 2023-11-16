@@ -143,13 +143,12 @@ timeRange(
 
 // formatClass - client-side
 getDaysOfWeek(
-   d           // date object
-  ,dayOffsets  // array of day off sets from day object
+  dayOffsets  // array of day off sets from day object
 ) {
   let str = "";
   // walk array and add day strings
    for (let i=0; i< dayOffsets.length; i++) {
-     str +=   ", " + this.days[d.getDay()+ dayOffsets[i]];
+     str +=   ", " + this.days[dayOffsets[i]];
    }
 
   return str.slice(2);  // trim leading ", "
