@@ -40,7 +40,7 @@ show(  // client side recordUxClass - for a page
     html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td> <td>${rowValue}</td></tr>`
   }
   html += "</table>"
-  let dom = document.getElementById(this.tableUX.DOMid + "_record")
+  let dom = document.getElementById(this.tableUX.DOMid + "_record_data")
   dom.innerHTML = html;
   dom.display = "block";
 
@@ -107,7 +107,7 @@ edit(  // client side dbUXClass
   }
 
   html += "</table>";
-  document.getElementById(this.tableUX.DOMid + "_record").innerHTML = html;
+  document.getElementById(this.tableUX.DOMid + "_record_data").innerHTML = html;
   if (this.#primary_key_value  === null ) {
     this.buttonsShow("Add Cancel");  // adding new record
   } else {
@@ -151,29 +151,34 @@ new(){// client side recordUxClass - for a page
 }
 
 
-clear(){ // client side recordUxClass - for a page
+createUX(){ // client side recordUxClass - for a page
   const dom = document.getElementById(this.tableUX.DOMid + "_record");
-  
-  if (dom.innerHTML === "") {
-    // first time UX is used, so make space for data, and add buttons
-    dom.innerHTML = `<div id='${this.tableUX.DOMid}_record_data'></div>
-    <div id='${this.tableUX.DOMid}_record_buttons'> 
-    <input hidden type='button' value='New'       onclick='${this.globalName}.new()'>
-    <input hidden type='button' value='Add'       onclick='${this.globalName}.save()'>
-    <input hidden type='button' value='Duplicate' onclick='${this.globalName}.duplicate()'>
-  
-    <input hidden type='button' value='Edit'      onclick='${this.globalName}.edit()'> 
-    <input hidden type='button' value='Delete'    onclick='${this.globalName}.delete()'> 
-    <input hidden type='button' value='Save'      onclick='${this.globalName}.save()'>
-  
-    <input hidden type='button' value='Cancel'    onclick='${this.globalName}.cancel()'>
-    <input hidden type='button' value='Clear'     onclick='${this.globalName}.clear()'>
-   </div>`
-
+  if(0<dom.innerHTML.length) {
+    // allready created, no work todo
+    return;
   }
-  document.getElementById(`${this.tableUX.DOMid}_record_data`).innerHTML = "";
+    // first time UX is used, so make space for data, and add buttons
+  dom.innerHTML = `<div id='${this.tableUX.DOMid}_record_data'></div>
+  <div id='${this.tableUX.DOMid}_record_buttons'> 
+  <input hidden type='button' value='New'       onclick="${this.globalName}.new()">
+  <input hidden type='button' value='Add'       onclick="${this.globalName}.save()">
+  <input hidden type='button' value='Duplicate' onclick="${this.globalName}.duplicate()">
+
+  <input hidden type='button' value='Edit'      onclick="${this.globalName}.edit()"> 
+  <input hidden type='button' value='Delete'    onclick="${this.globalName}.delete()"> 
+  <input hidden type='button' value='Save'      onclick="${this.globalName}.save()">
+
+  <input hidden type='button' value='Cancel'    onclick="${this.globalName}.cancel()">
+  <input hidden type='button' value='Clear'     onclick="${this.globalName}.clear()">
+  </div>`
   this.buttonsShow("New");
 }
+
+clear(){
+  document.getElementById(`${this.tableUX.DOMid}_record_data`).innerHTML = "";
+}
+
+
 
 
 cancel(){// client side recordUxClass - for a page

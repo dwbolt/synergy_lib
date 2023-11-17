@@ -327,21 +327,25 @@ displayData(){   // tableUxClass - client-side
     // if we are displaying html, all first element to set parent class
     if (0 < div.children.length) {
       // html is being displayed, see if the first child is seting class
-      let attribute = div.firstChild.getAttribute("data-parentAttribute");
-      if (attribute) {
-        let array = eval(attribut ) ;
-        if ( Array.isArray(array)) {
-          div.setAttribute(array[0],array[1]);
+      try {
+        let attribute = div.firstChild.getAttribute("data-parentAttribute");
+        if (attribute) {
+          let array = eval(attribut ) ;
+          if ( Array.isArray(array)) {
+            div.setAttribute(array[0],array[1]);
+          }
         }
+      } catch (error) {
+        // just ignor error 
       }
-
+/*
       attribute = div.firstChild.getAttribute("data-parentAttribute2");  // is this still used?
       if (attribute) {
         array = eval( attribute );
         if ( Array.isArray(array)) {
           div.setAttribute(array[0],array[1]);
         }
-      }
+      }*/
     }
   }
 
@@ -526,8 +530,7 @@ appendHTMLrow(  // tableUxClass - client-side
   }
 
   // create html for each column in the row
-  let lineNum=""; if (this.lineNumberVisible ) {lineNum = `<div onclick="${this.globalName}.recordUX.show('${PK}')"><a class="link"> ${i} </a></div>`           ;}
-  //let rowNum =""; if (this.rowNumberVisible  ) {rowNum  = `<div>${PK}</div>`;}
+  let lineNum=""; if (this.lineNumberVisible ) {lineNum = `<div onclick="${this.globalName}.recordUX.show('${PK}')"><a class="link"> ${i} </a></div>`;}
 
   let selected = "";
   if (this.selected.find(
