@@ -9,43 +9,26 @@ class recordUxClass { // recordUxClass - client-side
 
 #primary_key_value  // can these be moved from tableUxClass?
 
+
 constructor( // recordUxClass - client-side
    tableUX       // where table will be displayed
 ) {
-  this.tableUX    = tableUX;
+  this.tableUX    = tableUX;                                // does not seem to be used
   this.globalName = tableUX.globalName + ".recordUX";
-
-  // create buttons
-  let dombuttons = document.getElementById(this.tableUX.DOMid + "_record_buttons");
-  if (dombuttons) {
-    // if dombuttons is null, assume no UX for records will be needed
-    dombuttons.innerHTML =
-    `
-    <input hidden type='button' value='New'       onclick='${this.globalName}.new()'>
-    <input hidden type='button' value='Add'       onclick='${this.globalName}.save()'>
-    <input hidden type='button' value='Duplicate' onclick='${this.globalName}.duplicate()'>
-  
-    <input hidden type='button' value='Edit'       onclick='${this.globalName}.edit()'> 
-    <input hidden type='button' value='Delete'     onclick='${this.globalName}.delete()'> 
-    <input hidden type='button' value='Save'       onclick='${this.globalName}.save()'>
-  
-    <input hidden type='button' value='Cancel'    onclick='${this.globalName}.cancel()'>
-    <input hidden type='button' value='Clear'     onclick='${this.globalName}.clear()'>
-  `
-  }
 }
+
 
 show(  // client side recordUxClass - for a page
   pk=null // dom element
 ){
-  // recordShow
-  const table             = this.tableUX.getModel()  // get tableClass being displayed
-  let html = `<b>Table: ${this.tableUX.tableName}</b><br><table>`;
   if (!(pk === null)) {
     // user clicked on elemnt, remember primary key for other record methodes
     this.#primary_key_value = pk; 
   }
 
+  // recordShow
+  const table   = this.tableUX.getModel()  // get tableClass being displayed
+  let      html = `<b>Table: ${this.tableUX.tableName}</b><br><table>`;
   const  select = table.meta_get("select");
   const  fields = table.meta_get("fields");
   let rowValue;
@@ -57,14 +40,16 @@ show(  // client side recordUxClass - for a page
     html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td> <td>${rowValue}</td></tr>`
   }
   html += "</table>"
-  document.getElementById(this.tableUX.DOMid + "_record").innerHTML = html;
+  let dom = document.getElementById(this.tableUX.DOMid + "_record")
+  dom.innerHTML = html;
+  dom.display = "block";
 
   // show buttons
   this.buttonsShow("New Duplicate Edit  Delete Clear");
 
   // show relations
   // need to set filters to only things connected to record
-  app.spa.display_relations("tableUXRelations");
+  //app.spa.display_relations("tableUXRelations");
 }
 
 
@@ -167,7 +152,26 @@ new(){// client side recordUxClass - for a page
 
 
 clear(){ // client side recordUxClass - for a page
-  document.getElementById(this.tableUX.DOMid + "_record").innerHTML = "";
+  const dom = document.getElementById(this.tableUX.DOMid + "_record");
+  
+  if (dom.innerHTML === "") {
+    // first time UX is used, so make space for data, and add buttons
+    dom.innerHTML = `<div id='${this.tableUX.DOMid}_record_data'></div>
+    <div id='${this.tableUX.DOMid}_record_buttons'> 
+    <input hidden type='button' value='New'       onclick='${this.globalName}.new()'>
+    <input hidden type='button' value='Add'       onclick='${this.globalName}.save()'>
+    <input hidden type='button' value='Duplicate' onclick='${this.globalName}.duplicate()'>
+  
+    <input hidden type='button' value='Edit'      onclick='${this.globalName}.edit()'> 
+    <input hidden type='button' value='Delete'    onclick='${this.globalName}.delete()'> 
+    <input hidden type='button' value='Save'      onclick='${this.globalName}.save()'>
+  
+    <input hidden type='button' value='Cancel'    onclick='${this.globalName}.cancel()'>
+    <input hidden type='button' value='Clear'     onclick='${this.globalName}.clear()'>
+   </div>`
+
+  }
+  document.getElementById(`${this.tableUX.DOMid}_record_data`).innerHTML = "";
   this.buttonsShow("New");
 }
 

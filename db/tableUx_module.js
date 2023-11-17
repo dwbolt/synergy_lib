@@ -324,21 +324,25 @@ displayData(){   // tableUxClass - client-side
   // walk tr, then td to change class for td
   for(let i=0; i<table_data.children.length; i++) {
     let div = table_data.children[i];
-    //for (let ii=0; ii<tr.children.length; ii++) {
-    //  let td = tr.children[ii];
-      // if we are displaying html, all first element to set parent class
+    // if we are displaying html, all first element to set parent class
     if (0 < div.children.length) {
       // html is being displayed, see if the first child is seting class
-      let array = eval( div.firstChild.getAttribute("data-parentAttribute") ) ;
-      if ( Array.isArray(array)) {
-        div.setAttribute(array[0],array[1]);
+      let attribute = div.firstChild.getAttribute("data-parentAttribute");
+      if (attribute) {
+        let array = eval(attribut ) ;
+        if ( Array.isArray(array)) {
+          div.setAttribute(array[0],array[1]);
+        }
       }
-      array = eval( div.firstChild.getAttribute("data-parentAttribute2") );
-      if ( Array.isArray(array)) {
-        div.setAttribute(array[0],array[1]);
+
+      attribute = div.firstChild.getAttribute("data-parentAttribute2");  // is this still used?
+      if (attribute) {
+        array = eval( attribute );
+        if ( Array.isArray(array)) {
+          div.setAttribute(array[0],array[1]);
+        }
       }
     }
-    //}
   }
 
   // figure out maxrow
