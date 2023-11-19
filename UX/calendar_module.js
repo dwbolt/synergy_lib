@@ -76,23 +76,25 @@ addEvents(
   this.windowActive = false;        // toggle for pop up window
   this.tableUx.setStatusLineData( [
     `<input type="button" id="todayButton" onClick="${this.#appRef}.findToday()" value="Today" />`
-    ,"nextPrev"
     ,`<select name="months" id="months" onChange="${this.#appRef}.chooseMonth()">
-        <option value="nullMonth" selected>Choose Month</option>
-        <option value="january">01 January</option>
-        <option value="february">02 February</option>
-        <option value="march">03 March</option>
-        <option value="april">04 April</option>
-        <option value="may">05 May</option>
-        <option value="june">06 June</option>
-        <option value="july">07 July</option>
-        <option value="august">08 August</option>
-        <option value="september">09 September</option>
-        <option value="october">10 October</option>
-        <option value="november">11 November</option>
-        <option value="december">12 December</option>
-      </select>`
-    ,`rows/page: <input type="number" min="1" max="10" size=3 value="${this.tableUx.paging.lines}" onchange="${this.#appRef}.tableUx.changePageSize(this)"/>`
+    <option value="nullMonth" selected>Choose Month</option>
+    <option value="january">01 January</option>
+    <option value="february">02 February</option>
+    <option value="march">03 March</option>
+    <option value="april">04 April</option>
+    <option value="may">05 May</option>
+    <option value="june">06 June</option>
+    <option value="july">07 July</option>
+    <option value="august">08 August</option>
+    <option value="september">09 September</option>
+    <option value="october">10 October</option>
+    <option value="november">11 November</option>
+    <option value="december">12 December</option>
+     </select>`
+    ,"nextPrev"
+    ,"rows/page"
+
+    //rows/page: <input type="number" min="1" max="10" size=3 value="${this.tableUx.paging.lines}" onchange="${this.#appRef}.tableUx.changePageSize(this)"/>
 
 
   ]);  // ,"tableName","rows","rows/page","download","tags", "firstLast"
@@ -355,13 +357,15 @@ async buildTable(  // calendarClass  client-side
         add =`<a onClick="${this.#appRef}.edit.createNewEvent(${start.getFullYear()}, ${m}, ${d})">+</a> `
       }
       style = this.style_get(start, firstDate, today);  // set style of day depending on not part of current year, past, today, future,
-      let html = `<h5 ${style}>${m}-${d} ${add}</h5>`;
+      let html = `<p ${style}><b>${m}-${d} ${add}</b></p>`;
 
       // loop for all events for day [m][d]
-      let eventList = this.events[m][d];
+      let eventList = this.events[m][d].sort(this.sort.bind(this));
       for(let i=0;  i<eventList.length; i++ ) {
-        let editButton = `${i+1} `;
         let edgeName = eventList[i];
+        let edge     = this.graph.edges[edgeName];
+        //let editButton = `${i+1} `;
+        let editButton = app.format.timeFormat(edge.startGMT);
         if (this.login_status) {
           // we are on a user calendar
           //user = "&u=" + this.urlParams.get('u');
@@ -373,13 +377,26 @@ async buildTable(  // calendarClass  client-side
         } else if(this.graph.edges[edgeName].repeat == "monthly") {repeat_class = "repeat_monthly";
         } else if(this.graph.edges[edgeName].repeat == "yearly" ) {repeat_class = "repeat_yearly" ;}
 
-        let edge = this.graph.edges[edgeName]
-        html += `<p>${editButton}<a  href="${edge.url}"   target="_blank" class="${repeat_class}">${edge.name}</a></p>`
+
+
+        html += `${editButton} <a href="${edge.url}" target="_blank" class="${repeat_class}">${edge.name}</a><br>`
       }
 
       t.add_column_value(x.toString(),y.toString(), html + "</br>")
       start.setDate( start.getDate() + 1 ); // move to next day
     }
+  }
+}
+
+sort(a,b){
+  // sort by time
+  const edge_A = this.graph.edges[a].startGMT;
+  const edge_B = this.graph.edges[b].startGMT;
+  const diffh  = edge_A.getHours() - edge_B.getHours();
+  if (diffh === 0) {
+    return edge_A.getMinutes() - edge_B.getMinutes()
+  } else {
+    return diffh;
   }
 }
   

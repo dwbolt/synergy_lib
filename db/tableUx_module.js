@@ -330,7 +330,7 @@ displayData(){   // tableUxClass - client-side
       try {
         let attribute = div.firstChild.getAttribute("data-parentAttribute");
         if (attribute) {
-          let array = eval(attribut ) ;
+          let array = eval(attribute ) ;
           if ( Array.isArray(array)) {
             div.setAttribute(array[0],array[1]);
           }
@@ -407,12 +407,12 @@ statusLine(   // tableUxClass - client-side
   this.statusLineData.forEach((item, i) => {
     switch(item) {
       case "nextPrev":
-        html += `<input id="prev" type="button" onclick ='${this.globalName}.prev()' value="Prev"/>
-                 <input id="next" type="button" onclick ='${this.globalName}.next()' value="Next"/>`
+        html += `<input id="prev" type="button" onclick ="${this.globalName}.prev()" value="Prev"/>
+                 <input id="next" type="button" onclick ="${this.globalName}.next()" value="Next"/>`
         break;
       case "firstLast":
-        html += `<input id="first" type="button" onclick ='${this.globalName}.first()' value="First"/>
-                 <input id="last"  type="button" onclick ='${this.globalName}.last()' value="Last"/>`
+        html += `<input id="first" type="button" onclick ="${this.globalName}.first()" value="First"/>
+                 <input id="last"  type="button" onclick ="${this.globalName}.last() " value="Last"/>`
         break;
       case "tableName":
         html += `<b>Table: ${this.tableName}</b>`
@@ -424,13 +424,13 @@ statusLine(   // tableUxClass - client-side
         html += `tags: ${this.genTags()}`
         break;
       case "rows/page":
-        html += `rows/page: <input type="number" min="1" max="999" value="${this.paging.lines}" onchange='${this.globalName}.changePageSize(this)'/>`
+        html += `rows/page: <input type="number" min="1" max="999" value="${this.paging.lines}" onchange="${this.globalName}.changePageSize(this)"/>`
         break;
       case "download":
-        html += `<input type="button" onclick='${this.globalName}.export()' value="Download CSV"/> <a id='download_link'></a>`
+        html += `<input type="button" onclick="${this.globalName}.export()" value="Download CSV"/> <a id='download_link'></a>`
         break;
       case "groupBy":
-        html += `<input type="button" onclick='${this.globalName}.groupBy_toggle()' value="Group"/>`
+        html += `<input type="button" onclick="${this.globalName}.groupBy_toggle()" value="Group"/>`
         break;
       default:
         // custom
@@ -530,7 +530,11 @@ appendHTMLrow(  // tableUxClass - client-side
   }
 
   // create html for each column in the row
-  let lineNum=""; if (this.lineNumberVisible ) {lineNum = `<div onclick="${this.globalName}.recordUX.show('${PK}')"><a class="link"> ${i} </a></div>`;}
+  let lineNum=""; 
+  if (this.lineNumberVisible ) {
+    let callback = "app.spa.copy2record2();"
+    lineNum = `<div onclick="${this.globalName}.recordUX.show('${PK}');${callback}"><a class="link"> ${i} </a></div>`;
+  }
 
   let selected = "";
   if (this.selected.find(

@@ -28,7 +28,7 @@ show(  // client side recordUxClass - for a page
 
   // recordShow
   const table   = this.tableUX.getModel()  // get tableClass being displayed
-  let      html = `<b>Table: ${this.tableUX.tableName}</b><br><table>`;
+  let      html = `<b>Table:</b>  ${this.tableUX.tableName}&nbsp <b>PK:</b> ${pk}<br><table>`;
   const  select = table.meta_get("select");
   const  fields = table.meta_get("fields");
   let rowValue;
