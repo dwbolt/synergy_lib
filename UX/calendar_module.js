@@ -369,7 +369,7 @@ async buildTable(  // calendarClass  client-side
         if (this.login_status) {
           // we are on a user calendar
           //user = "&u=" + this.urlParams.get('u');
-          editButton = `<a onClick="${this.#appRef}.editEvent(${edgeName})">${i+1}</a> `;
+          editButton = `<a onClick="${this.#appRef}.editEvent(${edgeName})">${editButton}</a> `;
         }
         
         let repeat_class = ""; 

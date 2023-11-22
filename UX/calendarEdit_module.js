@@ -19,9 +19,10 @@ constructor(  // calendarEditClass  client-side
 hidden(  // calendarEditClass  client-side
 bool  // true -> hide,  false -> show
 ) {
-  document.getElementById(`popUpForm`).hidden = bool;
-  if (!bool) {
-    document.getElementById("popUpForm").style.height = this.formHeight; 
+  if (bool) {
+    document.getElementById(`popUpForm`).style.display = "none";
+  } else {
+    document.getElementById(`popUpForm`).style.display = "block";
   }
 }
 
