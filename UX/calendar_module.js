@@ -138,30 +138,28 @@ url
   // decide which calendar to load, users or main
   await this.loadEvents(url); // will fill out this.events - array for each day of the year 
 
-  // display event or calendar
-  this.edgeName = this.urlParams.get('e');
-  if (this.edgeName === null) {
-    // display entire calendar
-    await this.buildTable();  // convert this.events to a table that can be displayed with tableUX
+  // display entire calendar
+  await this.buildTable();  // convert this.events to a table that can be displayed with tableUX
 
-    // create a text month list
-    // concatenate the month to the display
-    const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-    if (document.getElementById("heading")) {
-      document.getElementById("heading").innerHTML += ` ${this.year}` + ` ${month[this.month]}`;
-    } else {
-      // assume it is the main page
-      document.getElementById("heading1").innerHTML += ` ${this.year}`;
-    }
-    for(let i=0; i<7; i++) {
-      this.tableUx.setColumnFormat(i,`class="day"`);  // set class of each day
-    }
-    this.tableUx.display();
-    this.findToday();   // only need to do this is we are displaying the clander
+  // create a text month list
+  // concatenate the month to the display
+  const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  if (document.getElementById("heading")) {
+    document.getElementById("heading").innerHTML += ` ${this.year}` + ` ${month[this.month]}`;
   } else {
-    // display event in calendar
-    await this.displayEvent();
+    // assume it is the main page
+    document.getElementById("heading1").innerHTML += ` ${this.year}`;
   }
+  for(let i=0; i<7; i++) {
+    this.tableUx.setColumnFormat(i,`class="day"`);  // set class of each day
+  }
+  this.tableUx.display();
+  this.findToday();   // only need to do this is we are displaying the clander
+
+    // display event in calendar
+    //this.edgeName = this.urlParams.get('e');
+    //await this.displayEvent();
+
 }
 
 
@@ -220,6 +218,12 @@ k  // this.graph.edges[k] returns the edge
   }
 
   const a = edge.repeat_end_date;
+  if (a[0] === null) {
+    // year not set, so set to end of current year
+    a[0] = this.year;
+    a[1] = 12
+    a[2] = 31 
+  }
   edge.endGMT_repeat = new Date(a[0],a[1]-1,a[2],edge.endGMT.getHours(), edge.endGMT.getMinutes());  // use end_date time
 
   switch(edge.repeat) {
@@ -279,7 +283,7 @@ addWeekly( // calendarClass  client-side
       date.setDate(date.getDate() + day - date.getDay()); // add days to get to correct day of week
     }
 
-    while (date < edge.endGMT_repeat) {
+    while (date < edge.endGMT_repeat && date.getFullYear() === this.year) {
       this.events[date.getMonth()+1][date.getDate()].push(k);  // push key to edge associated with edge
       date.setDate(date.getDate() + 7);   // get next week
     }
@@ -295,7 +299,7 @@ k  // this.graph.edges[k] returns the edge
   const start = edge.startGMT;
   let monthOffset = 0;
   for (let month = new Date(start.getFullYear(), start.getMonth()               , 1,1,1) ;
-       month < edge.endGMT_repeat;  
+       month < edge.endGMT_repeat && edge.endGMT_repeat.getFullYear() === this.year;  
        // add an hour and 1 minute for the case month starts in daylight savings and the date is after daylight savings ends.
            month = new Date(start.getFullYear(), start.getMonth()+ ++monthOffset, 1,1,1)) {
    
@@ -323,7 +327,7 @@ k  // this.graph.edges[k] returns the edge
 async buildTable(  // calendarClass  client-side
 ) {   // converts calendar data from graph to a table
   const t      = this.db.getTable("weekCal");  // t -> table we will put event data in to display
-  //t.clearRows();  // may need to write cashe clear
+  // init metadata for table
   const fields = t.meta_get("fields");
   fields["0"]  = {"header":"Sunday"   ,"location": "column"};
   fields["1"]  = {"header":"Monday"   ,"location": "column"};
@@ -343,7 +347,7 @@ async buildTable(  // calendarClass  client-side
 
   // build weeks data to end of year
   let style;
-  this.login_status = await app.login.getStatus();  // cashe login status for duration of load and buil
+  this.login_status = await app.login.getStatus();  // cashe login status for duration of load and build
 
   for (let x=0; start.getFullYear()<=year ;x++) {
     for (let y=0; y<=6; y++) {
@@ -388,12 +392,18 @@ async buildTable(  // calendarClass  client-side
   }
 }
 
-sort(a,b){
+
+sort(// calendarClass  client-side
+// sort events for the day by time
+   a // edge id
+  ,b // edge id
+  ){
   // sort by time
   const edge_A = this.graph.edges[a].startGMT;
   const edge_B = this.graph.edges[b].startGMT;
   const diffh  = edge_A.getHours() - edge_B.getHours();
   if (diffh === 0) {
+    // same hour so look at minutes
     return edge_A.getMinutes() - edge_B.getMinutes()
   } else {
     return diffh;

@@ -337,18 +337,31 @@ validateForm(
 getDate(// calendarEditClass  client-side
   DOMname // 
 ){
-  const dateString = document.getElementById(`${DOMname}_date`).value;   // "2023-04-05"
-  const date       = dateString.split("-")
+  let dateString = document.getElementById(`${DOMname}_date`).value;   // "2023-04-05"
+  let date = [];
+  if (dateString === "") {
+    // date not specified
+    date[0] = null;
+    date[1] = 12;
+    date[2] = 31;
+  } else {
+    date    = dateString.split("-");
+    date[0] = parseInt(date[0]);
+    date[1] = parseInt(date[1]);
+    date[2] = parseInt(date[2]);
+  }
 
   if (document.getElementById(`${DOMname}_time`)) {
      const timeString = document.getElementById(`${DOMname}_time`).value;   // "12:20"
      const time       = timeString.split(":"); 
-     return [parseInt(date[0]), parseInt(date[1]) , parseInt(date[2]),parseInt(time[0]), parseInt(time[1]) ];  // array[year, month, day, hours, minutes]
+     date[3] = parseInt(time[0]);
+     date[4] = parseInt(time[1]);  
   } else {
-    return [parseInt(date[0]), parseInt(date[1]) , parseInt(date[2]),0,0];
+    date[3] = 0;
+    date[4] = 0;
   }
 
-
+  return [date[0], date[1] , date[2], date[3], date[4]];  // array[year, month, day, hours, minutes]
 }
 
 

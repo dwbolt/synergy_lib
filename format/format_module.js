@@ -173,6 +173,8 @@ obj2string( // formatClass - client-side
         str +=  `,${this.obj2string(obj[key],level+1)}`
       });
       str ="[" + str.substring(1) + "]";  // replace leading \n, with \n
+    } else if (obj === null) {
+      str = "null";
     } else if (typeof(obj) === "object") {
       str = "";  // add new line for object
       const keys = Object.keys(obj);
