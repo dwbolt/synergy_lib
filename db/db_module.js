@@ -19,13 +19,14 @@ save to server
 */
 
 
-#url       // remember where the file came from
+#url       // remember where the database list came from
 //#urlList   // directory where database folders are
 #json      // list of data bases 
 
 
 constructor() {   // dbClass - client-side
   this.tables = {};  // init tables to an object.  needed if createing tables in code rather than loading them.
+  this.url = "" ; // where the loaded database came from
  }
 
 
@@ -64,11 +65,12 @@ async load(  // dbClass - client-side
   // load database meta data and tables file from server
   db_name  // name of db to load
   ) {
-  const url = this.get_database_list_value(db_name,"location");
-  const msg  = await app.proxy.getJSONwithError(url);
+  this.dir = this.get_database_list_value(db_name,"location");
+  this.url = this.dir+"/_.json";
+  const msg = await app.proxy.getJSONwithError(this.url);
   if(msg.json === null){
     //error
-    alert(`error, file=""_.js method="load" url="${url}"`);
+    alert(`error, file="db_module.js" method="load" url="${this.url}"`);
     return;
   }
   this.#json = msg.json;

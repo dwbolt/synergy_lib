@@ -14,6 +14,7 @@ these features are used in the following apps
 
 #json   // json table loaded from disk
 #url
+#dir
 
 constructor( // tableClass - client-side
 url
@@ -71,7 +72,7 @@ set_value(  // tableClass - client-side
       
     default:
       // code block
-      alert(`error table_module.js method:get_value meta_field.location=${meta_field.location}`);
+      alert(`error file="table_module.js" method="set_value" meta_field.location=${meta_field.location}`);
   }
 }
 
@@ -101,7 +102,7 @@ get_value(  // tableClass - client-side
       
     default:
       // code block
-      alert(`error table_module.js method:get_value meta_field.location=${meta_field.location}`);
+      alert(`error file="table_module.js" method="get_value" meta_field.location=${meta_field.location}`);
   }
 }
 
@@ -240,12 +241,13 @@ get_PK( // tableClass - client-side
 
 
 async load(  // tableClass - client-side
-  url        // location of table to load
+  dir        // location of table to load
   ) { 
-  this.#url = url;
+  this.#dir = dir;
+  this.#url = dir+"/_.json";
   let obj = await app.proxy.getJSONwithError(this.#url);   // get table in database
   if(obj.json === null) {
-    alert(`file="table_module.js" method="load" missing or bad file="${this.#url}"`);
+    alert(`error file="table_module.js" method="load" missing or bad file="${this.#url}"`);
     // add code to not show table in db menu
     return;
   }
