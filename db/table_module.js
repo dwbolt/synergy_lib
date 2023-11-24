@@ -338,41 +338,16 @@ PK_get( // tableClass - client-side
 }
 
 
-async save2file( // tableClass - client-side
-){
-  // see if it is a new table;
-  const changes = Object.keys(this.#json.changes);
-  if (0<changes.length) {
-    // save changes
-    
-
-    // only save file if there are changes to the table or it is new
-    const file = app.format.obj2string(this.#json) 
-    const msg   = await app.proxy.RESTpost( file, this.#url);
-
-    alert(`
-      file=${this.#url}
-      records changed=${changes.length}
-      save status = ${msg.statusText}`
-    );
-
-    if (msg.statusText=="OK") {
-      // start new change log
-      this.#json.changes = {};
-    };
-  }
-}
-
-
 save2memory( // tableClass - client-side
   // make change to row in memory and update memory change log
   primary_key_value  // positive number edit exiting row,  negative number create new row
   ,record            // new record values
   ) {
   if(!primary_key_value || primary_key_value==="") {
-    // get next primary key
-    primary_key_value = (++this.#json.meta.PK_max).toString();
-    this.#json.meta.PK[primary_key_value] = true;
+    // adding a new record, so create a new PK
+    primary_key_value = (++this.#json.meta.PK_max).toString();  // get next primary key
+    this.#json.meta.PK[primary_key_value] = true;               // add it the pk meta data so it can be accessed
+    record.pk = primary_key_value;                              // add it the record being saved
   }
 
   // get change log for row
@@ -393,12 +368,16 @@ save2memory( // tableClass - client-side
         if (typeof(current_value) != "undefined"){
           changes[field].original = current_value;
         } 
-      } else if (edited_value  === changes[primary_key_value][i]["original"]) {
+      } else if (edited_value  === changes[field].original) {
         // original value was restored, so delete session change log
         delete changes[field];
+        if (Object.keys(changes).length === 0) {
+          // no changes left for that key, so delete key
+          delete this.#json.changes[primary_key_value];
+        }
       } else {
         // replace new_value
-        changes[primary_key_value][field].new_value = edited_value;
+        changes[field].new_value = edited_value;
       }
 
       // update memery row
@@ -410,6 +389,35 @@ save2memory( // tableClass - client-side
   // need to save memory change log to server incase session is lost, so user will not loose there work
   // code here
 }
+
+
+async save2file( // tableClass - client-side
+){
+  // see if it is a new table;
+  const changes = Object.keys(this.#json.changes);
+  if (changes.length  === 0) {
+    alert("No changes to save");
+    return;
+  }
+
+  // save changes
+  // only save file if there are changes to the table or it is new
+  const file = app.format.obj2string(this.#json) 
+  const msg   = await app.proxy.RESTpost( file, this.#url);
+
+  alert(`
+    file=${this.#url}
+    records changed=${changes.length}
+    save status = ${msg.statusText}`
+  );
+
+  if (msg.statusText=="OK") {
+    // start new change log
+    this.#json.changes = {};
+  };
+  
+}
+
 
 /* test
 delete( // tableClass - client-side
@@ -457,7 +465,12 @@ get_field( // tableClass - client-side
   ,attribute  // header or type or location..
   ){
   const field_name = this.#json.meta.select[i];
-  return this.#json.meta.fields[field_name][attribute];
+  const value = this.#json.meta.fields[field_name][attribute];
+  if (typeof(value) === "string") {
+    return value.toLowerCase(); // convert strings to lowercase for easy compare
+  } else {
+    return value;
+  }
   }
 
 

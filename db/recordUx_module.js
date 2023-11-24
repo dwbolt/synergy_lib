@@ -92,7 +92,7 @@ edit(  // client side dbUXClass
       default:
         // single value- column or row
         value = table.get_value(this.#primary_key_value,field);
-        if (type === "PK") {
+        if (type === "pk") {
           // do not allow editing of primary key
           readonly = "readonly";
         } else {
@@ -120,11 +120,10 @@ save( // client side recordUxClass - for a page
 ) {  
   // save to memory
   const table  = this.tableUX.getModel();  // get tableClass being displayed
-  const obj    = {}                     ;  // move data from from to obj
-
   // fill rowEdited with values from edit form
   const  select = table.meta_get("select");  // get array of fields to work with
   let field_name;
+  const obj    = {}                     ;  // move data from form to obj
   for(var i=0; i<select.length; i++) {
     // walk the form 
     field_name      = select[i];
@@ -135,18 +134,18 @@ save( // client side recordUxClass - for a page
   }
   // value of this.#primary_key_value determines add or update
   this.#primary_key_value = table.save2memory(this.#primary_key_value, obj); 
-  this.show_changes();
-  this.show();
+  this.show_changes();  // display table  with new data
+  this.show();          // display record with new data
 }
 
 
 show_changes(){
   // need to update app info
-  this.tableUX.display();
+  this.tableUX.displayData();
 }
 
 new(){// client side recordUxClass - for a page
-  this.#primary_key_value = null;   // should be able todo this in one statement
+  this.#primary_key_value = null;   // will cause edit to create new record on this.save()
   this.edit();
 }
 
