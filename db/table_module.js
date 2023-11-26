@@ -82,6 +82,11 @@ get_value(  // tableClass - client-side
   ,field    // field name we want value of
 ) {
   const meta_field = this.#json.meta.fields[field];
+  if (typeof(meta_field) === "undefined") {
+    // assume data is stored in column, // not tested well, put in to support csv import
+    return this.#json.columns[field][pk];
+  }
+
   switch(meta_field.location) {
     case "column":
       return this.#json.columns[field][pk];

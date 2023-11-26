@@ -45,13 +45,12 @@ parse_CSV(  // csvClass: client-side
   this.quote      = '"';      // assume strings with quotes, comma's or crlf are quoted with double quotes
   this.display    = new Date();
 
-  while ( this.valueStart < this.csv.length) {
+  while ( this.get_line()) {
     // now add all the data to columns
-    this.get_line();
     this.parse_line();
 
     if (1000 < (new Date() - this.display)  ) {
-      console.log(`${this.row} rows parsed total - ${this.row - this.row_old} rows parsed this time slice `);
+      console.log(`${this.row} rows parsed total - ${this.row - this.row_old} rows parsed this time slice - this.valueStart = ${this.valueStart} - this.csv.length=${this.csv.length}`);
       this.row_old = this.row;
       this.display = new Date();
     }
@@ -64,11 +63,11 @@ parse_CSV(  // csvClass: client-side
   // create meta data
   const select = this.table.meta_get("select");
   const fields = this.table.meta_get("fields");
-  const header = this.table.meta_get("fiheaderelds");
+  //const header = this.table.meta_get("fiheaderelds");
   // select all the fields imported
   for(var i=0; i<this.column_max; i++){
     let field = i.toString();  // "0","1","2".....
-    select.push(field); 
+    select.push(field); // show the field
     fields[field] = {"header":field, "type": "string", "location":"column"}  // some maybe numbers, bool or other.
   }
 }
@@ -76,18 +75,25 @@ parse_CSV(  // csvClass: client-side
 
 get_line(){
   this.end_lineN  = this.csv.indexOf('\n' , this.valueStart+1);
+  if (this.end_lineN<0) {
+    // end of file, did not get a new line
+    return false;
+  }
+
   if (this.csv[this.end_lineN-1] === "\r") {
     this.end_parse = this.end_lineN - 2;  // line ends in cr lf, get rid of cr
   } else {
     this.end_parse = this.end_lineN - 1;
   }
+  return true;  // we have a line to parse
 }
 
 
 parse_line() {  // csvClass: client-side
   while (!this.rowEnd) {  
-    this.table.add_column_value(this.row.toString(), this.column.toString(),this.parse_value());
-    this.column++; // goto next column
+    let row = this.row.toString();
+    let col = this.column.toString();
+    this.table.add_column_value(row, col,this.parse_value());
     if (this.rowEnd) {
       if (this.column_max < this.column) {
         // set highwater mark for column parsed
@@ -95,9 +101,10 @@ parse_line() {  // csvClass: client-side
       }
       if (this.column != this.column_max) {
         // logg error if all lines do not have same number of columns - what does the spec say?
-        this.error(`error on row ${this.row}, column=${this.column }, expected ${this.column_max} `);
+        this.show_error( `error on row ${this.row}, column=${this.column }, expected ${this.column_max} col0="${this.table.get_value(row,"0")}" col1="${this.table.get_value(row,"1")}" `);
       }
     }
+    this.column++; // goto next column
   }
 
   // init for next row
@@ -107,9 +114,9 @@ parse_line() {  // csvClass: client-side
 }
 
 
-error(message){  // csvClass: client-side
+show_error(message){  // csvClass: client-side
     this.error = true;
-    this.DOM.innerHTML += message +"<br/>";
+    this.DOM.innerHTML += message +"\r\n";
 }
 
 
@@ -193,9 +200,14 @@ parseNull() { // csvClass: client-side
 
 
 testEndRow(end) {  // csvClass: client-side
-  this.valueStart = end+1;
+  if (this.valueStart < end+1) {
+    this.valueStart = end+1;
+  } else {
+    this.show_error(`Error this.valueStart=${this.valueStart}  end=${end}`);
+  }
+  
 
-  if ( this.end_lineN <= this.valueStart) {
+  if (  this.end_parse <= this.valueStart) {
     this.rowEnd     = true;
     this.valueStart = this.end_lineN+1;
   }
