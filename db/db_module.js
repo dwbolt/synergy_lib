@@ -117,9 +117,7 @@ getJSON(){return this.#json;}  // dbClass - client-side
 
 tableAdd(tableName) { // dbClass - client-side
   // create empty table and add to database
-  //this.tables[tableName] = new tableClass(`${this.#urlList}/${tableName}/_.json`);
-  this.tables[tableName] = new tableClass(`${tableName}/_.json`);  // bad url - rethink 
-
+  this.tables[tableName] = new tableClass(`${this.dir}/${tableName}/_.json`);  
   return this.tables[tableName]
 }
 

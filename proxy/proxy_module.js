@@ -60,7 +60,7 @@ async RESTpost(   // proxyClass - client - side
     referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
     body: buffer // body data type must match "Content-Type" header
   });
-  return response
+  return await response.json();
 }
 
 

@@ -21,7 +21,7 @@ url
 ) {  
   // data
   const page   = window.location;
-  const urlEsc = new URL(`${page.protocol}//${page.host}/${url}`);
+  const urlEsc = new URL(`${page.protocol}//${page.host}${url}`);
   this.#url   = urlEsc.toString();
   this.db     = null; 
   this.#json  = {
@@ -407,18 +407,17 @@ async save2file( // tableClass - client-side
 
   // save changes
   // only save file if there are changes to the table or it is new
-  const file = app.format.obj2string(this.#json) 
-  const msg   = await app.proxy.RESTpost( file, this.#url);
-
-  alert(`
+  //const file = app.format.obj2string(this.#json) 
+  //const msg  = await app.proxy.RESTpost( file, this.#url);
+  const msg  = await app.proxy.RESTpost( JSON.stringify(this.#json), this.#url);
+  if (msg.success) {
+    alert(`
     file=${this.#url}
     records changed=${changes.length}
-    save status = ${msg.statusText}`
-  );
-
-  if (msg.statusText=="OK") {
-    // start new change log
-    this.#json.changes = {};
+    message = ${msg.message}`);
+    this.#json.changes = {};  // start new change log
+  } else {
+    alert(`error file="table_module.js" method="save2file" url="${this.#url}" msg=${msg.message}`)
   };
   
 }

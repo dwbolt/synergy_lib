@@ -85,7 +85,7 @@ parse_CSV(  // csvClass: client-side
   const fields = this.table.meta_get("fields");
   //const header = this.table.meta_get("fiheaderelds");
   // select all the fields imported
-  for(var i=0; i<this.column_max; i++){
+  for(var i=1; i<=this.column_max; i++){
     let field = i.toString();  // "0","1","2".....
     select.push(field); // show the field
     fields[field] = {"header":field, "type": "string", "location":"column"}  // some maybe numbers, bool or other.
@@ -100,12 +100,12 @@ show_error(message){  // csvClass: client-side
 
 
 parse_value() {  // csvClass: client-side, return false if end of line, return true if value is parsed 
+  const start1 = this.csv[this.valueStart-1];
   const start  = this.csv[this.valueStart];
-  const start1 = this.csv[this.valueStart+1];
   if (this.nextN < this.valueStart){
     this.nextN = this.csv.indexOf("\n", this.valueStart);
   }
-  if        (start === this.delimiter && start1 === this.delimiter)  {  // ,,  -> null
+  if        (start1 === this.delimiter && start === this.delimiter )  {  // ,,  -> null
     this.value = null;
     this.valueStart++;
     return true;
@@ -123,6 +123,9 @@ parse_value() {  // csvClass: client-side, return false if end of line, return t
   } else {
   //  ,1,  -> number 1
   //  , hello ,  -> string " hello "
+  if (start === this.delimiter) {
+    this.valueStart++;
+  }
   this.value = this.parse();
   return true;
   }
