@@ -17,15 +17,16 @@ constructor(  // csvClass: client-side
   table   // place to put parsed data
 ) {
   this.csv        = null ;   // csv file in memory to parse and put into database
-  this.end_lineN  = null ;   // index into csv where the line being parses ends at /n
+  this.end_lineN  = null ;   // index into csv where the next /n is,"maybe end of line or side a quote
   this.valueStart = null ;   // index into csv  where column parse starts
 
   this.error      = false;   // will be set to true if a parsing error occures
   this.table      = table;   // place to put parsed data
   this.insertID   = false;   // do not insert ID column
   this.id         =     1;   // 
-  this.column     = 0    ;
+  this.column     = 0    ;   // first column is 1
   this.column_max = 0;
+  this.nextN      = -1;
 }
 
 
@@ -44,10 +45,29 @@ parse_CSV(  // csvClass: client-side
   this.delimiter  = ',';      // assume our delimter is a Comma
   this.quote      = '"';      // assume strings with quotes, comma's or crlf are quoted with double quotes
   this.display    = new Date();
+  this.end_lineN  = this.csv.indexOf("/n" , this.valueStart+1);
 
-  while ( this.get_line()) {
-    // now add all the data to columns
-    this.parse_line();
+  while ( this.valueStart <this.csv.length) {
+    if (this.parse_value()) {
+      // we got a value, so add it the record
+      let row   = this.row.toString();
+      this.column++;
+      let col   = this.column.toString();
+      if (this.value !== null) {
+        this.table.add_column_value(row, col, this.value);
+      }
+    } else {
+      // we started a new line
+      if (this.column_max < this.column) {
+        this.column_max = this.column; // set highwater mark for column parsed
+      }
+      if (this.column != this.column_max) {
+        // log error if all lines do not have same number of columns - what does the spec say?
+        this.show_error( `error on row ${this.row}, column=${this.column }, expected ${this.column_max} col0="${this.table.get_value(row,"0")}" col1="${this.table.get_value(row,"1")}" `);
+      }
+      this.column = 0;   // start new column
+      this.row++;        // start new row
+    }
 
     if (1000 < (new Date() - this.display)  ) {
       console.log(`${this.row} rows parsed total - ${this.row - this.row_old} rows parsed this time slice - this.valueStart = ${this.valueStart} - this.csv.length=${this.csv.length}`);
@@ -73,6 +93,106 @@ parse_CSV(  // csvClass: client-side
 }
 
 
+show_error(message){  // csvClass: client-side
+    this.error = true;
+    this.DOM.innerHTML += message +"\r\n";
+}
+
+
+parse_value() {  // csvClass: client-side, return false if end of line, return true if value is parsed 
+  const start  = this.csv[this.valueStart];
+  const start1 = this.csv[this.valueStart+1];
+  if (this.nextN < this.valueStart){
+    this.nextN = this.csv.indexOf("\n", this.valueStart);
+  }
+  if        (start === this.delimiter && start1 === this.delimiter)  {  // ,,  -> null
+    this.value = null;
+    this.valueStart++;
+    return true;
+  } else if (start === this.quote ) {
+//    ," this is Knoxville,TN",     -> string " this is Knoxville,TN"
+//    ," this is an escaped quote"""  -> string ' this is an escaped quote"'
+    this.value = this.parseQuote();
+    return true;
+  } else if (start === "\n"  ) {
+    this.valueStart++;
+    return false;   // end of line
+  } else if (start === "\r" && start1 === "\n"  ) {
+    this.valueStart += 2;
+    return false;  // end of line
+  } else {
+  //  ,1,  -> number 1
+  //  , hello ,  -> string " hello "
+  this.value = this.parse();
+  return true;
+  }
+}
+
+
+parseQuote() {  // csvClass: client-side
+  // find the end of the quote   "            ",
+  const end = this.csv.indexOf('",' , this.valueStart+1); 
+
+  if        (0<end) {
+    // most common case, end_quote inside line
+    let v = this.csv.slice( this.valueStart+1, end);
+    this.valueStart = end + 2 // get on the other side of "
+  
+    return(v); // return string value in array
+  } else {
+    alert(`errow file="csv_module.js" method="parseQuote" end=${end}`);
+    return null;
+  }
+}
+
+
+parse(){  // csvClass: client-side
+  // find the end of the value, may come at next delimiter or end of line  \r\n or \n
+  let ed  = this.csv.indexOf(this.delimiter, this.valueStart);  //
+  let end,v;
+
+  if (ed<0 || this.nextN<ed) {
+    // did not find ending delimiter or at end of line come before end of del
+    end = this.nextN;
+    if (this.csv[end-1]==="\r" ) {
+      end--;
+    }
+    v = this.csv.slice( this.valueStart, end )
+    this.valueStart = this.nextN;
+  } else {
+    end =ed;
+    v = this.csv.slice( this.valueStart, end )
+    this.valueStart = end + 1;
+  }
+
+  if (isNaN(v)) {
+    return(v); // return string value in array
+  } else {
+    return( parseFloat(v) ) // return number value
+  }
+}
+
+
+} // end of csvClass: client-side
+
+export {csvClass};
+
+/*
+testEndRow(end) {  // csvClass: client-side
+  if (this.valueStart < end+1) {
+    this.valueStart = end+1;
+  } else {
+    this.show_error(`Error this.valueStart=${this.valueStart}  end=${end}`);
+  }
+  
+  if (  this.end_parse <= this.valueStart) {
+    this.rowEnd     = true;
+    this.valueStart = this.end_lineN+1;
+  }
+}
+*/
+
+/*
 get_line(){
   this.end_lineN  = this.csv.indexOf('\n' , this.valueStart+1);
   if (this.end_lineN<0) {
@@ -87,13 +207,15 @@ get_line(){
   }
   return true;  // we have a line to parse
 }
+*/
 
-
+/*
 parse_line() {  // csvClass: client-side
   while (!this.rowEnd) {  
-    let row = this.row.toString();
-    let col = this.column.toString();
-    this.table.add_column_value(row, col,this.parse_value());
+    let row   = this.row.toString();
+    let col   = this.column.toString();
+    let value = this.parse_value();
+    this.table.add_column_value(row, col, value);
     if (this.rowEnd) {
       if (this.column_max < this.column) {
         // set highwater mark for column parsed
@@ -112,108 +234,14 @@ parse_line() {  // csvClass: client-side
   this.rowEnd = false;
   this.row++;
 }
+*/
 
 
-show_error(message){  // csvClass: client-side
-    this.error = true;
-    this.DOM.innerHTML += message +"\r\n";
-}
-
-
-parse_value() {  // csvClass: client-side
-  const start = this.csv[this.valueStart];
-
-  if      ( 
-          (start === this.delimiter && this.csv[this.valueStart+1] === this.delimiter)
-      ||   this.csv[this.valueStart] === "\n"
-      ||  (this.csv[this.valueStart] === "\r" && this.csv[this.valueStart+1] === "\n" ) ) {
-    // /r/n -> parseNull
-    // /n   -> parseNull
-    // ,,  -> null
-    if (this.csv[this.valueStart] === "\r" && this.csv[this.valueStart+1] === "\n" ) {
+/*
+ 
+      ||                                            // /n   -> parseNull
+      ||  (start === "\r" && start1 === "\n" ) ) {                  // /r/n -> parseNull
+    if (start === "\r" && start1 === "\n" ) {
       this.valueStart++;  // take out "\r"
     }
-    return this.parseNull();
-  } else if (this.csv[this.valueStart] === this.quote ) {
-//    ," this is Knoxville,TN",     -> string " this is Knoxville,TN"
-//    ," this is an escaped quote"""  -> string ' this is an escaped quote"'
-    return this.parseQuote();
-  } else {
-  //  ,1,  -> number 1
-  //  , hello ,  -> string " hello "
-    return this.parse();
-  }
-}
-
-
-parseQuote() {  // csvClass: client-side
-  // find the end of the quote   "            ",
-  const end_quote  = this.csv.indexOf('",' , this.valueStart+1); 
-  let end;
-
-  if        (end_quote < this.end_parse  && 0<end_quote) {
-    // most common case, end_quote inside line
-    end = end_quote;
-  } else if ( this.end_parse < end_quote && 0 < this.end_parse) {
-    // end_quote at end of line
-    end = this.end_parse
-  } else if (end_quote === -1 ) {
-    // end of file without closing line
-    end=this.csv.length;  // not sure this is right, test
-  }
-
-  let v = this.csv.slice( this.valueStart+1, end);
-  this.testEndRow(end+1); // get on the other side of "
-
-  return(v); // return string value in array
-}
-
-
-parse(){  // csvClass: client-side
-  // find the end of the value, may come at next delimiter or end of line  \r\n or \n
-  let ed  = this.csv.indexOf(this.delimiter, this.valueStart);
-  let end, newValueStart,v;
-
-  if (ed<0) {
-    // did not find ending delimiter -> at end of file
-    end = this.end_parse;
-  } else {
-    end = Math.min(ed, this.end_parse);
-  }
-
-  v = this.csv.slice( this.valueStart, end )
-
-  this.testEndRow(end);
-
-  if (isNaN(v)) {
-    return(v); // return string value in array
-  } else {
-    return( parseFloat(v) ) // return number value
-  }
-}
-
-
-parseNull() { // csvClass: client-side
-  this.testEndRow(this.valueStart);
-  return (null);
-}
-
-
-testEndRow(end) {  // csvClass: client-side
-  if (this.valueStart < end+1) {
-    this.valueStart = end+1;
-  } else {
-    this.show_error(`Error this.valueStart=${this.valueStart}  end=${end}`);
-  }
-  
-
-  if (  this.end_parse <= this.valueStart) {
-    this.rowEnd     = true;
-    this.valueStart = this.end_lineN+1;
-  }
-}
-
-
-} // end of csvClass: client-side
-
-export {csvClass};
+ */
