@@ -76,12 +76,12 @@ async load(  // dbClass - client-side
   this.#json = msg.json;
 
   // walk through table data, load and make the table class objects
-  this.tables = {};
+  this.tables       = {};
   const table_names = this.get_table_names();
   for (let i=0; i<table_names.length; i++) {
-    const table = new tableClass();       // create
+    const table                 = new tableClass();       // create
     this.tables[table_names[i]] = table;  // add table to database
-    const table_url = msg.json.meta.tables[table_names[i]].location;
+    const table_url             = msg.json.meta.tables[table_names[i]].location;
     await table.load(table_url);          // load
     table.set_db(this);                   // allow tables to get to other tables in the database
     table.set_name(table_names[i]);       // allow table to know it's database name
