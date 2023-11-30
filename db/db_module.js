@@ -53,7 +53,7 @@ async load_db_list(  // dbClass - client-side
   // load list of tables in database
   const obj = await app.proxy.getJSONwithError(this.#url);   // get list of tables;
   if(obj.json === null) {
-    alert(`db_module.js method="load_meta" missing or bad file="${this.#url}"`);
+    alert(`db_module.js method="load_db_list" missing or bad file="${this.#url}"`);
     return false;
   }
   this.#json  = obj.json; 
@@ -73,7 +73,7 @@ async load(  // dbClass - client-side
     alert(`error, file="db_module.js" method="load" url="${this.url}"`);
     return;
   }
-  this.#json = msg.json;
+  this.tablesJson = msg.json;
 
   // walk through table data, load and make the table class objects
   this.tables       = {};
@@ -89,7 +89,7 @@ async load(  // dbClass - client-side
 }
 
 get_table_names(){
-  return Object.keys(this.#json.meta.tables);
+  return Object.keys(this.tablesJson.meta.tables);
 }
 
 loadLocal( // dbClass - client-side   -- should be able to share code here

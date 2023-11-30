@@ -47,23 +47,31 @@ parse_CSV(  // csvClass: client-side
   this.display    = new Date();
   this.end_lineN  = this.csv.indexOf("/n" , this.valueStart+1);
 
+  const select = this.table.meta_get("select");
+  const fields = this.table.meta_get("fields");
   while ( this.valueStart <this.csv.length) {
+    let row   = this.row.toString();
     if (this.parse_value()) {
       // we got a value, so add it the record
-      let row   = this.row.toString();
       this.column++;
       let col   = this.column.toString();
+      if (this.row === 0 ) {
+        this.column_max = this.column; // set highwater mark for column parsed
+        select.push(col); // show the field
+        fields[col] = {"header":col, "type": "string", "location":"column"}  // some maybe numbers, bool or other.
+      }
       if (this.value !== null) {
+        let t=typeof(this.value);
+        if (-1 === ["number","string"].findIndex((element)=>element===t)) {  // debug
+          alert(t);
+        }
         this.table.add_column_value(row, col, this.value);
       }
     } else {
       // we started a new line
-      if (this.column_max < this.column) {
-        this.column_max = this.column; // set highwater mark for column parsed
-      }
       if (this.column != this.column_max) {
         // log error if all lines do not have same number of columns - what does the spec say?
-        this.show_error( `error on row ${this.row}, column=${this.column }, expected ${this.column_max} col0="${this.table.get_value(row,"0")}" col1="${this.table.get_value(row,"1")}" `);
+        this.show_error( `error on row="${row}", column=${this.column }, expected=${this.column_max}  col1="${this.table.get_value(row,"1")}" col2="${this.table.get_value(row,"2")}"`);
       }
       this.column = 0;   // start new column
       this.row++;        // start new row
@@ -81,14 +89,11 @@ parse_CSV(  // csvClass: client-side
   changes.import = true;  
 
   // create meta data
-  const select = this.table.meta_get("select");
-  const fields = this.table.meta_get("fields");
+
   //const header = this.table.meta_get("fiheaderelds");
   // select all the fields imported
   for(var i=1; i<=this.column_max; i++){
-    let field = i.toString();  // "0","1","2".....
-    select.push(field); // show the field
-    fields[field] = {"header":field, "type": "string", "location":"column"}  // some maybe numbers, bool or other.
+
   }
 }
 
@@ -168,11 +173,12 @@ parse(){  // csvClass: client-side
     this.valueStart = end + 1;
   }
 
-  if (isNaN(v)) {
-    return(v); // return string value in array
-  } else {
-    return( parseFloat(v) ) // return number value
+  const f = parseFloat(v); // return number value
+  if (typeof(f) === "number") {
+    v = f;  // see if v is a number
   }
+
+  return v;
 }
 
 
