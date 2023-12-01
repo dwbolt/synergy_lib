@@ -168,9 +168,9 @@ parse(){  // csvClass: client-side
   let end,v;
   let start = this.valueStart;
 
-  if (this.column === 0 && this.row===2371) {
+  /*f (this.column === 0 && this.row===2371) {
     debugger;
-  }
+  }*/
 
   if (ed<0 || (0<this.nextN && this.nextN<ed) ) {
     // did not find ending delimiter or at end of line come before end of del

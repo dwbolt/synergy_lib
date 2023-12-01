@@ -136,31 +136,29 @@ clearData( // dbClass - client-side
 }
 
 
-async save(  // dbClass - client-side
+async save_all(  // dbClass - client-side
   // save changed loaded tables to disk
 ) {
-  let save_new_meta  = false
   const keys = Object.keys(this.tables);  // keys to loaded tables
   // walking all tables in database to see if they have canged or or new
   for(var i=0; i< keys.length; i++) {
     // save all loaded tables that have changed
-    await this.tables[keys[i]].save2file();  // will return quickly if no changes
-    if ( typeof(this.#json.meta.tables[keys[i]]) ===  "undefined") {
-      this.#json.meta.tables[keys[i]] = {"location": keys[i], comments: "imported table"}
-      save_new_meta = true;
-    }
-  }
-
-  if (save_new_meta) {
-    // have a new table or tables, add it to meta data
-    await app.proxy.RESTpost(
-      `{
-        "meta":{
-          "tables": ${JSON.stringify(this.#json.meta.tables)}
-        }
-      }`, this.#url);
+    this.save_table(this.tables[keys[i]]);
   }
 }
+
+
+async save_table(  // dbClass - client-side
+  table) {
+  // save table
+  const msg = await this.tables[table].save2file();
+
+  // uppdate and save database meta data if it is a new table
+  if ( typeof(this.tablesJson.meta.tables[table] ) ===  "undefined") {
+              this.tablesJson.meta.tables[table] = {"location": `${this.dir}/${table}`, comments: "imported table"};
+    await app.proxy.RESTpost(JSON.stringify(this.tablesJson), this.url);
+    }
+  }
 
 
 displaySummery( // dbClass - clien-side

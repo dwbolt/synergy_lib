@@ -398,17 +398,13 @@ save2memory( // tableClass - client-side
 
 async save2file( // tableClass - client-side
 ){
-  // see if it is a new table;
+  // see any chanes made table;
   const changes = Object.keys(this.#json.changes);
   if (changes.length  === 0) {
     alert("No changes to save");
     return;
   }
 
-  // save changes
-  // only save file if there are changes to the table or it is new
-  //const file = app.format.obj2string(this.#json) 
-  //const msg  = await app.proxy.RESTpost( file, this.#url);
   const msg  = await app.proxy.RESTpost( JSON.stringify(this.#json), this.#url);
   if (msg.success) {
     alert(`
@@ -420,6 +416,7 @@ async save2file( // tableClass - client-side
     alert(`error file="table_module.js" method="save2file" url="${this.#url}" msg=${msg.message}`)
   };
   
+  return msg;
 }
 
 
