@@ -251,12 +251,33 @@ async load(  // tableClass - client-side
   this.#dir = dir;
   this.#url = dir+"/_.json";
   let obj = await app.proxy.getJSONwithError(this.#url);   // get table in database
-  if(obj.json === null) {
-    alert(`error file="table_module.js" method="load" missing or bad file="${this.#url}"`);
+  if(obj.status === 404) {
+    alert(`error 
+file="table_module.js" 
+method="load" 
+missing file="${this.#url}"
+will create template`);
     // add code to not show table in db menu
-    return;
+    this.#json  = {
+      "meta": {
+          "fields":{
+            "pk"           : {"header":"pk"         , "type":"PK"    ,  "location":"column"}
+           ,"label"        : {"header":"Label"      , "type":"string",  "location":"column"}
+           ,"display"      : {"header":"Display"    , "type":"string",  "location":"column"}
+           ,"comment"      : {"header":"Comment"    , "type":"string",  "location":"column"}
+          }
+      
+          ,"select":["pk", "label", "display", "comment"]
+      
+          ,"deleted"    :{} 
+          ,"PK"         :{}
+          ,"PK_max"     :0
+        }
+      }; 
+  } else {
+    this.#json  = obj.json; 
   }
-  this.#json  = obj.json; 
+
   this.setHeader();
 
   // init

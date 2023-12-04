@@ -52,11 +52,28 @@ async load_db_list(  // dbClass - client-side
 
   // load list of tables in database
   const obj = await app.proxy.getJSONwithError(this.#url);   // get list of tables;
-  if(obj.json === null) {
-    alert(`db_module.js method="load_db_list" missing or bad file="${this.#url}"`);
-    return false;
+  if(obj.status === 404) {
+    alert(`error in
+file="db_module.js" 
+method="load_db_list" 
+missing file="${this.#url}"
+creating memory template`);
+this.#json  = 
+
+{
+  "meta":{
+      "comment":"works with db_module.js"
+      ,"databases": {
+           "import"   : {"location":"/users/database/import" }
+          ,"synergy"  : {"location":"/users/database/synergy"}
+          ,"play"     : {"location":"/users/database/play"   }
+      }
+    }
+}
+
+  } else {
+    this.#json  = obj.json; 
   }
-  this.#json  = obj.json; 
   return true;
 }
 
@@ -68,12 +85,18 @@ async load(  // dbClass - client-side
   this.dir = this.get_database_list_value(db_name,"location");
   this.url = this.dir+"/_.json";
   const msg = await app.proxy.getJSONwithError(this.url);
-  if(msg.json === null){
+  if(msg.status === 404){
     //error
-    alert(`error, file="db_module.js" method="load" url="${this.url}"`);
-    return;
+    alert(`error, 
+file="db_module.js 
+method="load"
+url="${this.url}"
+creating memory template`);
+    this.tablesJson = this.create_template(db_name);
+  } else {
+    this.tablesJson = msg.json;
   }
-  this.tablesJson = msg.json;
+  
 
   // walk through table data, load and make the table class objects
   this.tables       = {};
@@ -81,10 +104,36 @@ async load(  // dbClass - client-side
   for (let i=0; i<table_names.length; i++) {
     const table                 = new tableClass();       // create
     this.tables[table_names[i]] = table;  // add table to database
-    const table_url             = msg.json.meta.tables[table_names[i]].location;
+    const table_url             = this.tablesJson.meta.tables[table_names[i]].location;
     await table.load(table_url);          // load
     table.set_db(this);                   // allow tables to get to other tables in the database
     table.set_name(table_names[i]);       // allow table to know it's database name
+  }
+}
+
+create_template(db_name) {
+  switch (db_name) {
+    case "synergy":
+      return {
+        "meta":{
+          "tables": {
+            "events"      :{"location":"/users/database/synergy/events"      }
+            ,"people"     :{"location":"/users/database/synergy/people"      }
+            ,"phone"      :{"location":"/users/database/synergy/phone"       }
+            ,"relations"  :{"location":"/users/database/synergy/relations"   }
+            ,"tasks"      :{"location":"/users/database/synergy/tasks"       }
+            } 
+          }
+        }
+  
+    default:
+      return {
+        "meta":{
+          "tables": {
+            "sample"      :{"location":`/users/database/${db_name}/sample`      }
+            } 
+          }
+        }
   }
 }
 
