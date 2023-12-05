@@ -30,7 +30,7 @@ groupBy(  // groupByClass - client-side
     // walking values column
     for(var ii=0; ii<pk.length; ii++){
       let value = field[pk[ii]];
-      if (typeof(ret[value]) === "undefined") {
+      if (ret[value] === undefined) {
         ret[value] = [];
       }
       ret[value].push(pk[ii]);  //  add the PK to array
@@ -38,36 +38,6 @@ groupBy(  // groupByClass - client-side
   }
 
   return ret;
-
-  // covert array of string field names to array of index values
-  /*
-  const a_gv = [];
-  a_g.forEach((fieldName, i) => {
-    a_gv.push(j.field[fieldName]);
-  });
-
-
-  let field = j.field;
-  // walk through table list
-  j.rows.forEach((row, i) => {
-    // now see if there is alreay a GROUP
-    let attributeName = "";
-    a_gv.forEach((fieldIndex) => {
-      attributeName += `-+-${row[fieldIndex]}`;  // -+- is a delimiter between fields
-    });
-    attributeName = attributeName.slice(3); // remove leading -+-
-
-    // see if group exists
-    if (typeof(this.groups[attributeName]) ==="undefined") {
-      // create new group
-      this.groups[attributeName] = {};
-      this.groups[attributeName].aggObj = {};
-      this.groups[attributeName].rowIndex = [i];
-    } else {
-      // add rowindex to existing group
-      this.groups[attributeName].rowIndex.push(i);
-    }
-  });*/
 }
 
 

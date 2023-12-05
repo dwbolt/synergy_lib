@@ -547,7 +547,7 @@ appendHTMLrow(  // tableUxClass - client-side
     // create display form of field
     let value = this.model.get_value_relation(PK,select[i]);
 
-    if (value===null || typeof(value)==="undefined") {
+    if (value===null || value === undefined) {
       value=""; // display null values as blank
     }
 
@@ -621,7 +621,7 @@ getColumnFormat( // tableUxClass - client-side
   i
   ) { // return <td> attributes to be added
   let f = this.columnFormat[i];
-  if (typeof(f) === "undefined") {
+  if (f === undefined) {
     return "";
   } else {
     return f;

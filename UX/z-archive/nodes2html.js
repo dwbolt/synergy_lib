@@ -83,7 +83,7 @@ async HTMLforNode(  // nodes2htmlClass - client-side
     // the node exists
     //  create list of urls
     let urls="";
-    if (typeof(r.u_urls) != "undefined" && Array.isArray( r.u_urls ) ) {
+    if (r.u_urls != undefined && Array.isArray( r.u_urls ) ) {
       r.u_urls.forEach((item, i) => {
         let target="_top";   // assume we want the link to stay on the same page
         if (item[1].substr(0,8) === "https://"
@@ -140,7 +140,7 @@ async displayRow(  // nodes2htmlClass - client-side
   }
 
   let pictures="";
-  if(typeof(r.u_pictures) !="undefined" && 0<r.u_pictures.length) {
+  if(r.u_pictures !=undefined && 0<r.u_pictures.length) {
     // only put picture div in if there are pictures to display
     pictures=`<div id="pic_${this.idDOM}_${i}" style="float:right;width:320px; height:200px;"></div>`;
   }

@@ -19,9 +19,10 @@ constructor( // recordUxClass - client-side
 
 
 show(  // client side recordUxClass - for a page
-  pk=null // dom element
+  //pk=null // dom element
+  pk // dom element
 ){
-  if (!(pk === null)) {
+  if (!(pk === undefined)) {
     // user clicked on elemnt, remember primary key for other record methodes
     this.#primary_key_value = pk; 
   }
@@ -34,7 +35,7 @@ show(  // client side recordUxClass - for a page
   let rowValue;
   for(var i=0; i<select.length; i++) {
     rowValue = table.get_value_relation(this.#primary_key_value, select[i]);
-    if (typeof(rowValue) === "undefined") {
+    if (rowValue === undefined) {
       rowValue = "";
     }
     html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td> <td>${rowValue}</td></tr>`
@@ -91,17 +92,22 @@ edit(  // client side dbUXClass
         break;
       default:
         // single value- column or row
-        value = table.get_value(this.#primary_key_value,field);
         if (type === "pk") {
           // do not allow editing of primary key
           readonly = "readonly";
         } else {
           readonly = "";
         }
-        if (!value) {
-          // undifined, null
-          value = "";
+        if (this.#primary_key_value === null) {
+          value = "";  // new record, no previous value
+        } else {
+          value = table.get_value(this.#primary_key_value,field);
+          if (!value) {
+            // undifined, null
+            value = "";
+          }
         }
+
         html += `<tr><td>${fields[field].header}</td> <td><input ${readonly} id='edit-${i}' type='text' value='${value}'> ${readonly}</td></tr>`
     }
   }

@@ -53,6 +53,9 @@ set_value(  // tableClass - client-side
   const meta_field = this.#json.meta.fields[field];
   switch(meta_field.location) {
     case "column":
+      if (this.#json.columns[field] === undefined) {
+        this.#json.columns[field] = {}; // init
+      }
       this.#json.columns[field][pk] = value;
       break;
       
@@ -81,18 +84,26 @@ get_value(  // tableClass - client-side
   pk        // table primary key
   ,field    // field name we want value of
 ) {
+  if (pk === null || pk === undefined ) {
+    // pk is null or un
+    return undefined;
+  }
   const meta_field = this.#json.meta.fields[field];
-  if (typeof(meta_field) === "undefined") {
+  if (meta_field === undefined) {
     // assume data is stored in column, // not tested well, put in to support csv import
     return this.#json.columns[field][pk];
   }
 
   switch(meta_field.location) {
     case "column":
-      return this.#json.columns[field][pk];
-
-    case "row":
-      if (typeof(this.#json.meta.PK[pk]) != "undefined"  && this.#json.rows[this.#json.meta.PK[pk]]) {
+      if (this.#json.columns[field]) {
+        return this.#json.columns[field][pk];  // still may return undefined
+      } else {
+        return undefined;
+      }
+      
+    case "row":   // deprecate 
+      if (this.#json.meta.PK[pk] != undefined  && this.#json.rows[this.#json.meta.PK[pk]]) {
         return this.#json.rows[this.#json.meta.PK[pk]][meta_field.param];
       } else {
         return null;
@@ -204,12 +215,12 @@ add_column_value( // tableClass - client-side
   ,column_value   //
 ){
 
-  if (typeof(this.#json.meta.PK[pk]) === "undefined") {
+  if (this.#json.meta.PK[pk] === undefined) {
     // assume all data is stored in column, may cause problems untill all row data is gone;
     // add Primary key
     this.#json.meta.PK[pk]=true;
   }
-  if (typeof(this.#json.columns[column_name]) === "undefined") {
+  if (this.#json.columns[column_name] === undefined) {
     this.#json.columns[column_name] = {};
   }
 
@@ -273,6 +284,8 @@ will create template`);
           ,"PK"         :{}
           ,"PK_max"     :0
         }
+      ,"columns":{}
+      ,"relation":{}
       }; 
   } else {
     this.#json  = obj.json; 
@@ -281,8 +294,8 @@ will create template`);
   this.setHeader();
 
   // init
-  if (typeof(this.#json.changes) === "undefined") this.#json.changes = {};
-  if (typeof(this.#json.deleted) === "undefined") this.#json.deleted = {};
+  if (this.#json.changes === undefined) this.#json.changes = {};
+  if (this.#json.deleted === undefined) this.#json.deleted = {};
 
   // index primary key
   if (typeof(this.#json.meta.PK) !== "object") {
@@ -388,10 +401,10 @@ save2memory( // tableClass - client-side
     // update change log
     if (edited_value !== current_value ) {
       // change was made to field
-      if (typeof(changes[field]) === "undefined") {
+      if (changes[field] === undefined) {
         // first time field has changed for this row, add change log for field
         changes[field] = {"new_value": edited_value};
-        if (typeof(current_value) != "undefined"){
+        if (current_value != undefined){
           changes[field].original = current_value;
         } 
       } else if (edited_value  === changes[field].original) {
@@ -502,7 +515,7 @@ get_field( // tableClass - client-side
  ) {
    const column_name  = this.#json.meta.select[i];
    let   column_value = this.#json.columns[column_name][pk];
-   if (typeof(column_value) === "undefined") {
+   if (column_value === undefined) {
     // return empty string if not defin
     column_value = "";
     }
@@ -547,7 +560,7 @@ changes_get(key=null) { // tableClass - client-side
   }
 
   let changes = this.#json.changes[key];
-  if (typeof(changes)==="undefined") {
+  if (changes === undefined) {
     // no privous changes to row, so init to empty change object
               this.#json.changes[key] = {};
     changes = this.#json.changes[key];
@@ -578,7 +591,7 @@ change_summary(  // tableClass - client-side
   field
   ){
   const change = this.changes_get("summary");
-  if (typeof(change[field]) ==="undefined") {
+  if (change[field] === undefined) {
     // first time data is stored so create empty
     change[field] = {count: 0};
   }

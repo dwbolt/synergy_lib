@@ -102,7 +102,7 @@ async addNewEvent(  // calendarEditClass  client-side
 // user click "add" button to save new event on server
 ) {
   // create new edge
-  if (typeof(this.graph.edgeNext) === "undefined") {
+  if (this.graph.edgeNext === undefined) {
     // make sure the value of this.graph.edgeNext is defined
     this.graph.edgeNext = this.get_next_key(this.graph.edges);
   }

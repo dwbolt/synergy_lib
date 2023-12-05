@@ -73,7 +73,7 @@ parse_for_one_second(){   // csvClass: client-side
       }
     } else {
       // we started a new line
-      if (typeof(this.line_count[this.column]) === "undefined"){
+      if (this.line_count[this.column] === undefined){
         this.line_count[this.column] = [];
       }
       this.line_count[this.column].push(this.row);

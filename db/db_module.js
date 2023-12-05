@@ -203,8 +203,8 @@ async save_table(  // dbClass - client-side
   const msg = await this.tables[table].save2file();
 
   // uppdate and save database meta data if it is a new table
-  if ( typeof(this.tablesJson.meta.tables[table] ) ===  "undefined") {
-              this.tablesJson.meta.tables[table] = {"location": `${this.dir}/${table}`, comments: "imported table"};
+  if ( this.tablesJson.meta.tables[table]  ==  undefined) {
+       this.tablesJson.meta.tables[table] = {"location": `${this.dir}/${table}`, comments: "imported table"};
     await app.proxy.RESTpost(JSON.stringify(this.tablesJson), this.url);
     }
   }

@@ -69,7 +69,6 @@ idDom
 }
 
  async userAdd() {// loginClass - client side
-
   // process server responce
   const msg = `{
     "server"      : "web"
