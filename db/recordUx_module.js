@@ -126,10 +126,11 @@ save( // client side recordUxClass - for a page
 ) {  
   // save to memory
   const table  = this.tableUX.getModel();  // get tableClass being displayed
-  // fill rowEdited with values from edit form
-  const  select = table.meta_get("select");  // get array of fields to work with
+
+  // create object from edit form
+  const select = table.meta_get("select");  // get array of fields to work with
+  const obj    = {}                      ;  // move data from form to obj
   let field_name;
-  const obj    = {}                     ;  // move data from form to obj
   for(var i=0; i<select.length; i++) {
     // walk the form 
     field_name      = select[i];
@@ -138,20 +139,29 @@ save( // client side recordUxClass - for a page
       obj[field_name] = edit.value;
     }
   }
+
   // value of this.#primary_key_value determines add or update
+  const prior_key = this.#primary_key_value;
   this.#primary_key_value = table.save2memory(this.#primary_key_value, obj); 
-  this.show_changes();  // display table  with new data
+  if (prior_key != this.#primary_key_value) {
+    // added a new record, update tableUX PK list
+    this.tableUX.display(); // will update pk display list
+  } else {
+    this.tableUX.displayData()
+  }
   this.show();          // display record with new data
 }
 
 
-show_changes(){
+show_changes(){  // client side recordUxClass 
   // need to update app info
-  this.tableUX.displayData();
+  alert(`review code
+file="recordUx_module.js" method="show_changes" `)
 }
 
+
 new(){// client side recordUxClass - for a page
-  this.#primary_key_value = null;   // will cause edit to create new record on this.save()
+  this.#primary_key_value = undefined;   // will cause edit to create new record on this.save()
   this.edit();
 }
 

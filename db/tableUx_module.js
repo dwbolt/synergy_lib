@@ -81,8 +81,8 @@ display(        // tableUxClass - client-side
   //  this.paging.rowMax = rowArray.length;
   } else {
     // display full table
-    this.tag = null;
-  //  this.paging.rowMax = this.getModel().get_PK().length;
+    this.tag = "filtered";
+    this.tags.filtered = this.getModel().PK_get();
   }
 
   // add status line and empty table to DOM

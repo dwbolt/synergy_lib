@@ -53,13 +53,11 @@ async load_db_list(  // dbClass - client-side
   // load list of tables in database
   const obj = await app.proxy.getJSONwithError(this.#url);   // get list of tables;
   if(obj.status === 404) {
-    alert(`error in
+    alert(`missing url="${this.#url}"
+creating from template
 file="db_module.js" 
-method="load_db_list" 
-missing file="${this.#url}"
-creating memory template`);
+method="load_db_list"`);
 this.#json  = 
-
 {
   "meta":{
       "comment":"works with db_module.js"
@@ -70,6 +68,8 @@ this.#json  =
       }
     }
 }
+    // now save it
+    const msg = await app.proxy.RESTpost(JSON.stringify(this.#json), this.#url);
 
   } else {
     this.#json  = obj.json; 
@@ -87,12 +87,12 @@ async load(  // dbClass - client-side
   const msg = await app.proxy.getJSONwithError(this.url);
   if(msg.status === 404){
     //error
-    alert(`error, 
+    alert(`missing file url="${this.url}"
+creating from template
 file="db_module.js 
-method="load"
-url="${this.url}"
-creating memory template`);
+method="load"`);
     this.tablesJson = this.create_template(db_name);
+    const msg = await app.proxy.RESTpost(JSON.stringify(this.tablesJson), this.url);  // save it 
   } else {
     this.tablesJson = msg.json;
   }

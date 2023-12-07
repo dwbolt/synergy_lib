@@ -263,11 +263,11 @@ async load(  // tableClass - client-side
   this.#url = dir+"/_.json";
   let obj = await app.proxy.getJSONwithError(this.#url);   // get table in database
   if(obj.status === 404) {
-    alert(`error 
+    alert(`missing file="${this.#url}"
+create from template
 file="table_module.js" 
-method="load" 
-missing file="${this.#url}"
-will create template`);
+method="load" `);
+
     // add code to not show table in db menu
     this.#json  = {
       "meta": {
@@ -287,6 +287,7 @@ will create template`);
       ,"columns":{}
       ,"relation":{}
       }; 
+      const msg = await app.proxy.RESTpost(JSON.stringify( this.#json ), this.#url );  // save it 
   } else {
     this.#json  = obj.json; 
   }
@@ -382,7 +383,7 @@ save2memory( // tableClass - client-side
   primary_key_value  // positive number edit exiting row,  negative number create new row
   ,record            // new record values
   ) {
-  if(!primary_key_value || primary_key_value==="") {
+  if(primary_key_value === undefined) {
     // adding a new record, so create a new PK
     primary_key_value = (++this.#json.meta.PK_max).toString();  // get next primary key
     this.#json.meta.PK[primary_key_value] = true;               // add it the pk meta data so it can be accessed
@@ -437,6 +438,8 @@ async save2file( // tableClass - client-side
   if (changes.length  === 0) {
     alert("No changes to save");
     return;
+  } else {
+    delete this.#json.changes
   }
 
   const msg  = await app.proxy.RESTpost( JSON.stringify(this.#json), this.#url);
@@ -447,7 +450,13 @@ async save2file( // tableClass - client-side
     message = ${msg.message}`);
     this.#json.changes = {};  // start new change log
   } else {
-    alert(`error file="table_module.js" method="save2file" url="${this.#url}" msg=${msg.message}`)
+    // save did not work
+    alert(`error 
+msg=${msg.message}
+url="${this.#url}"
+file="table_module.js"
+method="save2file"`);
+    this.#json.changes = changes; // restore change list
   };
   
   return msg;
