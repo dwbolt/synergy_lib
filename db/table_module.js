@@ -405,9 +405,9 @@ save2memory( // tableClass - client-side
       if (changes[field] === undefined) {
         // first time field has changed for this row, add change log for field
         changes[field] = {"new_value": edited_value};
-        if (current_value != undefined){
-          changes[field].original = current_value;
-        } 
+        //if (current_value != undefined){
+          changes[field].original = current_value;  // undifined is ok
+        //} 
       } else if (edited_value  === changes[field].original) {
         // original value was restored, so delete session change log
         delete changes[field];

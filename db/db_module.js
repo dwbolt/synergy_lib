@@ -79,7 +79,7 @@ this.#json  =
 
 
 async load(  // dbClass - client-side
-  // load database meta data and tables file from server
+  // user selected a database, so load database meta data and tables file from server
   db_name  // name of db to load
   ) {
   this.dir = this.get_database_list_value(db_name,"location");
