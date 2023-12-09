@@ -135,7 +135,7 @@ save( // client side recordUxClass - for a page
     // walk the form 
     field_name      = select[i];
     let edit = document.getElementById(`edit-${i}`);  // will be undivend for relation
-    if (edit) {
+    if (edit && 0<edit.value.length) {
       obj[field_name] = edit.value;
     }
   }

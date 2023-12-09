@@ -1,3 +1,5 @@
+import {csvClass    } from '/_lib/db/csv_module.js'     ;
+
 class tableClass {  // tableClass - client-side
 
 /*
@@ -14,6 +16,7 @@ these features are used in the following apps
 
 #json   // json table loaded from disk
 #url
+#url_csv
 #dir
 
 constructor( // tableClass - client-side
@@ -59,23 +62,15 @@ set_value(  // tableClass - client-side
       this.#json.columns[field][pk] = value;
       break;
       
-    case "row":
-      if (this.#json.meta.PK[pk]  && this.#json.rows[this.#json.meta.PK[pk]]) {
-        return this.#json.rows[this.#json.meta.PK[pk]][meta_field.param];
-      } else {
-        return null;
-      }
-      
-    case "relation":
-      if (this.#json.relation[pk] && this.#json.relation[pk][field]) {
-        return this.#json.relation[pk][field];
-      } else {
-        return "";
-      }
-      
     default:
       // code block
       alert(`error file="table_module.js" method="set_value" meta_field.location=${meta_field.location}`);
+      return;
+  }
+
+  if (this.#json.meta.PK[pk] === undefined) {
+    // new pk, so add it
+    this.#json.meta.PK[pk] = true;
   }
 }
 
@@ -259,49 +254,84 @@ get_PK( // tableClass - client-side
 async load(  // tableClass - client-side
   dir        // location of table to load
   ) { 
-  this.#dir = dir;
-  this.#url = dir+"/_.json";
-  let obj = await app.proxy.getJSONwithError(this.#url);   // get table in database
-  if(obj.status === 404) {
-    alert(`missing file="${this.#url}"
-create from template
-file="table_module.js" 
-method="load" `);
+  // load base table from json file
+  this.#dir      = dir;
+  this.#url      = dir+"/_.json";
+  this.#url_csv  = dir+"/_.csv";
+  await this.get_json();
 
-    // add code to not show table in db menu
-    this.#json  = {
-      "meta": {
-          "fields":{
-            "pk"           : {"header":"pk"         , "type":"PK"    ,  "location":"column"}
-           ,"label"        : {"header":"Label"      , "type":"string",  "location":"column"}
-           ,"display"      : {"header":"Display"    , "type":"string",  "location":"column"}
-           ,"comment"      : {"header":"Comment"    , "type":"string",  "location":"column"}
-          }
-      
-          ,"select":["pk", "label", "display", "comment"]
-      
-          ,"deleted"    :{} 
-          ,"PK"         :{}
-          ,"PK_max"     :0
-        }
-      ,"columns":{}
-      ,"relation":{}
-      }; 
-      const msg = await app.proxy.RESTpost(JSON.stringify( this.#json ), this.#url );  // save it 
-  } else {
-    this.#json  = obj.json; 
-  }
+  // apply change log
+  await this.apply_changes();
 
   this.setHeader();
-
-  // init
-  if (this.#json.changes === undefined) this.#json.changes = {};
-  if (this.#json.deleted === undefined) this.#json.deleted = {};
 
   // index primary key
   if (typeof(this.#json.meta.PK) !== "object") {
     // create PK
     this.PK_create(); 
+  }
+}
+
+
+async apply_changes(){ // tableClass - client-side
+  // init
+  if (this.#json.changes === undefined) this.#json.changes = {};
+  if (this.#json.deleted === undefined) this.#json.deleted = {};
+
+  // load change file from csv 
+  const msg     = await app.proxy.RESTget(this.#url_csv);                            
+  if (!msg.ok) {
+    alert(`error file="table_module.js"
+method="apply_changes"
+msg.ok="${msg.ok}"`);
+    return;  // nothing todo since change file not loaded
+  }
+  
+  // convert csv to table changes to table
+  const table   = new tableClass();            // create table 
+  const csv     = new csvClass(table);     
+  await csv.parse_CSV(msg.value);                    // parse CSV file and into table
+
+  // apply change log to table
+  // will not work if parse takes more than a second
+  const pk = table.PK_get();
+  for(let i=1; i<pk.length; i++) {
+    // assume first pk is 0 and points to header, so skip
+    let obj = table.get_object(i);
+    this.set_value(obj["1"],obj["2"],obj["3"]);
+  }
+}
+
+
+async get_json(){  // tableClass - client-side
+  let obj = await app.proxy.getJSONwithError(this.#url);   // get table in database
+  if(obj.status === 404) {
+    alert(`missing file="${this.#url}"
+  create from template
+  file="table_module.js" 
+  method="load" `);
+  
+  this.#json  = {
+    "meta": {
+        "fields":{
+          "pk"           : {"header":"pk"         , "type":"PK"    ,  "location":"column"}
+          ,"label"        : {"header":"Label"      , "type":"string",  "location":"column"}
+          ,"display"      : {"header":"Display"    , "type":"string",  "location":"column"}
+          ,"comment"      : {"header":"Comment"    , "type":"string",  "location":"column"}
+        }
+    
+        ,"select":["pk", "label", "display", "comment"]
+    
+        ,"deleted"    :{} 
+        ,"PK"         :{}
+        ,"PK_max"     :0
+      }
+    ,"columns":{}
+    ,"relation":{}
+    }; 
+    const msg = await app.proxy.RESTpost(JSON.stringify( this.#json ), this.#url );  // save it 
+  } else {
+    this.#json  = obj.json; 
   }
 }
 
@@ -433,7 +463,7 @@ save2memory( // tableClass - client-side
 
 async save2file( // tableClass - client-side
 ){
-  // see any chanes made table;
+  // see any changes made table;
   const changes = Object.keys(this.#json.changes);
   if (changes.length  === 0) {
     alert("No changes to save");
@@ -442,6 +472,7 @@ async save2file( // tableClass - client-side
     delete this.#json.changes
   }
 
+  // append to change file
   const msg  = await app.proxy.RESTpost( JSON.stringify(this.#json), this.#url);
   if (msg.success) {
     alert(`

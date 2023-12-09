@@ -28,7 +28,7 @@ constructor(  // csvClass: client-side
 }
 
 
-parse_CSV(  // csvClass: client-side
+async parse_CSV(  // csvClass: client-side
    file          // file in memory to be parser
   ,DOMid         // DOMid  -> (optional) place to put status of current row being parsed
 ) {
@@ -47,11 +47,11 @@ parse_CSV(  // csvClass: client-side
 
   this.select = this.table.meta_get("select");   // select all the fields
   this.fields = this.table.meta_get("fields");   // create meta data for feilds
-  setTimeout( this.parse_for_one_second.bind(this), 1);  // start the parse process
+  await this.parse_for_one_second();  // start the parse process
 }
 
 
-parse_for_one_second(){   // csvClass: client-side
+async parse_for_one_second(){   // csvClass: client-side
   this.display = new Date();  // time the parse process started
   while ( this.valueStart <this.csv.length && (new Date() - this.display) < 1000  ) {  //if there is more to parse and a second has not passed, continue 
     let row   = this.row.toString();
@@ -86,27 +86,32 @@ parse_for_one_second(){   // csvClass: client-side
       }
     }
   }
-
-  // show status
-  let row_counts = "";
-  const counts = Object.keys(this.line_count);
-  for(let i = 0; i<counts.length; i++) {
-    row_counts += `number of fields = ${counts[i]} - number of lines ${this.line_count[counts[i]].length}\n`
-  }
-  this.DOM.innerHTML = `${this.row} rows parsed total
+ 
+  if (this.more()) {
+      // show status
+    let row_counts = "";
+    const counts = Object.keys(this.line_count);
+    for(let i = 0; i<counts.length; i++) {
+      row_counts += `number of fields = ${counts[i]} - number of lines ${this.line_count[counts[i]].length}\n`
+    }
+    this.DOM.innerHTML = `${this.row} rows parsed total
 ${this.row - this.row_old} rows parsed this time slice 
 next parse starting at = ${this.valueStart} file length=${this.csv.length}
 ${row_counts}`;
 
-  this.row_old = this.row;
- 
-  if (this.valueStart <this.csv.length) {
+    this.row_old = this.row;
     setTimeout( this.parse_for_one_second.bind(this), 1)
   } else {
     // let user know there are unsaved changes
     const changes = this.table.getJSON().changes;
     changes.import = true;  
   }
+}
+
+
+more(){  // csvClass: client-side
+  // more to parse
+  return this.valueStart <this.csv.length
 }
 
 
@@ -168,11 +173,11 @@ parse(){  // csvClass: client-side
   let end,v;
   let start = this.valueStart;
 
-  /*f (this.column === 0 && this.row===2371) {
-    debugger;
-  }*/
-
-  if (ed<0 || (0<this.nextN && this.nextN<ed) ) {
+  if (ed<0 && this.nextN<0) {
+    // end of line is missing
+    v = this.csv.slice(this.valueStart);
+    this.valueStart = this.csv.length; // will stop parse process
+  } else if (ed<0 || (0<this.nextN && this.nextN<ed) ) {
     // did not find ending delimiter or at end of line come before end of del
     end = this.nextN;
     if (this.csv[end-1]==="\r" ) {
@@ -180,7 +185,7 @@ parse(){  // csvClass: client-side
     }
     v = this.csv.slice( this.valueStart, end )
     this.valueStart = this.nextN;
-  } else {
+  }else {
     end =ed;
     v = this.csv.slice( this.valueStart, end )
     this.valueStart = end + 1;

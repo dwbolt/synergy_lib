@@ -13,7 +13,9 @@ constructor() {  // proxyClass - client - side
 /* Rest API
 Create  - post
 Read.   - get
-Update  - put
+Update  - put  - will create if id does not exist on sever
+                 will replace entire object 
+Update - patch - only update some fileds                 
 Delete. - delete
 */
 
@@ -30,16 +32,6 @@ async RESTget(url) {   // proxyClass - client - side
   } catch (e) {
     return {ok:false, value:e};
   }
-}
-
-
-async RESTdelete(   // proxyClass - client - side
-  url 
-) {
-  const response = await fetch(encodeURI(url), {
-    method: 'DELETE'
-  });
-  return response
 }
 
 
@@ -61,6 +53,16 @@ async RESTpost(   // proxyClass - client - side
     body: buffer // body data type must match "Content-Type" header
   });
   return await response.json();
+}
+
+
+async RESTdelete(   // proxyClass - client - side
+  url 
+) {
+  const response = await fetch(encodeURI(url), {
+    method: 'DELETE'
+  });
+  return response
 }
 
 
@@ -103,6 +105,7 @@ async getJSON(  // proxyClass - client - side
       alert("getJSON" + e);
     }
 }
+
 
 async getJSONwithError(  // proxyClass - client - side
   url // location of json file
