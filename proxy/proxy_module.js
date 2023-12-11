@@ -11,11 +11,11 @@ constructor() {  // proxyClass - client - side
 
 //////////////// start REST API
 /* Rest API
-Create  - post
+Create  - post - will create, error if already exists
 Read.   - get
 Update  - put  - will create if id does not exist on sever
                  will replace entire object 
-Update - patch - only update some fileds                 
+Update - patch - only update new or changed fileds                 
 Delete. - delete
 */
 
@@ -54,6 +54,27 @@ async RESTpost(   // proxyClass - client - side
   });
   return await response.json();
 }
+
+async RESTpatch(   // proxyClass - client - side
+   buffer // create binary resource on server
+  ,url = window.location.href // server, default to current server
+) {
+  // Default options are marked with *
+  const response = await fetch(encodeURI(url), {
+    method: 'PATCH', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: 'same-origin', // include, *same-origin, omit
+    headers: {
+      'Content-Type': 'application/octet-stream'  //application/octet-stream
+    },
+    redirect: 'follow', // manual, *follow, error
+    referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    body: buffer // body data type must match "Content-Type" header
+  });
+  return await response.json();
+}
+
 
 
 async RESTdelete(   // proxyClass - client - side

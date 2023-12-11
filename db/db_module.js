@@ -200,7 +200,7 @@ async save_all(  // dbClass - client-side
 async save_table(  // dbClass - client-side
   table) {
   // save table
-  const msg = await this.tables[table].save2file();
+  const msg = await this.tables[table].save_changes();
 
   // uppdate and save database meta data if it is a new table
   if ( this.tablesJson.meta.tables[table]  ==  undefined) {

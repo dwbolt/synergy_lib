@@ -494,6 +494,53 @@ method="save2file"`);
 }
 
 
+async save_changes( // tableClass - client-side
+){
+  // see any changes made table;
+  const changes = this.#json.changes;
+  if (changes === {}) {
+    alert("No changes to save");
+    return;
+  } else {
+    delete this.#json.changes
+  }
+
+  // convert changes to CSV lines to append to existing file
+  let csv = "";
+  let pks=Object.keys(changes);
+  const date = new Date();
+  for(let i=0; i<pks.length; i++) {
+    let pk     = pks[i];
+    let fields = Object.keys(changes[pk]);
+    for(let ii=0; ii<fields.length; ii++) {
+      let field = fields[i];
+      let value = changes[pk][field].new_value;
+      csv += `${pk},${field},${value},${date}\n`;
+    }
+  }
+
+  // append to change file
+  const msg  = await app.proxy.RESTpatch( csv, this.#url_csv);
+  if (msg.success) {
+    alert(`
+    file=${this.#url}
+    records changed=${changes.length}
+    message = ${msg.message}`);
+    this.#json.changes = {};  // start new change log
+  } else {
+    // save did not work
+    alert(`error 
+msg=${msg.message}
+url="${this.#url}"
+file="table_module.js"
+method="save_changes"`);
+    this.#json.changes = changes; // restore change list
+  };
+  
+  return msg;
+}
+
+
 /* test
 delete( // tableClass - client-side
 key  // pK to delete
