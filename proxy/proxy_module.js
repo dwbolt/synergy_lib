@@ -27,7 +27,10 @@ async RESTget(url) {   // proxyClass - client - side
       let t = await  f.text();
       return {ok:true, value:t};
     } else {
-      alert(`proxyClass.getText error: url = ${url}  status = ${f.status}`);
+      return {ok:false, value:`file="proxy_module.js"
+      method="RESTget"
+      url = ${url}
+      status = ${f.status}`}
     }
   } catch (e) {
     return {ok:false, value:e};

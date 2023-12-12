@@ -281,9 +281,10 @@ async apply_changes(){ // tableClass - client-side
   // load change file from csv 
   const msg     = await app.proxy.RESTget(this.#url_csv);                            
   if (!msg.ok) {
+    /*
     alert(`error file="table_module.js"
 method="apply_changes"
-msg.ok="${msg.ok}"`);
+msg.ok="${msg.ok}"`);*/
     return;  // nothing todo since change file not loaded
   }
   
@@ -513,9 +514,9 @@ async save_changes( // tableClass - client-side
     let pk     = pks[i];
     let fields = Object.keys(changes[pk]);
     for(let ii=0; ii<fields.length; ii++) {
-      let field = fields[i];
+      let field = fields[ii];
       let value = changes[pk][field].new_value;
-      csv += `${pk},${field},${value},${date}\n`;
+      csv += `${pk},${field},${value},${date.toISOString()}\n`;
     }
   }
 
