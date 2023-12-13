@@ -46,7 +46,7 @@ show(  // client side recordUxClass - for a page
   dom.display = "block";
 
   // show buttons
-  this.buttonsShow("New Duplicate Edit Delete Relation Clear");
+  this.buttonsShow("New Duplicate Edit Delete Relation-T1 Relation-T2 Clear");
 
   // show relations
   // need to set filters to only things connected to record
@@ -114,7 +114,7 @@ edit(  // client side dbUXClass
 
   html += "</table>";
   document.getElementById(this.tableUX.DOMid + "_record_data").innerHTML = html;
-  if (this.#primary_key_value  === null ) {
+  if (this.#primary_key_value  === undefined ) {
     this.buttonsShow("Add Cancel");  // adding new record
   } else {
     this.buttonsShow("Save Cancel"); // edit record
@@ -183,7 +183,8 @@ createUX(){ // client side recordUxClass - for a page
   <input hidden type='button' value='Delete'    onclick="${this.globalName}.delete()"> 
   <input hidden type='button' value='Save'      onclick="${this.globalName}.save()">
   &nbsp - &nbsp
-  <input hidden type='button' value='Relation'  onclick="${this.globalName}.relation(1)">
+  <input hidden type='button' value='Relation-T1'  onclick="${this.globalName}.relation(1)">
+  <input hidden type='button' value='Relation-T2'  onclick="${this.globalName}.relation(2)">
   &nbsp - &nbsp
   <input hidden type='button' value='Clear'     onclick="${this.globalName}.clear()">
   <input hidden type='button' value='Cancel'    onclick="${this.globalName}.cancel()">
@@ -197,11 +198,11 @@ clear(){
 }
 
 
-relation(){  // client side recordUxClass - for a page
+relation(number){  // client side recordUxClass - for a page
   // user clicked on the relation button
 
   // copy to table 1
-  app.spa.copy2record(1);
+  app.spa.copy2record(number);
 
   // show relations
   

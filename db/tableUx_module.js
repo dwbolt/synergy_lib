@@ -532,8 +532,8 @@ appendHTMLrow(  // tableUxClass - client-side
   // create html for each column in the row
   let lineNum=""; 
   if (this.lineNumberVisible ) {
-    let callback = "app.spa.copy2record(2);"
-    lineNum = `<div onclick="${this.globalName}.recordUX.show('${PK}');${callback}"><a class="link"> ${i} </a></div>`;
+    //let callback = "app.spa.copy2record(2);"
+    lineNum = `<div onclick="${this.globalName}.recordUX.show('${PK}')"><a class="link"> ${i} </a></div>`;
   }
 
   let selected = "";
