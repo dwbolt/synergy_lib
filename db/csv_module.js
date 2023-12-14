@@ -16,8 +16,7 @@ class csvClass { // csvClass: client-side   _lib/db/csv_module.js
 constructor(  // csvClass: client-side
   table   // place to put parsed data
 ) {
-  this.csv        = null ;   // csv file in memory to parse and put into database
-  this.end_lineN  = null ;   // index into csv where the next /n is,"maybe end of line or side a quote
+  this.csv        = undefined ;   // csv file in memory to parse and put into database
 
   this.table      = table;   // place to put parsed data
   this.insertID   = false;   // do not insert ID column
@@ -43,7 +42,6 @@ async parse_CSV(  // csvClass: client-side
   this.delimiter  = ',';      // assume our delimter is a Comma
   this.quote      = '"';      // assume strings with quotes, comma's or crlf are quoted with double quotes
   this.display    = new Date();
-  this.end_lineN  = this.csv.indexOf("/n" , this.valueStart+1);  // posible end of line
 
   this.select = this.table.meta_get("select");   // select all the fields
   this.fields = this.table.meta_get("fields");   // create meta data for feilds
@@ -53,7 +51,8 @@ async parse_CSV(  // csvClass: client-side
 
 async parse_for_one_second(){   // csvClass: client-side
   this.display = new Date();  // time the parse process started
-  while ( this.valueStart <this.csv.length && (new Date() - this.display) < 1000  ) {  //if there is more to parse and a second has not passed, continue 
+  //while ( this.valueStart <this.csv.length && (new Date() - this.display) < 1000  ) {  //if there is more to parse and a second has not passed, continue 
+  while ( this.valueStart <this.csv.length ) {  //if there is more to parse and a second has not passed, continue 
     let row   = this.row.toString();
     if (this.parse_value()) {
       // we got a value, so add it the record
@@ -63,7 +62,7 @@ async parse_for_one_second(){   // csvClass: client-side
         this.select.push(col); // show the field
         this.fields[col] = {"header":col, "type": "string", "location":"column"}  // some maybe numbers, bool or other.
       }
-      if (this.value !== null) {
+      if (this.value !== undefined) {
         /* only doing strings at this point
         let t=typeof(this.value);
         if (-1 === ["number","string"].findIndex((element)=>element===t)) {  // debug
@@ -122,7 +121,7 @@ parse_value() {  // csvClass: client-side, return false if end of line, return t
     this.nextN = this.csv.indexOf("\n", this.valueStart);
   }
   if        (start1 === this.delimiter && start === this.delimiter )  {  // ,,  -> null
-    this.value = null;
+    this.value = undefined;
     this.valueStart++;
     return true;
   } else if (start === this.quote ) {
@@ -149,14 +148,32 @@ parse_value() {  // csvClass: client-side, return false if end of line, return t
 
 
 parseQuote() {  // csvClass: client-side
-  // find the end of the quote   "            ",
-  const end = this.csv.indexOf('",' , this.valueStart+1); 
+  // find the end of the quote   "            "\r\n     --- did not handle this case
+  let end = -1;
+  let end_of_line = false;
+  const end_comma = this.csv.indexOf('",' , this.valueStart+1);  
+
+  if (0 < end_comma && end_comma < this.nextN) {
+    end = end_comma   // case  "            ",
+  } 
+  if (end<0) {
+    end_of_line  = this.csv.indexOf('"\n' , this.valueStart+1);  
+    if (0<end_of_line ){
+      end = end_of_line  // find the end of the quote   "            "\n
+    }
+  }
+
   let start = this.valueStart;
 
   if        (0<end) {
     // most common case, end_quote inside line
     let v = this.csv.slice( this.valueStart+1, end);
-    this.valueStart = end + 2 // get on the other side of "
+    if (end_of_line === false) {
+      this.valueStart = end + 2 // get on the other side of "
+    } else {
+      this.valueStart = end + 1 // let start be \n so that next line code will trigger
+    }
+    
     this.test_reverse(start, "parseQuote")
     return(v); // return string value in array
   } else {
@@ -191,13 +208,6 @@ parse(){  // csvClass: client-side
     this.valueStart = end + 1;
   }
 
-  
-  /* lets convert to numbers, dates, etc later
-  const f = parseFloat(v); // return number value
-  if (!isNaN(f)) {
-    v = f;  // see if v is a number
-  }
-*/
   this.test_reverse(start,"parse"); 
   return v;
 }
