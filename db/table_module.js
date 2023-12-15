@@ -524,7 +524,7 @@ async save_changes( // tableClass - client-side
   const msg  = await app.proxy.RESTpatch( csv, this.#url_csv);
   if (msg.success) {
     alert(`
-    file=${this.#url}
+    file=${this.#url_csv}
     records changed=${changes.length}
     message = ${msg.message}`);
     this.#json.changes = {};  // start new change log

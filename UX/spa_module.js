@@ -25,18 +25,8 @@ async main() { // spa_class - client side
 		// should  never get here, since above code replaces this page 
 	}
 	
-	//this.css                                        = await this.proxy.getJSON("css.json");
 	document.getElementById("footer"    ).innerHTML = await this.proxy.getText("footer.html");
-/*
-	if (await this.login.getStatus()) {
-		// user logged in
-		//document.getElementById("navigation").innerHTML = await this.proxy.getText(`/synergyData/${this.pageName}/menu.html`) 
-		//document.getElementById("userName"  ).innerHTML = `${localStorage.nameFirst} ${localStorage.nameLast}`
-	} else {
-		// user not logged in
-		//document.getElementById("navigation").innerHTML = await this.proxy.getText("menu.html")
-	}
-*/
+
 	// load main html
 	document.getElementById("main").innerHTML = 
 	    await this.proxy.getText(`/synergyData/spa/${this.pageName}/_.html`);
