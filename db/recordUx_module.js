@@ -183,8 +183,8 @@ createUX(){ // client side recordUxClass - for a page
   <input hidden type='button' value='Delete'    onclick="${this.globalName}.delete()"> 
   <input hidden type='button' value='Save'      onclick="${this.globalName}.save()">
   &nbsp - &nbsp
-  <input hidden type='button' value='Relation-T1'  onclick="${this.globalName}.relation(1)">
-  <input hidden type='button' value='Relation-T2'  onclick="${this.globalName}.relation(2)">
+  <input hidden type='button' value='Relation-T1'  onclick="app.spa.copy2record('1')">
+  <input hidden type='button' value='Relation-T2'  onclick="app.spa.copy2record('2')">
   &nbsp - &nbsp
   <input hidden type='button' value='Clear'     onclick="${this.globalName}.clear()">
   <input hidden type='button' value='Cancel'    onclick="${this.globalName}.cancel()">
@@ -192,24 +192,18 @@ createUX(){ // client side recordUxClass - for a page
   this.buttonsShow("New");
 }
 
-clear(){
+
+get_pk() {  // client side recordUxClass - for a page
+  return this.#primary_key_value;
+}
+
+clear(){  // client side recordUxClass - for a page
   document.getElementById(`${this.tableUX.DOMid}_record_data`).innerHTML = "";
   this.buttonsShow("New");
 }
 
 
-relation(number){  // client side recordUxClass - for a page
-  // user clicked on the relation button
-
-  // copy to table 1
-  app.spa.copy2record(number);
-
-  // show relations
-  
-}
-
-
-cancel(){// client side recordUxClass - for a page
+cancel(){ // client side recordUxClass - for a page
   // similar to save, move data from buffer to memory, then save
   if (this.#primary_key_value === null ) {
     // cancled from new

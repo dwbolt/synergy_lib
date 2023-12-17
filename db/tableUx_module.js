@@ -211,8 +211,7 @@ export( // tableUxClass - client-side
 ){ // as CSV file
   const table = this.getModel();    // get access to class holding the table data
   const pks  = table.get_PK();    // get access to array of rows
-  //let csv     = table.genCSVrow(table.meta_get("header")); // export header
-  let csv = "";
+  let csv = table.genCSV_header();;
 
   if(this.tag) {
     // export just records that are in the tag
@@ -222,7 +221,6 @@ export( // tableUxClass - client-side
     };
   } else {
     // export entire table
-
     for(var i=0; i<rows.length; i++) {
       csv += table.genCSVrow(rows[i]);
     };

@@ -688,6 +688,18 @@ change_summary(  // tableClass - client-side
 }
 
 
+genCSV_header(){
+  let csv = "";
+  let header = this.meta_get("header");
+  for(let i=0; i<header.length; i++) {
+    csv += `,"${header[i]}"`; // export header
+  }
+  csv = csv.slice(1)+"\n";
+  return csv;
+}
+
+
+
 genCSVrow( // tableClass - client-side
   pk) {
   // will only work for numbers, strings, boolean
