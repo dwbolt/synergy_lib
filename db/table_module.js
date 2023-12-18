@@ -424,7 +424,7 @@ save2memory( // tableClass - client-side
   // get change log for row
   let changes = this.changes_get(primary_key_value);
   // see what fields changed for the row
-  const fields = Object.keys(record);
+  const fields = this.#json.meta.select;
   for(var i=0; i< fields.length; i++) {
     let field = fields[i];
     let edited_value   = record[field];                             // from edit form

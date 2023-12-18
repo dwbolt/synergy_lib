@@ -7,7 +7,7 @@ class recordUxClass { // recordUxClass - client-side
 
   */
 
-#primary_key_value  // can these be moved from tableUxClass?
+#primary_key_value  // can these be moved from tableUxClass
 
 
 constructor( // recordUxClass - client-side
