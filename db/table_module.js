@@ -296,8 +296,7 @@ msg.ok="${msg.ok}"`);*/
   // apply change log to table
   // will not work if parse takes more than a second
   const pk = table.PK_get();
-  for(let i=1; i<pk.length; i++) {
-    // assume first pk is 0 and points to header, so skip
+  for(let i=0; i<pk.length; i++) {
     let obj = table.get_object(i);
     this.set_value(obj["1"],obj["2"],obj["3"]);
   }
@@ -354,17 +353,23 @@ get_object( // tableClass - client-side
         let row_number = this.#json.meta.PK[id]; // ger row number from primary key index
         value = this.#json.rows[row_number][this.get_field(i,"param")];
         break;
+
       case "column":
         // data is in column
-        value = this.#json.columns[field_name][id];
+        if (this.#json.columns[field_name] === undefined) {
+          value = undefined;
+        } else {
+          value = this.#json.columns[field_name][id];
+        }
         break;
+
       default:
         // code block
         alert(`error: class="tableClass" method="get_object" location="${location}"`)
     }
 
 
-    if (value) {
+    if (value != undefined) {
       object[select[i]] = value;
     }
   }
@@ -516,6 +521,9 @@ async save_changes( // tableClass - client-side
     for(let ii=0; ii<fields.length; ii++) {
       let field = fields[ii];
       let value = changes[pk][field].new_value;
+      if ( value === undefined) {
+        value = "";
+      }
       csv += `${pk},${field},${value},${date.toISOString()}\n`;
     }
   }

@@ -27,7 +27,7 @@ show(  // client side recordUxClass - for a page
     this.#primary_key_value = pk; 
   }
 
-  // recordShow
+  // recordShow Fields
   const table   = this.tableUX.getModel()  // get tableClass being displayed
   let      html = `<b>Table:</b>  ${this.tableUX.tableName}&nbsp <b>PK:</b> ${pk}<br><table>`;
   const  select = table.meta_get("select");
@@ -40,6 +40,34 @@ show(  // client side recordUxClass - for a page
     }
     html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td> <td>${rowValue}</td></tr>`
   }
+
+  // show relations
+  let relation = app.spa.relation_index[this.tableUX.tableName]; // all relations attached to table
+  if (relation != undefined) {
+    relation = relation[this.#primary_key_value];  // all the relations connenting displayed object to other objects
+  }
+
+  if (relation != undefined) {
+    html += `<tr><td></td> <td>Relations</td> <td></td></tr>`
+    // there are relations to display
+    const tables = Object.keys(relation);  // array of tables that object is related to
+    // walk the tables
+    for(i=0; i<tables.length; i++) {
+      let table     = tables[i];
+      let relations = relation[table];
+      let pks_table = Object.keys(relations);
+      
+      // walk the links
+      html += `<tr><td></td> <td>${table}</td> <td></td></tr>`
+      for (let ii=0; ii<pks_table.length; ii++) {
+          let pk     = relations[pks_table[i]];
+          let record =  app.spa.db.tables[table].get_object(pk);
+          html += `<tr><td>${ii+1}</td> <td>${record.label}</td> <td>${record.display}</td></tr>`
+      }
+    }
+  }
+
+  
   html += "</table>"
   let dom = document.getElementById(this.tableUX.DOMid + "_record_data")
   dom.innerHTML = html;
