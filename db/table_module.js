@@ -71,6 +71,14 @@ set_value(  // tableClass - client-side
   if (this.#json.meta.PK[pk] === undefined) {
     // new pk, so add it
     this.#json.meta.PK[pk] = true;
+    if (this.#json.meta.PK_max<pk) {
+      this.#json.meta.PK_max = pk;   // this should always be the case
+    } else {
+      alert(`file="tabe_module.js
+method="set_value"
+table name="${this.name}"
+pk = "${pk}"`)
+    }
   }
 }
 
