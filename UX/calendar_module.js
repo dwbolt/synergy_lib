@@ -298,11 +298,13 @@ k  // this.graph.edges[k] returns the edge
   const edge = this.graph.edges[k];
   const start = edge.startGMT;
   let monthOffset = 0;
+  // walk to monthes to the end of the year
   for (let month = new Date(start.getFullYear(), start.getMonth()               , 1,1,1) ;
        month < edge.endGMT_repeat && edge.endGMT_repeat.getFullYear() === this.year;  
        // add an hour and 1 minute for the case month starts in daylight savings and the date is after daylight savings ends.
-           month = new Date(start.getFullYear(), start.getMonth()+ ++monthOffset, 1,1,1)) {
-   
+        month = new Date(start.getFullYear(), start.getMonth()+ ++monthOffset, 1,1,1)) {
+    
+    // walk weeks in month
     edge.days.forEach((day, ii) => {  // day=[day number, week number] day number 0 -> sunday     :  [1,2] -> second monday of month
       // find first target day of week in the the month
       let offset = day[0] - month.getDay(); // day[0] is the target day of week
@@ -318,7 +320,10 @@ k  // this.graph.edges[k] returns the edge
         offset += 7*(n[1]-1);                                  // calculate offset
       }
       let eventDate = new Date(month.getTime() + offset*1000*60*60*24);
-      this.events[eventDate.getMonth()+1][eventDate.getDate()].push(k);  // push key to edge associated with edge
+      if (eventDate<edge.endGMT_repeat) {
+        // eventData is less than the repeat end end date
+        this.events[eventDate.getMonth()+1][eventDate.getDate()].push(k);  // push key to edge associated with edge
+      }
     });
   }
 }
