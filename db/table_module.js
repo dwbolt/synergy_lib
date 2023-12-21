@@ -14,35 +14,16 @@ these features are used in the following apps
   server log
 */
 
-#json   // json table loaded from disk
-#url
-#url_csv
-#dir
 
 constructor( // tableClass - client-side
 url
 ) {  
   // data
+  //this.url_changes_csv = undefined;  
   const page   = window.location;
   const urlEsc = new URL(`${page.protocol}//${page.host}${url}`);
-  this.#url   = urlEsc.toString();
-  this.db     = null; 
-  this.#json  = {
-    "meta"   : {fields:{},"select" : [], "PK":{}}
-    ,"index"  : []          // array of index fields
-    ,"deleted": {}          // {key: true, key2, true .....} listed of keys stored that are logally deleted
-    ,"changes": {}          // current changed memory value
-    /*
-      "key":{
-         "column#": {"value_new":", value_orig:"}
-        ,"column#": {"value_new":", value_orig:"}
-        ..
-      }
-      ,"key2":{...}
-    }   */
-    ,"columns"   : {}
-    ,"rows"      : []       // row data, one array for each row 
-  }
+  this.url     = urlEsc.toString();
+  this.db      = undefined; 
 }
 
 set_db( db){this.db   = db;}
@@ -53,13 +34,13 @@ set_value(  // tableClass - client-side
   ,field    // field name we want value of
   ,value 
 ) {
-  const meta_field = this.#json.meta.fields[field];
+  const meta_field = this.meta.fields[field];
   switch(meta_field.location) {
     case "column":
-      if (this.#json.columns[field] === undefined) {
-        this.#json.columns[field] = {}; // init
+      if (this.columns[field] === undefined) {
+        this.columns[field] = {}; // init
       }
-      this.#json.columns[field][pk] = value;
+      this.columns[field][pk] = value;
       break;
       
     default:
@@ -68,11 +49,11 @@ set_value(  // tableClass - client-side
       return;
   }
 
-  if (this.#json.meta.PK[pk] === undefined) {
+  if (this.meta.PK[pk] === undefined) {
     // new pk, so add it
-    this.#json.meta.PK[pk] = true;
-    if (this.#json.meta.PK_max<pk) {
-      this.#json.meta.PK_max = pk;   // this should always be the case
+    this.meta.PK[pk] = true;
+    if (this.meta.PK_max<pk) {
+      this.meta.PK_max = pk;   // this should always be the case
     } else {
       alert(`file="tabe_module.js
 method="set_value"
@@ -91,33 +72,34 @@ get_value(  // tableClass - client-side
     // pk is null or un
     return undefined;
   }
-  const meta_field = this.#json.meta.fields[field];
+  const meta_field = this.meta.fields[field];
   if (meta_field === undefined) {
     // assume data is stored in column, // not tested well, put in to support csv import
-    return this.#json.columns[field][pk];
+    return this.columns[field][pk];
   }
 
   switch(meta_field.location) {
     case "column":
-      if (this.#json.columns[field]) {
-        return this.#json.columns[field][pk];  // still may return undefined
+      if (this.columns[field]) {
+        return this.columns[field][pk];  // still may return undefined
       } else {
         return undefined;
       }
-      
+ /*     
     case "row":   // deprecate 
-      if (this.#json.meta.PK[pk] != undefined  && this.#json.rows[this.#json.meta.PK[pk]]) {
-        return this.#json.rows[this.#json.meta.PK[pk]][meta_field.param];
+      if (this.meta.PK[pk] != undefined  && this.#json.rows[this.meta.PK[pk]]) {
+        return this.#json.rows[this.meta.PK[pk]][meta_field.param];
       } else {
         return null;
       }
-      
+*/      
+/*
     case "relation":
       if (this.#json.relation[pk] && this.#json.relation[pk][field]) {
         return this.#json.relation[pk][field];
       } else {
         return "";
-      }
+      }*/
       
     default:
       // code block
@@ -175,6 +157,10 @@ format_values(
 get_unique_values(// tableClass - client-side
   field_name
 ){
+  alert(`file="table_module.js
+method="get_unique_values"
+msg="depricated"`)
+/*
   if (!this.#json.unique_values            )  {
     // init if needed
     this.#json.unique_values             = {}
@@ -200,6 +186,7 @@ get_unique_values(// tableClass - client-side
 
   // make sure this.#json.unique_values is changed
   return Object.keys(this.#json.unique_values[field_name] );
+  */
 }
 
 
@@ -208,8 +195,11 @@ get_unique_pks(// tableClass - client-side
   field_name
   ,value
 ){
+  alert(`file="table_module.js
+  method="get_unique_pks"
+  msg="depricated"`);
   // return list of pks that have
-  return this.#json.unique_values[field_name][value];
+  //return this.#json.unique_values[field_name][value];
 }
 
 add_column_value( // tableClass - client-side
@@ -218,29 +208,29 @@ add_column_value( // tableClass - client-side
   ,column_value   //
 ){
 
-  if (this.#json.meta.PK[pk] === undefined) {
+  if (this.meta.PK[pk] === undefined) {
     // assume all data is stored in column, may cause problems untill all row data is gone;
     // add Primary key
-    this.#json.meta.PK[pk]=true;
+    this.meta.PK[pk]=true;
   }
-  if (this.#json.columns[column_name] === undefined) {
-    this.#json.columns[column_name] = {};
+  if (this.columns[column_name] === undefined) {
+    this.columns[column_name] = {};
   }
 
-  this.#json.columns[column_name][pk] = column_value;
+  this.columns[column_name][pk] = column_value;
 }
 
 
 set_select(  // tableClass - client-side
   filed_names  // array of field names
 ){
-  this.#json.meta.select = filed_names;
+  this.meta.select = filed_names;
 
   // set header based on select - seems like this should be in UX module (dwb)
-  this.#json.meta.header=[];
-  for(var i=0; i<this.#json.meta.select.length; i++) {
-    let field_name =  this.#json.meta.select[i];
-    this.#json.meta.header.push( this.#json.meta.fields[field_name].header);
+  this.meta.header=[];
+  for(var i=0; i<this.meta.select.length; i++) {
+    let field_name =  this.meta.select[i];
+    this.meta.header.push( this.meta.fields[field_name].header);
   }
 }
 
@@ -248,51 +238,68 @@ set_select(  // tableClass - client-side
 meta_get(  // tableClass - client-side
   name // meta attribute name
   ){  
-  return this.#json.meta[name];
+  return this.meta[name];
 }
 
 
 get_PK( // tableClass - client-side
 ) {
   // array of PK keys for entire table;
-  return Object.keys(this.#json.meta.PK);
+  return Object.keys(this.meta.PK);
 }
 
 
 async load(  // tableClass - client-side
   dir        // location of table to load
   ) { 
-  // load base table from json file
-  this.#dir      = dir;
-  this.#url      = dir+"/_.json";
-  this.#url_csv  = dir+"/_.csv";
-  await this.get_json();
+  this.url_meta         = dir+"/_meta.json";
+  this.url_columns      = dir+"/columns.json";
+  this.url_changes_csv  = dir+"/changes.csv";
 
-  // apply change log
+  // load table meta data
+  let msg = await app.proxy.getJSONwithError(this.url_meta);
+  if (msg.status === 200){
+    this.meta = msg.json;
+  } else {
+    alert(`file="table_module.js"
+method="load"
+url="${this.url_meta}"
+msg=${JSON.stringify(msg)}`);
+    return;
+  }
+
+  // load columns
+  msg = await app.proxy.getJSONwithError(this.url_columns);
+  if (msg.status === 200){
+    this.columns = msg.json;
+  } else {
+    alert(`file="table_module.js"
+method="load"
+url="${this.url_columns}"
+msg=${JSON.stringify(msg)}`);
+    return;
+  }
+
+  // load and apply change log
   await this.apply_changes();
 
   this.setHeader();
-
+}
+/*
   // index primary key
-  if (typeof(this.#json.meta.PK) !== "object") {
+  if (typeof(this.meta.PK) !== "object") {
     // create PK
     this.PK_create(); 
-  }
-}
+  }*/
 
 
 async apply_changes(){ // tableClass - client-side
-  // init
-  if (this.#json.changes === undefined) this.#json.changes = {};
-  if (this.#json.deleted === undefined) this.#json.deleted = {};
-
   // load change file from csv 
-  const msg     = await app.proxy.RESTget(this.#url_csv);                            
+  const msg     = await app.proxy.RESTget(this.url_changes_csv);                            
   if (!msg.ok) {
-    /*
     alert(`error file="table_module.js"
 method="apply_changes"
-msg.ok="${msg.ok}"`);*/
+msg="${Object.stringify(msg)}"`);
     return;  // nothing todo since change file not loaded
   }
   
@@ -311,6 +318,7 @@ msg.ok="${msg.ok}"`);*/
 }
 
 
+/*
 async get_json(){  // tableClass - client-side
   let obj = await app.proxy.getJSONwithError(this.#url);   // get table in database
   if(obj.status === 404) {
@@ -334,40 +342,41 @@ async get_json(){  // tableClass - client-side
         ,"PK"         :{}
         ,"PK_max"     :0
       }
-    ,"columns":{}
+
     ,"relation":{}
     }; 
-    const msg = await app.proxy.RESTpost(JSON.stringify( this.#json ), this.#url );  // save it 
+    const msg = await app.proxy.RESTpost(JSON.stringify( this.#json ), this.url );  // save it 
   } else {
     this.#json  = obj.json; 
   }
 }
-
+*/
 
 get_object( // tableClass - client-side
   id        // primary key of row/object
   ){ 
   // 
   let object = {}, value;
-  const select = this.#json.meta.select;  // list of object attributes 
+  const select = this.meta.select;  // list of object attributes 
 
   for(let i=0; i<select.length ;i++){
     // assume row, need to add other cases
     const field_name = select[i];
-    const  location = this.#json.meta.fields[field_name].location;
+    const  location = this.meta.fields[field_name].location;
     switch(location) {
+/*
       case "row":
         // data is in row
-        let row_number = this.#json.meta.PK[id]; // ger row number from primary key index
+        let row_number = this.meta.PK[id]; // ger row number from primary key index
         value = this.#json.rows[row_number][this.get_field(i,"param")];
         break;
-
+*/
       case "column":
         // data is in column
-        if (this.#json.columns[field_name] === undefined) {
+        if (this.columns[field_name] === undefined) {
           value = undefined;
         } else {
-          value = this.#json.columns[field_name][id];
+          value = this.columns[field_name][id];
         }
         break;
 
@@ -385,14 +394,14 @@ get_object( // tableClass - client-side
   return object;  // json version of row in table
 }
 
-
+/*
 PK_create(){  // tableClass - client-side
   // this only works for data stored rows, work to depricate
 
   alert(`file="table_module.js" method="PK_create" URL="${this.#url}" fix data`)
   // create primary key index 
-  this.#json.meta.PK     = {};
-  this.#json.meta.PK_max = 0; 
+  this.meta.PK     = {};
+  this.meta.PK_max = 0; 
   
   // walk to entire table and index on column key
   const rows = this.getRows();
@@ -401,27 +410,31 @@ PK_create(){  // tableClass - client-side
   }
   for (var i=0; i< rows.length; i++) {
     let value = rows[i][0];  // the PK is always the starting column
-    this.#json.meta.PK[value]=i.toString();  // store the row number 
+    this.meta.PK[value]=i.toString();  // store the row number 
 
-    if (this.#json.meta.PK_max < value) {
+    if (this.meta.PK_max < value) {
       // find largest key value, primary key is an integer number that increments
-      this.#json.meta.PK_max= value;
+      this.meta.PK_max= value;
     }
   }
 }
+*/
 
 
 PK_get( // tableClass - client-side
   key=null  // primary key, return row
   ){
   if (key === null) {
-    return Object.keys(this.#json.meta.PK);    // array of PK keys - use to walk all rows
+    return Object.keys(this.meta.PK);    // array of PK keys - use to walk all rows
   } else {
-    return this.#json.rows[ this.#json.meta.PK[key] ];
+    alert(`file="table_module.js"
+method="PK_get"
+msg="row use depricated"`);
   }
 }
 
 
+/*  rewwrite to save to change file
 save2memory( // tableClass - client-side
   // make change to row in memory and update memory change log
   primary_key_value  // positive number edit exiting row,  negative number create new row
@@ -429,15 +442,15 @@ save2memory( // tableClass - client-side
   ) {
   if(primary_key_value === undefined) {
     // adding a new record, so create a new PK
-    primary_key_value = (++this.#json.meta.PK_max).toString();  // get next primary key
-    this.#json.meta.PK[primary_key_value] = true;               // add it the pk meta data so it can be accessed
+    primary_key_value = (++this.meta.PK_max).toString();  // get next primary key
+    this.meta.PK[primary_key_value] = true;               // add it the pk meta data so it can be accessed
     record.pk = primary_key_value;                              // add it the record being saved
   }
 
   // get change log for row
   let changes = this.changes_get(primary_key_value);
   // see what fields changed for the row
-  const fields = this.#json.meta.select;
+  const fields = this.meta.select;
   for(var i=0; i< fields.length; i++) {
     let field = fields[i];
     let edited_value   = record[field];                             // from edit form
@@ -473,41 +486,31 @@ save2memory( // tableClass - client-side
   // need to save memory change log to server incase session is lost, so user will not loose there work
   // code here
 }
+*/
 
-
-async save2file( // tableClass - client-side
+async merge( // tableClass - client-side
 ){
-  // see any changes made table;
-  const changes = Object.keys(this.#json.changes);
-  if (changes.length  === 0) {
-    alert("No changes to save");
-    return;
-  } else {
-    delete this.#json.changes
-  }
+  // save column file with changes applied
 
   // append to change file
-  const msg  = await app.proxy.RESTpost( JSON.stringify(this.#json), this.#url);
+  const msg  = await app.proxy.RESTpost( JSON.stringify(this.column), this.url_changes);
   if (msg.success) {
     alert(`
-    file=${this.#url}
-    records changed=${changes.length}
+    file=${this.url_changes}
     message = ${msg.message}`);
-    this.#json.changes = {};  // start new change log
   } else {
     // save did not work
     alert(`error 
 msg=${msg.message}
-url="${this.#url}"
+url="${this.url_changes}"
 file="table_module.js"
 method="save2file"`);
-    this.#json.changes = changes; // restore change list
   };
   
   return msg;
 }
 
-
+/*
 async save_changes( // tableClass - client-side
 ){
   // see any changes made table;
@@ -537,13 +540,12 @@ async save_changes( // tableClass - client-side
   }
 
   // append to change file
-  const msg  = await app.proxy.RESTpatch( csv, this.#url_csv);
+  const msg  = await app.proxy.RESTpatch( csv, this.url_changes_csv);
   if (msg.success) {
     alert(`
-    file=${this.#url_csv}
+    file=${this.url_changes_csv}
     records changed=${changes.length}
     message = ${msg.message}`);
-    this.#json.changes = {};  // start new change log
   } else {
     // save did not work
     alert(`error 
@@ -551,12 +553,11 @@ msg=${msg.message}
 url="${this.#url}"
 file="table_module.js"
 method="save_changes"`);
-    this.#json.changes = changes; // restore change list
   };
   
   return msg;
 }
-
+*/
 
 /* test
 delete( // tableClass - client-side
@@ -564,13 +565,13 @@ key  // pK to delete
 ){
 
   this.#json.deleted[key] = true;   // add key to deleted object
-  delete this.#json.meta.PK[key];        // remove key from PK
+  delete this.meta.PK[key];        // remove key from PK
   const changes = this.changes_get(key); // update change log
   changes.deleted=true;
 }
 */
 
-
+/*
 sortList(  // tableClass - client-side
     a_list     // array of row indexes that need to be sorted
   , a_fields   // array of fields to sort on
@@ -597,14 +598,14 @@ sortList(  // tableClass - client-side
     return ret;  // must be equal for all fields in the a_list
   });
 }
-
+*/
 
 get_field( // tableClass - client-side
   i  // index into select array
   ,attribute  // header or type or location..
   ){
-  const field_name = this.#json.meta.select[i];
-  const value = this.#json.meta.fields[field_name][attribute];
+  const field_name = this.meta.select[i];
+  const value = this.meta.fields[field_name][attribute];
   if (typeof(value) === "string") {
     return value.toLowerCase(); // convert strings to lowercase for easy compare
   } else {
@@ -617,8 +618,8 @@ get_field( // tableClass - client-side
   pk  // primary key
   ,i  // select index into header/select
  ) {
-   const column_name  = this.#json.meta.select[i];
-   let   column_value = this.#json.columns[column_name][pk];
+   const column_name  = this.meta.select[i];
+   let   column_value = this.columns[column_name][pk];
    if (column_value === undefined) {
     // return empty string if not defin
     column_value = "";
@@ -626,10 +627,10 @@ get_field( // tableClass - client-side
    return column_value;
  }
  
-
+/*
 getValue(rowIndex,fieldName)  // tableClass - client-side
     {return this.#json.rows[rowIndex][this.#json.field[fieldName]] ;}
-
+*/
 
 setHeader(   // tableClass - client-side
 value = null  //  
@@ -637,25 +638,26 @@ value = null  //
   // set header
   if (Array.isArray(value)) {
     // 
-    this.#json.meta.header = header;
+    this.meta.header = header;
     return; 
   }
 
   // create header from meta data
-  this.#json.meta.header = [];
-  const fields           = this.#json.meta.fields;  // point to field meta data
-  const select           = this.#json.meta.select;  // array of field names to be displayed
+  this.meta.header = [];
+  const fields           = this.meta.fields;  // point to field meta data
+  const select           = this.meta.select;  // array of field names to be displayed
   for(let i=0; i<select.length; i++) {
-    this.#json.meta.header.push(fields[select[i]].header); 
+    this.meta.header.push(fields[select[i]].header); 
   }
 } 
 
 
-getField()       {return this.#json.field         ;} // tableClass - client-side
-getRows()        {return this.#json.rows          ;} // tableClass - client-side
-getRow(index)    {return this.#json.rows[index]   ;} // tableClass - client-side
-get_primary_key(){return this.#json.primary_key   ;} // tableClass - client-side
+getField()       {return this.meta.field         ;} // tableClass - client-side
+/*getRows()        {return this.#json.rows          ;} // tableClass - client-side
+getRow(index)    {return this.#json.rows[index]   ;} // tableClass - client-side  */
+//get_primary_key(){return this.#json.primary_key   ;} // tableClass - client-side
 
+/*
 changes_get(key=null) { // tableClass - client-side
   // return change object for record with primary key = key
   if (key === null){
@@ -672,8 +674,8 @@ changes_get(key=null) { // tableClass - client-side
   
   return changes;
 }
-
-
+*/
+/*
 getRowByIndex( // tableClass - client-side
    index // index number 0-> first field in table
   ,value // value of index
@@ -681,15 +683,16 @@ getRowByIndex( // tableClass - client-side
 
 getRowsLength() {return this.#json.rows.length   ;} // tableClass - client-side
 getJSON(      ) {return this.#json               ;} // tableClass - client-side
+*/
 
-
+/*
 appendRow(  // tableClass - client-side
   a_row
   ){
   this.#json.rows.push(a_row);  // adding new row
   this.change_summary("append");  // incremnet append count
 }
-
+*/
 
 change_summary(  // tableClass - client-side
   field
@@ -737,7 +740,7 @@ genCSVrow( // tableClass - client-side
   return  line.slice(0, line.length-1) +"\r\n";     // get rid of trailing comma
 }
 
-
+/*
 genRows() {  // tableClass - client-side
   // creating text file to save
   let txt="";
@@ -749,35 +752,24 @@ genRows() {  // tableClass - client-side
   })
 
   return " "+ txt.slice(1)  // replace leading comma with a space
-}
+}*/
 
-/*
-genTable(  // tableClass - client-side
-// create JSON file to store table for later retrivial
-) {
-  return `{
- "fieldA"      :${JSON.stringify(this.#json.fieldA     )}
-,"header"     :${JSON.stringify(this.#json.header      )}
-,"deleted"    :${JSON.stringify(this.#json.deleted     )} 
-,"PK"         :${JSON.stringify(this.#json.meta.PK     )}
-,"PK_max"     :${JSON.stringify(this.#json.meta.PK_max )}
-
-,"rows": [
-${this.genRows()}]
-}`;
-}
-*/
 
 getColumnFormat(i) { // tableClass - client-side
-  let f = this.#json.columnFormat[i];
+  alert(`file="table_module.js
+method="getColumnFormat"
+msg="method deprecated"`);
+return false;
+  //let f = this.#json.columnFormat[i];
   if (f === undefined) return "";
   return f;
 }
 
-
+/*
 clearRows() {this.#json.rows = [];}  // tableClass - client-side
+*/
 
-
+/*
 total(  // tableClass - client-side
   col  // integer of column
 ) {
@@ -791,23 +783,27 @@ total(  // tableClass - client-side
 
   return total;
 }
-
+*/
 
 unique(s_field) {  // tableClass - client-side
   // return all the unique values in a table for the given field
   const a=[];
-  const f=this.#json.field;
-  this.#json.rows.forEach((r) => {
+  /*const f=this.#json.field;
+  //this.#json.rows.forEach((r) => {
     let v = r[f[s_field]];
     if (!a.includes(v)) {
       a.push(v);
     }
   });
-
+*/
+alert(`file="table_module.js"
+method="unique"
+msg="method deprecated"`)
   return a;
 }
 
 
+/*
 select(   // tableClass - client-side
   f  // f is boolean function, returns true if we want the row included in the list
 ) {
@@ -825,31 +821,47 @@ select(   // tableClass - client-side
   });
   return a;
 }
+*/
 
+/*
 
 filter(  // tableClass - client-side
   f  // f is boolean function, returns true if we want the row included in the list
 ) {
   return this.#json.rows.filter(f);
 }
+*/
 
 
 setJSON(j) {  // tableClass - client-side
   // replace place holder of new table with data from loaded file
+alert(`file="table_module.js"
+method="setJSON"
+msg="depreicarted"`);
+  /*
   Object.entries(j).forEach((item, i) => {
     this.#json[item[0]] = item[1];  // replace default value with loaded value
-  });
+  });*/
 }
 
 
 f(fieldName) { // tableClass - client-side
+  alert(`file="table_module.js"
+  method="f"
+  msg="depreicarted"`);
+/*
   return this.#json.field[fieldName];
+  */
 }
 
 
 field( // tableClass - client-side
   fieldA   // create the field attribute from the fieldA
 ) {
+  alert(`file="table_module.js"
+  method="field"
+  msg="depreicarted"`);
+/*
   if (fieldA) {
     // set the field Array
     this.#json.fieldA = fieldA
@@ -859,6 +871,7 @@ field( // tableClass - client-side
   this.#json.fieldA.forEach((item, i) => {
     this.#json.field[item] = i;
   });
+  */
 }
 
 
