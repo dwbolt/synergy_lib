@@ -1,4 +1,4 @@
-import  {tableClass   }   from '/_lib/db/table_module.js'    ;
+import  {tableClass   }   from '/_lib/db/table_module.js'    
 
 class dbClass {  
 /* db - database classes
@@ -18,129 +18,50 @@ save to server
 
 */
 
-
-//#urlList   // directory where database folders are
-#json      // list of data bases 
+#json      // list of data bases - deprecate
 
 
 constructor() {   // dbClass - client-side
   this.tables = {};  // init tables to an object.  needed if createing tables in code rather than loading them.
-  this.url = "" ; // where the loaded database came from
+  this.dir      = undefined ;  // where the loaded database came from
+  this.url_meta = undefined ;  // location mof meta data
+  this.meta     = undefined ;  // loaded meta data
  }
-
-
- get_database_list(){   // dbClass - client-side
-  return Object.keys(this.#json.meta.databases);
- }
-
-
- get_database_list_value(
-   // dbClass - client-side
-    database
-   ,attribute
-   ){
-  return this.#json.meta.databases[database][attribute];
- }
-
-
-async load_db_list(  // dbClass - client-side
-  // load list of databases 
-  url  // location
-  ) {
-  this.url     = url;
-
-  // load list of tables in database
-  const obj = await app.proxy.getJSONwithError(this.url);   // get list of tables;
-  if(obj.status === 404) {
-    alert(`missing url="${this.url}"
-creating from template
-file="db_module.js" 
-method="load_db_list"`);
-this.#json  = 
-{
-  "meta":{
-      "comment":"works with db_module.js"
-      ,"databases": {
-           "import"   : {"location":"/users/database/import" }
-          ,"synergy"  : {"location":"/users/database/synergy"}
-          ,"play"     : {"location":"/users/database/play"   }
-      }
-    }
-}
-    // now save it
-    const msg = await app.proxy.RESTpost(JSON.stringify(this.#json), this.url);
-
-  } else {
-    this.#json  = obj.json; 
-  }
-  return true;
-}
 
 
 async load(  // dbClass - client-side
   // user selected a database, so load database meta data and tables file from server
-  db_name  // name of db to load
+  dir  // directory of db to load
   ) {
-  this.dir = this.get_database_list_value(db_name,"location");
-  this.url = this.dir+"/_meta.json";
-  const msg = await app.proxy.getJSONwithError(this.url);
+  this.dir      = dir;
+  this.url_meta = this.dir+"/_meta.json";
+  this.tables   = {};
+  const msg     = await app.proxy.getJSONwithError(this.url_meta);
   if(msg.status === 404){
     //error
     alert(`file="db_module.js"
 method="load"
-missing file url="${this.url}"
+missing file url="${this.url_meta}"
 creating from template
-file="db_module.js 
 `);
-    this.tablesJson = this.create_template(db_name);
-    const msg = await app.proxy.RESTpost(JSON.stringify(this.tablesJson), this.url);  // save it 
+    return;
   } else {
-    this.tablesJson = msg.json;
+    this.meta = msg.json;
   }
   
 
   // walk through table data, load and make the table class objects
-  this.tables       = {};
-  const table_names = this.get_table_names();
+  const table_names = Object.keys(this.meta.tables);
   for (let i=0; i<table_names.length; i++) {
     const table                 = new tableClass();       // create
     this.tables[table_names[i]] = table;  // add table to database
-    const table_url             = this.tablesJson.meta.tables[table_names[i]].location;
+    const table_url             = this.meta.tables[table_names[i]].location;
     await table.load(table_url);          // load
     table.set_db(this);                   // allow tables to get to other tables in the database
     table.set_name(table_names[i]);       // allow table to know it's database name
   }
 }
 
-create_template(db_name) {
-  switch (db_name) {
-    case "synergy":
-      return {
-        "meta":{
-          "tables": {
-            "events"      :{"location":"/users/database/synergy/events"      }
-            ,"people"     :{"location":"/users/database/synergy/people"      }
-            ,"phone"      :{"location":"/users/database/synergy/phone"       }
-            ,"relations"  :{"location":"/users/database/synergy/relations"   }
-            ,"tasks"      :{"location":"/users/database/synergy/tasks"       }
-            } 
-          }
-        }
-  
-    default:
-      return {
-        "meta":{
-          "tables": {
-            "sample"      :{"location":`/users/database/${db_name}/sample`      }
-            } 
-          }
-        }
-  }
-}
-
-get_table_names(){
-  return Object.keys(this.tablesJson.meta.tables);
-}
 
 loadLocal( // dbClass - client-side   -- should be able to share code here
   buffer
@@ -167,7 +88,7 @@ getJSON(){return this.#json;}  // dbClass - client-side
 
 tableAdd(tableName) { // dbClass - client-side
   // create empty table and add to database
-  this.tables[tableName] = new tableClass(`${this.dir}/${tableName}/_.json`);  
+  this.tables[tableName] = new tableClass(`${this.dir}/${tableName}`);  
   return this.tables[tableName]
 }
 
@@ -178,6 +99,10 @@ getTable( // dbClass - client-side
   return this.tables[s_tableName];  // return instance of tableClass
 }
 
+get_table_names(){
+  return Object.keys(this.meta.tables);
+}
+
 
 clearData( // dbClass - client-side
 ) {  // ? not sure when this is called
@@ -185,7 +110,7 @@ clearData( // dbClass - client-side
   this.url = null;
 }
 
-
+/*
 async save_all(  // dbClass - client-side
   // save changed loaded tables to disk
 ) {
@@ -196,16 +121,16 @@ async save_all(  // dbClass - client-side
     this.save_table(this.tables[keys[i]]);
   }
 }
+*/
 
-
-async save_table(  // dbClass - client-side
+async table_merge(  // dbClass - client-side
   table) {
   // save table
-  const msg = await this.tables[table].save_changes();
+  const msg = await this.tables[table].merge();
 
   // uppdate and save database meta data if it is a new table
-  if ( this.tablesJson.meta.tables[table]  ==  undefined) {
-       this.tablesJson.meta.tables[table] = {"location": `${this.dir}/${table}`, comments: "imported table"};
+  if ( this.meta.tables[table]  ==  undefined) {
+       this.meta.tables[table] = {"location": `${this.dir}/${table}`, comments: "imported table"};
     await app.proxy.RESTpost(JSON.stringify(this.tablesJson), this.url);
     }
   }

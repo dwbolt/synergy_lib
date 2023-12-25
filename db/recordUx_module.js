@@ -150,9 +150,10 @@ edit(  // client side dbUXClass
 }
 
 
-save( // client side recordUxClass - for a page
-) {  
-  // save to memory
+async save( // client side recordUxClass - for a page
+) {
+  // user clicked save or add record
+  // save to change file
   const table  = this.tableUX.getModel();  // get tableClass being displayed
 
   // create object from edit form
@@ -162,7 +163,7 @@ save( // client side recordUxClass - for a page
   for(var i=0; i<select.length; i++) {
     // walk the form 
     field_name      = select[i];
-    let edit = document.getElementById(`edit-${i}`);  // will be undivend for relation
+    let edit = document.getElementById(`edit-${i}`); 
     if (edit && 0<edit.value.length) {
       obj[field_name] = edit.value;
     }
@@ -170,7 +171,7 @@ save( // client side recordUxClass - for a page
 
   // value of this.#primary_key_value determines add or update
   const prior_key = this.#primary_key_value;
-  this.#primary_key_value = table.save2memory(this.#primary_key_value, obj); 
+  this.#primary_key_value = await table.save(this.#primary_key_value, obj); 
   if (prior_key != this.#primary_key_value) {
     // added a new record, update tableUX PK list
     this.tableUX.display(); // will update pk display list
@@ -178,13 +179,6 @@ save( // client side recordUxClass - for a page
     this.tableUX.displayData()
   }
   this.show();          // display record with new data
-}
-
-
-show_changes(){  // client side recordUxClass 
-  // need to update app info
-  alert(`review code
-file="recordUx_module.js" method="show_changes" `)
 }
 
 
@@ -255,7 +249,7 @@ delete(){// client side recordUxClass - for a page
   table.delete(this.#primary_key_value);  // delete row from data
   this.tableUX.display(table.PK_get() );  // redisplay data
   this.recordCancel();                    // hide record form
-  this.show_changes();                    // show changes
+  //this.show_changes();                    // show changes
 }
 
 

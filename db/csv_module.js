@@ -52,8 +52,8 @@ async parse_CSV(  // csvClass: client-side
 async parse_for_one_second(){   // csvClass: client-side
   this.display = new Date();  // time the parse process started
   //while ( this.valueStart <this.csv.length && (new Date() - this.display) < 1000  ) {  //if there is more to parse and a second has not passed, continue 
+  let row   = this.row.toString();
   while ( this.valueStart <this.csv.length ) {  //if there is more to parse and a second has not passed, continue 
-    let row   = this.row.toString();
     if (this.parse_value()) {
       // we got a value, so add it the record
       this.column++;
@@ -79,7 +79,7 @@ async parse_for_one_second(){   // csvClass: client-side
 
       this.column = 0;   // start new column
       this.row++;        // start new row
-
+      row   = this.row.toString();
       if(this.valueStart < 0) { // debug
         alert(`error, file="csv_module" method="parse_for_one_second" this.valueStart="${this.valueStart}"`)
       }
@@ -102,8 +102,8 @@ ${row_counts}`;
     setTimeout( this.parse_for_one_second.bind(this), 1)
   } else {
     // let user know there are unsaved changes
-    const changes = this.table.getJSON().changes;
-    changes.import = true;  
+    //const changes = this.table.getJSON().changes;
+    //changes.import = true;  
   }
 }
 
