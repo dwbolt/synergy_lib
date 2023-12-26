@@ -62,13 +62,40 @@ creating from template
   }
 }
 
+async delete(){  // dbClass - client-side  
+  // delete database files from server
+  await app.proxy.RESTdelete(this.dir);
+}
+
+
+async new(  // dbClass - client-side  
+  url // to database
+  ){
+  // save meta data
+  this.meta   = 
+  {
+    "comment":"Meta data for  Database"
+   ,"tables":{
+       "relations":{"location": `${url}/relations`}
+       }
+   }
+  let msg = await this.meta_save();
+  
+  // save relations table
+  const table = new tableClass(`${url}/relations`);
+  msg = await table.create("relations");                        // create & save meta data
+  msg = await table.merge();                              // save columns.json and changes.csv
+}
+
+async meta_save(){
+  let msg = await app.proxy.RESTpost(JSON.stringify(this.meta), this.url_meta )
+}
 
 loadLocal( // dbClass - client-side   -- should be able to share code here
   buffer
   ) {
   // load json table file
 //  this.url = url;
-//  this.#json = await app.proxy.getJSON(url);
   this.#json = JSON.parse(buffer);
   // walk through table data, and make the table class objects
   Object.entries(this.#json).forEach((item, i) => {
@@ -88,8 +115,11 @@ getJSON(){return this.#json;}  // dbClass - client-side
 
 tableAdd(tableName) { // dbClass - client-side
   // create empty table and add to database
-  this.tables[tableName] = new tableClass(`${this.dir}/${tableName}`);  
-  return this.tables[tableName]
+  const table = new tableClass(`${this.dir}/${tableName}`)  // create empty table
+  this.tables[tableName] = table;                           // add it the tables obect
+  table.set_db(this);                                       // let table know the database it belongs to
+  this.meta.tables[tableName] = {"location": `${this.dir}/${tableName}`}// update db meta data to know about table
+  return table
 }
 
 

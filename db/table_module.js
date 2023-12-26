@@ -18,9 +18,9 @@ these features are used in the following appsthis.meta.PK_max
 constructor( // tableClass - client-side
 url  // directory where table _meta.json, changes.csv, columns.json live
 ) {  
-  //const page   = window.location;
-  //const urlEsc = new URL(`${page.protocol}//${page.host}${url}`);
-  //this.url     = urlEsc.toString();
+  if (url != undefined) {
+    this.url_set(url);
+  }
   this.dir     = url;
   this.db      = undefined; 
 
@@ -356,40 +356,57 @@ msg="${JSON.stringify(msg)}"`);
   }
 }
 
-
-/*
-async get_json(){  // tableClass - client-side
-  let obj = await app.proxy.getJSONwithError(this.#url);   // get table in database
-  if(obj.status === 404) {
-    alert(`missing file="${this.#url}"
-  create from template
-  file="table_module.js" 
-  method="load" `);
-  
-  this.#json  = {
-    "meta": {
+async create(structure) {
+  switch (structure) {
+    case "relations":
+      this.meta = {
         "fields":{
-          "pk"           : {"header":"pk"         , "type":"PK"    ,  "location":"column"}
+            "pk"        : {"header":"PK"         ,"type":"pk"    , "location":"column"}
+    
+            ,"pk_1"     : {"header":"PK 1"       ,"type":"string", "location":"column"}
+            ,"table_1"  : {"header":"Table 1"    ,"type":"string", "location":"column"}
+    
+            ,"direction": {"header":"Direction"  ,"type":"string", "location":"column"}
+            ,"relation" : {"header":"Relation" ,"type":"string", "location":"column"}
+            ,"comment"  : {"header":"Comment"  ,"type":"string", "location":"column"}
+    
+            ,"pk_2"     : {"header":"PK 2"       ,"type":"string", "location":"column"}
+            ,"table_2"  : {"header":"Table 2"    ,"type":"string" ,"location":"column"}
+        }
+    
+        ,"select":["pk","pk_1","table_1","direction","relation","comment","pk_2","table_2"]
+        ,"PK_max" :0
+      }
+      break;
+  
+    case "synergy":
+      this.meta = {
+        "fields":{
+           "pk"            : {"header":"PK"         , "type":"PK"    ,  "location":"column"}
           ,"label"        : {"header":"Label"      , "type":"string",  "location":"column"}
           ,"display"      : {"header":"Display"    , "type":"string",  "location":"column"}
           ,"comment"      : {"header":"Comment"    , "type":"string",  "location":"column"}
         }
     
-        ,"select":["pk", "label", "display", "comment"]
-    
-        ,"deleted"    :{} 
-        ,"PK"         :{}
-        ,"PK_max"     :0
+        ,"select":["pk","label","display","comment"]
+        ,"PK_max" :0
       }
+      break;
 
-    ,"relation":{}
-    }; 
-    const msg = await app.proxy.RESTpost(JSON.stringify( this.#json ), this.url );  // save it 
-  } else {
-    this.#json  = obj.json; 
-  }
+    default:
+      this.meta = {
+        "fields":{
+          "pk"            : {"header":"PK"         , "type":"PK"    ,  "location":"column"}
+        }
+    
+        ,"select":["pk"]
+        ,"PK_max" :0
+      }
+  } 
+
+  let msg = await app.proxy.RESTpost( JSON.stringify(this.meta), this.url_meta);
 }
-*/
+
 
 get_object( // tableClass - client-side
   id        // primary key of row/object
@@ -425,32 +442,6 @@ get_object( // tableClass - client-side
 
   return object;  // json version of row in table
 }
-
-/*
-PK_create(){  // tableClass - client-side
-  // this only works for data stored rows, work to depricate
-
-  alert(`file="table_module.js" method="PK_create" URL="${this.#url}" fix data`)
-  // create primary key index 
-  this.meta.PK     = {};
-  this.meta.PK_max = 0; 
-  
-  // walk to entire table and index on column key
-  const rows = this.getRows();
-  if (!rows) {
-    return;  // no rows, so return
-  }
-  for (var i=0; i< rows.length; i++) {
-    let value = rows[i][0];  // the PK is always the starting column
-    this.meta.PK[value]=i.toString();  // store the row number 
-
-    if (this.meta.PK_max < value) {
-      // find largest key value, primary key is an integer number that increments
-      this.meta.PK_max= value;
-    }
-  }
-}
-*/
 
 
 PK_get( // tableClass - client-side
@@ -551,6 +542,10 @@ method="merge"`);
   return msg;
 }
 
+async delete(){// tableClass - client-side
+  // delete table
+  let msg = await app.proxy.RESTdelete(this.dir );
+}
 
 
 get_field( // tableClass - client-side
@@ -694,17 +689,6 @@ method="save_changes"`);
 }
 */
 
-/* test
-delete( // tableClass - client-side
-key  // pK to delete
-){
-
-  this.#json.deleted[key] = true;   // add key to deleted object
-  delete this.meta.PK[key];        // remove key from PK
-  const changes = this.changes_get(key); // update change log
-  changes.deleted=true;
-}
-*/
 
 /*
 sortList(  // tableClass - client-side
