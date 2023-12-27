@@ -1,6 +1,7 @@
 import  {formatClass    }   from '/_lib/format/format_module.js'  ;
 import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'    ;
-import  {dbClass        }   from '/_lib/db/db_module.js'          ;
+//import  {dbClass        }   from '/_lib/db/db_module.js'          ;
+import  {tableClass     }   from '/_lib/db/table_module.js'       ;
 import  {tableUxClass   }   from '/_lib/db/tableUx_module.js'     ;
 import  {nodes2htmlClass}   from '/_lib/UX/nodes2html_module.js'  ;
 import  {calendarEditClass} from '/_lib/UX/calendarEdit_module.js';
@@ -21,7 +22,7 @@ addEvents(
   -----------
   main() is the starting point
   loadevents() loads the graph data and creates startGMT and endGMT attributes, and adds to this.events[mm][dd]
-  buildTable() converts data from this.events[mm][dd] to table <this.db.getTable("weekCal")> for display in the weekly fromat
+  buildTable() converts data from this.events[mm][dd] to table for display in the weekly fromat
 
   displayRow()    converts node to html for displayed
   displayEvent()  // user has clicked on a clalender event, show the details of the
@@ -66,12 +67,13 @@ addEvents(
 
   
   // need for both sfc web site and the stand alone page
-  this.db      = new dbClass();       // create empty database
-  this.db.tableAdd("weekCal");        // create empty table in database, is where events for calendar will be displayed.
+  //this.db      = new dbClass();       // create empty database
+  //this.db.tableAdd("weekCal");        // create empty table in database, is where events for calendar will be displayed.
+  this.table   = new tableClass();
 
   // tableUxClass("calendar"  is hardcoded, change at some point
   this.tableUx = new tableUxClass(dom,`${this.#appRef}.tableUx`); // create way to display table
-  this.tableUx.setModel( this.db, "weekCal");                     // associate data with disply widget
+  this.tableUx.set_model( this.table, "weekCal");                     // associate data with disply widget
   this.tableUx.paging.lines = 3;    // should use a method to do this
   this.windowActive = false;        // toggle for pop up window
   this.tableUx.setStatusLineData( [
@@ -331,7 +333,7 @@ k  // this.graph.edges[k] returns the edge
 
 async buildTable(  // calendarClass  client-side
 ) {   // converts calendar data from graph to a table
-  const t      = this.db.getTable("weekCal");  // t -> table we will put event data in to display
+  const t      = this.table;  // t -> table we will put event data in to display
   // init metadata for table
   const fields = t.meta_get("fields");
   fields["0"]  = {"header":"Sunday"   ,"location": "column"};

@@ -21,7 +21,6 @@ url  // directory where table _meta.json, changes.csv, columns.json live
   if (url != undefined) {
     this.url_set(url);
   }
-  this.dir     = url;
   this.db      = undefined; 
 
   // init meta
@@ -94,27 +93,12 @@ get_value(  // tableClass - client-side
       } else {
         return undefined;
       }
- /*     
-    case "row":   // deprecate 
-      if (this.meta.PK[pk] != undefined  && this.#json.rows[this.meta.PK[pk]]) {
-        return this.#json.rows[this.meta.PK[pk]][meta_field.param];
-      } else {
-        return null;
-      }
-*/      
-
-    case "relation":
-/*
-      if (this.#json.relation[pk] && this.#json.relation[pk][field]) {
-        return this.#json.relation[pk][field];
-      } else {
-        return "";
-      }*/
-      break;
       
     default:
       // code block
-      alert(`error file="table_module.js" method="get_value" meta_field.location=${meta_field.location}`);
+      alert(`file="table_module.js"
+method="get_value"
+meta_field.location=${meta_field.location}`);
   }
 }
 
@@ -285,10 +269,18 @@ meta_get(  // tableClass - client-side
 get_PK( // tableClass - client-side
 ) {
   // array of PK keys for entire table;
-  return Object.keys(this.columns.pk);
+  if (this.columns.pk === undefined) {
+    return []; // table is empty so return empty array
+  } else {
+    return Object.keys(this.columns.pk);
+  }
 }
 
-url_set(dir){
+
+url_set(  // tableClass - client-side
+  dir     // root page where table lives
+  ){
+  this.dir              = dir;
   this.url_meta         = dir+"/_meta.json";
   this.url_columns      = dir+"/columns.json";
   this.url_changes_csv  = dir+"/changes.csv";
@@ -466,7 +458,7 @@ async save( // tableClass - client-side
   if(primary_key_value === undefined) {
     // adding a new record, so create a new PK
     primary_key_value = (++this.meta.PK_max).toString();      // get next primary key
-    this.columns.pk[primary_key_value] = primary_key_value;               // add it the pk meta data so it can be accessed
+    //this.columns.pk[primary_key_value] = primary_key_value;               // add it the pk meta data so it can be accessed
     record.pk = primary_key_value;                              // add it the record being saved
   }
 

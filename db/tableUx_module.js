@@ -494,12 +494,22 @@ setModel( // let class know what data it will be displaying/using
 ) {
   this.tableName  = name;           // string
   this.model      = db.getTable(name);  // is of class tableClass
+  /*
   if (this.tableUxB) {
     // make the buff point to the same model as the main tableUx
     this.tableUxB.tableName  = name;           // string
     this.tableUxB.model      = db.json[name];  // is of class tableClass
-  }
+  }*/
 }
+
+set_model( // let class know what data it will be displaying/using
+  table   // table object 
+  ,name   // name of table
+) {
+  this.tableName  = name;           // string
+  this.model      = table;  // is of class tableClass
+}
+
 
 getModel(){return this.model}  // will be table class
 

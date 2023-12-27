@@ -19,8 +19,7 @@ constructor( // recordUxClass - client-side
 
 
 show(  // client side recordUxClass - for a page
-  //pk=null // dom element
-  pk // dom element
+  pk // primary key to show
 ){
   if (!(pk === undefined)) {
     // user clicked on elemnt, remember primary key for other record methodes
@@ -29,7 +28,7 @@ show(  // client side recordUxClass - for a page
 
   // recordShow Fields
   const table   = this.tableUX.getModel()  // get tableClass being displayed
-  let      html = `<b>Table:</b>  ${this.tableUX.tableName}&nbsp <b>PK:</b> ${pk}<br><table>`;
+  let      html = `<b>Table:</b>  ${this.tableUX.tableName}&nbsp <b>PK:</b> ${this.#primary_key_value}<br><table>`;
   const  select = table.meta_get("select");
   const  fields = table.meta_get("fields");
   let rowValue;
@@ -42,9 +41,10 @@ show(  // client side recordUxClass - for a page
   }
 
   // show relations
-  let relation = app.spa.relation_index[this.tableUX.tableName]; // all relations attached to table
-  if (relation != undefined) {
-    relation = relation[this.#primary_key_value];  // all the relations connenting displayed object to other objects
+  const table_relation = app.spa.relation_index[this.tableUX.tableName]; // all relations attached to table
+  let relation;
+  if (table_relation != undefined) {
+    relation = table_relation[this.#primary_key_value];  // all the relations connenting displayed object to other objects
   }
 
   if (relation != undefined) {
@@ -60,9 +60,10 @@ show(  // client side recordUxClass - for a page
       // walk the links
       html += `<tr><td></td> <td><b>${table}</b></td> <td></td></tr>`
       for (let ii=0; ii<pks_table.length; ii++) {
-          let pk     = relations[pks_table[ii]];
-          let record =  app.spa.db.tables[table].get_object(pk);
-          html += `<tr><td>${ii+1}</td> <td>${record.label}</td> <td>${record.display}</td></tr>`
+          let pk          = pks_table[ii];
+          let record      = app.spa.db.tables[table].get_object(pk);
+          let pk_relation = relation[table][pk];
+          html += this.relation_display(ii+1,record,table,pk_relation);
       }
     }
   }
@@ -79,6 +80,26 @@ show(  // client side recordUxClass - for a page
   // show relations
   // need to set filters to only things connected to record
   //app.spa.display_relations("tableUXRelations");
+}
+
+relation_display( // client side recordUxClass - for a page
+  i             // count 
+  ,record       // object
+  ,table_name   // table
+  ,pk_relation  
+){
+  const relation = app.spa.db.getTable("relations").get_object(pk_relation);
+  switch (table_name) {
+    case "phone":
+      return `<tr><td>${i}</td> <td>${record.label}</td> <td>${record.display}</td></tr>`
+      
+    case "people":
+      return `<tr><td>${i}</td> <td>${record.name_last},${record.name_first}</td> <td>${relation.direction} ${relation.relation}</td></tr>`  
+
+    default:
+      return `<tr><td>${i}</td> <td>${JSON.stringify(record)}</td> <td>${relation.direction} ${relation.relation} - default case</td></tr>`  
+  }
+
 }
 
 
