@@ -437,10 +437,14 @@ get_object( // tableClass - client-side
 
 
 PK_get( // tableClass - client-side
-  key=null  // primary key, return row
+  key  // primary key, return row
   ){
-  if (key === null) {
-    return Object.keys(this.columns.pk);    // array of PK keys - use to walk all rows
+  if (key === undefined) {
+    if (this.columns.pk === undefined ) {
+      return [];
+    } else {
+      return Object.keys(this.columns.pk);    // array of PK keys - use to walk all rows
+    }
   } else {
     alert(`file="table_module.js"
 method="PK_get"

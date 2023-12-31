@@ -95,9 +95,7 @@ addEvents(
      </select>`
     ,"nextPrev"
     ,"rows/page"
-
-    //rows/page: <input type="number" min="1" max="10" size=3 value="${this.tableUx.paging.lines}" onchange="${this.#appRef}.tableUx.changePageSize(this)"/>
-
+    ,`<input type="button" value="Next Year" onClick="${this.#appRef}.year_next()" />`
 
   ]);  // ,"tableName","rows","rows/page","download","tags", "firstLast"
 
@@ -117,6 +115,10 @@ addEvents(
     }
   }
 }
+
+year_next(){  // calendarClass  client-side
+  this.main(++this.year);
+}
   
   
 // Mutators
@@ -135,8 +137,10 @@ getCanSubmit(     ) {return this.canSubmit;     }// calendarClass  client-side
   
 
 async main( // calendarClass  client-side
-url
+year
 ) {
+  this.year = year;
+  let url = `/users/events/${year}/_graph.json`;
   // decide which calendar to load, users or main
   await this.loadEvents(url); // will fill out this.events - array for each day of the year 
 

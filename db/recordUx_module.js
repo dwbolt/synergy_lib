@@ -13,7 +13,7 @@ class recordUxClass { // recordUxClass - client-side
 constructor( // recordUxClass - client-side
    tableUX       // where table will be displayed
 ) {
-  this.tableUX    = tableUX;                                // does not seem to be used
+  this.tableUX    = tableUX;                       
   this.globalName = tableUX.globalName + ".recordUX";
 }
 
@@ -147,7 +147,7 @@ edit(  // client side dbUXClass
         } else {
           readonly = "";
         }
-        if (this.#primary_key_value === null) {
+        if (this.#primary_key_value === undefined) {
           value = "";  // new record, no previous value
         } else {
           value = table.get_value(this.#primary_key_value,field);
