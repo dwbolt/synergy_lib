@@ -479,10 +479,16 @@ async save( // tableClass - client-side
 
     // update change log
     if (edited_value !== current_value ) {
-      // update change log
+      // append to  change log
+      if (-1 < edited_value.search(",") ) {
+         // value contains commas, so put quotes around it
+        edited_value = `"${edited_value}"` 
+      }
       csv += `${primary_key_value},${field},${edited_value},${date.toISOString()}\n`;
+
       // update memery row
       if (edited_value===""){
+        // convert form value of empty string to undefined
         edited_value = undefined;
       }
       this.set_value(primary_key_value, field, edited_value);
