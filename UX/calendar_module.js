@@ -7,7 +7,7 @@ import  {calendarEditClass} from '/_lib/UX/calendarEdit_module.js';
 
 class calendarClass {
   /*
-   Calendar data is stored in a graph. Each graph has stores one year.  Edges hold dates and time and time zone.  Edges also hold if repeating information.  IE  weekly, monthly or yearly.
+   Calendar data is stored in a database.
   
   High level methods are:
   
@@ -83,7 +83,7 @@ addEvents(
   for (let m=1; m<=12; m++) {
     this.events[m]=[]
     for (let d=1; d<=31; d++) {
-      this.events[m][d] = [];
+      this.events[m][d] = {pks:[],row: undefined};
     }
   }
 }
@@ -109,12 +109,14 @@ getCanSubmit(     ) {return this.canSubmit;     }// calendarClass  client-sid
 
 
 async main( // calendarClass  client-side
-year
+year // 
+,url // to calender database 
 ) {
-  this.year = year;
-  //let url = `/users/events/${year}/_graph.json`;
+  this.year = year;  // year of calendar to display
+  let table_url = ( url ? url : "/users/database/synergy/calendar");
+
   // decide which calendar to load, users or main
-  await this.loadEvents(); // will fill out this.events - array for each day of the year 
+  await this.loadEvents(table_url); // will fill out this.events - array for each day of the year 
 
   // display entire calendar
   await this.buildTable();  // convert this.events to a table that can be displayed with tableUX
@@ -132,7 +134,7 @@ year
   this.tableUx.setStatusLineData( [
     `<input type="button" id="todayButton" onClick="${this.#appRef}.findToday()" value="Today" />`
     ,`<select name="months" id="months" onChange="${this.#appRef}.chooseMonth()">
-    <option value="nullMonth" selected>Choose Month</option>
+    <option value="nullMonth" selected>Viewing Weeks</option>
     <option value="january">01 January</option>
     <option value="february">02 February</option>
     <option value="march">03 March</option>
@@ -148,7 +150,8 @@ year
      </select>`
     ,"nextPrev"
     ,"rows/page"
-    ,`Year: <input type="number" value="${this.year}" oninput="${this.#appRef}.year_change(this)"/>`
+    ,`Year: <input type="text" value="${this.year}" size="4" onchange="${this.#appRef}.year_change(this)"/>`
+    //`Year: <input type="number" value="${this.year}" oninput="${this.#appRef}.year_change(this)"/>`
   ]);  // ,"tableName","rows","rows/page","download","tags", "firstLast"
 
   for(let i=0; i<7; i++) {
@@ -193,8 +196,9 @@ createDate(  // calendarClass  client-side
   
 
 async loadEvents( // calendarClass  client-side
+table_url
 ) {
-  await this.table_events.load(`/users/databases/synergy/calendar`);
+  await this.table_events.load(table_url);
 
   // each edge will generate at least one element in and event list
   let pks =  this.table_events.get_PK()
@@ -267,7 +271,7 @@ addOneOf(  // calendarClass  client-side
   e  // this.graph.edges[k] returns the edge
 ){
   const date =  this.GMT[e.pk].start;  //e.start
-  this.events[date.getMonth()+1][date.getDate()].push(e.pk);  // push key to edge associated with edge
+  this.events[date.getMonth()+1][date.getDate()].pks.push(e.pk);  // push key to edge associated with edge
 }
 
 
@@ -286,7 +290,7 @@ addWeekly( // calendarClass  client-side
     }
 
     while (date < this.GMT[edge.pk].end_repeat && date.getFullYear() === this.year) {
-      this.events[date.getMonth()+1][date.getDate()].push(edge.pk);  // push key to edge associated with edge
+      this.events[date.getMonth()+1][date.getDate()].pks.push(edge.pk);  // push key to edge associated with edge
       date.setDate(date.getDate() + 7);   // get next week
     }
   }); 
@@ -324,7 +328,7 @@ edge//
       let eventDate = new Date(month.getTime() + offset*1000*60*60*24);
       if (eventDate<edge.endGMT_repeat) {
         // eventData is less than the repeat end end date
-        this.events[eventDate.getMonth()+1][eventDate.getDate()].push(edge.pk);  // push key to edge associated with edge
+        this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(edge.pk);  // push key to edge associated with edge
       }
     });
   }
@@ -358,9 +362,11 @@ async buildTable(  // calendarClass  client-side
 
   for (let x=0; start.getFullYear()<=year ;x++) {  // x is week of year
     for (let y=0; y<=6; y++) {                     // y is day of week
+      if (start.getFullYear() === this.year) {
       // add days for week
       let m = start.getMonth()+1;
       let d = start.getDate();
+      this.events[m][d].row = x;   // remember what row a date is on so we can quickly move to that date
 
       let add="";
       if ( this.login_status) {
@@ -371,7 +377,7 @@ async buildTable(  // calendarClass  client-side
       let html = `<p ${style}><b>${m}-${d} ${add}</b></p>`;
 
       // loop for all events for day [m][d]
-      let eventList = this.events[m][d].sort(this.sort.bind(this));   // list of pks
+      let eventList = this.events[m][d].pks.sort(this.sort.bind(this));   // list of pks
       for(let i=0;  i<eventList.length; i++ ) {
         let pk   = eventList[i];                        // get primary key
         let edge = this.table_events.get_object(pk);    // get event at primary key
@@ -387,14 +393,12 @@ async buildTable(  // calendarClass  client-side
         } else if(edge.repeat == "monthly") {repeat_class = "repeat_monthly";
         } else if(edge.repeat == "yearly" ) {repeat_class = "repeat_yearly" ;}
 
-
-
         html += `${editButton} <a href="${edge.url}" target="_blank" class="${repeat_class}">${edge.name}</a><br>`
       }
 
-      if (start.getFullYear() === this.year) {
-        // only add events for current year
-        t.add_column_value(x.toString(),y.toString(), html + "</br>")
+  
+      // only add events for current year
+      t.add_column_value(x.toString(),y.toString(), html + "</br>")
       }
       
       start.setDate( start.getDate() + 1 ); // move to next day
@@ -468,27 +472,8 @@ findDayInMonth(  // calendarClass  client-sid
 moveToDate( // calendarClass  client-side
     newDate // move to newDate from current date displayed on calendar
 ) {
-  let timeBetweenDays;  // in milliseconds from newDate to first date displayed in first row
-  let weeksBetweenDays; // number of rows need to move to make the newDate displayed in first row of calendar
-  const firstDayDiv      = document.getElementById("weeks_table").childNodes[7];      // item 7 should be first day.
-  const firstMonthDay = firstDayDiv.firstChild.innerText.split("-");  // grabs the first date at the top left of calendar table
-
-  // convert strings to integers
-  const firstMonth = parseInt(firstMonthDay[0]);
-  const firstDay   = parseInt(firstMonthDay[1])
-
-  // first date of page we are on at the moment
-  const firstYear = (this.tableUx.paging.row ===0 && firstDayDiv.className === "notYear") ? (this.year-1) : this.year;
-  const firstDate = new Date(firstYear, firstMonth-1, firstDay);
-
-  // find difference in time between dates
-  timeBetweenDays = newDate.getTime() - firstDate.getTime(); // time between a and b in milliseconds
-
-  // turn difference in milliseconds to weeks
-  weeksBetweenDays = Math.floor(timeBetweenDays / (1000 * (60 * 60) * 24 * 7));
-
   // change paging row
-  this.tableUx.paging.row += weeksBetweenDays;
+  this.tableUx.paging.row = this.events[newDate.getMonth()+1][newDate.getDate()].row ;
   this.tableUx.displayData();
 }
   
@@ -507,7 +492,6 @@ findToday( // calendarClass  client-side
 ) {
   // get current date (we want to jump to this date)
   var today = new Date();
-
   this.moveToDate(today);
 }
   
