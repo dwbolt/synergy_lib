@@ -82,7 +82,7 @@ display(        // tableUxClass - client-side
   } else {
     // display full table
     this.tag = "filtered";
-    this.tags.filtered = this.getModel().PK_get();
+    this.tags.filtered = this.getModel().get_PK();
   }
 
   // add status line and empty table to DOM

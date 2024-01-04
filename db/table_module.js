@@ -341,7 +341,7 @@ msg="${JSON.stringify(msg)}"`);
 
   // apply change log to table
   // will not work if parse takes more than a second
-  const pk = table.PK_get();
+  const pk = table.get_PK();
   for(let i=0; i<pk.length; i++) {
     let obj = table.get_object(i);
     this.set_value(obj["1"],obj["2"],obj["3"]);
@@ -410,14 +410,23 @@ get_object( // tableClass - client-side
   for(let i=0; i<select.length ;i++){
     // assume row, need to add other cases
     const field_name = select[i];
-    const  location = this.meta.fields[field_name].location;
-    switch(location) {
+    const field      = this.meta.fields[field_name];
+    switch(field.location) {
       case "column":
         // data is in column
         if (this.columns[field_name] === undefined) {
           value = undefined;
         } else {
-          value = this.columns[field_name][id];
+          if (field.type === "string"  || field.type === "pk" ) {
+             value = this.columns[field_name][id];
+          } else if (field.type === "json") {
+            value = JSON.parse(this.columns[field_name][id]);
+          } else {
+            alert(`file="table_module"
+method="get_object"
+field.type="${field.type}"`);
+          }
+         
         }
         break;
 
@@ -439,17 +448,8 @@ get_object( // tableClass - client-side
 PK_get( // tableClass - client-side
   key  // primary key, return row
   ){
-  if (key === undefined) {
-    if (this.columns.pk === undefined ) {
-      return [];
-    } else {
-      return Object.keys(this.columns.pk);    // array of PK keys - use to walk all rows
-    }
-  } else {
     alert(`file="table_module.js"
-method="PK_get"
-msg="row use depricated"`);
-  }
+method="PK_get is depricated"`);
 }
 
 
@@ -578,7 +578,16 @@ setHeader() {   // tableClass - client-side
   const fields           = this.meta.fields;  // point to field meta data
   const select           = this.meta.select;  // array of field names to be displayed
   for(let i=0; i<select.length; i++) {
-    this.meta.header.push(fields[select[i]].header); 
+    let field = fields[select[i]];
+    if (field === undefined) {
+      alert(`file=table_module.js
+method="setHeader"
+select[i] = "${select[i]}"
+msg="select field does not exist in field meta data"`)
+    } else {
+      this.meta.header.push(field.header); 
+    }
+    
   }
 }
 
