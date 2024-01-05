@@ -423,7 +423,7 @@ statusLine(   // tableUxClass - client-side
         html += `tags: ${this.genTags()}`
         break;
       case "rows/page":
-        html += `rows/page: <input type="number" min="1" max="999" value="${this.paging.lines}" onchange="${this.globalName}.changePageSize(this)"/>`
+        html += `rows/page: <input id="${this.DOMid}_rows_per_page" type="number" min="1" max="999" value="${this.paging.lines}" onchange="${this.globalName}.changePageSize(this)"/>`
         break;
       case "download":
         html += `<input type="button" onclick="${this.globalName}.export()" value="Download CSV"/> <a id='download_link'></a>`
@@ -795,7 +795,7 @@ search( // tableUxClass - client-side
 next( // tableUxClass - client-side
 ) { //next page
   this.paging.row = this.paging.row + this.paging.lines;
-  this.display();
+  this.displayData();
 }
 
 
@@ -806,198 +806,27 @@ prev( /// tableUxClass - client-side
     // should not be less than 0;
     this.paging.row = 0;
   }
-  this.display();
+  this.displayData();
 }
 
 
 first( /// tableUxClass - client-side
 ){  // first page
   this.paging.row = 0;
-  this.display();
+  this.displayData();
 }
 
 
 last( /// tableUxClass - client-side
 ){  // last page
-//  this.paging.row = this.model.getRowsLength()  - this.paging.lines
-//  this.paging.row = this.paging.rowMax  - this.paging.lines
   this.paging.row = parseInt(this.paging.rowMax/this.paging.lines) * this.paging.lines;
-  this.display();
-}
+  this.displayData();
 
 
 } // tableUxClass - client-side //  end
 
-
-export {tableUxClass};
-
-
-///////////////////////////////////////////////  buffer methods
-/*
-displayBuffer(        // tableUxClass - client-side  
-  // display table - for first time
-) {
-  //this.tags = {}  // remove any previous tags
-
-  // add status line and empty table to DOM
-  document.getElementById(this.DOMid).innerHTML = `
-  <table>
-  <caption style="text-align:left;">put status line here</caption>
-  <thead></thead>
-  <tbody></tbody>
-  <tfoot></tfoot>
-  </table>`;
-
-  // fill in empty table
-  this.statusLine();
-  this.displaySearch();
-  this.displayColumnTitles()
-  this.displayDataBuffer();
-  this.displayFooter();
-}
-*/
-
-
-/*
-table2buffer( // tableUxClass - client-side
-  a_index //  array of row numbers into
-  ) {
-  // clear the buffer
-  this.json.rowsBuffer = [];
-
-  // make a copy of the data for the buffer so change buffer does not change data in table
-  a_index.forEach((rowNumber, i) => {
-    this.json.rowsBuffer.push( [rowNumber, Array.from(this.json.rows[rowNumber]) ] );
-  });
 }
 
-
-bufferGet( // tableUxClass - client-side
-// is this used?
-  s_field
-  ) {
-  return this.json.rowsBuffer;
-}
+export {tableUxClass}
 
 
-// tableUxClass - client-side
-// convert all strings that should be numbers to numbers
-bufferSetType() {
-  this.json.fieldA.forEach((column, i) => {
-    if (column.startsWith("n_")) {
-      // found a number column
-      this.json.rowsBuffer.forEach((r, ii) => {
-        // convert that column to a number
-        r[1][i] = Number(r[1][i]);
-      });
-    }
-  });
-}
-
-
-bufferSave(// tableUxClass - client-side
-) {  // to table in memory
-  this.bufferSetType();
-  this.json.rowsBuffer.forEach((item, i) => {
-    // does not handle the case of growing or srinking the number of items in the buffer
-    this.json.rows[item[0]] = item[1];
-  });
-}
-
-
-bufferAppend( // tableUxClass - client-side
-
-) {  // to table in memory
-  this.bufferSetType();
-  this.json.rowsBuffer.forEach((item, i) => {
-    this.json.rows.push( item[1]  );
-  });
-}
-
-
-bufferInput2Json(  // tableUxClass - client-side
-// move data from DOM to table buffer
-) {
-  let r,col;
-  // a_rows ->  an array of rows of input buffer data
-  const a_rows = document.getElementById(this.DOMidBuffer).firstChild.firstChild.children;
-  for (r=1; r<a_rows.length; r++) {  // skip first row, it is the header
-    let empty = true;
-    for (col=1; col<=this.json.fieldA.length; col++) { // skip first column, it has the row number
-      let v = a_rows[r].children[col].firstChild.value;  // read html input value
-      if (empty && v!=="") {
-        empty = false;  // will keep this row, it has data
-      }
-      this.json.rowsBuffer[r-1][1][col-1] = v;   // set json value
-    }
-    if (empty) {
-      // do not save empty row in data
-      this.json.rowsBuffer.pop();
-    }
-  }
-
-  // make sure it was stored correctly and apply any formating
-  this.bufferDisplay();
-}
-
-
-bufferDisplay(// tableUxClass - client-side
-  s_domID = s_domID=this.DOMidBuffer // s_domID optional for subsequet calls.
-  , on = ""
-) {
-  this.DOMidBuffer = s_domID;
-
-  // header
-  let html= `<table ${on} onchange="app.page.bufferChange()"><tr><th>#</th>`;
-  html += this.displayHeader()
-
-  // now the buffer
-  // add rows
-  this.json.rowsBuffer.forEach((row, i) => {
-    html += this.bufferAppendRow(row,i);
-  });
-
-  document.getElementById(s_domID).innerHTML = html + "</table>";;
-}
-
-
-bufferAppendRow( // tableUxClass - client-side
-  row
-  ,i
-  ) {
-  let html = `<tr><td>${i+1}</td>`;
-  let format;
-
-  row[1].forEach((field,ii) => {
-    if (field===null) {
-      field="";
-    }
-    format = this.getColumnFormat(ii);
-
-    html += `<td${format}><input type="text" value="${field}"></td>`;
-
-  });
-  html += "</tr>";
-  return html;
-}
-
-
-bufferCreateEmpty( // tableUxClass - client-side
-  n_rows // number of rows to add
-  ) {
-  const rows = [];
-  let i,ii;
-
-  // create n_rows
-  for(i=0; i<n_rows; i++) {
-    let empty = []; //
-    for(ii=0; ii<this.model.getHeader().length; ii++) {
-      empty.push(null); // create an array of null as long as the header
-    }
-    rows.push([-1,empty]);  // -1 -> a new row, a positive number is an edit
-  }
-
-  // save empty buffer
-  this.model.json.rows = rows;
-}
-*/

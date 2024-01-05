@@ -482,11 +482,12 @@ async save( // tableClass - client-side
     // update change log
     if (edited_value !== current_value ) {
       // append to  change log
-      if (edited_value && -1 < edited_value.search(",") ) {
+      let csv_value = edited_value;
+      if (csv_value && -1 < csv_value.search(",") ) {
          // value contains commas, so put quotes around it
-        edited_value = `"${edited_value}"` 
+         csv_value = `"${edited_value}"` 
       }
-      csv += `${primary_key_value},${field},${edited_value},${date.toISOString()}\n`;
+      csv += `${primary_key_value},${field},${csv_value},${date.toISOString()}\n`;
 
       // update memery row
       if (edited_value===""){

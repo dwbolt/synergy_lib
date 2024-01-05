@@ -127,7 +127,7 @@ year //
   this.tableUx.setStatusLineData( [
     `<input type="button" id="todayButton" onClick="${this.#appRef}.findToday()" value="Today" />`
     ,`<select name="months" id="months" onChange="${this.#appRef}.month_chosen()">
-    <option value="nullMonth" selected>Viewing Weeks</option>
+    <option value="weeks" selected>Viewing Weeks</option>
     <option value="0">01 January</option>
     <option value="1">02 February</option>
     <option value="2">03 March</option>
@@ -141,7 +141,8 @@ year //
     <option value="10">11 November</option>
     <option value="11">12 December</option>
      </select>`
-    ,"nextPrev"
+    ,`<input type="button" value="Prev" onclick="${this.#appRef}.prev()">`
+    ,`<input type="button" value="Next" onclick="${this.#appRef}.next()">`
     ,"rows/page"
     ,`Year: <input type="text" value="${this.year}" size="4" onchange="${this.#appRef}.year_change(this)"/>`
     //`Year: <input type="number" value="${this.year}" oninput="${this.#appRef}.year_change(this)"/>`
@@ -159,6 +160,64 @@ year //
     //this.edgeName = this.urlParams.get('e');
     //await this.displayEvent();
 
+}
+
+next( // tableUxClass - client-side
+) { //next page
+  // next (day, weeks, month, year)
+  const selected  = document.getElementById("months");  // where the user selects day, weeks, year, a month
+  const time_unit = selected.value;
+  switch (time_unit) {
+    case "weeks":
+      this.tableUx.next();
+      break;
+  
+    default:
+      // assume month, move to next month
+
+      this.month_chosen(1);
+      break;
+  }
+}
+
+
+prev( // tableUxClass - client-side
+) { //next page
+  // next (day, weeks, month, year)
+  const selected  = document.getElementById("months");  // where the user selects day, weeks, year, a month
+  const time_unit = selected.value;
+  switch (time_unit) {
+    case "weeks":
+      this.tableUx.prev();
+      break;
+  
+    default:
+      // assume month, move to next month
+      this.month_chosen(-1);
+      break;
+  }
+}
+
+
+month_chosen(  // calendarClass  client-side
+  // Goes to page that has first day of chosen month
+  change = 0 
+) {
+  const selected          = document.getElementById("months");  // where the user selects day, weeks, year, a month
+  selected.selectedIndex += change;
+  const month     = parseInt(selected.value);
+
+  const start = new Date(this.year, month  , 1);                                         // first day of month
+  const end   = new Date(new Date(this.year, month+1, 1) - 1);                                     // last  day of month 
+  this.moveToDate(start);  // move to new month
+  
+  // set rows/page so that the full month is displayed
+  const row_start     = this.events[start.getMonth()+1][start.getDate()].row ;     // row of month start
+  const row_end       = this.events[  end.getMonth()+1][  end.getDate()].row ;     // row of month end
+  const rows_per_page = document.getElementById(`${this.DOM}_rows_per_page`);      // number of rows contained in month
+  rows_per_page.value = row_end - row_start + 1;
+  //rows_per_page.onchangeck();//
+  this.tableUx.changePageSize(rows_per_page)
 }
 
 
@@ -279,8 +338,10 @@ addWeekly( // calendarClass  client-side
   edge  // event
 ) {
   // walk the daysOffset, first entry should be 0;  we assume
-  edge.weekdays.forEach((day,i) => {  // walk each day in the week we are repeating
-    let date =  new Date(this.GMT[edge.pk].start.getTime());  // create a copy of start date
+  // repeat_details [0->sunday,2->tuesday ...] document structure ?
+  const gmt = this.GMT[edge.pk];
+  edge.repeat_details.forEach((day,i) => {  // walk each day in the week we are repeating
+    let date =  new Date(this.year, gmt.start.getMonth()               , 1,1,1);  // create a copy of start date, for caleneder year
     if (day < date.getDay()) {
       date.setDate(date.getDate() + 7 - date.getDay());   // add days to date to get to Sunday
     }
@@ -301,17 +362,17 @@ addMonthly(  // calendarClass  client-side
 edge// 
 ) {
   // walk the days, first entry should be 0;
-  //const edge = this.graph.edges[k];
   const start = this.GMT[edge.pk].start;
   let monthOffset = 0;
   // walk to monthes to the end of the year
   for (let month = new Date(start.getFullYear(), start.getMonth()               , 1,1,1) ;
-       month < edge.endGMT_repeat && edge.endGMT_repeat.getFullYear() === this.year;  
+       month < this.GMT[edge.pk].end_repeat && this.GMT[edge.pk].end_repeat.getFullYear() === this.year;  
        // add an hour and 1 minute for the case month starts in daylight savings and the date is after daylight savings ends.
         month = new Date(start.getFullYear(), start.getMonth()+ ++monthOffset, 1,1,1)) {
     
     // walk weeks in month
-    edge.days.forEach((day, ii) => {  // day=[day number, week number] day number 0 -> sunday     :  [1,2] -> second monday of month
+    // repeat_details [[].[]] document
+    edge.repeat_details.forEach((day, ii) => {  // day=[day number, week number] day number 0 -> sunday     :  [1,2] -> second monday of month
       // find first target day of week in the the month
       let offset = day[0] - month.getDay(); // day[0] is the target day of week
       if (offset<0) {offset += 7;}          // target day of week in in the next week
@@ -326,7 +387,7 @@ edge//
         offset += 7*(n[1]-1);                                  // calculate offset
       }
       let eventDate = new Date(month.getTime() + offset*1000*60*60*24);
-      if (eventDate<edge.endGMT_repeat) {
+      if (eventDate<this.GMT[edge.pk].end_repeat) {
         // eventData is less than the repeat end end date
         this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(edge.pk);  // push key to edge associated with edge
       }
@@ -472,22 +533,21 @@ findDayInMonth(  // calendarClass  client-sid
 }
   
   
-moveToDate( // calendarClass  client-side
+async moveToDate( // calendarClass  client-side
     newDate // move to newDate from current date displayed on calendar
 ) {
+  // see if we need to change year
+  const year = newDate.getFullYear();
+  if (this.year !== year) {
+    await this.main(year);
+  }
   // change paging row
   this.tableUx.paging.row = this.events[newDate.getMonth()+1][newDate.getDate()].row ;
   this.tableUx.displayData();
 }
   
   
-month_chosen(  // calendarClass  client-side
-  // Goes to page that has first day of chosen month
-) {
-  const myList = document.getElementById("months");           // grabs the month input selector
-  this.moveToDate(new Date(this.year, myList.value, 1));
-  //myList.selectedIndex = 0;
-}
+
   
   
 findToday( // calendarClass  client-side
