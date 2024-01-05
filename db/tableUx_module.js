@@ -358,7 +358,8 @@ displayData(){   // tableUxClass - client-side
     // display subset of rows in tag
     this.paging.rowMax = this.tags[this.tag].length;
   }
-  this.statusLine();
+
+   //this.statusLine();   
 
   // enable/disable the prev and next button - should be a better way todo this
   if (this.paging.row  ===  0 ) {

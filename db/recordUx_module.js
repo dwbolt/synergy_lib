@@ -185,7 +185,8 @@ async save( // client side recordUxClass - for a page
     // walk the form 
     field_name      = select[i];
     let edit = document.getElementById(`edit-${i}`); 
-    if (edit && 0<edit.value.length) {
+//    if (edit && 0<edit.value.length) {
+    if (edit) {
       obj[field_name] = edit.value;
     }
   }

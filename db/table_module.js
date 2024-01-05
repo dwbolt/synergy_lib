@@ -417,16 +417,18 @@ get_object( // tableClass - client-side
         if (this.columns[field_name] === undefined) {
           value = undefined;
         } else {
+          value = this.columns[field_name][id];  // maybe undefined
           if (field.type === "string"  || field.type === "pk" ) {
-             value = this.columns[field_name][id];
+             // value is already set, do not want to trigger the alert below
           } else if (field.type === "json") {
-            value = JSON.parse(this.columns[field_name][id]);
+            if (value !== undefined) {
+              value = JSON.parse(value);  // we have a string, turn it into json
+            }
           } else {
             alert(`file="table_module"
 method="get_object"
 field.type="${field.type}"`);
           }
-         
         }
         break;
 
@@ -436,7 +438,7 @@ field.type="${field.type}"`);
     }
 
 
-    if (value != undefined) {
+    if (value !== undefined) {
       object[select[i]] = value;
     }
   }
@@ -480,7 +482,7 @@ async save( // tableClass - client-side
     // update change log
     if (edited_value !== current_value ) {
       // append to  change log
-      if (-1 < edited_value.search(",") ) {
+      if (edited_value && -1 < edited_value.search(",") ) {
          // value contains commas, so put quotes around it
         edited_value = `"${edited_value}"` 
       }

@@ -19,7 +19,7 @@ addEvents(
 
   -----------
   main() is the starting point
-  buildTable() converts data from this.events[mm][dd] to table for display in the weekly fromat
+  table_build() converts data from this.events[mm][dd] to table for display in the weekly fromat
 
   displayRow()    converts node to html for displayed
   displayEvent()  // user has clicked on a clalender event, show the details of the
@@ -64,11 +64,7 @@ addEvents(
 
   this.GMT           = {}                 // place to store GMT start and end of events
   this.table_events  = new tableClass();  // where mulit year calander and repeating events live will be used generate this.table
-  this.table         = new tableClass();  // where calender will be displayed
-
-  // tableUxClass("calendar"  is hardcoded, change at some point
   this.tableUx = new tableUxClass(dom,`${this.#appRef}.tableUx`); // create way to display table
-  this.tableUx.set_model( this.table, "weekCal");                     // associate data with disply widget
   this.tableUx.paging.lines = 3;    // should use a method to do this
   this.windowActive = false;        // toggle for pop up window
   this.tableUx.setSearchVisible(false);                 // hide search
@@ -76,22 +72,20 @@ addEvents(
   this.tableUx.setRowNumberVisible(false);              // hide row numbers
 
   this.weeks2display = 2;                              // display 4 weeks of data at a time
-  this.n_pic = 0;
+  this.n_pic         = 0;
+  this.table_urls    = [];
 
   // init every day with empty array
-  this.events = []                  // this.events[1][12] for january 12 a list of event nodes for that day - expanded from graph
-  for (let m=1; m<=12; m++) {
-    this.events[m]=[]
-    for (let d=1; d<=31; d++) {
-      this.events[m][d] = {pks:[],row: undefined};
-    }
-  }
+  this.events = undefined;
 }
 
-year_change(dom){  // calendarClass  client-side
-  this.main(parseInt(dom.value));
+async year_change(dom){  // calendarClass  client-side
+  await this.main(parseInt(dom.value),);
 }
-  
+
+calender_add(url) {// calendarClass  client-side
+  this.table_urls.push(url);  // list of calenders to display at one time, will need to add color code, just support one calender for now
+}
   
 // Mutators
 setEventMonth(    val) {this.eventMonth  = val;   } // calendarClass  client-side
@@ -110,16 +104,15 @@ getCanSubmit(     ) {return this.canSubmit;     }// calendarClass  client-sid
 
 async main( // calendarClass  client-side
 year // 
-,url // to calender database 
 ) {
   this.year = year;  // year of calendar to display
-  let table_url = ( url ? url : "/users/database/synergy/calendar");
+
 
   // decide which calendar to load, users or main
-  await this.loadEvents(table_url); // will fill out this.events - array for each day of the year 
+  await this.events_load(); // will fill out this.events - array for each day of the year 
 
   // display entire calendar
-  await this.buildTable();  // convert this.events to a table that can be displayed with tableUX
+  await this.table_build();  // convert this.events to a table that can be displayed with tableUX
 
   // create a text month list
   // concatenate the month to the display
@@ -133,20 +126,20 @@ year //
 
   this.tableUx.setStatusLineData( [
     `<input type="button" id="todayButton" onClick="${this.#appRef}.findToday()" value="Today" />`
-    ,`<select name="months" id="months" onChange="${this.#appRef}.chooseMonth()">
+    ,`<select name="months" id="months" onChange="${this.#appRef}.month_chosen()">
     <option value="nullMonth" selected>Viewing Weeks</option>
-    <option value="january">01 January</option>
-    <option value="february">02 February</option>
-    <option value="march">03 March</option>
-    <option value="april">04 April</option>
-    <option value="may">05 May</option>
-    <option value="june">06 June</option>
-    <option value="july">07 July</option>
-    <option value="august">08 August</option>
-    <option value="september">09 September</option>
-    <option value="october">10 October</option>
-    <option value="november">11 November</option>
-    <option value="december">12 December</option>
+    <option value="0">01 January</option>
+    <option value="1">02 February</option>
+    <option value="2">03 March</option>
+    <option value="3">04 April</option>
+    <option value="4">05 May</option>
+    <option value="5">06 June</option>
+    <option value="6">07 July</option>
+    <option value="7">08 August</option>
+    <option value="8">09 September</option>
+    <option value="9">10 October</option>
+    <option value="10">11 November</option>
+    <option value="11">12 December</option>
      </select>`
     ,"nextPrev"
     ,"rows/page"
@@ -157,7 +150,9 @@ year //
   for(let i=0; i<7; i++) {
     this.tableUx.setColumnFormat(i,`class="day"`);  // set class of each day
   }
+
   this.tableUx.display();
+  this.tableUx.statusLine();  
   this.findToday();   // only need to do this is we are displaying the clander
 
     // display event in calendar
@@ -195,10 +190,18 @@ createDate(  // calendarClass  client-side
 }
   
 
-async loadEvents( // calendarClass  client-side
-table_url
+async events_load( // calendarClass  client-side
+//table_url
 ) {
-  await this.table_events.load(table_url);
+  this.events =[]                  // this.events[1][12] for january 12 a list of event nodes for that day - expanded from graph
+  for (let m=1; m<=12; m++) {
+    this.events[m]=[]
+    for (let d=1; d<=31; d++) {
+      this.events[m][d] = {pks:[],row: undefined};
+    }
+  }
+
+  await this.table_events.load(this.table_urls[0]);   // for now just support one calendar
 
   // each edge will generate at least one element in and event list
   let pks =  this.table_events.get_PK()
@@ -223,15 +226,12 @@ e  // event
     return;
   }
 
-  const a = e.repeat_end_date;
-  if (a[0] === null) {
+  let a = e.repeat_end_date;
+  if (a === undefined) {
     // year not set, so set to end of current year
-    a[0] = this.year;
-    a[1] = 12
-    a[2] = 31 
+    a    = [this.year,12,31];
   }
   this.GMT[e.pk].end_repeat = new Date(a[0],a[1]-1,a[2],this.GMT[e.pk].end.getHours(), this.GMT[e.pk].end.getMinutes()); 
-  //e.endGMT_repeat = new Date(a[0],a[1]-1,a[2],e.endGMT.getHours(), e.endGMT.getMinutes());  // use end_date time
 
   switch(e.repeat) {
   case "weekly":
@@ -335,8 +335,11 @@ edge//
 }
 
 
-async buildTable(  // calendarClass  client-side
+async table_build(  // calendarClass  client-side
 ) {   // converts calendar data from graph to a table
+  this.table         = new tableClass();  // where calender will be displayed
+  this.tableUx.set_model( this.table, "weekCal");     
+
   const t      = this.table;  // t -> table we will put event data in to display
   // init metadata for table
   const fields = t.meta_get("fields");
@@ -478,12 +481,12 @@ moveToDate( // calendarClass  client-side
 }
   
   
-chooseMonth(  // calendarClass  client-side
+month_chosen(  // calendarClass  client-side
   // Goes to page that has first day of chosen month
 ) {
   const myList = document.getElementById("months");           // grabs the month input selector
-  this.moveToDate(new Date(this.year, myList.selectedIndex-1, 1));
-  myList.selectedIndex = 0;
+  this.moveToDate(new Date(this.year, myList.value, 1));
+  //myList.selectedIndex = 0;
 }
   
   
