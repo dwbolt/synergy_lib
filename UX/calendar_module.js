@@ -14,12 +14,12 @@ class calendarClass {
   //////////////////////////////// display methods
   constructor( // calendarClass  client-side
 createDate
-addEvents( 
+event_add( 
 
 
   -----------
   main() is the starting point
-  table_build() converts data from this.events[mm][dd] to table for display in the weekly fromat
+  calendar_create() converts data from this.events[mm][dd] to table for display in the weekly fromat
 
   displayRow()    converts node to html for displayed
   displayEvent()  // user has clicked on a clalender event, show the details of the
@@ -101,31 +101,33 @@ getEventDay(      ) {return this.eventDay   ;   }// calendarClass  client-side
 getPopUpHeight(   ) {return this.popUpHeight;   }// calendarClass  client-side
 getCanSubmit(     ) {return this.canSubmit;     }// calendarClass  client-sid
 
+async init() {
+  await this.table_events.load(this.table_urls[0]);   // for now just support one calendar
+}
 
 async main( // calendarClass  client-side
 year // 
 ) {
   this.year = year;  // year of calendar to display
 
-
   // decide which calendar to load, users or main
-  await this.events_load(); // will fill out this.events - array for each day of the year 
+  this.event_init(); // will fill out this.events - array for each day of the year 
 
   // display entire calendar
-  await this.table_build();  // convert this.events to a table that can be displayed with tableUX
+  await this.calendar_create();  // convert this.events to a table that can be displayed with tableUX
 
   // create a text month list
   // concatenate the month to the display
-  const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  /*const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   if (document.getElementById("heading")) {
     document.getElementById("heading").innerHTML += ` ${this.year}` + ` ${month[this.month]}`;
   } else {
     // assume it is the main page
     //document.getElementById("heading1").innerHTML += ` ${this.year}`;
-  }
+  }*/
 
   this.tableUx.setStatusLineData( [
-    `<input type="button" id="todayButton" onClick="${this.#appRef}.findToday()" value="Today" />`
+    `<input type="button" id="todayButton" onClick="${this.#appRef}.today_display()" value="Today" />`
     ,`<select name="months" id="months" onChange="${this.#appRef}.month_chosen()">
     <option value="weeks" selected>Viewing Weeks</option>
     <option value="0">01 January</option>
@@ -152,14 +154,14 @@ year //
     this.tableUx.setColumnFormat(i,`class="day"`);  // set class of each day
   }
 
+  //this.tableUx.displayData();
   this.tableUx.display();
   this.tableUx.statusLine();  
-  this.findToday();   // only need to do this is we are displaying the clander
-
-    // display event in calendar
-    //this.edgeName = this.urlParams.get('e');
-    //await this.displayEvent();
-
+  let now = new Date();
+  if ( this.year === now.getFullYear() ) {
+    // if we are displaying current year, jump to today's date
+    this.today_display();   // only need to do this is we are displaying the clander
+  }
 }
 
 next( // tableUxClass - client-side
@@ -204,6 +206,11 @@ month_chosen(  // calendarClass  client-side
   change = 0 
 ) {
   const selected          = document.getElementById("months");  // where the user selects day, weeks, year, a month
+  if (selected.value === "weeks") {
+    // do nothing but change mode for next / prev
+    return;
+  }
+
   selected.selectedIndex += change;
   const month     = parseInt(selected.value);
 
@@ -249,9 +256,9 @@ createDate(  // calendarClass  client-side
 }
   
 
-async events_load( // calendarClass  client-side
-//table_url
+async event_init( // calendarClass  client-side
 ) {
+  // init events
   this.events =[]                  // this.events[1][12] for january 12 a list of event nodes for that day - expanded from graph
   for (let m=1; m<=12; m++) {
     this.events[m]=[]
@@ -260,50 +267,48 @@ async events_load( // calendarClass  client-side
     }
   }
 
-  await this.table_events.load(this.table_urls[0]);   // for now just support one calendar
-
-  // each edge will generate at least one element in and event list
+  // each event will generate at least one element in and event list
   let pks =  this.table_events.get_PK()
   for (let i=0; i<pks.length; i++ ) {
     // generate GMT
     let pk = pks[i];
-    let e = this.table_events.get_object(pk);
+    let event = this.table_events.get_object(pk);
     this.GMT[pk]={};
-    this.GMT[pk].start = this.createDate(e,"start");  // start date time  
-    this.GMT[pk].end   = this.createDate(e,"end" );   // end   date time  
-    this.addEvents(e);   // will fill out this.events[[][]...] one array for each day of week for the year
+    this.GMT[pk].start = this.createDate(event,"start");  // start date time  
+    this.GMT[pk].end   = this.createDate(event,"end" );   // end   date time  
+    this.event_add(event);   // will fill out this.events[[][]...] one array for each day of week for the year
   }
 }
 
 
-addEvents(  // calendarClass  client-side
-e  // event
+event_add(  // calendarClass  client-side
+event
 ) {
   
-  if (e.repeat === "never") {
-    this.addOneOf(e);
+  if (event.repeat === "never") {
+    this.addOneOf(event);
     return;
   }
 
-  let a = e.repeat_end_date;
+  let a = event.repeat_end_date;
   if (a === undefined) {
     // year not set, so set to end of current year
     a    = [this.year,12,31];
   }
-  this.GMT[e.pk].end_repeat = new Date(a[0],a[1]-1,a[2],this.GMT[e.pk].end.getHours(), this.GMT[e.pk].end.getMinutes()); 
+  this.GMT[event.pk].end_repeat = new Date(a[0],a[1]-1,a[2],this.GMT[event.pk].end.getHours(), this.GMT[event.pk].end.getMinutes()); 
 
-  switch(e.repeat) {
+  switch(event.repeat) {
   case "weekly":
-    this.addWeekly(e)
+    this.addWeekly(event)
     break;
   case "monthly":
-    this.addMonthly(e)
+    this.addMonthly(event)
     break;
   case "yearly":
-    this.addOneOf(e);
+    this.addOneOf(event);
     break;
   default:
-      alert(`in calendarClass.addEvents: repeat=${e.repeat}  pk=${e.CTpk}`);
+      alert(`in calendarClass.event_add: repeat=${event.repeat}  pk=${event.pk}`);
   }
 }
 
@@ -387,7 +392,7 @@ edge//
         offset += 7*(n[1]-1);                                  // calculate offset
       }
       let eventDate = new Date(month.getTime() + offset*1000*60*60*24);
-      if (eventDate<this.GMT[edge.pk].end_repeat) {
+      if ( this.GMT[edge.pk].start < eventDate && eventDate < this.GMT[edge.pk].end_repeat) {
         // eventData is less than the repeat end end date
         this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(edge.pk);  // push key to edge associated with edge
       }
@@ -396,8 +401,8 @@ edge//
 }
 
 
-async table_build(  // calendarClass  client-side
-) {   // converts calendar data from graph to a table
+async calendar_create(  // calendarClass  client-side
+) {   // convert this.events to a table that can be displayed with tableUX
   this.table         = new tableClass();  // where calender will be displayed
   this.tableUx.set_model( this.table, "weekCal");     
 
@@ -547,15 +552,19 @@ async moveToDate( // calendarClass  client-side
 }
   
   
-
-  
-  
-findToday( // calendarClass  client-side
+today_display( // calendarClass  client-side
 // jumpts to current date from anywhere on calendar
 ) {
   // get current date (we want to jump to this date)
-  var today = new Date();
-  this.moveToDate(today);
+  const today = new Date();
+  const year  = today.getFullYear();
+  if (this.year === year) {
+    // today is in the current calendar
+    this.moveToDate(today);
+  } else {
+    // must change year to get there
+    this.main(year)
+  }
 }
   
   
