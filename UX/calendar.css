@@ -1,0 +1,252 @@
+  h5 {text-align:center;padding: 1px; margin:1}
+
+/* for dates in the past on the calendar*/
+.notYear {font-size: 0;}
+.past     {background-color: lightgrey;}
+.today    {background-color: yellow;}
+.future   {background-color: cyan;}
+.calendar {display: block;}
+
+.day {min-width: auto;}
+
+/* Style for the event form on calendar */
+
+/* style for repeating */
+.repeat_weekly  {--link-color: blue;}
+.repeat_monthly {--link-color: red;}
+.repeat_yearly {--link-color: black;}
+
+/* for the add and save buttons on the pop up form */
+.addSaveButton {
+	position: absolute;
+	bottom: 15%;
+	left: 10%;
+	height: 8%;
+	width: 35%;
+	border-radius: 10px;
+	background-color: #E2E2E2;
+	transition: 200ms;
+	border: none;
+	cursor: pointer;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+.addSaveButton:hover {
+	background-color: #36c41d;
+	width: 37%;
+	height: 9%;
+	bottom: 14.5%;
+	left: 9%;
+	transition: 200ms;
+	box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
+/* for cancel button on pop up form */
+.cancelEventButton {
+	position: absolute;
+	bottom: 15%;
+	right: 10%;
+	height: 8%;
+	width: 35%;
+	border-radius: 10px;
+	background-color: #E2E2E2;
+	transition: 200ms;
+	border:none;
+	cursor: pointer;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+.cancelEventButton:hover {
+	background-color: #cf2222;
+	width: 37%;
+	height: 9%;
+	bottom: 14.5%;
+	right: 9%;
+	transition: 200ms;
+	box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
+/* for delete button on pop up form */
+.deleteEventButton {
+	position: absolute;
+	left: 50%;
+	bottom: 50%;
+	transform: translate(-50%,-40%);
+	width: 60%;
+	height: 8%;
+	background-color: #D45A5A;
+	border-radius: 10px;
+	border: none;
+	cursor: pointer;
+	bottom: 10px;
+	left: 50%;
+	transition: 200ms;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+.deleteEventButton:hover {
+	transition: 200ms;
+	width: 64%;
+	background-color: #FF0000;
+	box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
+/* for the pop up form itself */
+#popUpForm {
+	display: none;
+	position: fixed; 
+	margin-top: 100px;
+	margin-bottom: 100px;
+	border-radius: 13px;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 500px;
+	height: 700px;
+	background-color: #ffffff
+}
+
+/* for the labels in the pop up form */
+.popUpLabel {
+	margin-right: 3px;
+}
+
+/* Selector for what days of week to repeat weekly on */
+#repeatSelectorTitle {
+	font-size: 19.2px;
+	margin-bottom: 8px;
+}
+
+.dayPicker {
+	margin-top: 10px;
+}
+
+.repeatDiv {
+	display: flex;
+	flex-direction: row;
+}
+
+.pickDayContainer:hover > .checkmark {
+	background-color: #515050;
+}
+
+.pickDayContainer input {
+	position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+	color: white;
+	background-color: #808080;
+	border-radius: 4px;
+	margin: 2px;
+	padding: 3px;
+	align-items: center;
+	justify-content: center;
+	transition: 100ms;
+}
+
+/* .pickDayContainer:hover .checkmark {
+	color: green;
+} */
+
+.pickDayContainer input:checked ~ .checkmark {
+	background-color: #515050;
+	transition: 100ms;
+}
+
+/* The '+' when user clicks on monthly repeating option that adds a new date for event to repeat on*/
+.addNewRepeatMonthly {
+	display: inline-block;
+	color: #ffffff;
+	text-align: center;
+	font-size: 25px;
+	background-color: #808080;
+	height: 27px;
+	width: 27px;
+	border-radius: 50%;
+	transition: 200ms;
+	cursor: pointer;
+}
+
+.addNewRepeatMonthly:hover {
+	background-color: #515050;
+	transition: 200ms;
+}
+
+.removeMonthlySelectorButton {
+	/* display: inline-block;
+	color: #ffffff;
+	text-align: center;
+	font-size: 25px;
+	background-color: #808080;
+	height: 20px;
+	width: 20px;
+	border-radius: 30%;
+	transition: 200ms; */
+	cursor: pointer;
+	font-size: 25px;
+	color: #515050;
+}
+
+#todayButton {
+	transition: 200ms;
+	border:none;
+	cursor: pointer;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#todayButton:hover {
+	background-color: #36c41d;
+	transition: 200ms;
+	border:none;
+	cursor: pointer;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#prev {
+	transition: 200ms;
+	border:none;
+	cursor: pointer;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#prev:hover {
+	background-color: #36c41d;
+	transition: 200ms;
+	border:none;
+	cursor: pointer;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#next {
+	transition: 200ms;
+	border:none;
+	cursor: pointer;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#next:hover {
+	background-color: #36c41d;
+	transition: 200ms;
+	border:none;
+	cursor: pointer;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#calendar {
+	transition: 200ms;
+	border:none;
+	cursor: pointer;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#calendar:hover {
+	background-color: #36c41d;
+	transition: 200ms;
+	border:none;
+	cursor: pointer;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
