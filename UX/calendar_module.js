@@ -246,7 +246,11 @@ createDate(  // calendarClass  client-side
     break;
 
   case "repeat":
-    return new Date(edge.repeat_end_date[0]   ,edge.repeat_end_date[1]-1  , edge.repeat_end_date[2]  , edge.repeat_end_date[3]+ parseInt(timeDuration[0]) , edge.repeat_end_date[4] - offset + parseInt(timeDuration[1]) );
+    if (edge.repeat_end === undefined) {
+      return undefined;
+    } else {
+      return new Date(edge.repeat_end[0]   ,edge.repeat_end[1]-1  , edge.repeat_end[2]  , edge.repeat_end[3]+ parseInt(timeDuration[0]) , edge.repeat_end[4] - offset + parseInt(timeDuration[1]) );
+    }
     break;
 
   default:
