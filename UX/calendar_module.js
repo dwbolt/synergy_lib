@@ -299,7 +299,7 @@ event
 
   switch(event.repeat) {
   case "weekly":
-    this.addWeekly(event)
+    this.weekly_add(event)
     break;
   case "monthly":
     this.addMonthly(event)
@@ -329,7 +329,7 @@ findDayInWeek( // calendarClass  client-side
 
   return d;
 }
-  
+
   
 addOneOf(  // calendarClass  client-side
   e  // this.graph.edges[k] returns the edge
@@ -339,14 +339,14 @@ addOneOf(  // calendarClass  client-side
 }
 
 
-addWeekly( // calendarClass  client-side
+weekly_add( // calendarClass  client-side
   edge  // event
 ) {
   // walk the daysOffset, first entry should be 0;  we assume
   // repeat_details [0->sunday,2->tuesday ...] document structure ?
   const gmt = this.GMT[edge.pk];
-  edge.repeat_details.forEach((day,i) => {  // walk each day in the week we are repeating
-    let date =  new Date(this.year, gmt.start.getMonth()               , 1,1,1);  // create a copy of start date, for caleneder year
+  edge.repeat_details.days.forEach((day,i) => {  // walk each day in the week we are repeating
+    let date =  new Date(this.year, gmt.start.getMonth(), gmt.start.getDate(),gmt.start.getHours(),gmt.start.getMinutes());  // create a copy of start date, for caleneder year
     if (day < date.getDay()) {
       date.setDate(date.getDate() + 7 - date.getDay());   // add days to date to get to Sunday
     }
@@ -355,9 +355,14 @@ addWeekly( // calendarClass  client-side
       date.setDate(date.getDate() + day - date.getDay()); // add days to get to correct day of week
     }
 
-    while (date < this.GMT[edge.pk].end_repeat && date.getFullYear() === this.year) {
-      this.events[date.getMonth()+1][date.getDate()].pks.push(edge.pk);  // push key to edge associated with edge
-      date.setDate(date.getDate() + 7);   // get next week
+    while (date < this.GMT[edge.pk].end_repeat && date.getFullYear() === this.year) {  // walk each week in the year
+      if (date<gmt.start) {
+        // date is less that start date
+        date.setDate(date.getDate() + 7);           // goto next week
+      } else {
+        this.events[date.getMonth()+1][date.getDate()].pks.push(edge.pk);  // push key to edge associated with edge
+        date.setDate(date.getDate() + (edge.repeat_details.inc*7));   // get next week
+      }
     }
   }); 
 }
