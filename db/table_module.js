@@ -343,8 +343,10 @@ msg="${JSON.stringify(msg)}"`);
   // will not work if parse takes more than a second
   const pk = table.get_PK();
   for(let i=0; i<pk.length; i++) {
-    let obj = table.get_object(i);
-    this.set_value(obj["1"],obj["2"],obj["3"]);
+    let obj   = table.get_object(i);
+    let value = obj["3"].replaceAll('""','"');  // csv use "" to escpace ", so remove them
+        value = JSON.parse(value);              // was JSON.stringify before saving to csv file
+    this.set_value(obj["1"],obj["2"],value);  // pk, field, value is replace csv " esc for json esc"
   }
 }
 
@@ -439,7 +441,7 @@ field.type="${field.type}"`);
 
 
     if (value !== undefined) {
-      object[select[i]] = value;
+      object[field_name] = value;
     }
   }
 
@@ -458,43 +460,44 @@ method="PK_get is depricated"`);
 // rewwrite to save to change file and memory
 async save( // tableClass - client-side
   // make change in memory and update change log
-  primary_key_value  // positive number edit exiting row,  negative number create new row
-  ,record            // new record values
+  record            // new record values
   ) {
-  if(primary_key_value === undefined) {
+  if(record.pk === undefined) {
     // adding a new record, so create a new PK
-    primary_key_value = (++this.meta.PK_max).toString();      // get next primary key
+    record.pk = (++this.meta.PK_max).toString();      // get next primary key
     //this.columns.pk[primary_key_value] = primary_key_value;               // add it the pk meta data so it can be accessed
-    record.pk = primary_key_value;                              // add it the record being saved
+    //record.pk = primary_key_value;                              // add it the record being saved
   }
 
   // get change log for row
   let csv     = ""
-  let changes = {};
   // see what fields changed for the row
   const fields = this.meta.select;
   const date = new Date();
   for(var i=0; i< fields.length; i++) {
     let field = fields[i];
-    let edited_value   = record[field];                             // from edit form
-    let current_value  = this.get_value(primary_key_value,field);  // from table memory
+    let edited_value   = record[field];                    // from edit form
+    if (edited_value == "") {
+      edited_value = undefined;
+    }
+    let current_value  = this.get_value(record.pk,field);  // from table memory
 
     // update change log
     if (edited_value !== current_value ) {
       // append to  change log
-      let csv_value = edited_value;
+      let csv_value = JSON.stringify(edited_value);      // convert new line -> /n and quotes -> /""
       if (csv_value && -1 < csv_value.search(",") ) {
          // value contains commas, so put quotes around it
          csv_value = `"${edited_value}"` 
       }
-      csv += `${primary_key_value},${field},${csv_value},${date.toISOString()}\n`;
+      csv += `${record.pk},${field},${csv_value},${date.toISOString()}\n`;
 
       // update memery row
       if (edited_value===""){
         // convert form value of empty string to undefined
         edited_value = undefined;
       }
-      this.set_value(primary_key_value, field, edited_value);
+      this.set_value(record.pk, field, edited_value);
     }
   }
 
@@ -509,7 +512,7 @@ url="${this.url_changes_csv}"
 msg=${msg.message}`);
   };
 
-  return primary_key_value; // was set to new value if null;
+  return msg; // was set to new value if null;
   // need to save memory change log to server incase session is lost, so user will not loose there work
   // code here
 }

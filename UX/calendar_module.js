@@ -5,7 +5,7 @@ import  {tableUxClass   }   from '/_lib/db/tableUx_module.js'     ;
 import  {nodes2htmlClass}   from '/_lib/UX/nodes2html_module.js'  ;
 import  {calendarEditClass} from '/_lib/UX/calendarEdit_module.js';
 
-class calendarClass {
+class calendarClass {  // calendarClass  client-side
   /*
    Calendar data is stored in a database.
   
@@ -22,7 +22,7 @@ event_add(
   calendar_create() converts data from this.events[mm][dd] to table for display in the weekly fromat
 
   displayRow()    converts node to html for displayed
-  displayEvent()  // user has clicked on a clalender event, show the details of the
+
   
   createDate(    // crates starting or endingdate for an event edge
   updatePictures(list)    // walk through each row and display the next picture
@@ -45,7 +45,7 @@ event_add(
   this.year  = today.getFullYear();
   this.month = today.getMonth();
 
-  this.graph = {};                         // where the events are stored in compact form
+  //this.graph = {};                         // where the events are stored in compact form
   this.edit  = new calendarEditClass(this);
   // need more though, this is here because calendar class has hardcoded this.format and app.proxy, but I'm using calendarClass is a seperate page too.
 
@@ -115,16 +115,6 @@ year //
 
   // display entire calendar
   await this.calendar_create();  // convert this.events to a table that can be displayed with tableUX
-
-  // create a text month list
-  // concatenate the month to the display
-  /*const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  if (document.getElementById("heading")) {
-    document.getElementById("heading").innerHTML += ` ${this.year}` + ` ${month[this.month]}`;
-  } else {
-    // assume it is the main page
-    //document.getElementById("heading1").innerHTML += ` ${this.year}`;
-  }*/
 
   this.tableUx.setStatusLineData( [
     `<input type="button" id="todayButton" onClick="${this.#appRef}.today_display()" value="Today" />`
@@ -336,7 +326,7 @@ findDayInWeek( // calendarClass  client-side
 
   
 addOneOf(  // calendarClass  client-side
-  e  // this.graph.edges[k] returns the edge
+  e  //
 ){
   const date =  this.GMT[e.pk].start;  //e.start
   this.events[date.getMonth()+1][date.getDate()].pks.push(e.pk);  // push key to edge associated with edge
@@ -449,7 +439,7 @@ async calendar_create(  // calendarClass  client-side
       let add="";
       if ( this.login_status) {
         // user calendar
-        add =`<a onClick="${this.#appRef}.edit.createNewEvent(${start.getFullYear()}, ${m}, ${d})">+</a> `
+        add =`<a onClick="${this.#appRef}.edit.event_create(${start.getFullYear()}, ${m}, ${d})">+</a> `
       }
       style = this.style_get(start, firstDate, today);  // set style of day depending on not part of current year, past, today, future,
       let html = `<p ${style}><b>${m}-${d} ${add}</b></p>`;
@@ -463,7 +453,7 @@ async calendar_create(  // calendarClass  client-side
         if (this.login_status) {
           // we are on a user calendar
           //user = "&u=" + this.urlParams.get('u');
-          editButton = `<a onClick="${this.#appRef}.editEvent(${pk})">${editButton}</a> `;
+          editButton = `<a onClick="${this.#appRef}.edit.event_edit(${pk})">${editButton}</a> `;
         }
         
         let repeat_class = ""; 
@@ -516,7 +506,7 @@ style_get(start, firstDate, today) {  // calendarClass  client-side
   }
 }
 
-
+/*
 createNewEvent(  // calendarClass  client-side
   // user clicked + to add new event on a particular day
     year
@@ -525,14 +515,14 @@ createNewEvent(  // calendarClass  client-side
 ) {
   this.edit.createNewEvent(year,month,day);
 }
-
-  
-editEvent(  // calendarClass  client-side
+*/
+/*
+event_edit(  // calendarClass  client-side
   edgeName  // string
 ) {
-  this.edit.editEvent(edgeName);
+  this.edit.event_edit(edgeName);
 }
-
+*/
 
 findDayInMonth(  // calendarClass  client-sid
   // This funciton returns an array with the first day being the index of the day in a week -- ex 0 for sunday and 1 for monday
@@ -576,7 +566,7 @@ today_display( // calendarClass  client-side
   }
 }
   
-  
+  /*
 async displayEvent()  // calendarClass - client-side
 {
   // display single event
@@ -598,7 +588,7 @@ async displayEvent()  // calendarClass - client-side
   document.getElementById('heading1').innerHTML  = "SFC Event On: " + date;
   document.getElementById('main'    ).innerHTML += formattedStartTime;
 }
-  
+  */
 
 } // calendarClass  client-side  -end class
 

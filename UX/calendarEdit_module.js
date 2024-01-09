@@ -10,7 +10,7 @@ constructor(  // calendarEditClass  client-side
   cal
   ){ 
     // move values in pop up form to graph edge
-  this.calendar       = cal;      // point to calander object that we are editing.
+  this.calendar       = cal;              // point to calander object that we are editing.
   this.openMonthDates = 0;        // number of selectors visible when monthly repeating option is chosen
   this.formHeight     = "500px"; 
 }
@@ -27,7 +27,7 @@ bool  // true -> hide,  false -> show
 }
 
 
-async createNewEvent(  // calendarClass  client-side
+async event_create(  // calendarClass  client-side
 // user clicked + to add new event on a particular day
  year
 ,month
@@ -42,13 +42,13 @@ async createNewEvent(  // calendarClass  client-side
 
   // reload popup form
   document.getElementById("popUpForm").innerHTML = await app.proxy.getText("/_lib/UX/calendarEditForm.html");
-  this.renderEndDateSelector();
+  this.renderEndDateSelector();  // turn on input files for type of repeat (never, weekly, monthly.....)
 
   // set member variables for event year month and day
   this.#year  = year;
   this.#month = month;
   this.#day   = day;
-  this.graph   = this.calendar.graph;
+ // this.graph   = this.calendar.graph;
 
   // set start date to date clicked on
   document.getElementById("start_date").value = 
@@ -74,15 +74,15 @@ async createNewEvent(  // calendarClass  client-side
 }
 
 
-async editEvent(  // calendarClass  client-side
-edgeName  // string
+async event_edit(  // calendarClass  client-side
+pk  // string
 ) {
   if (! await app.login.getStatus()) {
     // not on user calendar
     alert('Error, not on user calendar');
     return;
   }
-  this.edgeName = edgeName;  // remember of future methods
+  this.pk = pk;  // remember of future methods
 
   // reload popup form
   document.getElementById("popUpForm").innerHTML = await app.proxy.getText("/_lib/UX/calendarEditForm.html");
@@ -93,22 +93,16 @@ edgeName  // string
   document.getElementById("deleteEventButton").hidden = false;     // show ?
 
   this.hidden(false    );   // make popup vissible
-  this.graph = this.calendar.graph;
-  this.data2form(this.edgeName);   // load data
+  //this.graph = this.calendar.graph;
+  this.data2form(pk);   // load data
 }
 
 
-async addNewEvent(  // calendarEditClass  client-side
+async event_add(  // calendarEditClass  client-side
 // user click "add" button to save new event on server
 ) {
-  // create new edge
-  if (this.graph.edgeNext === undefined) {
-    // make sure the value of this.graph.edgeNext is defined
-    this.graph.edgeNext = this.get_next_key(this.graph.edges);
-  }
-  this.graph.edges[this.graph.edgeNext] = {};  // init new edge with empty object
-  this.form2data(this.graph.edgeNext++) ;  // move popup form data to edit 
-  const msg = await this.processServerRefresh()
+  this.pk = undefined;      // create a new pk
+  await this.form_save() ;  // move popup form data to edit 
 }
 
 
@@ -138,24 +132,23 @@ async deleteEvent( // calendarEditClass  client-side
 async save(   // calendarEditClass  client-side
 // user clicked edits existing event, and now has clicked saved
 ) {
-  this.form2data(this.edgeName); // move popup form data to edit 
-await this.processServerRefresh();
+  await this.form_save(); // move popup form data to edit 
 }
 
 
 async processServerRefresh( // calendarEditClass  client-side
+record
 ) {
   // save new graph
-  const buffer = app.format.obj2string(this.graph)
-  const resp = await app.proxy.RESTpost(buffer,this.calendar.url);
-  if (resp.ok) {
-    alert(`save sucessful, length=${buffer.length} bytes`);
-  } else {
-    alert(`Error status="${resp.status}"`);
+  this.table  = this.calendar.table_events  // pointer events
+  let resp    = await this.table.save(record);
+
+  if (!resp.success) {
+    alert(`Error resp="${JSON.stringify(resp)}"`);
   }
-  location.reload();
   this.windowActive = false;
-  return(resp);
+  location.reload();               // will reload page, need to just reload data and refresh page
+
 }
   
 
@@ -221,65 +214,67 @@ end_time_changed(){ // calendarEditClass  client-side
   // set duration
   const diff    =  end.getTime()  - start.getTime();
   const hours   =  Math.floor(diff/       (1000*60*60));
-  const minutes =  Math.floor((diff-(hours*1000*60*60))/1000*60);
+  const mill    =  diff-(hours*1000*60*60);
+  const minutes =  Math.floor(mill/(1000*60));
   document.getElementById("duration_hours"  ).value = hours;
   document.getElementById("duration_minutes").value = minutes;
 }
 
 
 data2form(  // calendarEditClass  client-side
-// fills in pop up form from the JSON data
-edgeName
+// fills in pop up form from event data
+pk
 ) {
-  // load from edge ------------
-  const edge = this.graph.edges[edgeName];
-  document.getElementById("name"       ).value = edge.name          
-  document.getElementById("url"        ).value = edge.url           
-  document.getElementById("description").value = edge.description 
+  this.table          = this.calendar.table_events  // pointer events
+  const record = this.table.get_object(pk);
+  document.getElementById("name"       ).value = (record.name       ? record.name         : "")       
+  document.getElementById("url"        ).value = (record.url         ? record.url         : "")       
+  document.getElementById("description").value = (record.description ? record.description : "")
 
-  let d = edge.dateStart;
+  let d = record.dateStart;
   document.getElementById("start_date").valueAsDate = new Date(d[0],d[1]-1,d[2]); 
   document.getElementById("start_time").value       = `${app.format.padZero(d[3],2)}:${app.format.padZero(d[4],2)}`;
   
-  d = edge.dateEnd;
+  d = record.dateEnd;
   document.getElementById("end_date").valueAsDate = new Date(d[0],d[1]-1, d[2]);
   document.getElementById("end_time").value       = `${app.format.padZero(d[3],2)}:${app.format.padZero(d[4],2)}`;
 
-  document.querySelector('#timeZone'      ).value   = edge.timeZone;
+  document.getElementById('timeZone').value       = record.timeZone;
  
   // fill in duration of event
-  const durTimeData = edge.timeDuration.split(":");
+  const durTimeData = record.timeDuration.split(":");
   document.getElementById("duration_hours"  ).value = parseInt(durTimeData[0]);
   document.getElementById("duration_minutes").value = parseInt(durTimeData[1]);
 
-  document.getElementById("repeatType"    ).value = edge.repeat;
+  document.getElementById("repeatType"    ).value = record.repeat;
+  document.getElementById("increment"     ).value = record.repeat_details.inc;
   this.renderEndDateSelector();  // hide elements not being used
 
   // fill in what days the event repeats on
-  this.data2form_repeat(edge);
+  this.data2form_repeat(record);
 }
 
 
 data2form_repeat(   // calendarEditClass  client-side
-  edge   //
+  record   //
   ){
 
-  switch(edge.repeat) {
+  switch(record.repeat) {
   case "never":  
-     edge.repeat_end_date = edge.dateEnd;
+//     edge.repeat_end = edge.dateEnd;
      break;
 
   case "weekly": 
-    this.set_weekly_days(edge);  // not sure what this does
+    this.set_weekly_days(record);  // not sure what this does
     break;
 
   case "monthly":
-    while ( this.openMonthDates < edge.days.length){
+    while ( this.openMonthDates < record.days.length){
       this.addNewRepeatMonthy();  // create place
     }
-    for (let i = 0; i < edge.days.length; i++) {
-      document.getElementById(`monthlyWeekSelect-${i+1}`).value = edge.days[i][1];
-      document.getElementById(`monthlyDaySelect-${i+1}` ).value = edge.days[i][0];
+    for (let i = 0; i < record.days.length; i++) {
+      document.getElementById(`monthlyWeekSelect-${i+1}`).value = record.days[i][1];
+      document.getElementById(`monthlyDaySelect-${i+1}` ).value = record.days[i][0];
     }
     break;
 
@@ -291,17 +286,16 @@ data2form_repeat(   // calendarEditClass  client-side
   }
 
   // set repeat end data, use time from dateEnd
-  edge.repeat_end_date[3] = edge.dateEnd[3];
-  edge.repeat_end_date[4] = edge.dateEnd[4];
-  this.putDate("repeat_end",  edge.repeat_end_date );
+  let r=record.repeat_end;
+  document.getElementById('repeat_end_date').value = `${r[0]}-${app.format.padZero(r[1],2)}-${app.format.padZero(r[2],2)}`
 }
 
 
 set_weekly_days(  // calendarEditClass  client-side
   // fills in the selector for what days of the week the event repeats on
-  edge
+  record
 ) {
-  let days = edge.weekdays; // arrays of day to repeat, 0->sunday 1-monday..
+  let days = record.repeat_details.days; // arrays of day to repeat, 0->sunday 1-monday..
   let daysOfWeek = document.getElementsByClassName("repeatCheckbox");
   for (let i = 0; i < days.length; i++) {
     daysOfWeek[days[i]].checked = true;
@@ -365,25 +359,26 @@ getDate(// calendarEditClass  client-side
 }
 
 
-form2data( // calendarEditClass  client-side
-// moves pop up form to edge for this.graph.edge[edge]
-    edge // name of edge we are loading
+async form_save( // calendarEditClass  client-side
+/// moves pop up form to edge for this.graph.edge[edge]
+ //   edge // name of edge we are loading
   )   {
-  const g = this.graph.edges[edge];
+  const record = {};
+  
+  record.pk          = (this.pk ? this.pk.toString() : undefined);
+  record.name        = document.getElementById("name"       ).value;
+  record.url         = document.getElementById("url"        ).value;
+  record.description = document.getElementById("description").value;
+  record.dateStart   = JSON.stringify(this.getDate("start"));
+  record.dateEnd     = JSON.stringify(this.getDate("end"  ));
+  record.timeZone    = document.getElementById("timeZone"        ).value;  
 
-  g.name        = document.getElementById("name"       ).value;
-  g.url         = document.getElementById("url"        ).value;
-  g.description = document.getElementById("description").value;
-
-  // date_start with time
-  g.dateStart       = this.getDate("start");
-  g.dateEnd         = this.getDate("end")  
-  g.timeZone        = document.getElementById("timeZone"        ).value;  
-  g.timeDuration    = document.getElementById("duration_hours"  ).value +":"+ 
+  record.timeDuration = document.getElementById("duration_hours"  ).value +":"+ 
                       document.getElementById("duration_minutes").value;
 
-  g.repeat       = document.getElementById("repeatType"    ).value;  // chosen value of how often to repeat even
-  this.form2data_repeat(g);  // handle different cases for types of repeating
+  record.repeat     = document.getElementById("repeatType"    ).value;  // chosen value of how often to repeat even
+  this.form2data_repeat(record);  // handle different cases for types of repeating
+  await this.processServerRefresh(record);
 }
 
 
@@ -391,13 +386,13 @@ form2data_repeat(g){  // calendarEditClass  client-side
   // called by form2date, handle repeating data
   if (g.repeat !== "never"){
     // only need this attrebute for repeading data
-    g.repeat_end_date = this.getDate("repeat_end");
+    g.repeat_end = JSON.stringify(this.getDate("repeat_end"));
   }
 
   switch(g.repeat) {
   case "weekly":
     // find offset for desired days
-    g.weekdays = this.weeklyRepeatDays();    // returns array of days repeating  [0,2]  would be Sunday Tuesday repeating days
+    g.repeat_details = `{\"inc\":1, \"days\" : ${JSON.stringify(this.weeklyRepeatDays())}}`;    // returns array of days repeating  [0,2]  would be Sunday Tuesday repeating days
     break;
 
   case "monthly":
