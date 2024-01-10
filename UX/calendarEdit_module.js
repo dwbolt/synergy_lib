@@ -369,8 +369,8 @@ async form_save( // calendarEditClass  client-side
   record.name        = document.getElementById("name"       ).value;
   record.url         = document.getElementById("url"        ).value;
   record.description = document.getElementById("description").value;
-  record.dateStart   = JSON.stringify(this.getDate("start"));
-  record.dateEnd     = JSON.stringify(this.getDate("end"  ));
+  record.dateStart   = this.getDate("start");
+  record.dateEnd     = this.getDate("end"  );
   record.timeZone    = document.getElementById("timeZone"        ).value;  
 
   record.timeDuration = document.getElementById("duration_hours"  ).value +":"+ 
@@ -386,13 +386,13 @@ form2data_repeat(g){  // calendarEditClass  client-side
   // called by form2date, handle repeating data
   if (g.repeat !== "never"){
     // only need this attrebute for repeading data
-    g.repeat_end = JSON.stringify(this.getDate("repeat_end"));
+    g.repeat_end = this.getDate("repeat_end");
   }
 
   switch(g.repeat) {
   case "weekly":
     // find offset for desired days
-    g.repeat_details = `{\"inc\":1, \"days\" : ${JSON.stringify(this.weeklyRepeatDays())}}`;    // returns array of days repeating  [0,2]  would be Sunday Tuesday repeating days
+    g.repeat_details = {"inc":1, "days" : this.weeklyRepeatDays()};    // returns array of days repeating  [0,2]  would be Sunday Tuesday repeating days
     break;
 
   case "monthly":

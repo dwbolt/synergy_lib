@@ -333,21 +333,28 @@ method="apply_changes"
 msg="${JSON.stringify(msg)}"`);
     return;  // nothing todo since change file not loaded
   }
-  
+  let start =0;
+  while(start < msg.value.length) {
+    let end = msg.value.indexOf("\n", start);
+    let obj = JSON.parse(msg.value.slice(start,end));
+    this.set_value(obj[0],obj[1],obj[2]);
+    start = end+1;
+  }
+
   // convert csv to table changes to table
-  const table   = new tableClass();            // create table 
-  const csv     = new csvClass(table);     
-  await csv.parse_CSV(msg.value);                    // parse CSV file and into table
+  //const table   = new tableClass();            // create table 
+  //const csv     = new csvClass(table);     
+  //await csv.parse_CSV(msg.value);                    // parse CSV file and into table
 
   // apply change log to table
   // will not work if parse takes more than a second
-  const pk = table.get_PK();
+  /*const pk = table.get_PK();
   for(let i=0; i<pk.length; i++) {
     let obj   = table.get_object(i);
     let value = obj["3"].replaceAll('""','"');  // csv use "" to escpace ", so remove them
         value = JSON.parse(value);              // was JSON.stringify before saving to csv file
     this.set_value(obj["1"],obj["2"],value);  // pk, field, value is replace csv " esc for json esc"
-  }
+  }*/
 }
 
 async create(structure) {
@@ -420,12 +427,8 @@ get_object( // tableClass - client-side
           value = undefined;
         } else {
           value = this.columns[field_name][id];  // maybe undefined
-          if (field.type === "string"  || field.type === "pk" ) {
+          if ( "string pk json".includes(field.type) ) {
              // value is already set, do not want to trigger the alert below
-          } else if (field.type === "json") {
-            if (value !== undefined) {
-              value = JSON.parse(value);  // we have a string, turn it into json
-            }
           } else {
             alert(`file="table_module"
 method="get_object"
@@ -438,7 +441,6 @@ field.type="${field.type}"`);
         // code block
         alert(`error: class="tableClass" method="get_object" location="${location}"`)
     }
-
 
     if (value !== undefined) {
       object[field_name] = value;
@@ -464,13 +466,11 @@ async save( // tableClass - client-side
   ) {
   if(record.pk === undefined) {
     // adding a new record, so create a new PK
-    record.pk = (++this.meta.PK_max).toString();      // get next primary key
-    //this.columns.pk[primary_key_value] = primary_key_value;               // add it the pk meta data so it can be accessed
-    //record.pk = primary_key_value;                              // add it the record being saved
+    record.pk = (++this.meta.PK_max).toString();      // get next primary key                           // add it the record being saved
   }
 
   // get change log for row
-  let csv     = ""
+  let csv = "",change;
   // see what fields changed for the row
   const fields = this.meta.select;
   const date = new Date();
@@ -485,12 +485,13 @@ async save( // tableClass - client-side
     // update change log
     if (edited_value !== current_value ) {
       // append to  change log
-      let csv_value = JSON.stringify(edited_value);      // convert new line -> /n and quotes -> /""
-      if (csv_value && -1 < csv_value.search(",") ) {
+      let csv_value = edited_value;      // convert new line -> /n and quotes -> /""
+ /*     if (csv_value && -1 < csv_value.search(",") ) {
          // value contains commas, so put quotes around it
          csv_value = `"${edited_value}"` 
-      }
-      csv += `${record.pk},${field},${csv_value},${date.toISOString()}\n`;
+      }*/
+      change = [record.pk, field, csv_value, date.toISOString()]
+      csv += `${JSON.stringify(change)}\n`;                          // add /n to make it easier to view in statndard editor
 
       // update memery row
       if (edited_value===""){
