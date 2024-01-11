@@ -127,7 +127,23 @@ pk
       }
     }
     value = r_value;
-  } 
+  } else {
+    // value is json
+    switch (typeof(value) ) {
+      case "undefined":
+        value = ""; break;
+      case "object":
+        value = JSON.stringify(value); break;
+      case "string":
+      case "number":
+        break; // no chages need
+      default: 
+        alert(`file="table_module.js"
+method="get_value_relation"
+typeof(value)=${typeof(value)}
+stringify=${JSON.stringify(value)}`);
+    }
+  }
 
   return value;
 }
@@ -280,10 +296,10 @@ get_PK( // tableClass - client-side
 url_set(  // tableClass - client-side
   dir     // root page where table lives
   ){
-  this.dir              = dir;
-  this.url_meta         = dir+"/_meta.json";
-  this.url_columns      = dir+"/columns.json";
-  this.url_changes_csv  = dir+"/changes.csv";
+  this.dir          = dir;
+  this.url_meta     = dir+"/_meta.json";
+  this.url_columns  = dir+"/columns.json";
+  this.url_changes  = dir+"/changes.nsj";   // new line seperated json
 }
 
 
@@ -326,7 +342,7 @@ msg=${JSON.stringify(msg)}`);
 
 async apply_changes(){ // tableClass - client-side
   // load change file from csv 
-  const msg     = await app.proxy.RESTget(this.url_changes_csv);                            
+  const msg     = await app.proxy.RESTget(this.url_changes);                            
   if (!msg.ok) {
     alert(`error file="table_module.js"
 method="apply_changes"
@@ -477,11 +493,11 @@ async save( // tableClass - client-side
   for(var i=0; i< fields.length; i++) {
     let field = fields[i];
     let edited_value   = record[field];                    // from edit form
-    if (edited_value == "") {
-      edited_value = undefined;
-    }
-    let current_value  = this.get_value(record.pk,field);  // from table memory
-
+    //if (edited_value == "") {
+    //  edited_value = undefined;
+    //}
+    let current_value  = this.get_value_relation(record.pk,field);  // from table memory - convert to string for compare 
+    
     // update change log
     if (edited_value !== current_value ) {
       // append to  change log
@@ -503,13 +519,13 @@ async save( // tableClass - client-side
   }
 
   // append to change file
-  const msg  = await app.proxy.RESTpatch( csv, this.url_changes_csv);
+  const msg  = await app.proxy.RESTpatch( csv, this.url_changes);
   if (!msg.success) {
     // save did not work
     alert(`
 file="table_module.js"
 method="save_changes"
-url="${this.url_changes_csv}"
+url="${this.url_changes}"
 msg=${msg.message}`);
   };
 
@@ -538,7 +554,7 @@ method="merge"`);
   };
 
   // empty change file
-  msg  = await app.proxy.RESTpost("", this.url_changes_csv);
+  msg  = await app.proxy.RESTpost("", this.url_changes);
   if (!msg.success) {
     // save did not work
     alert(`error 
@@ -663,47 +679,6 @@ change_summary(  // tableClass - client-side
   }
 
   change[field]["count"]++;
-}
-*/
-
-
-/*
-async save_record( // tableClass - client-side
-pk       // undefined is a new record
-,record  // from form
-){
-  // see any changes made table;
-  // convert changes to CSV lines to append to existing file
-  let csv = "";
-  const date = new Date();
-
-  let fields = Object.keys(record);
-  for(let ii=0; ii<fields.length; ii++) {
-    let field = fields[ii];
-    let value = changes[pk][field].new_value;
-    if ( value === undefined) {
-      value = "";
-    }
-    csv += `${pk},${field},${value},${date.toISOString()}\n`;
-  }
-
-  // append to change file
-  const msg  = await app.proxy.RESTpatch( csv, this.url_changes_csv);
-  if (msg.success) {
-    alert(`
-    file=${this.url_changes_csv}
-    records changed=${changes.length}
-    message = ${msg.message}`);
-  } else {
-    // save did not work
-    alert(`error 
-msg=${msg.message}
-url="${this.url_changes_csv}"
-file="table_module.js"
-method="save_changes"`);
-  };
-  
-  return msg;
 }
 */
 

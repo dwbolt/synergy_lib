@@ -34,9 +34,6 @@ show(  // client side recordUxClass - for a page
   let rowValue;
   for(var i=0; i<select.length; i++) {
     rowValue = table.get_value_relation(this.#primary_key_value, select[i]);
-    if (rowValue === undefined) {
-      rowValue = "";
-    }
     html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td> <td>${rowValue}</td></tr>`
   }
 
@@ -131,13 +128,13 @@ edit(  // client side dbUXClass
     field    = select[i];
     location = table.get_field(i,"location");
     type     = table.get_field(i,"type");
-
+    value    = table.get_value_relation(this.#primary_key_value,field);
     switch(location) {
       case "relation":
         // multi value
         //let multi = table.get_value(this.#primary_key_value, field);   // get array of edes
-        html += `<tr><td>${fields[field].header}</td> 
-                 <td>${table.get_value_relation(this.#primary_key_value,field)}</td></tr>`;
+       // html += `<tr><td>${fields[field].header}</td> 
+       //          <td>${table.get_value_relation(this.#primary_key_value,field)}</td></tr>`;
         break;
       default:
         // single value- column or row
@@ -147,6 +144,7 @@ edit(  // client side dbUXClass
         } else {
           readonly = "";
         }
+        /*
         if (this.#primary_key_value === undefined) {
           value = "";  // new record, no previous value
         } else {
@@ -155,10 +153,13 @@ edit(  // client side dbUXClass
             // undifined, null
             value = "";
           }
-        }
-
-        html += `<tr><td>${fields[field].header}</td> <td><input ${readonly} id='edit-${i}' type='text' value='${value}'> ${readonly}</td></tr>`
+        }*/
     }
+    let input = `<input ${readonly} id='edit-${i}' type='text' value='${value}'>`
+    if (type==="text"){
+      input = `<textarea id='edit-${i}' rows="11" cols="50" style="border-radius: 5px;">${value}</textarea>`;
+    } 
+    html += `<tr><td>${fields[field].header}</td> <td>${input} ${readonly}</td></tr>`
   }
 
   html += "</table>";
@@ -193,7 +194,7 @@ async save( // client side recordUxClass - for a page
 
   // value of this.#primary_key_value determines add or update
   const prior_key = this.#primary_key_value;
-  this.#primary_key_value = await table.save(this.#primary_key_value, obj); 
+  this.#primary_key_value = await table.save(obj); 
   if (prior_key != this.#primary_key_value) {
     // added a new record, update tableUX PK list
     this.tableUX.display(); // will update pk display list
