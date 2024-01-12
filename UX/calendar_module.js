@@ -268,8 +268,8 @@ async event_init( // calendarClass  client-side
     let pk = pks[i];
     let event = this.table_events.get_object(pk);
     this.GMT[pk]={};
-    this.GMT[pk].start = this.createDate(event,"start");  // start date time  
-    this.GMT[pk].end   = this.createDate(event,"end" );   // end   date time  
+    this.GMT[pk].start      = this.createDate(event,"start");  // start date time  
+    this.GMT[pk].end        = this.createDate(event,"end" );   // end   date time  
     this.event_add(event);   // will fill out this.events[[][]...] one array for each day of week for the year
   }
 }
@@ -289,7 +289,8 @@ event
     // year not set, so set to end of current year
     a    = [this.year,12,31];
   }
-  this.GMT[event.pk].end_repeat = new Date(a[0],a[1]-1,a[2],this.GMT[event.pk].end.getHours(), this.GMT[event.pk].end.getMinutes()); 
+  //this.GMT[pk].repeat_end = this.createDate(event,"repeat" )
+  this.GMT[event.pk].repeat_end = new Date(a[0],a[1]-1,a[2],this.GMT[event.pk].end.getHours(), this.GMT[event.pk].end.getMinutes()); 
 
   switch(event.repeat) {
   case "weekly":
@@ -334,12 +335,12 @@ addOneOf(  // calendarClass  client-side
 
 
 weekly_add( // calendarClass  client-side
-  edge  // event
+  event  // event
 ) {
   // walk the daysOffset, first entry should be 0;  we assume
   // repeat_details [0->sunday,2->tuesday ...] document structure ?
-  const gmt = this.GMT[edge.pk];
-  edge.repeat_details.days.forEach((day,i) => {  // walk each day in the week we are repeating
+  const gmt = this.GMT[event.pk];
+  event.repeat_details.forEach((day,i) => {  // walk each day in the week we are repeating
     let date =  new Date(this.year, gmt.start.getMonth(), gmt.start.getDate(),gmt.start.getHours(),gmt.start.getMinutes());  // create a copy of start date, for caleneder year
     if (day < date.getDay()) {
       date.setDate(date.getDate() + 7 - date.getDay());   // add days to date to get to Sunday
@@ -349,13 +350,13 @@ weekly_add( // calendarClass  client-side
       date.setDate(date.getDate() + day - date.getDay()); // add days to get to correct day of week
     }
 
-    while (date < this.GMT[edge.pk].end_repeat && date.getFullYear() === this.year) {  // walk each week in the year
+    while (date < gmt.repeat_end && date.getFullYear() === this.year) {  // walk each week in the year
       if (date<gmt.start) {
         // date is less that start date
         date.setDate(date.getDate() + 7);           // goto next week
       } else {
-        this.events[date.getMonth()+1][date.getDate()].pks.push(edge.pk);  // push key to edge associated with edge
-        date.setDate(date.getDate() + (edge.repeat_details.inc*7));   // get next week
+        this.events[date.getMonth()+1][date.getDate()].pks.push(event.pk);  // push key to event associated with event
+        date.setDate(date.getDate() + (event.repeat_inc*7));                // get next week
       }
     }
   }); 
@@ -506,23 +507,6 @@ style_get(start, firstDate, today) {  // calendarClass  client-side
   }
 }
 
-/*
-createNewEvent(  // calendarClass  client-side
-  // user clicked + to add new event on a particular day
-    year
-  ,month
-  ,day          //
-) {
-  this.edit.createNewEvent(year,month,day);
-}
-*/
-/*
-event_edit(  // calendarClass  client-side
-  edgeName  // string
-) {
-  this.edit.event_edit(edgeName);
-}
-*/
 
 findDayInMonth(  // calendarClass  client-sid
   // This funciton returns an array with the first day being the index of the day in a week -- ex 0 for sunday and 1 for monday
@@ -566,29 +550,6 @@ today_display( // calendarClass  client-side
   }
 }
   
-  /*
-async displayEvent()  // calendarClass - client-side
-{
-  // display single event
-  const list     = [];         // will contain list of nodes to display
-  const nodeName = this.graph.edges[this.edgeName].nR; // get the main nodeName or object
-  const date     = this.urlParams.get('d')             // get YYYY-MM-DD from the URL
-  const startTime = new Date(this.GMT[edges.pk].start);  // Create new date object with the event start time
-  
-  // Create a formatted version of the start time using the formatClass
-  const formattedStartTime = `<p>Start Time: ${this.format.timeFormat(startTime)} </p>`;
-
-  list.push(nodeName+date);    // push node for this date, display it first, this nodeName may not exist
-  list.push(nodeName);         // push the main node to display
-
-  const nodes2html = new nodes2htmlClass(this.graph.nodes, this.DOM, this.graph.edges[this.edgeName]);
-  await nodes2html.displayList(list);
-
-  // add date to heading & formatted start time below the description
-  document.getElementById('heading1').innerHTML  = "SFC Event On: " + date;
-  document.getElementById('main'    ).innerHTML += formattedStartTime;
-}
-  */
 
 } // calendarClass  client-side  -end class
 

@@ -356,21 +356,6 @@ msg="${JSON.stringify(msg)}"`);
     this.set_value(obj[0],obj[1],obj[2]);
     start = end+1;
   }
-
-  // convert csv to table changes to table
-  //const table   = new tableClass();            // create table 
-  //const csv     = new csvClass(table);     
-  //await csv.parse_CSV(msg.value);                    // parse CSV file and into table
-
-  // apply change log to table
-  // will not work if parse takes more than a second
-  /*const pk = table.get_PK();
-  for(let i=0; i<pk.length; i++) {
-    let obj   = table.get_object(i);
-    let value = obj["3"].replaceAll('""','"');  // csv use "" to escpace ", so remove them
-        value = JSON.parse(value);              // was JSON.stringify before saving to csv file
-    this.set_value(obj["1"],obj["2"],value);  // pk, field, value is replace csv " esc for json esc"
-  }*/
 }
 
 async create(structure) {
@@ -443,7 +428,7 @@ get_object( // tableClass - client-side
           value = undefined;
         } else {
           value = this.columns[field_name][id];  // maybe undefined
-          if ( "string pk json".includes(field.type) ) {
+          if ( "string pk json text number".includes(field.type) ) {
              // value is already set, do not want to trigger the alert below
           } else {
             alert(`file="table_module"

@@ -247,7 +247,7 @@ pk
   document.getElementById("duration_minutes").value = parseInt(durTimeData[1]);
 
   document.getElementById("repeatType"    ).value = record.repeat;
-  document.getElementById("increment"     ).value = record.repeat_details.inc;
+  document.getElementById("increment"     ).value = record.repeat_inc;
   this.renderEndDateSelector();  // hide elements not being used
 
   // fill in what days the event repeats on
@@ -269,12 +269,12 @@ data2form_repeat(   // calendarEditClass  client-side
     break;
 
   case "monthly":
-    while ( this.openMonthDates < record.days.length){
+    while ( this.openMonthDates < record.repeat_details.length){
       this.addNewRepeatMonthy();  // create place
     }
-    for (let i = 0; i < record.days.length; i++) {
-      document.getElementById(`monthlyWeekSelect-${i+1}`).value = record.days[i][1];
-      document.getElementById(`monthlyDaySelect-${i+1}` ).value = record.days[i][0];
+    for (let i = 0; i < record.repeat_details.length; i++) {
+      document.getElementById(`monthlyWeekSelect-${i+1}`).value = record.repeat_details[i][1];
+      document.getElementById(`monthlyDaySelect-${i+1}` ).value = record.repeat_details[i][0];
     }
     break;
 
@@ -295,7 +295,7 @@ set_weekly_days(  // calendarEditClass  client-side
   // fills in the selector for what days of the week the event repeats on
   record
 ) {
-  let days = record.repeat_details.days; // arrays of day to repeat, 0->sunday 1-monday..
+  let days = record.repeat_details; // arrays of day to repeat, 0->sunday 1-monday..
   let daysOfWeek = document.getElementsByClassName("repeatCheckbox");
   for (let i = 0; i < days.length; i++) {
     daysOfWeek[days[i]].checked = true;
@@ -335,7 +335,7 @@ getDate(// calendarEditClass  client-side
   let date = [];
   if (dateString === "") {
     // date not specified
-    date[0] = null;
+    date[0] = undefined;  // will be recurrent every year
     date[1] = 12;
     date[2] = 31;
   } else {
@@ -392,18 +392,17 @@ form2data_repeat(g){  // calendarEditClass  client-side
   switch(g.repeat) {
   case "weekly":
     // find offset for desired days
-    g.repeat_details = {"inc":1, "days" : this.weeklyRepeatDays()};    // returns array of days repeating  [0,2]  would be Sunday Tuesday repeating days
+    g.repeat_details = this.weeklyRepeatDays();    // returns array of days repeating  [0,2]  would be Sunday Tuesday repeating days
     break;
 
   case "monthly":
     // event is repeating monthly
-    g.days = [];
+    g.repeat_details = [];
     // read input from the drop down boxes
     for (let i = 1; i <= this.openMonthDates; i++) {
-        g.days.push([parseInt(document.getElementById(`monthlyDaySelect-${i}` ).value),
-                     parseInt(document.getElementById(`monthlyWeekSelect-${i}`).value)]);
+        g.repeat_details.push([parseInt(document.getElementById(`monthlyDaySelect-${i}` ).value),
+                               parseInt(document.getElementById(`monthlyWeekSelect-${i}`).value)]);
     }
-    //g.startDate[2] = 1;
     break;
 
   case "yearly":
@@ -415,7 +414,9 @@ form2data_repeat(g){  // calendarEditClass  client-side
 
   default:
     // error
-    alert(`error in "calendarEdit_module.js" method="repeat" repeat="${g.repeat}"`);
+    alert(`file="calendarEdit_module.js"
+method="repeat"
+repeat="${g.repeat}"`);
   }
 }
 
