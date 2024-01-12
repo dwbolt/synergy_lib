@@ -54,6 +54,12 @@ set_value(  // tableClass - client-side
   this.check_pk(pk);
 
   const meta_field = this.meta.fields[field];
+  if (meta_field === undefined) {
+    alert(`file="table_module.js"
+method="set_value"
+field="${field}"`); 
+    return;
+  }
   switch(meta_field.location) {
     case "column":
       if (this.columns[field] === undefined) {
@@ -66,7 +72,7 @@ set_value(  // tableClass - client-side
       // code block
       alert(`file="table_module.js"
 method="set_value" 
-meta_field.location=${meta_field.location}`);
+meta_field.location="${meta_field.location}"`);
       return;
   }
 }
@@ -128,28 +134,39 @@ pk
     }
     value = r_value;
   } else {
-    // value is json
-    switch (typeof(value) ) {
-      case "undefined":
-        value = ""; break;
-      case "object":
-        value = JSON.stringify(value); break;
-      case "string":
-      case "number":
-        break; // no chages need
-      default: 
-        alert(`file="table_module.js"
-method="get_value_relation"
-typeof(value)=${typeof(value)}
-stringify=${JSON.stringify(value)}`);
-    }
+    value = this.value2string(value);
   }
 
   return value;
 }
 
+value2string(
+  value
+){ // tableClass - client-side
+  // value is json
+  const type = typeof(value);
+  switch (type) {
+    case "undefined":
+      value = ""; break;
+    case "object":
+      value = JSON.stringify(value); break;
+    case "number":
+      value = value.toString();
+    case "string":
+      break; // no chages need
+    default: 
+      alert(`file="table_module.js"
+method="get_value_relation"
+type="${type}"
+value="${value}"`);
+  }
+  return value;
+}
 
-format_values(
+
+
+
+format_values( // tableClass - client-side
    table_number  // 
   ,relation
   ){
@@ -478,19 +495,12 @@ async save( // tableClass - client-side
   for(var i=0; i< fields.length; i++) {
     let field = fields[i];
     let edited_value   = record[field];                    // from edit form
-    //if (edited_value == "") {
-    //  edited_value = undefined;
-    //}
     let current_value  = this.get_value_relation(record.pk,field);  // from table memory - convert to string for compare 
     
     // update change log
-    if (edited_value !== current_value ) {
+    if (this.value2string(edited_value) !== current_value ) {
       // append to  change log
       let csv_value = edited_value;      // convert new line -> /n and quotes -> /""
- /*     if (csv_value && -1 < csv_value.search(",") ) {
-         // value contains commas, so put quotes around it
-         csv_value = `"${edited_value}"` 
-      }*/
       change = [record.pk, field, csv_value, date.toISOString()]
       csv += `${JSON.stringify(change)}\n`;                          // add /n to make it easier to view in statndard editor
 

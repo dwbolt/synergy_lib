@@ -114,7 +114,8 @@ year //
   this.event_init(); // will fill out this.events - array for each day of the year 
 
   // display entire calendar
-  await this.calendar_create();  // convert this.events to a table that can be displayed with tableUX
+  this.login_status = await app.login.getStatus();  // cashe login status for duration of load and build
+  this.calendar_create();  // convert this.events to a table that can be displayed with tableUX
 
   this.tableUx.setStatusLineData( [
     `<input type="button" id="todayButton" onClick="${this.#appRef}.today_display()" value="Today" />`
@@ -280,14 +281,17 @@ event
 ) {
   
   if (event.repeat === "never") {
-    this.addOneOf(event);
+    this.one_add(event);
     return;
   }
 
   let a = event.repeat_end_date;
-  if (a === undefined) {
+  if (a === undefined) {   
     // year not set, so set to end of current year
     a    = [this.year,12,31];
+  } else if (a[0]=== null){
+    // for some reason JSON.strigify([,1])  -> "[null,1]"
+    a    = [this.year,a[1],a[2]];
   }
   //this.GMT[pk].repeat_end = this.createDate(event,"repeat" )
   this.GMT[event.pk].repeat_end = new Date(a[0],a[1]-1,a[2],this.GMT[event.pk].end.getHours(), this.GMT[event.pk].end.getMinutes()); 
@@ -297,10 +301,10 @@ event
     this.weekly_add(event)
     break;
   case "monthly":
-    this.addMonthly(event)
+    this.monthly_add (event)
     break;
   case "yearly":
-    this.addOneOf(event);
+    this.one_add(event);
     break;
   default:
       alert(`in calendarClass.event_add: repeat=${event.repeat}  pk=${event.pk}`);
@@ -326,7 +330,7 @@ findDayInWeek( // calendarClass  client-side
 }
 
   
-addOneOf(  // calendarClass  client-side
+one_add(  // calendarClass  client-side
   e  //
 ){
   const date =  this.GMT[e.pk].start;  //e.start
@@ -363,7 +367,7 @@ weekly_add( // calendarClass  client-side
 }
 
 
-addMonthly(  // calendarClass  client-side
+monthly_add (  // calendarClass  client-side
 edge// 
 ) {
   // walk the days, first entry should be 0;
@@ -401,7 +405,7 @@ edge//
 }
 
 
-async calendar_create(  // calendarClass  client-side
+calendar_create(  // calendarClass  client-side
 ) {   // convert this.events to a table that can be displayed with tableUX
   this.table         = new tableClass();  // where calender will be displayed
   this.tableUx.set_model( this.table, "weekCal");     
@@ -427,8 +431,6 @@ async calendar_create(  // calendarClass  client-side
 
   // build weeks data to end of year
   let style;
-  this.login_status = await app.login.getStatus();  // cashe login status for duration of load and build
-
   for (let x=0; start.getFullYear()<=year ;x++) {  // x is week of year
     for (let y=0; y<=6; y++) {                     // y is day of week
       if (start.getFullYear() === this.year) {

@@ -120,12 +120,12 @@ get_next_key(  // calendarEditClass  client-side
 }
 
 
-async deleteEvent( // calendarEditClass  client-side
+async event_delete( // calendarEditClass  client-side
 ) {
-  delete this.graph.edges[this.edgeName];
-  //delete this.graph.nodes[editData]; can only delete this if it is an orphan
-
-  await this.processServerRefresh();
+  // dete pk, will not detelet data
+  this.table          = this.calendar.table_events  // pointer events
+  const record = this.table.get_object(this.pk);
+  await this.processServerRefresh(record);
 }
 
 
@@ -246,8 +246,8 @@ pk
   document.getElementById("duration_hours"  ).value = parseInt(durTimeData[0]);
   document.getElementById("duration_minutes").value = parseInt(durTimeData[1]);
 
-  document.getElementById("repeatType"    ).value = record.repeat;
-  document.getElementById("increment"     ).value = record.repeat_inc;
+  document.getElementById("repeat"    ).value = record.repeat;
+  document.getElementById("repeat_inc").value = record.repeat_inc;
   this.renderEndDateSelector();  // hide elements not being used
 
   // fill in what days the event repeats on
@@ -286,7 +286,7 @@ data2form_repeat(   // calendarEditClass  client-side
   }
 
   // set repeat end data, use time from dateEnd
-  let r=record.repeat_end;
+  let r=record.repeat_end_date;
   document.getElementById('repeat_end_date').value = `${r[0]}-${app.format.padZero(r[1],2)}-${app.format.padZero(r[2],2)}`
 }
 
@@ -319,7 +319,7 @@ validateForm(
     this.setCanSubmit(false);
   }
 
-  if ((document.getElementById("repeatType").value == "monthly" || document.getElementById("repeatType").value == "weekly") && document.getElementById("endDateInput").value == "") {
+  if ((document.getElementById("repeat").value == "monthly" || document.getElementById("repeat").value == "weekly") && document.getElementById("endDateInput").value == "") {
     alert('End date of event not filled in');
     this.setCanSubmit(false);
   }
@@ -376,7 +376,8 @@ async form_save( // calendarEditClass  client-side
   record.timeDuration = document.getElementById("duration_hours"  ).value +":"+ 
                       document.getElementById("duration_minutes").value;
 
-  record.repeat     = document.getElementById("repeatType"    ).value;  // chosen value of how often to repeat even
+  record.repeat     = document.getElementById("repeat"   ).value;  // chosen value of how often to repeat even
+  record.repeat_inc = document.getElementById("repeat_inc"    ).value;  // chosen value of how often to repeat even
   this.form2data_repeat(record);  // handle different cases for types of repeating
   await this.processServerRefresh(record);
 }
@@ -386,7 +387,7 @@ form2data_repeat(g){  // calendarEditClass  client-side
   // called by form2date, handle repeating data
   if (g.repeat !== "never"){
     // only need this attrebute for repeading data
-    g.repeat_end = this.getDate("repeat_end");
+    g.repeat_end_date = this.getDate("repeat_end");
   }
 
   switch(g.repeat) {
@@ -415,7 +416,7 @@ form2data_repeat(g){  // calendarEditClass  client-side
   default:
     // error
     alert(`file="calendarEdit_module.js"
-method="repeat"
+method="form2data_repeat"
 repeat="${g.repeat}"`);
   }
 }
@@ -424,7 +425,7 @@ repeat="${g.repeat}"`);
 renderEndDateSelector(  // calendarEditClass  client-side
   // renders the end date selector based on chosen selected value from the repeat selector in pop up form
   ) {
-  let repeat = document.getElementById("repeatType").value;
+  let repeat = document.getElementById("repeat").value;
   switch( repeat ) {
   case "never":
     document.getElementById("end_repeat"    ).hidden = true;

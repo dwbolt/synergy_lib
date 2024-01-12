@@ -42,14 +42,14 @@
 
   <div class="section">
     <label>Repeats: 
-    <select id="repeatType" onChange="app.page.edit.renderEndDateSelector()">
+    <select id="repeat" onChange="app.page.edit.renderEndDateSelector()">
       <option value="never" selected>Never</option>
       <option value="weekly" >Weekly </option>
       <option value="monthly">Monthly</option>
       <option value="yearly" >Yearly </option>
     </select>
   </label>
-  <label>Increment <input id="increment" value="1" type="number" min="1" max="12" ></label>
+  <label>Increment <input id="repeat_inc" value="1" type="number" min="1" max="12" ></label>
 
   </div>
 
@@ -97,5 +97,5 @@
     <button id="addEventButton"   onClick="app.page.edit.event_add();">Add Event</button>
     <button id="saveEventButton"  onClick="app.page.edit.save(       );">Save      </button>
     <button id="cancelEventButton"onClick="app.page.edit.closeForm(  );">Cancel    </button>
-    <button id="deleteEventButton"onClick="app.page.edit.deleteEvent();" >Delete   </button>
+    <button id="deleteEventButton"onClick="app.page.edit.event_delete();" >Delete   </button>
   </div>
