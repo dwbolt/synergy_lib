@@ -16,7 +16,6 @@ class calendarClass {  // calendarClass  client-side
 createDate
 event_add( 
 
-
   -----------
   main() is the starting point
   calendar_create() converts data from this.events[mm][dd] to table for display in the weekly fromat
@@ -24,7 +23,7 @@ event_add(
   displayRow()    converts node to html for displayed
 
   
-  createDate(    // crates starting or endingdate for an event edge
+  createDate(    // crates starting or endingdate for an event event
   updatePictures(list)    // walk through each row and display the next picture
   HTMLforNode(  //
    A users will see the events in their timezone.
@@ -41,65 +40,40 @@ event_add(
   this.DOM     = dom;
   this.#appRef = appRef;
 
-  const today  = new Date();
-  this.year  = today.getFullYear();
-  this.month = today.getMonth();
+  this.year      = new Date().getFullYear();  // default to current year, can be overriden when main is called.
 
-  //this.graph = {};                         // where the events are stored in compact form
-  this.edit  = new calendarEditClass(this);
-  // need more though, this is here because calendar class has hardcoded this.format and app.proxy, but I'm using calendarClass is a seperate page too.
+  this.edit         = new calendarEditClass(this);
+  this.format       = new formatClass();  // format time and dates
+  this.proxy        = new proxyClass();   // loads graph data from server
+  this.table_events = new tableClass();  // where mulit year calander and repeating events live will be used generate this.table
+  this.tableUx      = new tableUxClass(dom,`${this.#appRef}.tableUx`); // create way to display table
+  this.urlParams    = new URLSearchParams( window.location.search );  // read params send in the URL
 
-  this.format     = new formatClass();  // format time and dates
-  this.proxy      = new proxyClass();   // loads graph data from server
-  this.urlParams  = new URLSearchParams( window.location.search );  // read params send in the URL
-
-  this.timezones = {"ET":-300, "CT":-360, "MT":-420, "PT":-480};
-
-  this.eventYear;          // year of event to edit or add
-  this.eventMonth;         // month of event to edit or add
-  this.eventDay;           // day of event to edit or add
-  this.eventData;          // number to access node or edge in data
-  this.popUpHeight;        // holds the height of the pop up form
-  this.canSubmit = false;  // determines whether or not the form is ready to submit
-
+  this.timezones = {"ET":-300, "CT":-360, "MT":-420, "PT":-480};  // value is in minutes
   this.GMT           = {}                 // place to store GMT start and end of events
-  this.table_events  = new tableClass();  // where mulit year calander and repeating events live will be used generate this.table
-  this.tableUx = new tableUxClass(dom,`${this.#appRef}.tableUx`); // create way to display table
+
   this.tableUx.paging.lines = 3;    // should use a method to do this
   this.windowActive = false;        // toggle for pop up window
   this.tableUx.setSearchVisible(false);                 // hide search
   this.tableUx.setLineNumberVisible(false);             // hide row line numbers
   this.tableUx.setRowNumberVisible(false);              // hide row numbers
 
-  this.weeks2display = 2;                              // display 4 weeks of data at a time
-  this.n_pic         = 0;
   this.table_urls    = [];
-
-  // init every day with empty array
-  this.events = undefined;
+  this.event;         // undefined, where a two dim array first number in month, second number is day of month, hold one year's calendar
 }
 
-async year_change(dom){  // calendarClass  client-side
+
+async year_change(  // calendarClass  client-side
+  dom
+  ){  
   await this.main(parseInt(dom.value),);
 }
+
 
 calender_add(url) {// calendarClass  client-side
   this.table_urls.push(url);  // list of calenders to display at one time, will need to add color code, just support one calender for now
 }
   
-// Mutators
-setEventMonth(    val) {this.eventMonth  = val;   } // calendarClass  client-side
-setEventYear(     val) {this.eventYear   = val;   }// calendarClass  client-side
-setEventDay(      val) {this.eventDay    = val;   }// calendarClass  client-side
-setPopUpHeight(   val) {this.popUpHeight = val;   }// calendarClass  client-side
-setCanSubmit(     val) {this.canSubmmit = val;    }// calendarClass  client-side
-  
-// accessors
-getEventMonth(    ) {return this.eventMonth ;   }// calendarClass  client-side
-getEventYear(     ) {return this.eventYear  ;   }// calendarClass  client-side
-getEventDay(      ) {return this.eventDay   ;   }// calendarClass  client-side
-getPopUpHeight(   ) {return this.popUpHeight;   }// calendarClass  client-side
-getCanSubmit(     ) {return this.canSubmit;     }// calendarClass  client-sid
 
 async init() {
   await this.table_events.load(this.table_urls[0]);   // for now just support one calendar
@@ -108,13 +82,39 @@ async init() {
 async main( // calendarClass  client-side
 year // 
 ) {
-  this.year = year;  // year of calendar to display
+  if (year) {
+    this.year = year;  // year of calendar to display - default is current year
+  }
 
   // decide which calendar to load, users or main
   this.event_init(); // will fill out this.events - array for each day of the year 
 
   // display entire calendar
   this.login_status = await app.login.getStatus();  // cashe login status for duration of load and build
+
+  const event = app.urlParams.get('e'); // page to load
+  if (event) {
+    // display event
+    this.event_display(event);
+  } else {
+    // display calendar
+    this.calendar_display();
+  }
+}
+
+
+event_display(  // tableUxClass - client-side
+  pk){
+  let event = this.table_events.get_object(pk);
+  alert(`${event.name}
+  ${event.description}`);
+
+}
+
+
+calendar_display(// tableUxClass - client-side
+) {
+  // display calenda
   this.calendar_create();  // convert this.events to a table that can be displayed with tableUX
 
   this.tableUx.setStatusLineData( [
@@ -154,6 +154,7 @@ year //
     this.today_display();   // only need to do this is we are displaying the clander
   }
 }
+
 
 next( // tableUxClass - client-side
 ) { //next page
@@ -220,7 +221,7 @@ month_chosen(  // calendarClass  client-side
 
 
 createDate(  // calendarClass  client-side
-  // returns a starting or ending date for an event edge
+  // returns a starting or ending date for an event event
     edge  //
   ,type  //  "start" -> start date, "end" -> end time, "repeat" -> end of repeat 
   ,offsets = [0,0,0] // offset from start [yy,mm,dd]
@@ -286,12 +287,12 @@ event
   }
 
   let a = event.repeat_end_date;
-  if (a === undefined) {   
+  if (a === undefined || a === null) {   
     // year not set, so set to end of current year
     a    = [this.year,12,31];
   } else if (a[0]=== null){
     // for some reason JSON.strigify([,1])  -> "[null,1]"
-    a    = [this.year,a[1],a[2]];
+    a[0] = this.year;
   }
   //this.GMT[pk].repeat_end = this.createDate(event,"repeat" )
   this.GMT[event.pk].repeat_end = new Date(a[0],a[1]-1,a[2],this.GMT[event.pk].end.getHours(), this.GMT[event.pk].end.getMinutes()); 
@@ -397,7 +398,6 @@ edge//
       }
       let eventDate = new Date(month.getTime() + offset*1000*60*60*24);
       if ( this.GMT[edge.pk].start < eventDate && eventDate < this.GMT[edge.pk].end_repeat) {
-        // eventData is less than the repeat end end date
         this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(edge.pk);  // push key to edge associated with edge
       }
     });
@@ -451,8 +451,8 @@ calendar_create(  // calendarClass  client-side
       let eventList = this.events[m][d].pks.sort(this.sort.bind(this));   // list of pks
       for(let i=0;  i<eventList.length; i++ ) {
         let pk   = eventList[i];                        // get primary key
-        let edge = this.table_events.get_object(pk);    // get event at primary key
-        let editButton = app.format.timeFormat(this.GMT[edge.pk].start);
+        let event = this.table_events.get_object(pk);    // get event at primary key
+        let editButton = app.format.timeFormat(this.GMT[event.pk].start);
         if (this.login_status) {
           // we are on a user calendar
           //user = "&u=" + this.urlParams.get('u');
@@ -460,11 +460,16 @@ calendar_create(  // calendarClass  client-side
         }
         
         let repeat_class = ""; 
-               if(edge.repeat == "weekly" ) {repeat_class = "repeat_weekly" ;
-        } else if(edge.repeat == "monthly") {repeat_class = "repeat_monthly";
-        } else if(edge.repeat == "yearly" ) {repeat_class = "repeat_yearly" ;}
+               if(event.repeat == "weekly" ) {repeat_class = "repeat_weekly" ;
+        } else if(event.repeat == "monthly") {repeat_class = "repeat_monthly";
+        } else if(event.repeat == "yearly" ) {repeat_class = "repeat_yearly" ;}
 
-        html += `${editButton} <a href="${edge.url}" target="_blank" class="${repeat_class}">${edge.name}</a><br>`
+        if (event.url === undefined) {
+          html += `${editButton} <u><a onclick="${this.#appRef}.event_display(${event.pk})" class="${repeat_class}">${event.name}</a></u><br>`
+        } else {
+          html += `${editButton} <a href="${event.url}" target="_blank" class="${repeat_class}">${event.name}</a><br>`
+        }
+        
       }
 
   
@@ -480,16 +485,16 @@ calendar_create(  // calendarClass  client-side
 
 sort(// calendarClass  client-side
 // sort events for the day by time
-   a // edge id
-  ,b // edge id
+   a // event id
+  ,b // event id
   ){
   // sort by time
-  const edge_A = this.GMT[a].start;
-  const edge_B = this.GMT[b].start;
-  const diffh  = edge_A.getHours() - edge_B.getHours();
+  const event_A = this.GMT[a].start;
+  const event_B = this.GMT[b].start;
+  const diffh  = event_A.getHours() - event_B.getHours();
   if (diffh === 0) {
     // same hour so look at minutes
-    return edge_A.getMinutes() - edge_B.getMinutes()
+    return event_A.getMinutes() - event_B.getMinutes()
   } else {
     return diffh;
   }

@@ -501,6 +501,9 @@ async save( // tableClass - client-side
     if (this.value2string(edited_value) !== current_value ) {
       // append to  change log
       let csv_value = edited_value;      // convert new line -> /n and quotes -> /""
+      if (csv_value === "") {
+        csv_value = undefined;  // convert empty fields to undifined
+      }
       change = [record.pk, field, csv_value, date.toISOString()]
       csv += `${JSON.stringify(change)}\n`;                          // add /n to make it easier to view in statndard editor
 
