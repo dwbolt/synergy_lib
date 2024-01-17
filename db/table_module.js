@@ -247,7 +247,9 @@ add_column_value( // tableClass - client-side
 }
 
 
-check_pk(pk){  // tableClass - client-side
+check_pk(// tableClass - client-side
+  pk  // make sure pk is a number
+  ){  
   let pk_num = pk;
   if (typeof(pk_num)==="string"){
     pk_num = Number.parseInt(pk_num)
@@ -259,6 +261,7 @@ typeof(pk_num)="${typeof(pk_num)}"`);
   }
 
   if (this.columns.pk === undefined) {
+    // init the primary key column
     this.columns.pk = {}
   }
   

@@ -375,10 +375,10 @@ edge//
   const start = this.GMT[edge.pk].start;
   let monthOffset = 0;
   // walk to monthes to the end of the year
-  for (let month = new Date(start.getFullYear(), start.getMonth()               , 1,1,1) ;
-       month < this.GMT[edge.pk].end_repeat && this.GMT[edge.pk].end_repeat.getFullYear() === this.year;  
+  for (let month = new Date(this.year, start.getMonth()               , 1,1,1) ;
+       month < this.GMT[edge.pk].repeat_end && month.getFullYear() === this.year;  
        // add an hour and 1 minute for the case month starts in daylight savings and the date is after daylight savings ends.
-        month = new Date(start.getFullYear(), start.getMonth()+ ++monthOffset, 1,1,1)) {
+        month = new Date(this.year, start.getMonth()+ ++monthOffset, 1,1,1)) {
     
     // walk weeks in month
     // repeat_details [[].[]] document
@@ -397,7 +397,7 @@ edge//
         offset += 7*(n[1]-1);                                  // calculate offset
       }
       let eventDate = new Date(month.getTime() + offset*1000*60*60*24);
-      if ( this.GMT[edge.pk].start < eventDate && eventDate < this.GMT[edge.pk].end_repeat) {
+      if ( this.GMT[edge.pk].start < eventDate && eventDate < this.GMT[edge.pk].repeat_end) {
         this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(edge.pk);  // push key to edge associated with edge
       }
     });
