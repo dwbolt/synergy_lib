@@ -140,9 +140,10 @@ pk
   return value;
 }
 
-value2string(
+
+value2string(  // tableClass - client-side
   value
-){ // tableClass - client-side
+){ 
   // value is json
   const type = typeof(value);
   switch (type) {
@@ -162,8 +163,6 @@ value="${value}"`);
   }
   return value;
 }
-
-
 
 
 format_values( // tableClass - client-side
@@ -448,12 +447,13 @@ get_object( // tableClass - client-side
           value = undefined;
         } else {
           value = this.columns[field_name][id];  // maybe undefined
-          if ( "string pk json text number".includes(field.type) ) {
+          if ( "string pk json text textarea float integer date-time date".includes(field.type) ) {
              // value is already set, do not want to trigger the alert below
           } else {
             alert(`file="table_module"
 method="get_object"
-field.type="${field.type}"`);
+field.type="${field.type}"
+field_name="${field_name}"`);
           }
         }
         break;
