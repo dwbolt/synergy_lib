@@ -170,13 +170,14 @@ form_write(  // client side recordUxClass - for a page
         switch (type) {
         case "pk"      :
         case "float"   :
-        case "integer" :
+        case "integer" : 
         case "text"    :
-        case "textarea": document.getElementById(`${dom}_${field_name}`).value        =  value;                                break;
-        case "boolean" : document.getElementById(`${dom}_${field_name}`).checked      =  value;                                break;
+        case "textarea": document.getElementById(`${dom}_${field_name}`).value        =  value                                 ; break;
+        case "boolean" : document.getElementById(`${dom}_${field_name}`).checked      =  value                                 ; break;
         case "date"    : document.getElementById(`${dom}_${field_name}`).valueAsDate  =  new Date(value[0],value[1]-1,value[2]); break;
         case "date-time": document.getElementById(`${dom}_${field_name}`).valueAsDate =  new Date(value[0],value[1]-1,value[2]); 
-                          document.getElementById(`${dom}_${field_name}_time`).value  =  `${value[3]}:${value[4]}`           ; break;
+                          document.getElementById(`${dom}_${field_name}_time`).value  =  
+                                               `${app.format.padZero(value[3],2)}:${app.format.padZero(value[4],2)}`           ; break;
         default        : alert(`file="recordUx_module.js"
 method="form_write"
 type="${type}"
@@ -195,6 +196,12 @@ edit(){ // client side recordUxClass - for a page
   this.form_create(          dom, fields, field_list) ;  // create empty form
   const obj = table.get_object(this.#primary_key_value)  ;  // get object from table
   this.form_write(obj,       dom, fields, field_list );  // load form with values
+
+  if (this.#primary_key_value  === undefined ) {
+    this.buttonsShow("Add Cancel");  // adding new record
+  } else {
+    this.buttonsShow("Save Cancel"); // edit record
+  }
 }
 
 /*
@@ -290,17 +297,16 @@ async save( // client side recordUxClass - for a page
 
 
 form_read( /////
-    //dom // id
     table
-    //fields_meta
-    //,fields_list
 ){
-  const obj = {};
-
+  const obj         = {};
+  const dom         = `${this.tableUX.DOMid}_record_data`;
   const fields_list = table.meta_get("select");
   const fields_meta = table.meta_get("fields");
+
   for(let i=0; i<fields_list.length; i++) {
-      obj[fields_list[i]] = this.form_value(`edit-${i}`, fields_meta, fields_list[i]);
+      let field_name = fields_list[i]
+      obj[fields_list[i]] = this.form_value(`${dom}_${field_name}`, fields_meta, field_name);
       if (obj[fields_list[i]] === undefined){
           delete obj[fields_list[i]];  // do not save undevined attributes
       }
@@ -341,17 +347,24 @@ form_value( // client side recordUxClass
           value = [ parseInt(date[0]), parseInt(date[1]), parseInt(date[2]), parseInt(time[0]), parseInt(time[1])];
       }
       break;
-  case "boolean" : value = document.getElementById(`${dom}`).checked; break;
-  default        : alert(`file="recordUX_odule.js"
+  case "json"    : 
+    value = document.getElementById(`${dom}`).value;
+    if (!value === "") {
+      value = JSON.parse(value);
+    }
+     break;
+  case "boolean" : value = document.getElementById(`${dom}`).checked          ; break;
+  default        : alert(`file="recordUX_module.js"
 methed="form_value"
 field.type="${field.type}"
+fields_name="${fields_name}"
 case not handled`);
   }
 
   if (value === "" ) {
-      return undefined;
+    return undefined;
   } else {
-      return value;
+    return value;
   }
 }
 
