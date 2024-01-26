@@ -1,0 +1,15 @@
+{
+"comment": "people sturcture"
+
+,"fields" : {
+    "pk"           : {"header" : "PK"         ,  "type" : "pk"      , "location" : "column"}
+    ,"name_first"  : {"header" : "First Name" ,  "type" : "text"    , "location" : "column"}
+    ,"name_last"   : {"header" : "Last Name " ,  "type" : "text"    , "location" : "column"}
+    ,"name_maiden" : {"header" : "Maiden Name",  "type" : "text"    , "location" : "column"}
+    ,"phones"      : {"header" : "Phones"     ,  "type" : "relation", "location" : "column"}
+    ,"relations"   : {"header" : "Relations"  ,  "type" : "relation", "location" : "column"}
+}
+
+,"select" : ["pk","name_first","name_last","name_maiden","phones"]
+,"PK_max" : "0"
+}

@@ -1,0 +1,22 @@
+{
+"comment": "table address sturcture"
+
+,"fields":{
+        "pk"           : {"header":"PK"         , "type":"pk"  ,  "location":"column"}
+
+    ,"label"        : {"header":"Label"      , "type":"text"    ,  "location":"column", "help":"home, work, vaction, mailing... etc"}
+    ,"display"      : {"header":"Display"    , "type":"textarea",  "location":"column"}
+
+    ,"country" : {"header":"Country"    , "type":"text",  "location":"column"} 
+    ,"state"   : {"header":"State"     , "type":"text",  "location":"column"}
+    ,"city"    : {"header":"City"       , "type":"text",  "location":"column"}
+    ,"code"    : {"header":"Postal Code", "type":"text",  "location":"column", "help":"postal code"}
+    ,"street"  : {"header":"Street"     , "type":"textarea",  "location":"column", "help":"postal code"}
+    ,"care_of" : {"header":"Care Of"    , "type":"text",  "location":"column"}
+
+    ,"comment"   : {"header":"Comment"    , "type":"textarea",  "location":"column"}
+}
+
+,"select":["pk","label","display","street","city","state","code","country","care_of","comment"]
+,"PK_max":0
+}

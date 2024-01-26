@@ -1,0 +1,19 @@
+{
+"comment": "groups sturcture"
+
+,"fields" : {
+    "pk"           : {"header" : "PK"         ,  "type" : "pk"      , "location" : "column"}
+
+    ,"name_full"   : {"header" : "Full Name"  ,  "type" : "text"    , "location" : "column" , "help":"Univercity of Tennessee"}
+    ,"name_short"  : {"header" : "Short Name" ,  "type" : "text"    , "location" : "column", "help":"UT"}
+    ,"description" : {"header" : "Description",  "type" : "textarea", "location" : "column"}
+    
+    ,"phones"      : {"header" : "Phones"     ,  "type" : "relation", "location" : "column"}
+    ,"urls"        : {"header" : "urls"       ,  "type" : "relation", "location" : "column"}
+    ,"addresses"   : {"header" : "Addresses"  ,  "type" : "relation", "location" : "column"}
+    ,"relations"   : {"header" : "Relations"  ,  "type" : "relation", "location" : "column"}
+}
+
+,"select" : ["pk","name_full","name_short","description","phones"]
+,"PK_max" : "0"
+}

@@ -79,6 +79,8 @@ async table_delete(table_name){
 async new(  // dbClass - client-side  
   url // to database
   ){
+  this.dir      = url;
+  this.url_meta = this.dir+"/_meta.json";
   // save meta data
   this.meta   = 
   {
@@ -90,13 +92,25 @@ async new(  // dbClass - client-side
   let msg = await this.meta_save();
   
   // save relations table
-  const table = new tableClass(`${url}/relations`);
-  msg = await table.create("relations");                        // create & save meta data
-  msg = await table.merge();                              // save columns.json and changes.csv
+  if (msg.success) {
+    const table = new tableClass(`${url}/relations`);
+    msg = await table.create("relations");                   // create & save meta data
+    if (msg.success) {
+      msg = await table.merge();                              // save columns.json and changes.csv
+    }
+  }
 }
 
+
 async meta_save(){
-  let msg = await app.proxy.RESTpost(JSON.stringify(this.meta), this.url_meta )
+  let    msg = await app.proxy.RESTpost(JSON.stringify(this.meta), this.url_meta );
+  if (!msg.success) {
+    alert(`in file="db_module.js"
+method="meta_save"
+this.url_meta="${this.url_meta}"
+RESTpost failed`);
+  }
+  return msg;
 }
 
 loadLocal( // dbClass - client-side   -- should be able to share code here

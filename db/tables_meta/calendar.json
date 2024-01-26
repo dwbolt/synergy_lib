@@ -1,0 +1,25 @@
+{
+  "comment": "calendar sturcture"
+  
+  ,"fields":{
+   "pk"            : {"header":"PK"         , "type":"pk"       , "location":"column"}
+
+  ,"name"          : {"header":"Name"       , "type":"text"     , "location":"column"}
+  ,"url"           : {"header":"URL"        , "type":"text"     , "location":"column"}
+  ,"description"   : {"header":"Description", "type":"textarea" , "location":"column"}
+  ,"dateStart"     : {"header":"Start Date" , "type":"date-time", "location":"column"}
+  ,"dateEnd"       : {"header":"End Date"   , "type":"date-time", "location":"column"}
+  ,"timeZone"      : {"header":"Time Zone"  , "type":"text"     , "location":"column"}
+  ,"timeDuration"  : {"header":"Duration"   , "type":"text"     , "location":"column"}
+
+  ,"repeat"         : {"header":"Repeat"        , "type":"text"   , "location":"column"}
+  ,"repeat_inc"     : {"header":"Repeat Inc"    , "type":"integer", "location":"column"}
+  ,"repeat_end_date": {"header":"Repeat End"    , "type":"date"   , "location":"column"}
+  
+  ,"repeat_details" : {"header":"Repeat Details", "type":"json"   , "location":"column"}
+}
+
+,"select":["pk","name","url","description","dateStart","dateEnd","timeZone","timeDuration","repeat","repeat_inc"
+               ,"repeat_end_date","repeat_details"]
+,"PK_max":0
+}

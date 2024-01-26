@@ -1,0 +1,18 @@
+{
+"comment": "phones sturcture"
+
+,"fields":{
+     "pk"           : {"header":"PK"         , "type":"pk"  ,  "location":"column"}
+    ,"label"        : {"header":"Label"      , "type":"text",  "location":"column", "help":"mobile, fax, work, etc"}
+    ,"display"      : {"header":"Display"    , "type":"text",  "location":"column"}
+
+    ,"country_code" : {"header":"Country"    , "type":"text",  "location":"column"} 
+    ,"area_code"    : {"header":"Area"       , "type":"text",  "location":"column"}
+    ,"phone_number" : {"header":"Number"     , "type":"text",  "location":"column"}
+    ,"extention"    : {"header":"Extention"  , "type":"text",  "location":"column"}
+
+    ,"comment"      : {"header":"Comment"    , "type":"textarea",  "location":"column"}
+}
+,"select":["pk","label","display","country_code","area_code","phone_number","extention","comment"]
+,"PK_max":0
+}

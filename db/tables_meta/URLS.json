@@ -1,0 +1,14 @@
+{
+"fields":{
+     "pk"           : {"header":"PK"         , "type":"pk"  ,  "location":"column"}
+
+    ,"label"        : {"header":"Label"      , "type":"text",  "location":"column", "help":"facebook, linkedin, website, etc"}
+    ,"display"      : {"header":"Display"    , "type":"text",  "location":"column"}
+    ,"url"          : {"header":"Display"    , "type":"text",  "location":"column"}
+    ,"target"       : {"header":"Display"    , "type":"text",  "location":"column", "help":"_blank, _self,_parent, _top, framename"}
+
+    ,"comment"   : {"header":"Comment"    , "type":"textarea",  "location":"column"}
+}
+,"select":["pk","label","display","url","target","comment"]
+,"PK_max":0
+}

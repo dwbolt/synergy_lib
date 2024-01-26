@@ -1,0 +1,15 @@
+{
+"comment": "default sturcture"
+
+,"fields":{
+     "pk"       : {"header":"PK"         , "type":"pk"  ,  "location":"column"}
+
+    ,"label"     : {"header":"Label"      , "type":"text",  "location":"column", "help":"home, work, vaction, mailing... etc"}
+    ,"display"   : {"header":"Display"    , "type":"text",  "location":"column"}
+
+    ,"comment"   : {"header":"Comment"    , "type":"textarea",  "location":"column"}
+}
+
+,"select":["pk","label","display","comment"]
+,"PK_max":0
+}

@@ -146,10 +146,10 @@ form_add( // client side recordUxClass - for a page
   case "boolean" : return `${field.header} <input    id="${dom}_${field_name}" type="checkbox"><br>`;
 
   default        : alert(`file="recordUx_module.js"
-  method="form_add"
-  field.type="${field.type}"
-  field_name="${field_name}"
-  case not handled
+method="form_add"
+field.type="${field.type}"
+field_name="${field_name}"
+case not handled
   `);
   }
 }

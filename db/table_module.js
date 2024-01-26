@@ -16,7 +16,7 @@ these features are used in the following appsthis.meta.PK_max
 
 
 constructor( // tableClass - client-side
-url  // directory where table _meta.json, changes.csv, columns.json live
+url          // directory where table _meta.json, changes.csv, columns.json live
 ) {  
   if (url != undefined) {
     this.url_set(url);
@@ -36,15 +36,10 @@ url  // directory where table _meta.json, changes.csv, columns.json live
   this.columns = {"pk":{}};
 }
 
-/*
-    ,"select"  : ["pk","label","display","comment","relations"]
-        ,"label"     : {"header" : "Label"      , "type" : "string" , "location" : "column"  }
-        ,"display"   : {"header" : "Display"    , "type" : "string" , "location" : "column"  }
-        ,"comment"   : {"header" : "Commement"  , "type" : "string" , "location" : "column"  }
-*/
 
-set_db( db){this.db   = db;}
-set_name(n){this.name = n;}
+set_db( db){this.db   = db;}    // tableClass - client-side
+set_name(n){this.name =  n;}    // tableClass - client-side
+
 
 set_value(  // tableClass - client-side
   pk        // table primary key
@@ -377,55 +372,20 @@ msg="${JSON.stringify(msg)}"`);
   }
 }
 
-async create(structure) {
-  switch (structure) {
-    case "relations":
-      this.meta = {
-        "fields":{
-            "pk"        : {"header":"PK"         ,"type":"pk"    , "location":"column"}
-    
-            ,"pk_1"     : {"header":"PK 1"       ,"type":"string", "location":"column"}
-            ,"table_1"  : {"header":"Table 1"    ,"type":"string", "location":"column"}
-    
-            ,"direction": {"header":"Direction"  ,"type":"string", "location":"column"}
-            ,"relation" : {"header":"Relation" ,"type":"string", "location":"column"}
-            ,"comment"  : {"header":"Comment"  ,"type":"string", "location":"column"}
-    
-            ,"pk_2"     : {"header":"PK 2"       ,"type":"string", "location":"column"}
-            ,"table_2"  : {"header":"Table 2"    ,"type":"string" ,"location":"column"}
-        }
-    
-        ,"select":["pk","pk_1","table_1","direction","relation","comment","pk_2","table_2"]
-        ,"PK_max" :0
-      }
-      break;
-  
-    case "synergy":
-      this.meta = {
-        "fields":{
-           "pk"            : {"header":"PK"         , "type":"PK"    ,  "location":"column"}
-          ,"label"        : {"header":"Label"      , "type":"string",  "location":"column"}
-          ,"display"      : {"header":"Display"    , "type":"string",  "location":"column"}
-          ,"comment"      : {"header":"Comment"    , "type":"string",  "location":"column"}
-        }
-    
-        ,"select":["pk","label","display","comment"]
-        ,"PK_max" :0
-      }
-      break;
+async create(  // tableClass - client-side
+  structure  // text json file
+  ) {
+  this.meta = JSON.parse(structure);
 
-    default:
-      this.meta = {
-        "fields":{
-          "pk"            : {"header":"PK"         , "type":"PK"    ,  "location":"column"}
-        }
-    
-        ,"select":["pk"]
-        ,"PK_max" :0
-      }
-  } 
-
-  let msg = await app.proxy.RESTpost( JSON.stringify(this.meta), this.url_meta);
+  let msg = await app.proxy.RESTpost(structure, this.url_meta);
+  if (!msg.success) {
+    alert(`file="table_module.js"
+method="create"
+this.url_meta="${this.url_meta}"
+RESTpost failed`
+);
+  }
+  return msg;
 }
 
 
@@ -547,22 +507,20 @@ dir
   let msg  = await app.proxy.RESTpost( JSON.stringify(this.columns), this.url_columns);
   if (!msg.success) {
     // save did not work
-    alert(`error 
-msg=${msg.message}
-url="${this.url_changes}"
-file="table_module.js"
-method="merge"`);
+    alert(`file="table_module.js" 
+method="merge"
+this.url_changes="${this.url_changes}"
+REST.post failed`);
   };
 
   // empty change file
   msg  = await app.proxy.RESTpost("", this.url_changes);
   if (!msg.success) {
     // save did not work
-    alert(`error 
-msg=${msg.message}
-url="${this.url_changes}"
-file="table_module.js"
-method="merge"`);
+    alert(`file="table_module.js"
+method="merge"
+this.url_changes="${this.url_changes}"
+RESTpost failed`);
   };
   
   return msg;
@@ -571,6 +529,7 @@ method="merge"`);
 async delete(){// tableClass - client-side
   // delete table
   let msg = await app.proxy.RESTdelete(this.dir );
+  return msg;
 }
 
 
@@ -610,9 +569,10 @@ setHeader() {   // tableClass - client-side
   for(let i=0; i<select.length; i++) {
     let field = fields[select[i]];
     if (field === undefined) {
-      alert(`file=table_module.js
+      alert(`file="table_module.js"
 method="setHeader"
 select[i] = "${select[i]}"
+this.dir="${this.dir}"
 msg="select field does not exist in field meta data"`)
     } else {
       this.meta.header.push(field.header); 
