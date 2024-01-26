@@ -96,7 +96,7 @@ async new(  // dbClass - client-side
     const table = new tableClass(`${url}/relations`);
     msg = await table.create("relations");                   // create & save meta data
     if (msg.success) {
-      msg = await table.merge();                              // save columns.json and changes.csv
+      return await table.merge();                            // save columns.json and changes.csv
     }
   }
 }

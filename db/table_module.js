@@ -511,6 +511,7 @@ dir
 method="merge"
 this.url_changes="${this.url_changes}"
 REST.post failed`);
+  return msg;
   };
 
   // empty change file
