@@ -135,23 +135,21 @@ form_add( // client side recordUxClass - for a page
 ){
   const field=fields_meta[field_name]
   switch (field.type) {
-  case "pk"      : return `${field.header} <input    id="${dom}_${field_name}" type="text" readonly>    <br>`;
-  case "json"    :
-  case "text"    : return `${field.header} <input    id="${dom}_${field_name}" type="text">    <br>`;
-  case "textarea": return `${field.header} <textarea id="${dom}_${field_name}"></textarea>     <br>`;
-  case "integer" : return `${field.header} <input    id="${dom}_${field_name}" type="number" onfocusout="app.integer_validate(this)">  <br>`;
-  case "float"   : return `${field.header} <input    id="${dom}_${field_name}" type="number" onfocusout="app.float_validate(  this)">  <br>`;
-  case "date"    : return `${field.header} <input    id="${dom}_${field_name}" type="date">    <br>`;
-  case "date-time": return `${field.header}<input    id="${dom}_${field_name}" type="date"> <input id="${dom}_${field_name}_time" type="time"> <br>`;
-  case "boolean" : return `${field.header} <input    id="${dom}_${field_name}" type="checkbox"><br>`;
 
-  default        : alert(`file="recordUx_module.js"
-method="form_add"
-field.type="${field.type}"
-field_name="${field_name}"
-case not handled
-  `);
+  case "pk"       : return `${field.header} <input    id="${dom}_${field_name}" type="text" readonly>    <br>`;
+  case "json"     :
+  case "text"     : return `${field.header} <input    id="${dom}_${field_name}" type="text">    <br>`;
+  case "textarea" : return `${field.header} <textarea id="${dom}_${field_name}"></textarea>     <br>`;
+  case "integer"  : return `${field.header} <input    id="${dom}_${field_name}" type="number" onfocusout="app.integer_validate(this)">  <br>`;
+  case "float"    : return `${field.header} <input    id="${dom}_${field_name}" type="number" onfocusout="app.float_validate(  this)">  <br>`;
+  case "date"     : return `${field.header} <input    id="${dom}_${field_name}" type="date">    <br>`;
+  case "date-time": return `${field.header} <input    id="${dom}_${field_name}" type="date"> <input id="${dom}_${field_name}_time" type="time"> <br>`;
+  case "boolean"  : return `${field.header} <input    id="${dom}_${field_name}" type="checkbox"><br>`;
+  case "relation" : return `${field.header} relation needs work`;
+
+  default        :  return `${field.header} field.type=${field.type} field_name="${field_name} not handeld`
   }
+  
 }
 
 
@@ -354,6 +352,8 @@ form_value( // client side recordUxClass
     }
      break;
   case "boolean" : value = document.getElementById(`${dom}`).checked          ; break;
+  case "relation" : value = ""; break;
+
   default        : alert(`file="recordUX_module.js"
 methed="form_value"
 field.type="${field.type}"

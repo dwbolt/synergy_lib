@@ -80,11 +80,12 @@ async new(  // dbClass - client-side
   url // to database
   ){
   this.dir      = url;
+
+  // add relations table to database  meta data
   this.url_meta = this.dir+"/_meta.json";
-  // save meta data
   this.meta   = 
   {
-    "comment":"Meta data for  Database"
+    "comment":"Meta data for Database"
    ,"tables":{
        "relations":{"location": `${url}/relations`}
        }
@@ -94,7 +95,7 @@ async new(  // dbClass - client-side
   // save relations table
   if (msg.success) {
     const table = new tableClass(`${url}/relations`);
-    msg = await table.create("relations");                   // create & save meta data
+    msg = await table.create("relations","relations");                   // create & save meta data
     if (msg.success) {
       return await table.merge();                            // save columns.json and changes.csv
     }

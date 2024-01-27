@@ -373,18 +373,32 @@ msg="${JSON.stringify(msg)}"`);
 }
 
 async create(  // tableClass - client-side
-  structure  // text json file
+  name,      // name of table
+  meta_name  // name of structure
   ) {
-  this.meta = JSON.parse(structure);
 
-  let msg = await app.proxy.RESTpost(structure, this.url_meta);
+  // get temple meta of table
+  let url       = `/_lib/db/tables_meta/${meta_name}.json`;
+  let msg = await app.proxy.RESTget(url);
+  if (!msg.ok) {
+    alert(`file="table_module.js"
+method="create"
+url="${url}"
+RESTget failed`);
+    return;
+  }
+
+  // save meta data fro table
+  this.meta = JSON.parse(msg.value);                       
+  msg = await app.proxy.RESTpost(msg.value, this.url_meta);
   if (!msg.success) {
     alert(`file="table_module.js"
 method="create"
-this.url_meta="${this.url_meta}"
+this.url_meta="${this.url}"
 RESTpost failed`
 );
   }
+
   return msg;
 }
 
