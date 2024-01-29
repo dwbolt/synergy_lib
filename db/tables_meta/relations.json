@@ -4,17 +4,17 @@
 ,"fields":{
     "pk"        : {"header":"PK"         ,"type":"pk"    , "location":"column"}
 
-    ,"pk_1"     : {"header":"PK 1"       ,"type":"string", "location":"column"}
-    ,"table_1"  : {"header":"Table 1"    ,"type":"string", "location":"column"}
+    ,"pk_1"     : {"header":"PK 1"       ,"type":"text", "location":"column"}
+    ,"table_1"  : {"header":"Table 1"    ,"type":"text", "location":"column"}
 
-    ,"direction": {"header":"Direction"  ,"type":"string", "location":"column"}
-    ,"relation" : {"header":"Relation" ,"type":"string", "location":"column"}
-    ,"comment"  : {"header":"Comment"  ,"type":"string", "location":"column"}
+    ,"direction": {"header":"Direction"  ,"type":"text"    , "location":"column"}
+    ,"relation" : {"header":"Relation"   ,"type":"text"    , "location":"column"}
+    ,"comment"  : {"header":"Comment"    ,"type":"textarea", "location":"column"}
 
-    ,"pk_2"     : {"header":"PK 2"       ,"type":"string", "location":"column"}
-    ,"table_2"  : {"header":"Table 2"    ,"type":"string" ,"location":"column"}
+    ,"pk_2"     : {"header":"PK 2"       ,"type":"text", "location":"column"}
+    ,"table_2"  : {"header":"Table 2"    ,"type":"text" ,"location":"column"}
 }
 
 ,"select":["pk","pk_1","table_1","direction","relation","comment","pk_2","table_2"]
 ,"PK_max" :0
-  }
+}

@@ -90,7 +90,7 @@ relation_display( // client side recordUxClass - for a page
 ){
   const relation = app.spa.db.getTable("relations").get_object(pk_relation);
   switch (table_name) {
-    case "phone":
+    case "phones":
       return `<tr><td>${i}</td> <td>${record.label}</td> <td>${record.display}</td></tr>`
       
     case "people":
@@ -202,64 +202,6 @@ edit(){ // client side recordUxClass - for a page
   }
 }
 
-/*
-edit(  // client side dbUXClass
- //    this.#primary_key_value === null -> edit new record
-){// client side recordUxClass - for a page
-  let html = "<table>";
-  const table  = this.tableUX.getModel();  // get tableClass being displayed
-  const select = table.meta_get("select"); // array of fields to work with
-  const fields = table.meta_get("fields");
-  let multi_value,location,type,field,value,readonly;
-
-  for(var i=0; i<select.length; i++) {
-    // walk the fields and creat edit html
-    field    = select[i];
-    location = table.get_field(i,"location");
-    type     = table.get_field(i,"type");
-    value    = table.get_value_relation(this.#primary_key_value,field);
-    switch(location) {
-      case "relation":
-        // multi value
-        //let multi = table.get_value(this.#primary_key_value, field);   // get array of edes
-       // html += `<tr><td>${fields[field].header}</td> 
-       //          <td>${table.get_value_relation(this.#primary_key_value,field)}</td></tr>`;
-        break;
-      default:
-        // single value- column or row
-        if (type === "pk") {
-          // do not allow editing of primary key
-          readonly = "readonly";
-        } else {
-          readonly = "";
-        }
-        /*
-        if (this.#primary_key_value === undefined) {
-          value = "";  // new record, no previous value
-        } else {
-          value = table.get_value(this.#primary_key_value,field);
-          if (!value) {
-            // undifined, null
-            value = "";
-          }
-        }
-    }
-    let input = `<input ${readonly} id='edit-${i}' type='text' value='${value}'>`
-    if (type==="text"){
-      input = `<textarea id='edit-${i}' rows="11" cols="50" style="border-radius: 5px;">${value}</textarea>`;
-    } 
-    html += `<tr><td>${fields[field].header}</td> <td>${input} ${readonly}</td></tr>`
-  }
-
-  html += "</table>";
-  document.getElementById(this.tableUX.DOMid + "_record_data").innerHTML = html;
-  if (this.#primary_key_value  === undefined ) {
-    this.buttonsShow("Add Cancel");  // adding new record
-  } else {
-    this.buttonsShow("Save Cancel"); // edit record
-  }
-}
-*/
 
 async save( // client side recordUxClass - for a page
 ) {
