@@ -1,5 +1,7 @@
 {
-"comment": "table tasks"
+"structure": "tasks"
+,"version" : "0.1.0"
+,"comment" : "holds tasks, a root task is a projects"
 
 ,"fields":{
         "pk"           : {"header":"PK"         , "type":"pk"  ,  "location":"column"}

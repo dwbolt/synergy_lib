@@ -1,5 +1,7 @@
 {
-"comment": "relations sturcture"
+"structure": "relations"
+,"version" : "0.1.0"
+,"comment" : "holds relations, this is the glue that binds objects together"
 
 ,"fields":{
     "pk"        : {"header":"PK"         ,"type":"pk"    , "location":"column"}

@@ -1,5 +1,10 @@
 {
-"fields":{
+ "structure": "urls"
+,"version" : "0.1.0"
+,"comment" : "holds urls, a root task is a projects"
+
+
+,"fields":{
      "pk"           : {"header":"PK"         , "type":"pk"  ,  "location":"column"}
 
     ,"label"        : {"header":"Label"      , "type":"text",  "location":"column", "help":"facebook, linkedin, website, etc"}

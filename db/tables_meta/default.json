@@ -1,5 +1,7 @@
 {
-"comment": "default sturcture"
+"structure": "default"
+,"version" : "0.1.0"
+,"comment" : "default struct that you can build on."
 
 ,"fields":{
      "pk"       : {"header":"PK"         , "type":"pk"  ,  "location":"column"}

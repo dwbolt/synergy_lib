@@ -1,6 +1,8 @@
 {
-  "comment": "calendar sturcture"
-  
+  "structure": "calendar"
+  ,"version" : "0.1.0"
+  ,"comment" : "calendar events, allows multiple objects to share a address, like family members"
+
   ,"fields":{
    "pk"            : {"header":"PK"         , "type":"pk"       , "location":"column"}
 

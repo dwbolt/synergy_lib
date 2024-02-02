@@ -28,7 +28,7 @@ show(  // client side recordUxClass - for a page
 
   // recordShow Fields
   const table   = this.tableUX.getModel()  // get tableClass being displayed
-  let      html = `<b>Table:</b>  ${this.tableUX.tableName}&nbsp <b>PK:</b> ${this.#primary_key_value}<br><table>`;
+  let      html = `<div></div> <div></div> <div><b>Table:</b>  ${this.tableUX.tableName} <b>PK:</b> ${this.#primary_key_value}</div>`;
   const  select = table.meta_get("select");
   const  fields = table.meta_get("fields");
   let rowValue;
@@ -37,7 +37,7 @@ show(  // client side recordUxClass - for a page
     if (fields[select[i]].type === "textarea") {
       rowValue = `<textarea rows="5" cols="80" readonly>${rowValue}</textarea>`
     }
-    html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td> <td>${rowValue}</td></tr>`
+    html += `<div>${i+1}</div> <div>${fields[select[i]].header}</div> <div>${rowValue}</div>`
   }
 
   // show relations
@@ -48,7 +48,7 @@ show(  // client side recordUxClass - for a page
   }
 
   if (relation != undefined) {
-    html += `<tr><td></td> <td><b>--- Relations ---</b></td> <td></td></tr>`
+    html += `<div></div> <div></div> <div><b>--- Relations ---</b></div>`
     // there are relations to display
     const tables = Object.keys(relation);  // array of tables that object is related to
     // walk the tables
@@ -58,7 +58,7 @@ show(  // client side recordUxClass - for a page
       let pks_table = Object.keys(relations);
       
       // walk the links
-      html += `<tr><td></td> <td><b>${table}</b></td> <td></td></tr>`
+      html += `<div><b>${table}</b></div>  <div></div> <div></div>`
       for (let ii=0; ii<pks_table.length; ii++) {
           let pk          = pks_table[ii];
           let record      = app.spa.db.tables[table].get_object(pk);
@@ -68,8 +68,6 @@ show(  // client side recordUxClass - for a page
     }
   }
 
-  
-  html += "</table>"
   let dom = document.getElementById(this.tableUX.DOMid + "_record_data")
   dom.innerHTML = html;
   dom.display = "block";
@@ -82,24 +80,19 @@ show(  // client side recordUxClass - for a page
   //app.spa.display_relations("tableUXRelations");
 }
 
+
 relation_display( // client side recordUxClass - for a page
   i             // count 
   ,record       // object
-  ,table_name   // table
+  ,table_name   // table  --- should be looking at sturcture not name of table
   ,pk_relation  
 ){
   const relation = app.spa.db.getTable("relations").get_object(pk_relation);
   switch (table_name) {
-    case "phones":
-      return `<tr><td>${i}</td> <td>${record.label}</td> <td>${record.display}</td></tr>`
-      
-    case "people":
-      return `<tr><td>${i}</td> <td>${record.name_last},${record.name_first}</td> <td>${relation.direction} ${relation.relation}</td></tr>`  
-
-    default:
-      return `<tr><td>${i}</td> <td>${JSON.stringify(record)}</td> <td>${relation.direction} ${relation.relation} - default case</td></tr>`  
+  case "phones": return `<div>${i}</div> <div>${record.label}</div> <div>+${record.country_code} (${record.area_code}) ${record.phone_number} X ${record.extention}</div>`
+  case "people": return `<div>${i}</div> <div>${record.name_last},${record.name_first}</div> <div>${relation.direction} ${relation.relation}</div>`  
+        default: return `<div>${i}</div> <div>${JSON.stringify(record)}</div> <div>${relation.direction} ${relation.relation} - default case</div>`  
   }
-
 }
 
 
@@ -116,6 +109,7 @@ buttonsShow( // client side recordUxClass - for a page
   }
 }
 
+
 form_create( // client side recordUxClass - for a page
   dom // id 
   ,fields_meta
@@ -123,33 +117,35 @@ form_create( // client side recordUxClass - for a page
 ){
   let html = ``;
   for(let i=0; i<fields_list.length; i++) {
-      html += this.form_add(dom, fields_meta, fields_list[i]);
+      html += this.form_add(dom, fields_meta, fields_list[i],i);
   }
   document.getElementById(dom).innerHTML = html;
 }
+
 
 form_add( // client side recordUxClass - for a page
   dom
   ,fields_meta
   ,field_name
+  ,i
 ){
   const field=fields_meta[field_name]
+  let html = `<div>${i}</div> <div>${field.header}</div>`
   switch (field.type) {
 
-  case "pk"       : return `${field.header} <input    id="${dom}_${field_name}" type="text" readonly>    <br>`;
+  case "pk"       : return `${html} <div><input    id="${dom}_${field_name}" type="text" readonly></div>`;
   case "json"     :
-  case "text"     : return `${field.header} <input    id="${dom}_${field_name}" type="text">    <br>`;
-  case "textarea" : return `${field.header} <textarea id="${dom}_${field_name}" rows="5" cols="80"></textarea>     <br>`;
-  case "integer"  : return `${field.header} <input    id="${dom}_${field_name}" type="number" onfocusout="app.integer_validate(this)">  <br>`;
-  case "float"    : return `${field.header} <input    id="${dom}_${field_name}" type="number" onfocusout="app.float_validate(  this)">  <br>`;
-  case "date"     : return `${field.header} <input    id="${dom}_${field_name}" type="date">    <br>`;
-  case "date-time": return `${field.header} <input    id="${dom}_${field_name}" type="date"> <input id="${dom}_${field_name}_time" type="time"> <br>`;
-  case "boolean"  : return `${field.header} <input    id="${dom}_${field_name}" type="checkbox"><br>`;
-  case "relation" : return `${field.header} relation needs work`;
+  case "text"     : return `${html} <div><input    id="${dom}_${field_name}" type="text">    </div>`;
+  case "textarea" : return `${html} <div><textarea id="${dom}_${field_name}" rows="5" cols="80"></textarea>     </div>`;
+  case "integer"  : return `${html} <div><<input    id="${dom}_${field_name}" type="number" onfocusout="app.integer_validate(this)">  </div>`;
+  case "float"    : return `${html} <div><<input    id="${dom}_${field_name}" type="number" onfocusout="app.float_validate(  this)">  </div>`;
+  case "date"     : return `${html} <div><<input    id="${dom}_${field_name}" type="date">    </div>`;
+  case "date-time": return `${html} <div><<input    id="${dom}_${field_name}" type="date"> <input id="${dom}_${field_name}_time" type="time"> </div>`;
+  case "boolean"  : return `${html} <div><<input    id="${dom}_${field_name}" type="checkbox"></div>`;
+  case "relation" : return `${html} <div><relation needs work`;
 
-  default        :  return `${field.header} field.type=${field.type} field_name="${field_name} not handeld`
+  default        :  return `${html} <div>field.type=${field.type} field_name="${field_name} not handeld</div>`;
   }
-  
 }
 
 
@@ -304,14 +300,14 @@ new(){// client side recordUxClass - for a page
 }
 
 
-createUX(){ // client side recordUxClass - for a page
+html_create(){ // client side recordUxClass - for a page
   const dom = document.getElementById(this.tableUX.DOMid + "_record");
   if(0<dom.innerHTML.length) {
     // allready created, no work todo
     return;
   }
     // first time UX is used, so make space for data, and add buttons
-  dom.innerHTML = `<div id='${this.tableUX.DOMid}_record_data'></div>
+  dom.innerHTML = `<div id='${this.tableUX.DOMid}_record_data' style="display:grid; grid-template-columns:20px 100px 300px"></div>
   <div id='${this.tableUX.DOMid}_record_buttons'> 
   <input hidden type='button' value='New'       onclick="${this.globalName}.new()">
   <input hidden type='button' value='Add'       onclick="${this.globalName}.save()">

@@ -1,5 +1,7 @@
 {
-"comment": "groups sturcture"
+"structure": "groups"
+,"version" : "0.1.0"
+,"comment" : "holds organizations and other groups"
 
 ,"fields" : {
     "pk"           : {"header" : "PK"         ,  "type" : "pk"      , "location" : "column"}

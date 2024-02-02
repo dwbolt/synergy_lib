@@ -1,5 +1,7 @@
 {
-"comment": "table address sturcture"
+"structure": "addresses"
+,"version" : "0.1.0"
+,"comment" : "holds addresses, allows multiple objects to share a address, like family members"
 
 ,"fields":{
         "pk"           : {"header":"PK"         , "type":"pk"  ,  "location":"column"}

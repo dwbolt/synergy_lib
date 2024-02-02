@@ -1,5 +1,7 @@
 {
-"comment": "phones sturcture"
+"structure": "phones"
+,"version" : "0.1.0"
+,"comment" : "holds phone numbers "
 
 ,"fields":{
      "pk"           : {"header":"PK"         , "type":"pk"  ,  "location":"column"}

@@ -1,5 +1,7 @@
 {
-"comment": "people sturcture"
+"structure": "people"
+,"version" : "0.1.0"
+,"comment" : "holds people"
 
 ,"fields" : {
     "pk"           : {"header" : "PK"         ,  "type" : "pk"      , "location" : "column"}
