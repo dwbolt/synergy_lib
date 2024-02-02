@@ -35,7 +35,7 @@ show(  // client side recordUxClass - for a page
   for(var i=0; i<select.length; i++) {
     rowValue = table.get_value_relation(this.#primary_key_value, select[i]);
     if (fields[select[i]].type === "textarea") {
-      rowValue = `<textarea>${rowValue}</textarea>$`
+      rowValue = `<textarea rows="5" cols="80" readonly>${rowValue}</textarea>`
     }
     html += `<tr><td>${i+1}</td> <td>${fields[select[i]].header}</td> <td>${rowValue}</td></tr>`
   }
@@ -139,7 +139,7 @@ form_add( // client side recordUxClass - for a page
   case "pk"       : return `${field.header} <input    id="${dom}_${field_name}" type="text" readonly>    <br>`;
   case "json"     :
   case "text"     : return `${field.header} <input    id="${dom}_${field_name}" type="text">    <br>`;
-  case "textarea" : return `${field.header} <textarea id="${dom}_${field_name}"></textarea>     <br>`;
+  case "textarea" : return `${field.header} <textarea id="${dom}_${field_name}" rows="5" cols="80"></textarea>     <br>`;
   case "integer"  : return `${field.header} <input    id="${dom}_${field_name}" type="number" onfocusout="app.integer_validate(this)">  <br>`;
   case "float"    : return `${field.header} <input    id="${dom}_${field_name}" type="number" onfocusout="app.float_validate(  this)">  <br>`;
   case "date"     : return `${field.header} <input    id="${dom}_${field_name}" type="date">    <br>`;
@@ -191,9 +191,9 @@ edit(){ // client side recordUxClass - for a page
   const fields     = table.meta_get("fields");
   const field_list = table.meta_get("select");
 
-  this.form_create(          dom, fields, field_list) ;  // create empty form
-  const obj = table.get_object(this.#primary_key_value)  ;  // get object from table
-  this.form_write(obj,       dom, fields, field_list );  // load form with values
+  this.form_create(          dom, fields, field_list  );  // create empty form
+  const obj = table.get_object(this.#primary_key_value);  // get object from table
+  this.form_write(obj,       dom, fields, field_list  );  // load form with values
 
   if (this.#primary_key_value  === undefined ) {
     this.buttonsShow("Add Cancel");  // adding new record
@@ -208,36 +208,23 @@ async save( // client side recordUxClass - for a page
   // user clicked save or add record
   // save to change file
   const table  = this.tableUX.getModel();  // get tableClass being displayed
+  const obj    = this.form_read(table);    // move data from form to obj
 
-  // create object from edit form
-  //const select = table.meta_get("select");  // get array of fields to work with
-  const obj    = this.form_read(table);          // move data from form to obj
-  /*let field_name;
-  for(var i=0; i<select.length; i++) {
-    // walk the form 
-    field_name      = select[i];
-    let edit = document.getElementById(`edit-${i}`); 
-//    if (edit && 0<edit.value.length) {
-    if (edit) {
-      obj[field_name] = edit.value;
-    }
-  }*/
-
-  // value of this.#primary_key_value determines add or update
   const prior_key = this.#primary_key_value;
   this.#primary_key_value = await table.save(obj); 
   if (prior_key != this.#primary_key_value) {
     // added a new record, update tableUX PK list
     this.tableUX.display(); // will update pk display list
   } else {
+    // updated an existing record
     this.tableUX.displayData()
   }
   this.show();          // display record with new data
 }
 
 
-form_read( /////
-    table
+form_read( // client side recordUxClass - for a page
+    table  // 
 ){
   const obj         = {};
   const dom         = `${this.tableUX.DOMid}_record_data`;

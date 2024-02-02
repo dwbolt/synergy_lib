@@ -2,19 +2,18 @@
 "comment": "table tasks"
 
 ,"fields":{
-     "pk"           : {"header":"PK"         , "type":"pk"  ,  "location":"column"}
+        "pk"           : {"header":"PK"         , "type":"pk"  ,  "location":"column"}
 
-    ,"label"        : {"header":"Label"      , "type":"text"    ,  "location":"column", "help":"home, work, vaction, mailing... etc"}
-    ,"display"      : {"header":"Display"    , "type":"textarea",  "location":"column"}
+    ,"label"        : {"header":"project"    , "type":"text"    ,  "location":"column", "help":"home, work, vaction, mailing... etc"}
+    ,"display"      : {"header":"Task"       , "type":"text"    ,  "location":"column"}
     ,"status"       : {"header":"Status"     , "type":"text"    ,  "location":"column", "help":"idea, plan, schedule, active, waiting,.."}
+    ,"comment"      : {"header":"Comment"    , "type":"textarea",  "location":"column"}
 
-    ,"date_create"  : {"header":"Created"    , "type":"date"    ,  "location":"column", "help":""}
-    ,"date_next"    : {"header":"Next"       , "type":"date"    ,  "location":"column", "help":""}
-    ,"date_deadline": {"header":"Next"       , "type":"date"    ,  "location":"column", "help":""}
-
-    ,"comment"   : {"header":"Comment"    , "type":"textarea",  "location":"column"}
+    ,"date_create"  : {"header":"Created"    , "type":"date-time"    ,  "location":"column", "help":""}
+    ,"date_next"    : {"header":"Next"       , "type":"date-time"    ,  "location":"column", "help":""}
+    ,"date_deadline": {"header":"Due"        , "type":"date-time"    ,  "location":"column", "help":""}
 }
 
-,"select":["pk","label","display","country_code","area_code","phone_number","extention","comment"]
+,"select":["pk", "label", "display", "status", "comment", "date_create", "date_next", "date_deadline"]
 ,"PK_max":0
 }
