@@ -40,6 +40,13 @@ show(  // client side recordUxClass - for a page
     html += `<div>${i+1}</div> <div>${fields[select[i]].header}</div> <div>${rowValue}</div>`
   }
 
+  let dom = document.getElementById(this.tableUX.DOMid + "_record_data")
+  dom.innerHTML = html;
+  dom.display = "block";
+
+  // show buttons
+  this.buttonsShow("New Duplicate Edit Delete Relation-T1 Relation-T2 Clear");
+
   // show relations
   const table_relation = app.spa.relation_index[this.tableUX.tableName]; // all relations attached to table
   let relation;
@@ -48,6 +55,7 @@ show(  // client side recordUxClass - for a page
   }
 
   if (relation != undefined) {
+    /*
     html += `<div></div> <div></div> <div><b>--- Relations ---</b></div>`
     // there are relations to display
     const tables = Object.keys(relation);  // array of tables that object is related to
@@ -65,36 +73,25 @@ show(  // client side recordUxClass - for a page
           let pk_relation = relation[table][pk];
           html += this.relation_display(ii+1,record,table,pk_relation);
       }
-    }
+    }*/
   }
-
-  let dom = document.getElementById(this.tableUX.DOMid + "_record_data")
-  dom.innerHTML = html;
-  dom.display = "block";
-
-  // show buttons
-  this.buttonsShow("New Duplicate Edit Delete Relation-T1 Relation-T2 Clear");
-
-  // show relations
-  // need to set filters to only things connected to record
-  //app.spa.display_relations("tableUXRelations");
 }
 
-
+/*
 relation_display( // client side recordUxClass - for a page
   i             // count 
   ,record       // object
   ,table_name   // table  --- should be looking at sturcture not name of table
   ,pk_relation  
 ){
-  const relation = app.spa.db.getTable("relations").get_object(pk_relation);
+  const relation = app.spa.db.getTable("relations").get_object_display(pk_relation);
   switch (table_name) {
   case "phones": return `<div>${i}</div> <div>${record.label}</div> <div>+${record.country_code} (${record.area_code}) ${record.phone_number} X ${record.extention}</div>`
   case "people": return `<div>${i}</div> <div>${record.name_last},${record.name_first}</div> <div>${relation.direction} ${relation.relation}</div>`  
         default: return `<div>${i}</div> <div>${JSON.stringify(record)}</div> <div>${relation.direction} ${relation.relation} - default case</div>`  
   }
 }
-
+*/
 
 buttonsShow( // client side recordUxClass - for a page
   // "New Add  Edit Duplicate Delete Save  Cancel"

@@ -411,7 +411,6 @@ get_object( // tableClass - client-side
   const select = this.meta.select;  // list of object attributes 
 
   for(let i=0; i<select.length ;i++){
-    // assume row, need to add other cases
     const field_name = select[i];
     const field      = this.meta.fields[field_name];
     switch(field.location) {
@@ -439,6 +438,52 @@ field_name="${field_name}"`);
 
     if (value !== undefined) {
       object[field_name] = value;
+    }
+  }
+
+  return object;  // json version of row in table
+}
+
+
+get_object_display( // tableClass - client-side
+  id        // primary key of row/object
+  ){ 
+  // 
+  let object = {}, value;
+  const select = this.meta.select;  // list of object attributes 
+
+  for(let i=0; i<select.length ;i++){
+    const field_name = select[i];
+    const field      = this.meta.fields[field_name];
+    switch(field.location) {
+      case "column":
+        // data is in column
+        if (this.columns[field_name] === undefined) {
+          value = undefined;
+        } else {
+          value = this.columns[field_name][id];  // maybe undefined
+          if ( "string pk json text textarea float integer date-time date".includes(field.type) ) {
+             // value is already set, do not want to trigger the alert below
+          } else {
+            alert(`file="table_module"
+method="get_object"
+field.type="${field.type}"
+field_name="${field_name}"`);
+          }
+        }
+        break;
+
+      default:
+        // code block
+        alert(`file="recordUx_module.js"
+method="get_object_display"
+field.location="${field.location}"`);
+    }
+
+    if (value !== undefined) {
+      object[field_name] = value;
+    } else {
+      object[field_name] = "";
     }
   }
 

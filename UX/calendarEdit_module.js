@@ -6,7 +6,7 @@ class calendarEditClass {
 #month
 #day
 
-constructor(  // calendarEditClass  client-sides 
+constructor(  // calendarEditClass  client-side
   cal
   ){ 
     // move values in pop up form to graph edge
