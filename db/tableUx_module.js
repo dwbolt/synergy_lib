@@ -25,7 +25,6 @@ constructor(
 
   // data
   this.recordUX          = new recordUxClass(this);
-  this.tableUxB          = null;  // points to tableUx used for edit and copy buffer
   this.model;               // pointer to instance of tableClass
   this.tableName;           // name of table in Database
   this.searchVisible     = true; // display boxes to put search criteria in
@@ -36,7 +35,6 @@ constructor(
   this.columnTransform   = [];  // array of fucntions, one for each column
   this.footer            = [];  //
 
-  this.buffer      = false; // are we displaying the model buffer
   this.tag         = null;  // name of tag to display if null, display entire table
   this.tags        = {}     // each attribute contains a list of indexes into this.model.json.rows these are a subset of the table rows
 
@@ -198,15 +196,8 @@ setLineNumberVisible(value) {this.lineNumberVisible = value;}
 setRowNumberVisible( value) {this.rowNumberVisible  = value;}
 setFooter(           value) {
   this.footer   = value;
-  if (this.tableUxB) {
-    // make the buff point to the same model as the main tableUx
-    this.tableUxB.footer  = value;
-  }
 }
 setSelected(         array) {this.selected          = array;}
-setBuffer(         tableUx) {this.tableUxB          = tableUx;}  // rember the tableUx Buffer
-
-
 export( // tableUxClass - client-side
 ){ // as CSV file
   const table = this.getModel();    // get access to class holding the table data
@@ -348,10 +339,7 @@ displayData(){   // tableUxClass - client-side
   }
 
   // figure out maxrow
-  if (this.buffer) {
-    // display bufffer
-    this.paging.rowMax = this.model.getRowBuffer().length;
-  } else if (this.tag === "null"  || this.tag === null) {
+ if (this.tag === "null"  || this.tag === null) {
     // display all data
     this.paging.rowMax = this.getModel().get_PK().length;
   } else {
@@ -495,12 +483,6 @@ setModel( // let class know what data it will be displaying/using
 ) {
   this.tableName  = name;           // string
   this.model      = db.getTable(name);  // is of class tableClass
-  /*
-  if (this.tableUxB) {
-    // make the buff point to the same model as the main tableUx
-    this.tableUxB.tableName  = name;           // string
-    this.tableUxB.model      = db.json[name];  // is of class tableClass
-  }*/
 }
 
 set_model( // let class know what data it will be displaying/using
@@ -523,10 +505,7 @@ appendHTMLrow(  // tableUxClass - client-side
 
   // decide if raw data or a tag list is being displayed
   let PK;
-  if (this.buffer) {
-    // display bufffer
-    PK = rowIndex
-  } else if (this.tag === "null"  || this.tag === null) {
+  if (this.tag === "null"  || this.tag === null) {
     // display all data
     PK = arrayIndex;
   } else {
@@ -643,10 +622,6 @@ setColumnFormat( // tableUxClass - client-side
   ,value  //
   ) {  // set <td> attributes to be added
   this.columnFormat[i] = value;
-  if (this.tableUxB) {
-    // make the buff point to the same model as the main tableUx
-    this.tableUxB.columnFormat[i] = value;
-  }
 }
 clearColumnFormat(){ this.columnFormat =[];}
 
@@ -655,11 +630,7 @@ setColumnTransform( // tableUxClass - client-side
   i
   ,value
   ) { // set function to be called before value is displayed
-             this.columnTransform[i] = value;
-  if (this.tableUxB) {
-    // make the buff point to the same model as the main tableUx
-    this.tableUxB.columnTransform[i] = value;
-  }
+  this.columnTransform[i] = value;
 }
 
 

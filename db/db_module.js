@@ -62,10 +62,12 @@ creating from template
   }
 }
 
+
 async delete(){  // dbClass - client-side  
   // delete database files from server
   let msg = await app.proxy.RESTdelete(this.dir);
 }
+
 
 async table_delete(table_name){
   // delete the table from disk
@@ -75,6 +77,7 @@ async table_delete(table_name){
   delete this.meta.tables[table_name];  // delete table from meta data
   await this.meta_save()                // save updated meta data
 }
+
 
 async new(  // dbClass - client-side  
   url // to database

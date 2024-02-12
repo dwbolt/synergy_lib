@@ -54,7 +54,36 @@ show(  // client side recordUxClass - for a page
     relation = table_relation[this.#primary_key_value];  // all the relations connenting displayed object to other objects
   }
 
-  if (relation != undefined) {
+  // add hide hide all relations
+  let table_names = app.spa.db.get_table_names();
+  for (let i=0; i<table_names.length; i++) {
+    app.spa.id_hide(`tableUX_${table_names[i]}_rel`);
+  }
+  
+  if (relation !== undefined) {
+    // show tables that have relations
+    table_names = Object.keys(relation);  // array of tables that object is related to
+    // walk the tables
+    for(i=0; i<table_names.length; i++) {
+      let table_name = table_names[i];               
+      let relations  = relation[table_name];
+      let pks_table  = Object.keys(relations);
+      
+      // walk the relations in the table, add to array to display
+      let ux = app.spa.tableUX_rel[table_name];  // ux for table
+      app.spa.id_show(`tableUX_${table_name}_rel`);
+      let pks = [];
+      for (let ii=0; ii<pks_table.length; ii++) {
+          let pk          = pks_table[ii];                            // pk of the relation
+          //let record      = app.spa.db.tables[table].get_object(pk);  // relation 
+          //let pk_relation = relation[table][pk];
+          pks.push(pk)
+      }
+      ux.display(pks);  // display table
+    }
+  }
+}
+
     /*
     html += `<div></div> <div></div> <div><b>--- Relations ---</b></div>`
     // there are relations to display
@@ -74,8 +103,6 @@ show(  // client side recordUxClass - for a page
           html += this.relation_display(ii+1,record,table,pk_relation);
       }
     }*/
-  }
-}
 
 /*
 relation_display( // client side recordUxClass - for a page
