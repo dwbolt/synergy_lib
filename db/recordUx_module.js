@@ -35,7 +35,7 @@ show(  // client side recordUxClass - for a page
   for(var i=0; i<select.length; i++) {
     rowValue = table.get_value_relation(this.#primary_key_value, select[i]);
     if (fields[select[i]].type === "textarea") {
-      rowValue = `<textarea rows="5" cols="80" readonly>${rowValue}</textarea>`
+      rowValue = `<textarea rows="5" cols="40" readonly>${rowValue}</textarea>`
     }
     html += `<div>${i+1}</div> <div>${fields[select[i]].header}</div> <div>${rowValue}</div>`
   }
