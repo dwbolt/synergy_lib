@@ -47,6 +47,11 @@ show(  // client side recordUxClass - for a page
   // show buttons
   this.buttonsShow("New Duplicate Edit Delete Relation-T1 Relation-T2 Clear");
 
+  if (0 < document.getElementById(`record_1`).innerHTML.length) {
+    this.relation_show() // show relation
+    return; // show relations of record_1
+  }
+
   // show relations
   const table_relation = app.spa.relation_index[this.tableUX.tableName]; // all relations attached to table
   let relation;
@@ -84,33 +89,14 @@ show(  // client side recordUxClass - for a page
   }
 }
 
-    /*
-    html += `<div></div> <div></div> <div><b>--- Relations ---</b></div>`
-    // there are relations to display
-    const tables = Object.keys(relation);  // array of tables that object is related to
-    // walk the tables
-    for(i=0; i<tables.length; i++) {
-      let table     = tables[i];
-      let relations = relation[table];
-      let pks_table = Object.keys(relations);
-      
-      // walk the links
-      html += `<div><b>${table}</b></div>  <div></div> <div></div>`
-      for (let ii=0; ii<pks_table.length; ii++) {
-          let pk          = pks_table[ii];
-          let record      = app.spa.db.tables[table].get_object(pk);
-          let pk_relation = relation[table][pk];
-          html += this.relation_display(ii+1,record,table,pk_relation);
-      }
-    }*/
 
-/*
-relation_display( // client side recordUxClass - for a page
-  i             // count 
-  ,record       // object
-  ,table_name   // table  --- should be looking at sturcture not name of table
-  ,pk_relation  
+relation_show( // client side recordUxClass - for a page
 ){
+  // user has previous selected a record_1
+  // user just clicked on display a rercord from a table
+  // if an existing relation exists, allow edit
+  // if no relation exist create, an empty one and allow user to add
+
   const relation = app.spa.db.getTable("relations").get_object_display(pk_relation);
   switch (table_name) {
   case "phones": return `<div>${i}</div> <div>${record.label}</div> <div>+${record.country_code} (${record.area_code}) ${record.phone_number} X ${record.extention}</div>`
@@ -118,7 +104,7 @@ relation_display( // client side recordUxClass - for a page
         default: return `<div>${i}</div> <div>${JSON.stringify(record)}</div> <div>${relation.direction} ${relation.relation} - default case</div>`  
   }
 }
-*/
+
 
 buttonsShow( // client side recordUxClass - for a page
   // "New Add  Edit Duplicate Delete Save  Cancel"
@@ -331,7 +317,7 @@ html_create(){ // client side recordUxClass - for a page
     return;
   }
     // first time UX is used, so make space for data, and add buttons
-  dom.innerHTML = `<div id='${this.tableUX.DOMid}_record_data' style="display:grid; grid-template-columns:20px 100px 300px"></div>
+  dom.innerHTML = `<div id='${this.tableUX.DOMid}_record_data' class="record"></div>
   <div id='${this.tableUX.DOMid}_record_buttons'> 
   <input hidden type='button' value='New'       onclick="${this.globalName}.new()">
   <input hidden type='button' value='Add'       onclick="${this.globalName}.save()">
