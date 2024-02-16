@@ -466,7 +466,7 @@ get_object_display( // tableClass - client-side
              // value is already set, do not want to trigger the alert below
           } else {
             alert(`file="table_module"
-method="get_object"
+method="get_object_display"
 field.type="${field.type}"
 field_name="${field_name}"`);
           }
@@ -475,7 +475,7 @@ field_name="${field_name}"`);
 
       default:
         // code block
-        alert(`file="recordUx_module.js"
+        alert(`file="table_module.js"
 method="get_object_display"
 field.location="${field.location}"`);
     }

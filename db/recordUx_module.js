@@ -53,7 +53,7 @@ show(  // client side recordUxClass - for a page
   }
 
   // show relations
-  const table_relation = app.spa.relation_index[this.tableUX.tableName]; // all relations attached to table
+  const table_relation = app.spa.relation.index[this.tableUX.tableName]; // all relations attached to table
   let relation;
   if (table_relation != undefined) {
     relation = table_relation[this.#primary_key_value];  // all the relations connenting displayed object to other objects
@@ -97,12 +97,13 @@ relation_show( // client side recordUxClass - for a page
   // if an existing relation exists, allow edit
   // if no relation exist create, an empty one and allow user to add
 
-  const relation = app.spa.db.getTable("relations").get_object_display(pk_relation);
-  switch (table_name) {
-  case "phones": return `<div>${i}</div> <div>${record.label}</div> <div>+${record.country_code} (${record.area_code}) ${record.phone_number} X ${record.extention}</div>`
-  case "people": return `<div>${i}</div> <div>${record.name_last},${record.name_first}</div> <div>${relation.direction} ${relation.relation}</div>`  
-        default: return `<div>${i}</div> <div>${JSON.stringify(record)}</div> <div>${relation.direction} ${relation.relation} - default case</div>`  
-  }
+  // get pk of relation connecting reccord_1 and just clicked record, allow creation of new if undefined
+  const pk_relation = app.spa.relation.pk_get(this.tableUX.tableName, this.#primary_key_value, 
+                                        app.spa.table_active[1].name, app.spa.table_active[1].pk);
+  
+  
+  
+
 }
 
 
@@ -316,7 +317,8 @@ html_create(){ // client side recordUxClass - for a page
     // allready created, no work todo
     return;
   }
-    // first time UX is used, so make space for data, and add buttons
+
+  // first time UX is used, so make space for data, and add buttons
   dom.innerHTML = `<div id='${this.tableUX.DOMid}_record_data' class="record"></div>
   <div id='${this.tableUX.DOMid}_record_buttons'> 
   <input hidden type='button' value='New'       onclick="${this.globalName}.new()">
