@@ -18,9 +18,9 @@ constructor( // recordUxClass - client-side
     this.globalName = tableUX.globalName + ".recordUX";
     this.table      = tableUX.getModel();
     this.table_name = this.tableUX.tableName;
-    this.dom        =  document.getElementById(this.tableUX.DOMid + "_record");
-    this.dom_id     =  document.getElementById(this.tableUX.DOMid + "_record_data");
-    this.dom_id     =  document.getElementById(this.tableUX.DOMid + "_record_");
+    this.dom_id          =  tableUX.DOMid + "_record";
+    this.dom_id_data     =  tableUX.DOMid + "_record_data";
+    this.dom_id_buttons  =  tableUX.DOMid + "_record_buttons";
   }
 }
 
@@ -46,7 +46,7 @@ show(  // client side recordUxClass - for a page
   const  fields = this.table.meta_get("fields");
   let rowValue;
   for(var i=0; i<select.length; i++) {
-    rowValue = table.get_value_relation(this.#primary_key_value, select[i]);
+    rowValue = this.table.get_value_relation(this.#primary_key_value, select[i]);
     if (fields[select[i]].type === "textarea") {
       rowValue = `<textarea rows="5" cols="40" readonly>${rowValue}</textarea>`
     }

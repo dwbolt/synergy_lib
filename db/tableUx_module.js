@@ -21,13 +21,13 @@ constructor(
   ,globalName  // is used in UX on onChange, onClick etc events to get back to this instace of the object
   ,model 
 ) {
-  this.DOMid       = domID;     // remember where table will be displayed
+  this.DOMid      = domID     ; // remember where table will be displayed
   this.globalName = globalName; // remember is used in UX on onChange, onClick etc events
-
+  this.model      = model     ; // pointer to instance of tableClass
+  this.tableName  = model.name; // name of table in Database
+  
   // data
   this.recordUX          = new recordUxClass(this);
-  this.model             = model;               // pointer to instance of tableClass
-  this.tableName;                               // name of table in Database
   this.searchVisible     = true; // display boxes to put search criteria in
   this.statusLineData    = ["tableName","nextPrev","rows","firstLast","tags","rows/page","download","groupBy"];
   this.lineNumberVisible = true;
