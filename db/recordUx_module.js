@@ -13,8 +13,22 @@ class recordUxClass { // recordUxClass - client-side
 constructor( // recordUxClass - client-side
    tableUX       // where table will be displayed
 ) {
-  this.tableUX    = tableUX;                       
-  this.globalName = tableUX.globalName + ".recordUX";
+   if (tableUX) {
+    this.tableUX    = tableUX;                       
+    this.globalName = tableUX.globalName + ".recordUX";
+    this.table      = tableUX.getModel();
+    this.table_name = this.tableUX.tableName;
+    this.dom        =  document.getElementById(this.tableUX.DOMid + "_record");
+    this.dom_id     =  document.getElementById(this.tableUX.DOMid + "_record_data");
+    this.dom_id     =  document.getElementById(this.tableUX.DOMid + "_record_");
+  }
+}
+
+
+globalName_set( // recordUxClass - client-side
+  value
+) {
+  this.globalName = value;
 }
 
 
@@ -27,10 +41,9 @@ show(  // client side recordUxClass - for a page
   }
 
   // recordShow Fields
-  const table   = this.tableUX.getModel()  // get tableClass being displayed
-  let      html = `<div></div> <div></div> <div><b>Table:</b>  ${this.tableUX.tableName} <b>PK:</b> ${this.#primary_key_value}</div>`;
-  const  select = table.meta_get("select");
-  const  fields = table.meta_get("fields");
+  let      html = `<div></div> <div></div> <div><b>Table:</b>  ${this.table_name} <b>PK:</b> ${this.#primary_key_value}</div>`;
+  const  select = this.table.meta_get("select");
+  const  fields = this.table.meta_get("fields");
   let rowValue;
   for(var i=0; i<select.length; i++) {
     rowValue = table.get_value_relation(this.#primary_key_value, select[i]);
@@ -53,7 +66,7 @@ show(  // client side recordUxClass - for a page
   }
 
   // show relations
-  const table_relation = app.spa.relation.index[this.tableUX.tableName]; // all relations attached to table
+  const table_relation = app.spa.relation.index[this.table_name]; // all relations attached to table
   let relation;
   if (table_relation != undefined) {
     relation = table_relation[this.#primary_key_value];  // all the relations connenting displayed object to other objects
@@ -98,12 +111,10 @@ relation_show( // client side recordUxClass - for a page
   // if no relation exist create, an empty one and allow user to add
 
   // get pk of relation connecting reccord_1 and just clicked record, allow creation of new if undefined
-  const pk_relation = app.spa.relation.pk_get(this.tableUX.tableName, this.#primary_key_value, 
+  const pk_relation = app.spa.relation.pk_get(this.table_name, this.#primary_key_value, 
                                         app.spa.table_active[1].name, app.spa.table_active[1].pk);
-  
-  
-  
 
+  app.spa.record_relation.show(pk_relation);
 }
 
 
@@ -193,10 +204,9 @@ field_name=${field_name}`);
 
 
 edit(){ // client side recordUxClass - for a page
-  const table      = this.tableUX.getModel();
   const dom        = `${this.tableUX.DOMid}_record_data`;
-  const fields     = table.meta_get("fields");
-  const field_list = table.meta_get("select");
+  const fields     = this.table.meta_get("fields");
+  const field_list = this.table.meta_get("select");
 
   this.form_create(          dom, fields, field_list  );  // create empty form
   const obj = table.get_object(this.#primary_key_value);  // get object from table
@@ -214,11 +224,10 @@ async save( // client side recordUxClass - for a page
 ) {
   // user clicked save or add record
   // save to change file
-  const table  = this.tableUX.getModel();  // get tableClass being displayed
   const obj    = this.form_read(table);    // move data from form to obj
 
   const prior_key = this.#primary_key_value;
-  this.#primary_key_value = await table.save(obj); 
+  this.#primary_key_value = await this.table.save(obj); 
   if (prior_key != this.#primary_key_value) {
     // added a new record, update tableUX PK list
     this.tableUX.display(); // will update pk display list
@@ -368,13 +377,11 @@ recordDuplicate(){// client side recordUxClass - for a page
 delete(){// client side recordUxClass - for a page
   //alert("recordDelete from memery, not implemented yet")
   //return;
-  const table = this.tableUX.getModel();  // get tableClass being displayed
   table.delete(this.#primary_key_value);  // delete row from data
-  this.tableUX.display(table.PK_get() );  // redisplay data
+  this.tableUX.display(this.table.PK_get() );  // redisplay data
   this.recordCancel();                    // hide record form
   //this.show_changes();                    // show changes
 }
-
 
 
 } // recordUxClass - client-side //  end

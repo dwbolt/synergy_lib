@@ -19,14 +19,15 @@ class tableUxClass { // tableUxClass - client-side
 constructor(
    domID       // where table will be displayed
   ,globalName  // is used in UX on onChange, onClick etc events to get back to this instace of the object
+  ,model 
 ) {
   this.DOMid       = domID;     // remember where table will be displayed
   this.globalName = globalName; // remember is used in UX on onChange, onClick etc events
 
   // data
   this.recordUX          = new recordUxClass(this);
-  this.model;               // pointer to instance of tableClass
-  this.tableName;           // name of table in Database
+  this.model             = model;               // pointer to instance of tableClass
+  this.tableName;                               // name of table in Database
   this.searchVisible     = true; // display boxes to put search criteria in
   this.statusLineData    = ["tableName","nextPrev","rows","firstLast","tags","rows/page","download","groupBy"];
   this.lineNumberVisible = true;
@@ -476,7 +477,7 @@ getTableDom(// tableUxClass - client-side
   return table;
 }
 
-// tableUxClass - client-side
+// tableUxClass - client-side  --- deprecate
 setModel( // let class know what data it will be displaying/using
   db      // database object that table is in
   ,name   // name of table

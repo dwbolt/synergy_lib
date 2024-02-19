@@ -46,7 +46,7 @@ event_add(
   this.format       = new formatClass();  // format time and dates
   this.proxy        = new proxyClass();   // loads graph data from server
   this.table_events = new tableClass();  // where mulit year calander and repeating events live will be used generate this.table
-  this.tableUx      = new tableUxClass(dom,`${this.#appRef}.tableUx`); // create way to display table
+  this.tableUx      = new tableUxClass(dom,`${this.#appRef}.tableUx`); // create way to display table               ********************** will break, need to add model param
   this.urlParams    = new URLSearchParams( window.location.search );  // read params send in the URL
 
   this.timezones = {"ET":-300, "CT":-360, "MT":-420, "PT":-480};  // value is in minutes
