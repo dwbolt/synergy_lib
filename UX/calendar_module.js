@@ -46,17 +46,15 @@ event_add(
   this.format       = new formatClass();  // format time and dates
   this.proxy        = new proxyClass();   // loads graph data from server
   this.table_events = new tableClass();  // where mulit year calander and repeating events live will be used generate this.table
-  this.tableUx      = new tableUxClass(dom,`${this.#appRef}.tableUx`); // create way to display table
+
   this.urlParams    = new URLSearchParams( window.location.search );  // read params send in the URL
 
   this.timezones = {"ET":-300, "CT":-360, "MT":-420, "PT":-480};  // value is in minutes
   this.GMT           = {}                 // place to store GMT start and end of events
 
-  this.tableUx.paging.lines = 3;    // should use a method to do this
+
   this.windowActive = false;        // toggle for pop up window
-  this.tableUx.setSearchVisible(false);                 // hide search
-  this.tableUx.setLineNumberVisible(false);             // hide row line numbers
-  this.tableUx.setRowNumberVisible(false);              // hide row numbers
+
 
   this.table_urls    = [];
   this.event;         // undefined, where a two dim array first number in month, second number is day of month, hold one year's calendar
@@ -407,8 +405,14 @@ edge//
 
 calendar_create(  // calendarClass  client-side
 ) {   // convert this.events to a table that can be displayed with tableUX
-  this.table         = new tableClass();  // where calender will be displayed
-  this.tableUx.set_model( this.table, "weekCal");     
+  this.table         = new tableClass();  // where calender will be stored
+  //this.tableUx.set_model( this.table, "weekCal");     
+
+  this.tableUx      = new tableUxClass(dom,`${this.#appRef}.tableUx`, table); // create way to display table           
+  this.tableUx.setSearchVisible(false);                 // hide search
+  this.tableUx.setLineNumberVisible(false);             // hide row line numbers
+  this.tableUx.setRowNumberVisible(false);              // hide row numbers
+  this.tableUx.paging.lines = 3;    // should use a method to do this
 
   const t      = this.table;  // t -> table we will put event data in to display
   // init metadata for table
