@@ -18,10 +18,16 @@ constructor( // recordUxClass - client-side
     this.globalName = tableUX.globalName + ".recordUX";
     this.table      = tableUX.getModel();
     this.table_name = this.tableUX.tableName;
-    this.dom_id          =  tableUX.DOMid + "_record";
-    this.dom_id_data     =  tableUX.DOMid + "_record_data";
-    this.dom_id_buttons  =  tableUX.DOMid + "_record_buttons";
+    this.dom_ids_set(tableUX.DOMid);
+
   }
+}
+
+
+dom_ids_set(root){ // recordUxClass - client-side
+  this.dom_id          =  root + "_record";
+  this.dom_id_data     =  root + "_record_data";
+  this.dom_id_buttons  =  root + "_record_buttons";
 }
 
 
@@ -53,7 +59,7 @@ show(  // client side recordUxClass - for a page
     html += `<div>${i+1}</div> <div>${fields[select[i]].header}</div> <div>${rowValue}</div>`
   }
 
-  let dom = document.getElementById(this.tableUX.DOMid + "_record_data")
+  let dom = document.getElementById(this.dom_id_data);
   dom.innerHTML = html;
   dom.display = "block";
 
@@ -122,7 +128,7 @@ buttonsShow( // client side recordUxClass - for a page
   // "New Add  Edit Duplicate Delete Save  Cancel"
   s_values   // walk through id=Buttons and show all in the list   
 ){  // client side recordUxClass - for a page
-  let button = document.getElementById(this.tableUX.DOMid + "_record_buttons").firstElementChild;
+  let button = document.getElementById(this.dom_id_buttons).firstElementChild;
   while(button) {
     button.hidden = (s_values.includes(button.value) ? 
       false  // show button
@@ -204,7 +210,7 @@ field_name=${field_name}`);
 
 
 edit(){ // client side recordUxClass - for a page
-  const dom        = `${this.tableUX.DOMid}_record_data`;
+  const dom        = `${this.dom_id_data}`;
   const fields     = this.table.meta_get("fields");
   const field_list = this.table.meta_get("select");
 
@@ -243,13 +249,12 @@ form_read( // client side recordUxClass - for a page
     table  // 
 ){
   const obj         = {};
-  const dom         = `${this.tableUX.DOMid}_record_data`;
   const fields_list = table.meta_get("select");
   const fields_meta = table.meta_get("fields");
 
   for(let i=0; i<fields_list.length; i++) {
       let field_name = fields_list[i]
-      obj[fields_list[i]] = this.form_value(`${dom}_${field_name}`, fields_meta, field_name);
+      obj[fields_list[i]] = this.form_value(`${this.dom_id_data}_${field_name}`, fields_meta, field_name);
       if (obj[fields_list[i]] === undefined){
           delete obj[fields_list[i]];  // do not save undevined attributes
       }
@@ -321,15 +326,15 @@ new(){// client side recordUxClass - for a page
 
 
 html_create(){ // client side recordUxClass - for a page
-  const dom = document.getElementById(this.tableUX.DOMid + "_record");
+  const dom = document.getElementById(this.dom_id);
   if(0<dom.innerHTML.length) {
     // allready created, no work todo
     return;
   }
 
   // first time UX is used, so make space for data, and add buttons
-  dom.innerHTML = `<div id='${this.tableUX.DOMid}_record_data' class="record"></div>
-  <div id='${this.tableUX.DOMid}_record_buttons'> 
+  dom.innerHTML = `<div id='${this.dom_id_data}' class="record"></div>
+  <div id='${this.dom_id_buttons}'> 
   <input hidden type='button' value='New'       onclick="${this.globalName}.new()">
   <input hidden type='button' value='Add'       onclick="${this.globalName}.save()">
   <input hidden type='button' value='Duplicate' onclick="${this.globalName}.duplicate()">
