@@ -41,9 +41,19 @@ globalName_set( // recordUxClass - client-side
 show(  // client side recordUxClass - for a page
   pk // primary key to show
 ){
-  if (!(pk === undefined)) {
+  if (pk === undefined && this.dom_id === "relation_record") {
+    this.buttonsShow("Add Clear");
+  } else if (pk !== undefined) {
     // user clicked on elemnt, remember primary key for other record methodes
     this.#primary_key_value = pk; 
+    // show buttons
+    this.buttonsShow("New Duplicate Edit Delete Relation-T1 Relation-T2 Clear");
+  } else {
+    alert(`file="recordUx_module.js"
+method="show"
+pk="${pk}"
+this.dom_id = "${this.dom_id}"
+this case is not handled`);
   }
 
   // recordShow Fields
@@ -63,11 +73,17 @@ show(  // client side recordUxClass - for a page
   dom.innerHTML = html;
   dom.display = "block";
 
-  // show buttons
-  this.buttonsShow("New Duplicate Edit Delete Relation-T1 Relation-T2 Clear");
 
+  if (this.dom_id === "relation_record") {
+    // just displayed relation between record_1 and the table record, no need to do more
+    if (pk === undefined) {
+      // put in tables and pk for add.
+    } 
+    return;
+  }
   if (0 < document.getElementById(`record_1`).innerHTML.length) {
-    this.relation_show() // show relation
+    app.spa.relation.edit(this.table_name, this.#primary_key_value, 
+      app.spa.table_active[1].name, app.spa.table_active[1].pk) // edit relation
     return; // show relations of record_1
   }
 
@@ -106,21 +122,6 @@ show(  // client side recordUxClass - for a page
       ux.display(pks);  // display table
     }
   }
-}
-
-
-relation_show( // client side recordUxClass - for a page
-){
-  // user has previous selected a record_1
-  // user just clicked on display a rercord from a table
-  // if an existing relation exists, allow edit
-  // if no relation exist create, an empty one and allow user to add
-
-  // get pk of relation connecting reccord_1 and just clicked record, allow creation of new if undefined
-  const pk_relation = app.spa.relation.pk_get(this.table_name, this.#primary_key_value, 
-                                        app.spa.table_active[1].name, app.spa.table_active[1].pk);
-
-  app.spa.record_relation.show(pk_relation);
 }
 
 
@@ -215,7 +216,7 @@ edit(){ // client side recordUxClass - for a page
   const field_list = this.table.meta_get("select");
 
   this.form_create(          dom, fields, field_list  );  // create empty form
-  const obj = table.get_object(this.#primary_key_value);  // get object from table
+  const obj = this.table.get_object(this.#primary_key_value);  // get object from table
   this.form_write(obj,       dom, fields, field_list  );  // load form with values
 
   if (this.#primary_key_value  === undefined ) {
@@ -230,7 +231,7 @@ async save( // client side recordUxClass - for a page
 ) {
   // user clicked save or add record
   // save to change file
-  const obj    = this.form_read(table);    // move data from form to obj
+  const obj    = this.form_read(this.table);    // move data from form to obj
 
   const prior_key = this.#primary_key_value;
   this.#primary_key_value = await this.table.save(obj); 
@@ -355,6 +356,11 @@ html_create(){ // client side recordUxClass - for a page
 get_pk() {  // client side recordUxClass - for a page
   return this.#primary_key_value;
 }
+
+set_pk(value) {  // client side recordUxClass - for a page
+ this.#primary_key_value = value;
+}
+
 
 clear(){  // client side recordUxClass - for a page
   document.getElementById(`${this.tableUX.DOMid}_record_data`).innerHTML = "";
