@@ -49,11 +49,7 @@ show(  // client side recordUxClass - for a page
     // show buttons
     this.buttonsShow("New Duplicate Edit Delete Relation-T1 Relation-T2 Clear");
   } else {
-    alert(`file="recordUx_module.js"
-method="show"
-pk="${pk}"
-this.dom_id = "${this.dom_id}"
-this case is not handled`);
+    // adding a new record
   }
 
   // recordShow Fields
@@ -234,16 +230,29 @@ async save( // client side recordUxClass - for a page
   const obj    = this.form_read(this.table);    // move data from form to obj
 
   const prior_key = this.#primary_key_value;
-  this.#primary_key_value = await this.table.save(obj); 
-  if (prior_key != this.#primary_key_value) {
-    // added a new record, update tableUX PK list
-    this.tableUX.display(); // will update pk display list
-  } else {
-    // updated an existing record
-    this.tableUX.displayData()
+  const msg = await this.table.save(obj);
+  if (msg.success) {
+    this.#primary_key_value = obj.pk;
+    if (prior_key != this.#primary_key_value) {
+      // added a new record, update tableUX PK list
+      this.tableUX.display(); // will update pk display list
+      if (this.dom_id === "relation_record") {
+        // update relation index
+        app.spa.relation.pk_index(obj.pk);
+      }
+    } else {
+      // updated an existing record
+      this.tableUX.displayData();
+    }
+    this.show();          // display record with new data
+    } else {
+      // error
+      alert(`file="recordUx_module.js"
+method="save"
+msg.success="${msg.success}"
+msg.message="${msg.message}"`);
+    }
   }
-  this.show();          // display record with new data
-}
 
 
 form_read( // client side recordUxClass - for a page
