@@ -76,7 +76,7 @@ show(  // client side recordUxClass - for a page
     } 
     return;
   }
-  if (0 < document.getElementById(`stack_record`).innerHTML.length) {
+  if (0 < document.getElementById(`stack_record`).innerHTML.length) {  // this is now broken ****************************************
     app.spa.relation.edit(this.table_name, this.#primary_key_value, 
       app.spa.table_active[1].name, app.spa.table_active[1].pk) // edit relation
     return; // show relations of stack_record
@@ -352,7 +352,7 @@ html_create(){ // client side recordUxClass - for a page
   <input hidden type='button' value='Delete'    onclick="${this.globalName}.delete()"> 
   <input hidden type='button' value='Save'      onclick="${this.globalName}.save()">
   &nbsp - &nbsp
-  <input hidden type='button' value='Stack'  onclick="app.spa.stack()">
+  <input hidden type='button' value='Stack'  onclick="app.spa.stack.push()">
   &nbsp - &nbsp
   <input hidden type='button' value='Clear'     onclick="${this.globalName}.clear()">
   <input hidden type='button' value='Cancel'    onclick="${this.globalName}.cancel()">
