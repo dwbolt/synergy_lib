@@ -18,16 +18,15 @@ constructor( // recordUxClass - client-side
     this.globalName = tableUX.globalName + ".recordUX";
     this.table      = tableUX.getModel();
     this.table_name = this.tableUX.tableName;
-    this.dom_ids_set(tableUX.DOMid);
-
+    this.dom_ids_set(tableUX.DOMid+"_record");
   }
 }
 
 
 dom_ids_set(root){ // recordUxClass - client-side
-  this.dom_id          =  root + "_record";
-  this.dom_id_data     =  root + "_record_data";
-  this.dom_id_buttons  =  root + "_record_buttons";
+  this.dom_id          =  root             ;
+  this.dom_id_data     =  root + "_data"   ;
+  this.dom_id_buttons  =  root + "_buttons";
 }
 
 
@@ -47,7 +46,7 @@ show(  // client side recordUxClass - for a page
     // user clicked on elemnt, remember primary key for other record methodes
     this.#primary_key_value = pk; 
     // show buttons
-    this.buttonsShow("New Duplicate Edit Delete Relation-T1 Relation-T2 Clear");
+    this.buttonsShow("New Duplicate Edit Delete Stack Clear");
   } else {
     // adding a new record
   }
@@ -71,16 +70,16 @@ show(  // client side recordUxClass - for a page
 
 
   if (this.dom_id === "relation_record") {
-    // just displayed relation between record_1 and the table record, no need to do more
+    // just displayed relation between stack_record and the table record, no need to do more
     if (pk === undefined) {
       // put in tables and pk for add.
     } 
     return;
   }
-  if (0 < document.getElementById(`record_1`).innerHTML.length) {
+  if (0 < document.getElementById(`stack_record`).innerHTML.length) {
     app.spa.relation.edit(this.table_name, this.#primary_key_value, 
       app.spa.table_active[1].name, app.spa.table_active[1].pk) // edit relation
-    return; // show relations of record_1
+    return; // show relations of stack_record
   }
 
   // show relations
@@ -353,7 +352,7 @@ html_create(){ // client side recordUxClass - for a page
   <input hidden type='button' value='Delete'    onclick="${this.globalName}.delete()"> 
   <input hidden type='button' value='Save'      onclick="${this.globalName}.save()">
   &nbsp - &nbsp
-  <input hidden type='button' value='Relation-T1'  onclick="app.spa.copy2record_1()">
+  <input hidden type='button' value='Stack'  onclick="app.spa.stack()">
   &nbsp - &nbsp
   <input hidden type='button' value='Clear'     onclick="${this.globalName}.clear()">
   <input hidden type='button' value='Cancel'    onclick="${this.globalName}.cancel()">

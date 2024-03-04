@@ -408,7 +408,7 @@ calendar_create(  // calendarClass  client-side
   this.table         = new tableClass();  // where calender will be stored
   //this.tableUx.set_model( this.table, "weekCal");     
 
-  this.tableUx      = new tableUxClass(this.DOM,`${this.#appRef}.tableUx`, this.table); // create way to display table           
+  this.tableUx      = new tableUxClass(dom,`${this.#appRef}.tableUx`, table); // create way to display table           
   this.tableUx.setSearchVisible(false);                 // hide search
   this.tableUx.setLineNumberVisible(false);             // hide row line numbers
   this.tableUx.setRowNumberVisible(false);              // hide row numbers
