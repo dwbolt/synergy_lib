@@ -76,11 +76,8 @@ show(  // client side recordUxClass - for a page
     } 
     return;
   }
-  if (0 < document.getElementById(`stack_record`).innerHTML.length) {  // this is now broken ****************************************
-    app.spa.relation.edit(this.table_name, this.#primary_key_value, 
-      app.spa.table_active[1].name, app.spa.table_active[1].pk) // edit relation
-    return; // show relations of stack_record
-  }
+
+  app.spa.relation.edit(this.table_name, this.#primary_key_value);
 
   // show relations
   const table_relation = app.spa.relation.index[this.table_name]; // all relations attached to table
