@@ -49,6 +49,7 @@ globalName_set( // recordUxClass - client-side
 show(  // client side recordUxClass - for a page
   pk // primary key to show
 ){
+  // show buttons for record
   if (pk === undefined && this.dom_id === "relation_record") {
     this.buttonsShow("Add Clear");
   } else if (pk !== undefined) {
