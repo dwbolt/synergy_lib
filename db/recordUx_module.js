@@ -13,6 +13,15 @@ class recordUxClass { // recordUxClass - client-side
 constructor( // recordUxClass - client-side
    tableUX       // where table will be displayed
 ) {
+  this.dom_id         ; //  root 
+  this.dom_id_data    ; // data
+  this.dom_id_buttons ; // buttons
+
+  this.tableUX    ;                       
+  this.globalName ;
+  this.table      ; // model
+  this.table_name ;
+
    if (tableUX) {
     this.tableUX    = tableUX;                       
     this.globalName = tableUX.globalName + ".recordUX";
