@@ -20,13 +20,11 @@ constructor( // recordUxClass - client-side
   this.tableUX    ;                       
   this.globalName ;
   this.table      ; // model
-  this.table_name ;
 
    if (tableUX) {
     this.tableUX    = tableUX;                       
     this.globalName = tableUX.globalName + ".recordUX";
     this.table      = tableUX.getModel();
-    this.table_name = this.tableUX.tableName;
     this.dom_ids_set(tableUX.DOMid+"_record");
   }
 }
@@ -62,7 +60,7 @@ show(  // client side recordUxClass - for a page
   }
 
   // recordShow Fields
-  let      html = `<div></div> <div></div> <div><b>Table:</b>  ${this.table_name} <b>PK:</b> ${this.#primary_key_value}</div>`;
+  let      html = `<div></div> <div></div> <div><b>Table:</b>  ${this.table.name} <b>PK:</b> ${this.#primary_key_value}</div>`;
   const  select = this.table.meta_get("select");
   const  fields = this.table.meta_get("fields");
   let rowValue;
@@ -87,10 +85,10 @@ show(  // client side recordUxClass - for a page
     return;
   }
 
-  app.spa.relation.edit(this.table_name, this.#primary_key_value);
+  app.spa.relation.edit(this.table.name, this.#primary_key_value);
 
   // show relations
-  const table_relation = app.spa.relation.index[this.table_name]; // all relations attached to table
+  const table_relation = app.spa.relation.index[this.table.name]; // all relations attached to table
   let relation;
   if (table_relation != undefined) {
     relation = table_relation[this.#primary_key_value];  // all the relations connenting displayed object to other objects
