@@ -27,7 +27,7 @@ constructor(
   this.tableName  = model.name; // name of table in Database
   
   // data
-  this.recordUX          = new recordUxClass(this);
+  //this.recordUX          = new recordUxClass(this);
   this.searchVisible     = true; // display boxes to put search criteria in
   this.statusLineData    = ["tableName","nextPrev","rows","firstLast","tags","rows/page","download","groupBy"];
   this.lineNumberVisible = true;
