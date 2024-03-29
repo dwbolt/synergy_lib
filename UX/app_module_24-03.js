@@ -23,7 +23,7 @@ constructor() {  // appClass - client side
 async main() { // appClass - client side
 	this.pageName = this.urlParams.get('p'); // page to load
 	if (this.pageName === null) {
-		// page not specified so show home page 
+		// show home page
 		const newURL  = encodeURI(`${window.location.pathname}`);
 		const newURLs = newURL.split('/');
 		const lastToken = newURLs[newURLs.length-1].toLowerCase();
@@ -32,8 +32,9 @@ async main() { // appClass - client side
 	}
 
 	this.css                                        = await this.proxy.getJSON("css.json");
-	document.getElementById("footer"    ).innerHTML = await this.proxy.getText("footer.html");
+	//document.getElementById("footer"    ).innerHTML = await this.proxy.getText("footer.html");
 
+	/*
 	if (await this.login.getStatus()) {
 		// user logged in
 		document.getElementById("navigation").innerHTML = await this.proxy.getText("menuUser.html") 
@@ -42,6 +43,7 @@ async main() { // appClass - client side
 		// user not logged in
 		document.getElementById("navigation").innerHTML = await this.proxy.getText("menu.html")
 	}
+	/*
 /*
 	// load data for page
 	this.widgetList = new widgetListClass("main");
@@ -67,7 +69,8 @@ async main() { // appClass - client side
 		// no button, assume rows has an array of nodes to display
 		await this.widgetList.displayList("rows");
 	}
-*/
+	let x=0;  // dummy statement to set breakpoint on
+	*/
 }
 
 
@@ -91,7 +94,20 @@ display( // appClass - client side
 	// called from json buttons
 	dom
 ){
+	let html = "";
+	// get list of rows
+	const rows = app.page.lists[dom.id];
 
+	// walk list and display
+	for(var i=0; i<rows.length; i++) {
+		let color = this.css.rowColors[i % this.css.rowColors.length];
+		html += `<div style="border-radius: 6px; border-style: solid; margin: 5px 5px 5px 5px; padding:  5px 5px 5px 5px; background-color: ${color};">
+		${app.page.nodes[rows[i]]}</div>`;
+	}
+
+	document.getElementById("main").innerHTML = html;
+
+/*
 	// goto url that will have the current button selected
 	const urlParams = new URLSearchParams( window.location.search );
 	let page="";
@@ -104,6 +120,7 @@ display( // appClass - client side
 	}
 
 	window.location.href = encodeURI(`${window.location.origin}/app.html?${page}b=${dom.id}`);
+	*/
 }
 
 
