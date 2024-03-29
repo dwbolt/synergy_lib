@@ -31,7 +31,9 @@ async main() { // appClass - client side
 		if (lastToken === "app.html") { window.location.replace(newURL+"?p=home"        ); }
 	}
 
-	this.css                                        = await this.proxy.getJSON("css.json");
+	this.css  = await this.proxy.getJSON("css.json");
+	const dom = {id:"do"}
+	app.display(dom); // simulate press the "what we do button"
 	//document.getElementById("footer"    ).innerHTML = await this.proxy.getText("footer.html");
 
 	/*
@@ -101,7 +103,7 @@ display( // appClass - client side
 	// walk list and display
 	for(var i=0; i<rows.length; i++) {
 		let color = this.css.rowColors[i % this.css.rowColors.length];
-		html += `<div style="border-radius: 6px; border-style: solid; margin: 5px 5px 5px 5px; padding:  5px 5px 5px 5px; background-color: ${color};">
+		html += `<div class="row" style="border-radius: 6px; border-style: solid; margin: 5px 5px 5px 5px; padding:  5px 5px 5px 5px; background-color: ${color};  ">
 		${app.page.nodes[rows[i]]}</div>`;
 	}
 
@@ -123,6 +125,9 @@ display( // appClass - client side
 	*/
 }
 
+goto(select){
+	window.location.href = encodeURI(`${window.location.origin}/${select.value}`)
+}
 
 buttonURL() {  // appClass - client side
 	this.widgetList.buttonURL();
