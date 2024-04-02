@@ -33,6 +33,7 @@ async main() { // appClass - client side
 
 	this.css  = await this.proxy.getJSON("css.json");
 	const dom = {id:"do"}
+	app.display_header_buttons();
 	app.display(dom); // simulate press the "what we do button"
 	//document.getElementById("footer"    ).innerHTML = await this.proxy.getText("footer.html");
 
@@ -91,6 +92,10 @@ async getPage(  // appClass - client side
 	return await this.proxy.getJSON(url);
 }
 
+display_header_buttons(){
+	document.getElementById("header" ).innerHTML = app.page.header;
+	document.getElementById("buttons").innerHTML = app.page.buttons;
+}
 
 display( // appClass - client side
 	// called from json buttons

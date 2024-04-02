@@ -163,8 +163,8 @@ form_add( // client side recordUxClass - for a page
   switch (field.type) {
 
   case "pk"       : return `${html} <div><input    id="${dom}_${field_name}" type="text" readonly></div>`;
-  case "json"     :
   case "text"     : return `${html} <div><input    id="${dom}_${field_name}" type="text">    </div>`;
+  case "json"     :
   case "textarea" : return `${html} <div><textarea id="${dom}_${field_name}" rows="5" cols="80"></textarea>     </div>`;
   case "integer"  : return `${html} <div><<input    id="${dom}_${field_name}" type="number" onfocusout="app.integer_validate(this)">  </div>`;
   case "float"    : return `${html} <div><<input    id="${dom}_${field_name}" type="number" onfocusout="app.float_validate(  this)">  </div>`;
