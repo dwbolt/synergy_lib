@@ -34,7 +34,7 @@ async main() { // appClass - client side
 	this.css  = await this.proxy.getJSON("css.json");
 	const dom = {id:"do"}
 	app.display_header_buttons();
-	app.display(dom); // simulate press the "what we do button"
+	app.display(0); // simulate press the "what we do button"
 	//document.getElementById("footer"    ).innerHTML = await this.proxy.getText("footer.html");
 
 	/*
@@ -94,21 +94,29 @@ async getPage(  // appClass - client side
 
 display_header_buttons(){
 	document.getElementById("header" ).innerHTML = app.page.header;
-	document.getElementById("buttons").innerHTML = app.page.buttons;
+
+	let html = "";
+	for(var i=0; i<app.page.buttons.length; i++) {
+		let button = app.page.buttons[i];
+		let color = this.css.button_colors[i % this.css.button_colors.length];
+		html +=  `<input class="button" type="button" value="${button.value}"  onclick="app.display(${i})" 
+		style="background-color: var(${color}_fill); border-color: var(${color}_border);">`
+	}
+	document.getElementById("buttons").innerHTML = html;
 }
 
 display( // appClass - client side
 	// called from json buttons
-	dom
+	button_index
 ){
 	let html = "";
-	// get list of rows
-	const rows = app.page.lists[dom.id];
+	const rows = app.page.buttons[button_index].list;
 
 	// walk list and display
 	for(var i=0; i<rows.length; i++) {
-		let color = this.css.rowColors[i % this.css.rowColors.length];
-		html += `<div class="row" style="border-radius: 6px; border-style: solid; margin: 5px 5px 5px 5px; padding:  5px 5px 5px 5px; background-color: ${color};  ">
+		//let color = this.css.rowColors[i % this.css.rowColors.length];
+		let color = this.css.button_colors[i % this.css.button_colors.length];
+		html += `<div class="row" style="border-radius: 6px; border-style: solid; margin: 5px 5px 5px 5px; padding:  5px 5px 5px 5px; background-color: var(${color}_fill);  ">
 		${app.page.nodes[rows[i]]}</div>`;
 	}
 
