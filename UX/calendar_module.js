@@ -446,7 +446,7 @@ calendar_create(  // calendarClass  client-side
       let add="";
       if ( this.login_status) {
         // user calendar
-        add =`<a onClick="${this.#appRef}.edit.event_create(${start.getFullYear()}, ${m}, ${d})">+</a> `
+        add =`<a onClick="${this.#appRef}.edit.event_create(${start.getFullYear()}, ${m}, ${d})" class="pointer">+</a> `
       }
       style = this.style_get(start, firstDate, today);  // set style of day depending on not part of current year, past, today, future,
       let html = `<p ${style}><b>${m}-${d} ${add}</b></p>`;
@@ -460,7 +460,7 @@ calendar_create(  // calendarClass  client-side
         if (this.login_status) {
           // we are on a user calendar
           //user = "&u=" + this.urlParams.get('u');
-          editButton = `<a onClick="${this.#appRef}.edit.event_edit(${pk})">${editButton}</a> `;
+          editButton = `<a onClick="${this.#appRef}.edit.event_edit(${pk})" class="pointer">${editButton}</a> `;
         }
         
         let repeat_class = ""; 
@@ -469,7 +469,7 @@ calendar_create(  // calendarClass  client-side
         } else if(event.repeat == "yearly" ) {repeat_class = "repeat_yearly" ;}
 
         if (event.url === undefined) {
-          html += `${editButton} <u><a onclick="${this.#appRef}.event_display(${event.pk})" class="${repeat_class}">${event.name}</a></u><br>`
+          html += `${editButton} <u><a onclick="${this.#appRef}.event_display(${event.pk})" class="${repeat_class} pointer">${event.name}</a></u><br>`
         } else {
           html += `${editButton} <a href="${event.url}" target="_blank" class="${repeat_class}">${event.name}</a><br>`
         }

@@ -1,5 +1,9 @@
   h5 {text-align:center;padding: 1px; margin:1}
 
+
+
+.pointer {cursor: pointer;}
+
 /* for dates in the past on the calendar*/
 .notYear {font-size: 0;}
 .past     {background-color: lightgrey;}
