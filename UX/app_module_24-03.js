@@ -158,6 +158,38 @@ hide(dom) { // appClass - client side
 	document.getElementById(dom).style.visibility = false;
 }
 
+style_display(domid,value) {
+	// similar to show, hideå
+	const element = document.getElementById(domid);
+
+	switch (value) {
+		case true:
+			element.style.display = 'block';
+			break;
+
+		case false:
+			element.style.display = 'none';
+			break;
+
+		case "toggle":
+			if (element.style.display === "none") {
+				element.style.display = 'block'
+			} else {
+				element.style.display = 'none'
+			}
+			break;
+
+		default:
+			alert(`
+file="app_module_24-03.js"
+method="style_display"
+domid=${domid}
+value="${value}"
+`);
+			break;
+	}
+}
+
 
 } // end appClass
 
