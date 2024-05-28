@@ -19,6 +19,10 @@ constructor() {  // appClass - client side
 	this.css;           // var to hold json css file
 }
 
+picture(url){
+	return `<div style="float:right;width:320px; height:200px;"><img style="object-fit:contain; width:320px; height:200px;" src="${url}"></div>`
+}
+
 
 async main() { // appClass - client side
 	this.pageName = this.urlParams.get('p'); // page to load
@@ -115,7 +119,7 @@ display( // appClass - client side
 	// walk list and display
 	for(var i=0; i<rows.length; i++) {
 		//let color = this.css.rowColors[i % this.css.rowColors.length];
-		let color = this.css.button_colors[i % this.css.button_colors.length];
+		let color = this.css.button_colors[(i+button_index) % this.css.button_colors.length];
 		html += `<div class="row" style="border-radius: 6px; border-style: solid; margin: 5px 5px 5px 5px; padding:  5px 5px 5px 5px; background-color: var(${color}_fill);  ">
 		${app.page.nodes[rows[i]]}</div>`;
 	}
