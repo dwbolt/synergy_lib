@@ -125,7 +125,7 @@ async event_delete( // calendarEditClass  client-side
   // dete pk, will not detelet data
   this.table          = this.calendar.table_events  // pointer events
   const record = this.table.get_object(this.pk);
-  await this.processServerRefresh(record);
+  await this.processServerRefresh(record, true);
 }
 
 
@@ -137,18 +137,25 @@ async save(   // calendarEditClass  client-side
 
 
 async processServerRefresh( // calendarEditClass  client-side
-record
+record          // db record to process
+, remove=false  // false -> save updateds,  true -> delete record
 ) {
   // save new graph
   this.table  = this.calendar.table_events  // pointer events
-  let resp    = await this.table.save(record);
+
+  let resp;
+  if (remove) {
+    resp    = await this.table.delete(record);
+  } else {
+    resp    = await this.table.save(record);
+  }
+
 
   if (!resp.success) {
     alert(`Error resp="${JSON.stringify(resp)}"`);
   }
   this.windowActive = false;
   location.reload();               // will reload page, need to just reload data and refresh page
-
 }
   
 

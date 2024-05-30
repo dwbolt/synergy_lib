@@ -253,7 +253,6 @@ async save( // client side recordUxClass - for a page
       // error
       alert(`file="recordUx_module.js"
 method="save"
-msg.success="${msg.success}"
 msg.message="${msg.message}"`);
     }
   }
@@ -399,12 +398,9 @@ recordDuplicate(){// client side recordUxClass - for a page
 
 
 delete(){// client side recordUxClass - for a page
-  //alert("recordDelete from memery, not implemented yet")
-  //return;
-  table.delete(this.#primary_key_value);  // delete row from data
-  this.tableUX.display(this.table.PK_get() );  // redisplay data
-  this.recordCancel();                    // hide record form
-  //this.show_changes();                    // show changes
+  this.table.delete({"pk": this.#primary_key_value});  // delete row from data
+  this.tableUX.display();                              // redisplay data
+  this.clear();                                        // hide record form since it record is delted
 }
 
 

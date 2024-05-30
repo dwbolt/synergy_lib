@@ -355,22 +355,71 @@ msg=${JSON.stringify(msg)}`);
 
 
 async apply_changes(){ // tableClass - client-side
-  // load change file from csv 
+  // load change file
   const msg     = await app.proxy.RESTget(this.url_changes);                            
   if (!msg.ok) {
-    alert(`error file="table_module.js"
+    alert(`
+error file="table_module.js"
 method="apply_changes"
 msg="${JSON.stringify(msg)}"`);
     return;  // nothing todo since change file not loaded
   }
+
+  // walk through change file and apply changes
   let start =0;
   while(start < msg.value.length) {
+    let obj,str;
     let end = msg.value.indexOf("\n", start);
-    let obj = JSON.parse(msg.value.slice(start,end));
-    this.set_value(obj[0],obj[1],obj[2]);
+    try {
+      str = msg.value.slice(start,end)
+      obj = JSON.parse(str);
+    } catch (error) {
+      debugger
+      alert(`
+file="table_module.js"
+method="apply_changes"
+"str"="${str}"
+JSON.parse(str) failed
+`);
+    }
+
+    if (Array.isArray(obj)) {
+      // assume set value, data is in the form [pk,atrribute,value,date] eg. ["5","name_first",null,"2024-05-29T20:39:09.465Z"]
+      this.set_value(obj[0],obj[1],obj[2]);
+    } else {
+      // assume command  {"pk":"5", "command":"delete", "date":"2024-05-29T20:39:09.465Z"}
+      switch (obj.command) {
+        case "delete":
+          if (typeof(obj.pk)==="string" && this.columns.pk[obj.pk]) {
+            // remove access to pk object
+            delete this.columns.pk[obj.pk];
+          } else {
+            // 
+            alert(`
+file="table_module.js"
+method="apply_changes"
+object.command="${object.command}"
+object.pk="${object.pk}"
+error="not a valid "object.pk"`);
+          }
+
+          break;
+      
+        default:
+          alert(`
+file="table_module.js"
+method="apply_changes"
+object.command="${object.command}"
+object.pk="${object.pk}"
+error="not a valid command"`);
+          break;
+      } 
+    }
+
     start = end+1;
   }
 }
+
 
 async create(  // tableClass - client-side
   name,      // name of table
@@ -586,9 +635,27 @@ RESTpost failed`);
   return msg;
 }
 
-async delete(){// tableClass - client-side
-  // delete table
-  let msg = await app.proxy.RESTdelete(this.dir );
+async delete(record){// tableClass - client-side
+  let msg;
+  if (record) {
+    // delete record in memory
+    delete this.columns.pk[record.pk];  // record is still in columns, we have just removed it from the active list of PK
+
+    // update change log
+    msg  = await app.proxy.RESTpatch( 
+      `{"pk":"${record.pk}", "command":"delete", "date":"${new Date().toISOString()}" }\n`, this.url_changes);
+    if (!msg.success) {
+      // delete did not work
+      alert(`
+file="table_module.js"
+method="delete"
+url="${this.url_changes}"
+msg=${msg.message}`);}
+  } else {
+    // delete table
+    msg = await app.proxy.RESTdelete(this.dir );
+  }
+
   return msg;
 }
 
