@@ -294,7 +294,10 @@ data2form_repeat(   // calendarEditClass  client-side
 
   // set repeat end data, use time from dateEnd
   let r=record.repeat_end_date;
-  document.getElementById('repeat_end_date').value = `${r[0]}-${app.format.padZero(r[1],2)}-${app.format.padZero(r[2],2)}`
+  if (r) {
+    document.getElementById('repeat_end_date').value = `${r[0]}-${app.format.padZero(r[1],2)}-${app.format.padZero(r[2],2)}`
+  }
+
 }
 
 
