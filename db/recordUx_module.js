@@ -166,11 +166,11 @@ form_add( // client side recordUxClass - for a page
   case "text"     : return `${html} <div><input    id="${dom}_${field_name}" type="text">    </div>`;
   case "json"     :
   case "textarea" : return `${html} <div><textarea id="${dom}_${field_name}" rows="5" cols="80"></textarea>     </div>`;
-  case "integer"  : return `${html} <div><<input    id="${dom}_${field_name}" type="number" onfocusout="app.integer_validate(this)">  </div>`;
-  case "float"    : return `${html} <div><<input    id="${dom}_${field_name}" type="number" onfocusout="app.float_validate(  this)">  </div>`;
-  case "date"     : return `${html} <div><<input    id="${dom}_${field_name}" type="date">    </div>`;
-  case "date-time": return `${html} <div><<input    id="${dom}_${field_name}" type="date"> <input id="${dom}_${field_name}_time" type="time"> </div>`;
-  case "boolean"  : return `${html} <div><<input    id="${dom}_${field_name}" type="checkbox"></div>`;
+  case "integer"  : return `${html} <div><input    id="${dom}_${field_name}" type="number" onfocusout="app.integer_validate(this)">  </div>`;
+  case "float"    : return `${html} <div><input    id="${dom}_${field_name}" type="number" onfocusout="app.float_validate(  this)">  </div>`;
+  case "date"     : return `${html} <div><input    id="${dom}_${field_name}" type="date">    </div>`;
+  case "date-time": return `${html} <div><input    id="${dom}_${field_name}" type="date"> <input id="${dom}_${field_name}_time" type="time"> </div>`;
+  case "boolean"  : return `${html} <div><input    id="${dom}_${field_name}" type="checkbox"></div>`;
   case "relation" : return `${html} <div><relation needs work`;
 
   default        :  return `${html} <div>field.type=${field.type} field_name="${field_name} not handeld</div>`;
@@ -195,16 +195,20 @@ form_write(  // client side recordUxClass - for a page
         case "float"   :
         case "integer" : 
         case "text"    :
+        case "json"    :
         case "textarea": document.getElementById(`${dom}_${field_name}`).value        =  value                                 ; break;
         case "boolean" : document.getElementById(`${dom}_${field_name}`).checked      =  value                                 ; break;
         case "date"    : document.getElementById(`${dom}_${field_name}`).valueAsDate  =  new Date(value[0],value[1]-1,value[2]); break;
         case "date-time": document.getElementById(`${dom}_${field_name}`).valueAsDate =  new Date(value[0],value[1]-1,value[2]); 
                           document.getElementById(`${dom}_${field_name}_time`).value  =  
                                                `${app.format.padZero(value[3],2)}:${app.format.padZero(value[4],2)}`           ; break;
-        default        : alert(`file="recordUx_module.js"
+        default        : alert(`
+file="recordUx_module.js"
 method="form_write"
+field_name=${field_name}
 type="${type}"
-field_name=${field_name}`);
+no case for type
+`);
         }}
     }
 }
@@ -310,7 +314,7 @@ form_value( // client side recordUxClass
       break;
   case "json"    : 
     value = document.getElementById(`${dom}`).value;
-    if (!value === "") {
+    if ( !(value === "") ) {
       value = JSON.parse(value);
     }
      break;
