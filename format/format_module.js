@@ -24,7 +24,21 @@ padZero(    // formatClass - client-side
    number  // number to convert to string with leading zeros
   ,length  // total length of string
 ) {
-  let str = number.toString();
+  let str;
+  if (number === null) {number = 0;}
+  if (typeof(number) === "number") {
+    str   = number.toString();
+  } else {
+    alert(`
+file="format_module.js"
+method="padZero"
+typeof(number) ="${typeof(number)}"
+number=${number}
+errow, nember should be of type number
+      `)
+      str="0";  // 
+  }
+
   while (str.length<length) {
     str = "0" + str;
   }
