@@ -68,7 +68,7 @@ async year_change(  // calendarClass  client-side
 }
 
 
-calender_add(url) {// calendarClass  client-side
+calendar_add(url) {// calendarClass  client-side
   this.table_urls.push(url);  // list of calenders to display at one time, will need to add color code, just support one calender for now
 }
   
@@ -173,7 +173,7 @@ next( // tableUxClass - client-side
 }
 
 
-prev( // tableUxClass - client-side
+prev( // calendarClass - client-side
 ) { //next page
   // next (day, weeks, month, year)
   const selected  = document.getElementById("months");  // where the user selects day, weeks, year, a month
