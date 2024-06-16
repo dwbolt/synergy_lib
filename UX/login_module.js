@@ -81,7 +81,7 @@ idDom
     ,"pwd"        : "${document.getElementById("password" ).value}"
   }`
 
-  const serverResp = await app.proxy.postJSON(msg);
+  const serverResp = await this.proxy.postJSON(msg);
   if (serverResp.msg) {
     // user added
     alert("User was sucessfully Added/changed");
@@ -113,7 +113,7 @@ async changePWD() {// loginClass - client side
     ,"pwdNew"     : "${pwdNew}"
   }`
 
-  const serverResp = await app.proxy.postJSON(msg);
+  const serverResp = await this.proxy.postJSON(msg);
   if (serverResp.msg) {
     // password changed
     alert("Password was sucessfully changed");
@@ -158,7 +158,7 @@ async changePWD() {// loginClass - client side
     ,"pwdNew"     : "${pwdNew}"
   }`
 
-  const serverResp = await app.proxy.postJSON(msg);
+  const serverResp = await this.proxy.postJSON(msg);
   if (serverResp.msg) {
     // password changed
     alert("Password was sucessfully changed");
@@ -216,7 +216,7 @@ async login( // loginClass - client side
     }`
 
   // process server responce
-  const serverResponse = await app.proxy.postJSON(msg);
+  const serverResponse = await this.proxy.postJSON(msg);
   if (serverResponse.msg) {
     // login worked
     // this instance will go away when a new page loads, so save info in localStorage
@@ -261,7 +261,7 @@ async logout( // loginClass - client side
   }`
 
   // process server responce
-  const serverResponse = await app.proxy.postJSON(msg);
+  const serverResponse = await this.proxy.postJSON(msg);
   if (serverResponse.msg) {
     // log out worked on server side, all session information cleared
 
@@ -299,7 +299,7 @@ setLoginFalse( // loginClass-  client-side
 async getStatus( // loginClass - client side
 ){
   // ask server still logged in
-  const serverResponse = await app.proxy.postJSON(`{"server":"web", "msg":"logged_in"}`);
+  const serverResponse = await this.proxy.postJSON(`{"server":"web", "msg":"logged_in"}`);
   return serverResponse.msg;  // true -> logged in 
 }
 

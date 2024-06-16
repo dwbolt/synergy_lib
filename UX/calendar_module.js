@@ -1,8 +1,8 @@
 import  {formatClass    }   from '/_lib/format/format_module.js'  ;
-import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'    ;
+import  {loginClass     }   from '/_lib/UX/login_module.js'     ;
 import  {tableClass     }   from '/_lib/db/table_module.js'       ;
 import  {tableUxClass   }   from '/_lib/db/tableUx_module.js'     ;
-import  {nodes2htmlClass}   from '/_lib/UX/nodes2html_module.js'  ;
+//import  {nodes2htmlClass}   from '/_lib/UX/nodes2html_module.js'  ;
 import  {calendarEditClass} from '/_lib/UX/calendarEdit_module.js';
 
 class calendarClass {  // calendarClass  client-side
@@ -44,7 +44,7 @@ event_add(
 
   this.edit         = new calendarEditClass(this);
   this.format       = new formatClass();  // format time and dates
-  this.proxy        = new proxyClass();   // loads graph data from server
+  this.login        = new loginClass();   // loads graph data from server
   this.table_events = new tableClass();  // where mulit year calander and repeating events live will be used generate this.table
 
   this.urlParams    = new URLSearchParams( window.location.search );  // read params send in the URL
@@ -88,9 +88,9 @@ year //
   this.event_init(); // will fill out this.events - array for each day of the year 
 
   // display entire calendar
-  this.login_status = await app.login.getStatus();  // cashe login status for duration of load and build
-
-  const event = app.urlParams.get('e'); // page to load
+  this.login_status = await this.login.getStatus();  // cashe login status for duration of load and build
+  //const event = app.urlParams.get('e'); // page to load
+  const event = new URLSearchParams( window.location.search ).get('e'); // page to load
   if (event) {
     // display event
     this.event_display(event);
@@ -456,7 +456,7 @@ calendar_create(  // calendarClass  client-side
       for(let i=0;  i<eventList.length; i++ ) {
         let pk   = eventList[i];                        // get primary key
         let event = this.table_events.get_object(pk);    // get event at primary key
-        let editButton = app.format.timeFormat(this.GMT[event.pk].start);
+        let editButton = this.format.timeFormat(this.GMT[event.pk].start);
         if (this.login_status) {
           // we are on a user calendar
           //user = "&u=" + this.urlParams.get('u');

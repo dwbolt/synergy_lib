@@ -1,4 +1,5 @@
 import {csvClass    } from '/_lib/db/csv_module.js'     ;
+import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'  ;
 
 class tableClass {  // tableClass - client-side
 
@@ -17,7 +18,9 @@ these features are used in the following appsthis.meta.PK_max
 
 constructor( // tableClass - client-side
 url          // directory where table _meta.json, changes.csv, columns.json live
-) {  
+) {
+  this.proxy = new proxyClass();
+
   if (url != undefined) {
     this.url_set(url);
   }
@@ -323,7 +326,7 @@ async load(  // tableClass - client-side
   this.url_set(dir);
 
   // load table meta data
-  let msg = await app.proxy.getJSONwithError(this.url_meta);
+  let msg = await this.proxy.getJSONwithError(this.url_meta);
   if (msg.status === 200){
     this.meta = msg.json;
   } else {
@@ -335,7 +338,7 @@ msg=${JSON.stringify(msg)}`);
   }
 
   // load columns
-  msg = await app.proxy.getJSONwithError(this.url_columns);
+  msg = await this.proxy.getJSONwithError(this.url_columns);
   if (msg.status === 200){
     this.columns = msg.json;
   } else {
@@ -356,7 +359,7 @@ msg=${JSON.stringify(msg)}`);
 
 async apply_changes(){ // tableClass - client-side
   // load change file
-  const msg     = await app.proxy.RESTget(this.url_changes);                            
+  const msg     = await this.proxy.RESTget(this.url_changes);                            
   if (!msg.ok) {
     alert(`
 error file="table_module.js"
@@ -428,7 +431,7 @@ async create(  // tableClass - client-side
 
   // get temple meta of table
   let url       = `/_lib/db/tables_meta/${meta_name}.json`;
-  let msg = await app.proxy.RESTget(url);
+  let msg = await this.proxy.RESTget(url);
   if (!msg.ok) {
     alert(`file="table_module.js"
 method="create"
@@ -439,7 +442,7 @@ RESTget failed`);
 
   // save meta data fro table
   this.meta = JSON.parse(msg.value);                       
-  msg = await app.proxy.RESTpost(msg.value, this.url_meta);
+  msg = await this.proxy.RESTpost(msg.value, this.url_meta);
   if (!msg.success) {
     alert(`file="table_module.js"
 method="create"
@@ -588,7 +591,7 @@ async save( // tableClass - client-side
   }
 
   // append to change file
-  const msg  = await app.proxy.RESTpatch( csv, this.url_changes);
+  const msg  = await this.proxy.RESTpatch( csv, this.url_changes);
   if (!msg.success) {
     // save did not work
     alert(`
@@ -612,7 +615,7 @@ dir
   }
  
   // save column file with changes applied
-  let msg  = await app.proxy.RESTpost( JSON.stringify(this.columns), this.url_columns);
+  let msg  = await this.proxy.RESTpost( JSON.stringify(this.columns), this.url_columns);
   if (!msg.success) {
     // save did not work
     alert(`file="table_module.js" 
@@ -623,7 +626,7 @@ REST.post failed`);
   };
 
   // empty change file
-  msg  = await app.proxy.RESTpost("", this.url_changes);
+  msg  = await this.proxy.RESTpost("", this.url_changes);
   if (!msg.success) {
     // save did not work
     alert(`file="table_module.js"
@@ -642,7 +645,7 @@ async delete(record){// tableClass - client-side
     delete this.columns.pk[record.pk];  // record is still in columns, we have just removed it from the active list of PK
 
     // update change log
-    msg  = await app.proxy.RESTpatch( 
+    msg  = await this.proxy.RESTpatch( 
       `{"pk":"${record.pk}", "command":"delete", "date":"${new Date().toISOString()}" }\n`, this.url_changes);
     if (!msg.success) {
       // delete did not work
@@ -653,7 +656,7 @@ url="${this.url_changes}"
 msg=${msg.message}`);}
   } else {
     // delete table
-    msg = await app.proxy.RESTdelete(this.dir );
+    msg = await this.proxy.RESTdelete(this.dir );
   }
 
   return msg;
