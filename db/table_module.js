@@ -387,10 +387,18 @@ JSON.parse(str) failed
     }
 
     if (Array.isArray(obj)) {
-      // assume set value, data is in the form [pk,atrribute,value,date] eg. ["5","name_first",null,"2024-05-29T20:39:09.465Z"]
-      this.set_value(obj[0],obj[1],obj[2]);
+      switch (obj[0]) {
+        case "a":  // append
+          break;
+      
+        default:
+          // assume old data, with 
+          // assume set value, data is in the form [pk,atrribute,value,date] eg. ["5","name_first",null,"2024-05-29T20:39:09.465Z"]
+          this.set_value(obj[0],obj[1],obj[2]);
+          break;
+      }
     } else {
-      // assume command  {"pk":"5", "command":"delete", "date":"2024-05-29T20:39:09.465Z"}
+      // assume command  {"command":"delete", "pk":"5",  "date":"2024-05-29T20:39:09.465Z"}
       switch (obj.command) {
         case "delete":
           if (typeof(obj.pk)==="string" && this.columns.pk[obj.pk]) {
@@ -405,7 +413,6 @@ object.command="${object.command}"
 object.pk="${object.pk}"
 error="not a valid "object.pk"`);
           }
-
           break;
       
         default:
