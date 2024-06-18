@@ -37,7 +37,7 @@ async main() { // appClass - client side
 	if (await this.login.getStatus()) {
 		// user logged in
 		document.getElementById("navigation").innerHTML = await this.proxy.getText("menuUser.html") 
-		document.getElementById("userName"  ).innerHTML = `Home for: ${localStorage.nameFirst} ${localStorage.nameLast}`
+		document.getElementById("user_loggedin"  ).innerHTML = `${localStorage.nameFirst} ${localStorage.nameLast}`
 	} else {
 		// user not logged in
 		document.getElementById("navigation").innerHTML = await this.proxy.getText("menu.html")

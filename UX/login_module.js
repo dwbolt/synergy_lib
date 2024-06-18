@@ -45,7 +45,7 @@ async buildForm(  // loginClass - client side
   }
 
   this.form.innerHTML = `
-  Username: <input id='userName'> <br/>
+  Username: <input id='user_name'> <br/>
   Password: <input id='password'  type='password' onkeydown='app.login.onEnter(this,event)'> enter or return key will attempt login<br/>
   <input class='button' type='button' value='${logInOut}'      onclick='app.login.logInOut(this)'>
   <input class='button' type='button' value='Change Password'  onclick='app.login.buildFormChangePWD()'>
@@ -57,23 +57,23 @@ buildFormUserAdd(  // loginClass - client side
 idDom
 ) {
   document.getElementById(idDom).innerHTML =  `
-  Username:     <input id='userName'   > <br/>
+  Username:     <input id='user_name'   > <br/>
   First Name:   <input id='nameFirst'  > <br/>
   Last Name:    <input id='nameLast'   > <br/>
   Email:        <input id='email'      > <br/>
   Phone number: <input id='phone'      > <br/>
   Password New: <input id='password'> <br/>
-  <input class='button' type='button' value='Add User'  onclick='app.login.userAdd(this)'>
+  <input class='button' type='button' value='Add User'  onclick='app.login.user_add(this)'>
   <p id='msg'></p>
     `;
 }
 
- async userAdd() {// loginClass - client side
+ async user_add() {// loginClass - client side
   // process server responce
   const msg = `{
     "server"      : "web"
     ,"msg"        : "addUser"
-    ,"user"       : "${document.getElementById("userName" ).value}"
+    ,"user"       : "${document.getElementById("user_name" ).value}"
     ,"nameFirst"  : "${document.getElementById("nameFirst").value}"
     ,"nameLast"   : "${document.getElementById("nameLast" ).value}" 
     ,"email"      : "${document.getElementById("email"    ).value}" 
@@ -93,7 +93,7 @@ idDom
 
 
 async changePWD() {// loginClass - client side
-  const user     = document.getElementById("userName").value;
+  const user     = document.getElementById("user_name").value;
   const pwd      = document.getElementById("password").value;
   const pwdNew   = document.getElementById("passwordNew").value;
   const pwdNew2  = document.getElementById("passwordNew2").value;
@@ -127,7 +127,7 @@ async changePWD() {// loginClass - client side
 buildFormChangePWD(  // loginClass - client side
 ) {
   this.form.innerHTML =  `
-  Username:    <input id='userName'                    ><br/>
+  Username:    <input id='user_name'                    ><br/>
   Password:    <input id='password'     type='password'><br/>
   Password New <input id='passwordNew'  type='password'><br/>
   Retype New   <input id='passwordNew2' type='password'><br/>
@@ -138,7 +138,7 @@ buildFormChangePWD(  // loginClass - client side
 
 
 async changePWD() {// loginClass - client side
-  const user     = document.getElementById("userName").value;
+  const user     = document.getElementById("user_name").value;
   const pwd      = document.getElementById("password").value;
   const pwdNew   = document.getElementById("passwordNew").value;
   const pwdNew2  = document.getElementById("passwordNew2").value;
@@ -195,12 +195,12 @@ async logInOut(  // loginClass - client side
 
 
 async login( // loginClass - client side
-  // public: Sends the username and password to the server
+  // public: Sends the user_name and password to the server
   // server returns s in order to try to log in
   DOMbutton  //
 ) {
-    // get user credentials from web page, and make sure something was enter for userName and password
-    const user = document.getElementById("userName").value;
+    // get user credentials from web page, and make sure something was enter for user_name and password
+    const user = document.getElementById("user_name").value;
   	const pwd  = document.getElementById("password").value;
   	if (!(user && pwd)) {
   		alert("Username and password are required!");

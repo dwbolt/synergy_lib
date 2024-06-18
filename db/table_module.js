@@ -127,7 +127,13 @@ pk
         r_value += this.format_values(1, relation);
       } else {
         // error
-        alert(`error file="table_module.js" method="get_value_relation" pk="${pk}" this.name="${this.name}" relationn=${JSON.stringify(relation)}`);
+        alert(`
+error file="table_module.js" 
+method="get_value_relation" 
+pk="${pk}" 
+this.name="${this.name}" 
+relationn=${JSON.stringify(relation)}
+`);
       }
     }
     value = r_value;
@@ -322,34 +328,46 @@ url_set(  // tableClass - client-side
 
 async load(  // tableClass - client-side
   dir        // location of table to load
-  ) { 
+  ) {
   this.url_set(dir);
+  this.readonly = false;
 
   // load table meta data
   let msg = await this.proxy.getJSONwithError(this.url_meta);
   if (msg.status === 200){
     this.meta = msg.json;
   } else {
-    alert(`file="table_module.js"
+    this.meta = {}
+    alert(`
+file="table_module.js"
 method="load"
 url="${this.url_meta}"
 msg=${JSON.stringify(msg)}`);
-    return;
+    this.readonly = true;
+    //return;
   }
 
   // load columns
-  msg = await this.proxy.getJSONwithError(this.url_columns);
-  if (msg.status === 200){
-    this.columns = msg.json;
-  } else {
-    alert(`file="table_module.js"
-method="load"
-url="${this.url_columns}"
-msg=${JSON.stringify(msg)}`);
-    return;
+  if (this.readonly) {
+      this.json = {};
+    } else {
+    msg = await this.proxy.getJSONwithError(this.url_columns);
+    if (msg.status === 200){
+      this.columns = msg.json;
+    } else {
+      alert(`
+  file="table_module.js"
+  method="load"
+  url="${this.url_columns}"
+  msg=${JSON.stringify(msg)}`);
+      this.readonly = true;
+      //return;
+    }
   }
 
+
   // load and apply change log
+
   await this.apply_changes();
 
   this.setHeader();
@@ -387,10 +405,15 @@ JSON.parse(str) failed
     }
 
     if (Array.isArray(obj)) {
-      switch (obj[0]) {
+      switch (obj[1]) {
         case "a":  // append
+          this.append(obj);
           break;
-      
+
+        case "h":  // header
+          this.meta_from_header(obj)
+          break;    
+
         default:
           // assume old data, with 
           // assume set value, data is in the form [pk,atrribute,value,date] eg. ["5","name_first",null,"2024-05-29T20:39:09.465Z"]
@@ -427,6 +450,35 @@ error="not a valid command"`);
     }
 
     start = end+1;
+  }
+}
+
+
+meta_from_header(  // tableClass - client-side
+  header // array [timestamp,"h", field0 name, field1 name, ...]
+){
+  // init meta
+  this.meta.fields           = {};
+  this.meta.fields.pk        = {"header" : "PK"       ,  "type" : "pk"      , "location" : "column"}
+  this.meta.select           = ["pk"];
+  this.meta.PK_max           = 0;
+
+  // walk the heade list, skip timestamp and "h" command
+  for(let i=2; i<header.length; i++) {
+    this.meta.fields[     (i-2).toString()] = {"header" : header[i], "location" : "column"};
+    this.meta.select.push((i-2).toString())
+  }
+}
+
+
+append(  // tableClass - client-side
+  record  // array [time steamp, "a", value 0, value 1....]
+){
+  this.meta.PK_max++;  // create next pk
+  const pk = this.meta.PK_max;
+  this.set_value(pk,"pk",pk);                    // add the pk
+  for(let i=0; i<record.length; i++) {  // s
+    this.set_value(pk,(i).toString(),record[i]);  // add remainder of record
   }
 }
 
