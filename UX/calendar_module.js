@@ -2,7 +2,6 @@ import  {formatClass    }   from '/_lib/format/format_module.js'  ;
 import  {loginClass     }   from '/_lib/UX/login_module.js'     ;
 import  {tableClass     }   from '/_lib/db/table_module.js'       ;
 import  {tableUxClass   }   from '/_lib/db/tableUx_module.js'     ;
-//import  {nodes2htmlClass}   from '/_lib/UX/nodes2html_module.js'  ;
 import  {calendarEditClass} from '/_lib/UX/calendarEdit_module.js';
 
 class calendarClass {  // calendarClass  client-side
@@ -101,7 +100,7 @@ year //
 }
 
 
-event_display(  // tableUxClass - client-side
+event_display(  // calendarClass - client-side
   pk){
   let event = this.table_events.get_object(pk);
   alert(`${event.name}
@@ -110,7 +109,7 @@ event_display(  // tableUxClass - client-side
 }
 
 
-calendar_display(// tableUxClass - client-side
+calendar_display(// calendarClass - client-side
 ) {
   // display calenda
   this.calendar_create();  // convert this.events to a table that can be displayed with tableUX
@@ -154,7 +153,7 @@ calendar_display(// tableUxClass - client-side
 }
 
 
-next( // tableUxClass - client-side
+next( // calendarClass - client-side
 ) { //next page
   // next (day, weeks, month, year)
   const selected  = document.getElementById("months");  // where the user selects day, weeks, year, a month
