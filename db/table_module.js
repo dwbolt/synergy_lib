@@ -63,7 +63,11 @@ field="${field}"`);
       if (this.columns[field] === undefined) {
         this.columns[field] = {}; // init
       }
-      this.columns[field][pk] = value;
+      if (value === null) {
+        delete this.columns[field][pk];   // for some reason JSON.stringify converts undivined to null, so convert back to undifined
+      } else {
+        this.columns[field][pk] = value;
+      }
       break;
       
     default:

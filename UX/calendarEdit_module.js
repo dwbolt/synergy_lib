@@ -137,8 +137,8 @@ async save(   // calendarEditClass  client-side
 
 
 async processServerRefresh( // calendarEditClass  client-side
-record          // db record to process
-, remove=false  // false -> save updateds,  true -> delete record
+   record          // db record to process
+  ,remove=false  // false -> save updateds,  true -> delete record
 ) {
   // save new graph
   this.table  = this.calendar.table_events  // pointer events

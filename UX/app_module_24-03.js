@@ -37,8 +37,8 @@ async main() { // appClass - client side
 
 	this.css  = await this.proxy.getJSON("css.json");
 	const dom = {id:"do"}
-	app.display_header_buttons();
-	app.display(0); // simulate press the "what we do button"
+	this.display_header_buttons();
+	this.display(0); // simulate press the "what we do button"
 	//document.getElementById("footer"    ).innerHTML = await this.proxy.getText("footer.html");
 
 	/*

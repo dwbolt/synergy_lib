@@ -102,10 +102,24 @@ year //
 
 event_display(  // calendarClass - client-side
   pk){
-  let event = this.table_events.get_object(pk);
-  alert(`${event.name}
-  ${event.description}`);
 
+  let event = this.table_events.get_object(pk);
+  let link = "";
+
+  if (event.url !== undefined) {
+    // add link to url if defined
+    link = `<a href="${event.url}" target="_blank">More Info</a>`
+  }
+
+  const popup = document.getElementById("popUpForm")
+  popup.innerHTML = `<b>Event Name: ${event.name}</b><br>
+  <b>Details:</b><br><br>
+  ${event.description}<br>
+  <br>
+  ${link}
+  <button onclick="app.page.edit.closeForm(  );">Close</button>
+  `
+  this.edit.hidden(false);
 }
 
 
@@ -467,11 +481,11 @@ calendar_create(  // calendarClass  client-side
         } else if(event.repeat == "monthly") {repeat_class = "repeat_monthly";
         } else if(event.repeat == "yearly" ) {repeat_class = "repeat_yearly" ;}
 
-        if (event.url === undefined) {
+        //if (event.url === undefined) {
           html += `${editButton} <u><a onclick="${this.#appRef}.event_display(${event.pk})" class="${repeat_class} pointer">${event.name}</a></u><br>`
-        } else {
-          html += `${editButton} <a href="${event.url}" target="_blank" class="${repeat_class}">${event.name}</a><br>`
-        }
+        //} else {
+        //  html += `${editButton} <a href="${event.url}" target="_blank" class="${repeat_class}">${event.name}</a><br>`
+       // }
         
       }
 
