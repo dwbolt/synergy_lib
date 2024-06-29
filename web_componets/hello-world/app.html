@@ -27,11 +27,7 @@
   </body>
 </html>
 
-<script>
-const app={"hello-world":[]}
-</script>
-
 <script type="module">
 import  {hello_world_class}    from './hello-world_module.js'  ;
-customElements.define("hello-world", hello_world_class, { extends: "p" });  // register web componet
+customElements.define("hello-world", hello_world_class);  
 </script>
