@@ -23,14 +23,16 @@ let app; // only global variable
 
 <script type="module">
   
-import  {dialog_sfc_class} from '/_lib/web_componets/dialog-sfc/dialog_sfc_module.js';
-customElements.define("dialog-sfc", dialog_sfc_class); 
+import  {dialog_sfc_class} from '/_lib/web_componets/dialog-sfc/_module.js';
 
 app = document.getElementById("dialog");  // create popup object
 app.title_set(`<b>title of box</b>`);
+app.text_set(`just
+plain 
+text`);
 
-app.body_set(`Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse quod alias ut illo doloremque eum ipsum obcaecati distinctio debitis reiciendis quae quia soluta totam doloribus quos nesciunt necessitatibus, consectetur quisquam accusamus ex, dolorum, dicta vel? Nostrum voluptatem totam, molestiae rem at ad autem dolor ex aperiam. Amet assumenda eos architecto, dolor placeat deserunt voluptatibus tenetur sint officiis perferendis atque! Voluptatem maxime eius eum dolorem dolor exercitationem quis iusto totam! Repudiandae nobis nesciunt sequi iure! Eligendi, eius libero. Ex, repellat sapiente!`);
+/*app.body_set(`<b>Lorem</b> ipsum dolor sit amet consectetur adipisicing elit. Esse quod alias ut illo doloremque eum ipsum obcaecati distinctio debitis reiciendis quae quia soluta totam doloribus quos nesciunt necessitatibus, consectetur quisquam accusamus ex, dolorum, dicta vel? Nostrum voluptatem totam, molestiae rem at ad autem dolor ex aperiam. Amet assumenda eos architecto, dolor placeat deserunt voluptatibus tenetur sint officiis perferendis atque! Voluptatem maxime eius eum dolorem dolor exercitationem quis iusto totam! Repudiandae nobis nesciunt sequi iure! Eligendi, eius libero. Ex, repellat sapiente!`);*/
 
-app.buttons_set(` <input type="button" value="close" onclick="app.close()">`);
+//app.buttons_set(` <input type="button" value="close" onclick="app.close()">`);
  
 </script>

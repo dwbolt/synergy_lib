@@ -1,9 +1,3 @@
-/*
-
-https://www.youtube.com/watch?v=TAB_v6yBXIE
-
-*/
-
 class dialog_sfc_class extends HTMLElement { // dialog_class - client side
 
 constructor() {  // dialog_sfc_class - client side
@@ -14,20 +8,21 @@ constructor() {  // dialog_sfc_class - client side
 	this.shadow = this.attachShadow({ mode: "closed" });  
  	// add content to shadow dom
 	this.shadow.innerHTML =  `
-<link href="dialog_sfc.css" rel="stylesheet">
-<dialog id="dialog" class="popup" open>
+<link href="/_lib/web_componets/dialog-sfc/dialog_sfc.css" rel="stylesheet">
+<dialog id="dialog" class="popup">
 <div id="title"></div><br>
-<div id="body"></div><br>
-<div id="buttons"><button id="myButton">Click me</button></div>
-<dialog>            
+<div id="body"></div>
+<div id="buttons"><button id="close">Close</button></div>
+</dialog>            
 `
 }
 
-/*
+
 connectedCallback() { // dialog_sfc_class - client side
-    this.shadow.getElementById('myButton').addEventListener('click', this.handleClick.bind(this));
+    this.shadow.getElementById('close').addEventListener('click', this.close.bind(this));
   }
 
+/*
 handleClick() { // dialog_sfc_class - client side
 alert('Button clicked!');
 }
@@ -47,6 +42,10 @@ body_set(html){    // dialog_sfc_class- client side
 	this.shadow.getElementById("body").innerHTML = html;
 }
 
+text_set(text){    // dialog_sfc_class- client side
+	// not sure I like this, need to add html editor, and get rid of this, could just fource people to use raw html for now.
+	this.body_set(text.replaceAll("\n","<br/>")); // convet /n to <br>
+}
 
 buttons_set(html){  // dialog_sfc_class- client side
 	this.shadow.getElementById("buttons").innerHTML = html;
@@ -73,3 +72,4 @@ close(){ // dialog_sfc_class- client side
 
 
 export { dialog_sfc_class };
+customElements.define("dialog-sfc", dialog_sfc_class); 

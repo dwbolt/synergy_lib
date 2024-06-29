@@ -1,7 +1,6 @@
 import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'  ;
 import  {formatClass    }   from '/_lib/format/format_module.js';
 import  {loginClass     }   from '/_lib/UX/login_module.js'     ;
-//import  {widgetListClass}   from '/_lib/UX/widgetList_module.js';
 import  {calendarClass  }   from '/_lib/UX/calendar_module.js';
 
 
@@ -18,6 +17,7 @@ constructor() {  // appClass - client side
 	this.widgetList;    // will hold instance of widgetListClass
 	this.css;           // var to hold json css file
 }
+
 
 picture(url){
 	return `<div style="float:right;width:320px; height:200px;"><img style="object-fit:contain; width:320px; height:200px;" src="${url}"></div>`

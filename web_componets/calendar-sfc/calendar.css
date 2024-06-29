@@ -94,6 +94,7 @@
 }
 
 /* for the pop up form itself */
+/*
 #popUpForm {
 	display: none;
 	position: fixed; 
@@ -108,7 +109,7 @@
 	height: 700px;
 	background-color: #ffffff
 }
-
+*/
 /* for the labels in the pop up form */
 .popUpLabel {
 	margin-right: 3px;

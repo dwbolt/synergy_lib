@@ -3,15 +3,17 @@ import  {loginClass     }   from '/_lib/UX/login_module.js'     ;
 import  {tableClass     }   from '/_lib/db/table_module.js'       ;
 import  {tableUxClass   }   from '/_lib/db/tableUx_module.js'     ;
 import  {calendarEditClass} from '/_lib/UX/calendarEdit_module.js';
+import  {dialog_sfc_class}  from '/_lib/web_componets/dialog-sfc/dialog_sfc_module.js';
 
-class calendarClass {  // calendarClass  client-side
+
+class calendar_class {  // calendar_class  client-side
   /*
    Calendar data is stored in a database.
   
   High level methods are:
   
   //////////////////////////////// display methods
-  constructor( // calendarClass  client-side
+  constructor( // calendar_class  client-side
 createDate
 event_add( 
 
@@ -32,7 +34,8 @@ event_add(
   
    #appRef 
   
-  constructor( // calendarClass  client-side
+
+  constructor( // calendar_class  client-side
     dom
     ,appRef    // how ui calls this class
   ) {
@@ -60,23 +63,26 @@ event_add(
 }
 
 
-async year_change(  // calendarClass  client-side
+async year_change(  // calendar_class  client-side
   dom
   ){  
   await this.main(parseInt(dom.value),);
 }
 
 
-calendar_add(url) {// calendarClass  client-side
+calendar_add(url) {// calendar_class  client-side
   this.table_urls.push(url);  // list of calenders to display at one time, will need to add color code, just support one calender for now
 }
   
 
-async init() {
+async init() {  // calendar_class  client-side
   await this.table_events.load(this.table_urls[0]);   // for now just support one calendar
+  //  		<link rel="stylesheet" href="/_lib/UX/calendar.css" />
+  customElements.define("dialog-sfc", dialog_sfc_class); 
 }
 
-async main( // calendarClass  client-side
+
+async main( // calendar_class  client-side
 year // 
 ) {
   if (year) {
@@ -100,30 +106,30 @@ year //
 }
 
 
-event_display(  // calendarClass - client-side
+event_display(  // calendar_class - client-side
   pk){
 
   let event = this.table_events.get_object(pk);
-  let link = "";
+  let link = "",description="";
 
   if (event.url !== undefined) {
-    // add link to url if defined
     link = `<a href="${event.url}" target="_blank">More Info</a>`
   }
+  if (event.description !== undefined) {
+    description = event.description;
+  }
 
-  const popup = document.getElementById("popUpForm")
-  popup.innerHTML = `<b>Event Name: ${event.name}</b><br>
-  <b>Details:</b><br><br>
-  ${event.description}<br>
-  <br>
-  ${link}
-  <button onclick="app.page.edit.closeForm(  );">Close</button>
-  `
-  this.edit.hidden(false);
+  const popup = document.getElementById("popUpForm");
+  popup.title_set(`<b>${event.name}</b>`);
+  popup.text_set( `${description}<br><br>${link}`);
+  //popup.body_set( ``);
+
+  //popup.buttons_set(`<button onclick="app.page.edit.closeForm();">Close</button>`);
+  popup.showModal();
 }
 
 
-calendar_display(// calendarClass - client-side
+calendar_display(// calendar_class - client-side
 ) {
   // display calenda
   this.calendar_create();  // convert this.events to a table that can be displayed with tableUX
@@ -167,7 +173,7 @@ calendar_display(// calendarClass - client-side
 }
 
 
-next( // calendarClass - client-side
+next( // calendar_class - client-side
 ) { //next page
   // next (day, weeks, month, year)
   const selected  = document.getElementById("months");  // where the user selects day, weeks, year, a month
@@ -186,7 +192,7 @@ next( // calendarClass - client-side
 }
 
 
-prev( // calendarClass - client-side
+prev( // calendar_class - client-side
 ) { //next page
   // next (day, weeks, month, year)
   const selected  = document.getElementById("months");  // where the user selects day, weeks, year, a month
@@ -204,7 +210,7 @@ prev( // calendarClass - client-side
 }
 
 
-month_chosen(  // calendarClass  client-side
+month_chosen(  // calendar_class  client-side
   // Goes to page that has first day of chosen month
   change = 0 
 ) {
@@ -231,7 +237,7 @@ month_chosen(  // calendarClass  client-side
 }
 
 
-createDate(  // calendarClass  client-side
+createDate(  // calendar_class  client-side
   // returns a starting or ending date for an event event
     edge  //
   ,type  //  "start" -> start date, "end" -> end time, "repeat" -> end of repeat 
@@ -263,7 +269,7 @@ createDate(  // calendarClass  client-side
 }
   
 
-async event_init( // calendarClass  client-side
+async event_init( // calendar_class  client-side
 ) {
   // init events
   this.events =[]                  // this.events[1][12] for january 12 a list of event nodes for that day - expanded from graph
@@ -288,7 +294,7 @@ async event_init( // calendarClass  client-side
 }
 
 
-event_add(  // calendarClass  client-side
+event_add(  // calendar_class  client-side
 event
 ) {
   
@@ -319,12 +325,12 @@ event
     this.one_add(event);
     break;
   default:
-      alert(`in calendarClass.event_add: repeat=${event.repeat}  pk=${event.pk}`);
+      alert(`in calendar_class.event_add: repeat=${event.repeat}  pk=${event.pk}`);
   }
 }
 
 
-findDayInWeek( // calendarClass  client-side
+findDayInWeek( // calendar_class  client-side
   // Returns a Date object of the first instance of day of week in a month
   // ex -- returns the first tuesday in january
   month,
@@ -342,7 +348,7 @@ findDayInWeek( // calendarClass  client-side
 }
 
   
-one_add(  // calendarClass  client-side
+one_add(  // calendar_class  client-side
   e  //
 ){
   const date =  this.GMT[e.pk].start;  //e.start
@@ -350,7 +356,7 @@ one_add(  // calendarClass  client-side
 }
 
 
-weekly_add( // calendarClass  client-side
+weekly_add( // calendar_class  client-side
   event  // event
 ) {
   // walk the daysOffset, first entry should be 0;  we assume
@@ -379,7 +385,7 @@ weekly_add( // calendarClass  client-side
 }
 
 
-monthly_add (  // calendarClass  client-side
+monthly_add (  // calendar_class  client-side
 edge// 
 ) {
   // walk the days, first entry should be 0;
@@ -416,7 +422,7 @@ edge//
 }
 
 
-calendar_create(  // calendarClass  client-side
+calendar_create(  // calendar_class  client-side
 ) {   // convert this.events to a table that can be displayed with tableUX
   this.table         = new tableClass();  // where calender will be stored
   //this.tableUx.set_model( this.table, "weekCal");     
@@ -500,7 +506,7 @@ calendar_create(  // calendarClass  client-side
 }
 
 
-sort(// calendarClass  client-side
+sort(// calendar_class  client-side
 // sort events for the day by time
    a // event id
   ,b // event id
@@ -518,7 +524,7 @@ sort(// calendarClass  client-side
 }
   
 
-style_get(start, firstDate, today) {  // calendarClass  client-side
+style_get(start, firstDate, today) {  // calendar_class  client-side
   if (start<firstDate || start.getFullYear()>this.year) {
     // day is before january 1st of this year  or     // day is after last day of year
     return `data-parentAttribute="['class','notYear']"`
@@ -532,7 +538,7 @@ style_get(start, firstDate, today) {  // calendarClass  client-side
 }
 
 
-findDayInMonth(  // calendarClass  client-sid
+findDayInMonth(  // calendar_class  client-sid
   // This funciton returns an array with the first day being the index of the day in a week -- ex 0 for sunday and 1 for monday
   // The second element in array is the index of week in the month -- ex 1 for first week 2 for second week
   // EX: [2,4] would mean that the day is the 4th tuesday of the month
@@ -545,7 +551,7 @@ findDayInMonth(  // calendarClass  client-sid
 }
   
   
-async moveToDate( // calendarClass  client-side
+async moveToDate( // calendar_class  client-side
     newDate // move to newDate from current date displayed on calendar
 ) {
   // see if we need to change year
@@ -559,7 +565,7 @@ async moveToDate( // calendarClass  client-side
 }
   
   
-today_display( // calendarClass  client-side
+today_display( // calendar_class  client-side
 // jumpts to current date from anywhere on calendar
 ) {
   // get current date (we want to jump to this date)
@@ -575,7 +581,8 @@ today_display( // calendarClass  client-side
 }
   
 
-} // calendarClass  client-side  -end class
+} // calendar_class  client-side  -end class
 
 
-export { calendarClass };
+export { calendar_class };
+customElements.define("calendar-sfc", calendar_class);
