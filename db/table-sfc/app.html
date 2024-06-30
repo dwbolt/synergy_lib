@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset=
+  "UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>table-sfc</title>
@@ -15,16 +16,17 @@
 
 
 <script>
-let app={}; // only global variable
+let app; // only global variable
 </script>
 
 <script type="module">
-import {table_sfc_class} from '/_lib/db/table-sfc/_module.js';
+import {table_sfc_class} from '/_lib/db/table-sfc/_.mjs';
 import {table_class    } from '/_lib/db/table_module.js'     ;
+app = {};
 
 // create some data to view
 app.model = new table_class();   // create model
-const fields = app.model.meta_get("fields"); 
+/*const fields = app.model.meta_get("fields"); 
 // init metadata for table
 fields["pk"          ]  = {"header":"PK"           , "type":"pk"       , "location": "column"};
 fields["name_first"  ]  = {"header":"First Name"   , "type":"text"     , "location": "column"};
@@ -34,12 +36,25 @@ fields["birthday"    ]  = {"header":"Birthday"     , "type":"date"     , "locati
 fields["age"         ]  = {"header":"Age"          , "type":"integer"  , "location": "column"};
 fields["number"      ]  = {"header":"float point"  , "type":"number"   , "location": "column"};
 fields["note"        ]  = {"header":"Comment"      , "type":"textarea" , "location": "column"};
+*/
 
-app.model.set_select(["pk","name_first","name_last","appointment","birthday","number","note"]);  // select all the fields
+//app.model.set_select(["pk"                             ,"name_first","name_last","appointment"    ,"birthday","number","note"]);  // select all the fields
+app.model.apply_changes(
+`["2024-06-30T14:19:12.325Z","h","First Name","Last Name"]
+["2024-06-30T14:19:12.325Z","a","David","Bolt"]
+["2024-06-30T14:19:12.325Z","a","Lisa","Bolt"]
+["2024-06-30T14:19:12.325Z","a","Matthew","Bolt"]
+["2024-06-30T14:19:12.325Z","a","John","Bolt"]
+["2024-06-30T14:19:12.325Z","a","Betty","Bolt"]
+["2024-06-30T14:19:12.325Z","a","Mike","Bolt"]
+["2024-06-30T14:19:12.325Z","a","Chuck","Bolt"]
+`); //,"2024-06-30T14:19:12.325Z","1958-10-16T14:19:12.325Z"]`);
+
 
 // now view data
 app.view  = document.getElementById("table");  // globle object points to web component
 app.view.set_model(app.model,"people");
+app.view.display();
 
  
 </script>

@@ -1,7 +1,7 @@
 import {csvClass    } from '/_lib/db/csv_module.js'     ;
 import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'  ;
 
-class tableClass {  // tableClass - client-side
+class table_class {  // table_class - client-side
 
 /*
 similar to a table in sql rdb. working on support for:
@@ -16,7 +16,7 @@ these features are used in the following appsthis.meta.PK_max
 */
 
 
-constructor( // tableClass - client-side
+constructor( // table_class - client-side
 url          // directory where table _meta.json, changes.csv, columns.json live
 ) {
   this.proxy = new proxyClass();
@@ -40,11 +40,11 @@ url          // directory where table _meta.json, changes.csv, columns.json live
 }
 
 
-set_db( db){this.db   = db;}    // tableClass - client-side
-set_name(n){this.name =  n;}    // tableClass - client-side
+set_db( db){this.db   = db;}    // table_class - client-side
+set_name(n){this.name =  n;}    // table_class - client-side
 
 
-set_value(  // tableClass - client-side
+set_value(  // table_class - client-side
   pk        // table primary key
   ,field    // field name we want value of
   ,value 
@@ -53,9 +53,12 @@ set_value(  // tableClass - client-side
 
   const meta_field = this.meta.fields[field];
   if (meta_field === undefined) {
-    alert(`file="table_module.js"
+    alert(`
+file="table_module.js"
 method="set_value"
-field="${field}"`); 
+field="${field}"
+this.meta.fields[field] === undefined
+`); 
     return;
   }
   switch(meta_field.location) {
@@ -80,7 +83,7 @@ meta_field.location="${meta_field.location}"`);
 }
 
 
-get_value(  // tableClass - client-side
+get_value(  // table_class - client-side
   pk        // table primary key
   ,field    // field name we want value of
 ) {
@@ -111,7 +114,7 @@ meta_field.location=${meta_field.location}`);
 }
 
 
-get_value_relation(  // tableClass - client-side
+get_value_relation(  // table_class - client-side
 // returns display value for both relation fields and non-relation fields
 pk
 ,field
@@ -149,7 +152,7 @@ relationn=${JSON.stringify(relation)}
 }
 
 
-value2string(  // tableClass - client-side
+value2string(  // table_class - client-side
   value
 ){ 
   // value is json
@@ -173,7 +176,7 @@ value="${value}"`);
 }
 
 
-format_values( // tableClass - client-side
+format_values( // table_class - client-side
    table_number  // 
   ,relation
   ){
@@ -189,7 +192,7 @@ format_values( // tableClass - client-side
 }
 
 
-get_unique_values(// tableClass - client-side
+get_unique_values(// table_class - client-side
   field_name
 ){
   alert(`file="table_module.js
@@ -226,7 +229,7 @@ msg="depricated"`)
 
 
 
-get_unique_pks(// tableClass - client-side
+get_unique_pks(// table_class - client-side
   field_name
   ,value
 ){
@@ -238,7 +241,7 @@ get_unique_pks(// tableClass - client-side
 }
 
 
-add_column_value( // tableClass - client-side
+add_column_value( // table_class - client-side
    pk             // primary key
   ,column_name    //
   ,column_value   //
@@ -254,7 +257,7 @@ add_column_value( // tableClass - client-side
 }
 
 
-check_pk(// tableClass - client-side
+check_pk(// table_class - client-side
   pk  // make sure pk is a number
   ){  
   let pk_num = pk;
@@ -288,7 +291,7 @@ this.url_meta="${this.url_meta}"`);
 }
 
 
-set_select(  // tableClass - client-side
+set_select(  // table_class - client-side
 field_names  // array of field names
 ){
   this.meta.select = field_names;
@@ -302,14 +305,14 @@ field_names  // array of field names
 }
 
 
-meta_get(  // tableClass - client-side
+meta_get(  // table_class - client-side
   name // meta attribute name
   ){  
   return this.meta[name];
 }
 
 
-get_PK( // tableClass - client-side
+get_PK( // table_class - client-side
 ) {
   // array of PK keys for entire table;
   if (this.columns.pk === undefined) {
@@ -320,7 +323,7 @@ get_PK( // tableClass - client-side
 }
 
 
-url_set(  // tableClass - client-side
+url_set(  // table_class - client-side
   dir     // root page where table lives
   ){
   this.dir          = dir;
@@ -330,7 +333,7 @@ url_set(  // tableClass - client-side
 }
 
 
-async load(  // tableClass - client-side
+async load(  // table_class - client-side
   dir        // location of table to load
   ) {
   this.url_set(dir);
@@ -369,37 +372,37 @@ msg=${JSON.stringify(msg)}`);
     }
   }
 
-
   // load and apply change log
-
   await this.apply_changes();
-
   this.setHeader();
 }
 
 
-
-async apply_changes(){ // tableClass - client-side
+async apply_changes(log){ // table_class - client-side
   // load change file
-  const msg     = await this.proxy.RESTget(this.url_changes);                            
-  if (!msg.ok) {
-    alert(`
+  let msg;
+  
+  if (log === undefined) {
+   msg     = await this.proxy.RESTget(this.url_changes);                            
+    if (!msg.ok) {
+      alert(`
 error file="table_module.js"
 method="apply_changes"
 msg="${JSON.stringify(msg)}"`);
-    return;  // nothing todo since change file not loaded
+      return;  // nothing todo since change file not loaded
+    }
+    log =msg.value;
   }
 
   // walk through change file and apply changes
   let start =0;
-  while(start < msg.value.length) {
+  while(start < log.length) {
     let obj,str;
-    let end = msg.value.indexOf("\n", start);
+    let end = log.indexOf("\n", start);
     try {
-      str = msg.value.slice(start,end)
+      str = log.slice(start,end)
       obj = JSON.parse(str);
     } catch (error) {
-      debugger
       alert(`
 file="table_module.js"
 method="apply_changes"
@@ -410,19 +413,19 @@ JSON.parse(str) failed
 
     if (Array.isArray(obj)) {
       switch (obj[1]) {
-        case "a":  // append
-          this.append(obj);
-          break;
+      case "a":  // append
+        this.append(obj);
+        break;
 
-        case "h":  // header
-          this.meta_from_header(obj)
-          break;    
+      case "h":  // header
+        this.meta_from_header(obj)
+        break;    
 
-        default:
-          // assume old data, with 
-          // assume set value, data is in the form [pk,atrribute,value,date] eg. ["5","name_first",null,"2024-05-29T20:39:09.465Z"]
-          this.set_value(obj[0],obj[1],obj[2]);
-          break;
+      default:
+        // assume old data, with 
+        // assume set value, data is in the form [pk,atrribute,value,date] eg. ["5","name_first",null,"2024-05-29T20:39:09.465Z"]
+        this.set_value(obj[0],obj[1],obj[2]);
+        break;
       }
     } else {
       // assume command  {"command":"delete", "pk":"5",  "date":"2024-05-29T20:39:09.465Z"}
@@ -458,7 +461,7 @@ error="not a valid command"`);
 }
 
 
-meta_from_header(  // tableClass - client-side
+meta_from_header(  // table_class - client-side
   header // array [timestamp,"h", field0 name, field1 name, ...]
 ){
   // init meta
@@ -475,19 +478,19 @@ meta_from_header(  // tableClass - client-side
 }
 
 
-append(  // tableClass - client-side
+append(  // table_class - client-side
   record  // array [time steamp, "a", value 0, value 1....]
 ){
   this.meta.PK_max++;  // create next pk
   const pk = this.meta.PK_max;
   this.set_value(pk,"pk",pk);                    // add the pk
-  for(let i=0; i<record.length; i++) {  // s
-    this.set_value(pk,(i).toString(),record[i]);  // add remainder of record
+  for(let i=2; i<record.length; i++) {  // s
+    this.set_value(pk,(i-2).toString(),record[i]);  // add remainder of record
   }
 }
 
 
-async create(  // tableClass - client-side
+async create(  // table_class - client-side
   name,      // name of table
   meta_name  // name of structure
   ) {
@@ -518,7 +521,7 @@ RESTpost failed`
 }
 
 
-get_object( // tableClass - client-side
+get_object( // table_class - client-side
   id        // primary key of row/object
   ){ 
   // 
@@ -548,7 +551,7 @@ field_name="${field_name}"`);
 
       default:
         // code block
-        alert(`error: class="tableClass" method="get_object" location="${location}"`)
+        alert(`error: class="table_class" method="get_object" location="${location}"`)
     }
 
     if (value !== undefined) {
@@ -560,7 +563,7 @@ field_name="${field_name}"`);
 }
 
 
-get_object_display( // tableClass - client-side
+get_object_display( // table_class - client-side
   id        // primary key of row/object
   ){ 
   // 
@@ -606,7 +609,7 @@ field.location="${field.location}"`);
 }
 
 
-PK_get( // tableClass - client-side
+PK_get( // table_class - client-side
   key  // primary key, return row
   ){
     alert(`file="table_module.js"
@@ -615,7 +618,7 @@ method="PK_get is depricated"`);
 
 
 // rewwrite to save to change file and memory
-async save( // tableClass - client-side
+async save( // table_class - client-side
   // make change in memory and update change log
   record            // new record values
   ) {
@@ -670,7 +673,7 @@ msg=${msg.message}`);
 }
 
 
-async merge( // tableClass - client-side
+async merge( // table_class - client-side
 dir
 ){
   if (dir != undefined) {
@@ -701,7 +704,7 @@ RESTpost failed`);
   return msg;
 }
 
-async delete(record){// tableClass - client-side
+async delete(record){// table_class - client-side
   let msg;
   if (record) {
     // delete record in memory
@@ -726,7 +729,7 @@ msg=${msg.message}`);}
 }
 
 
-get_field( // tableClass - client-side
+get_field( // table_class - client-side
   i  // index into select array
   ,attribute  // header or type or location..
   ){
@@ -740,7 +743,7 @@ get_field( // tableClass - client-side
   }
 
 
- get_column(  // tableClass - client-side
+ get_column(  // table_class - client-side
   pk  // primary key
   ,i  // select index into header/select
  ) {
@@ -754,7 +757,7 @@ get_field( // tableClass - client-side
  }
  
 
-setHeader() {   // tableClass - client-side
+setHeader() {   // table_class - client-side
   // create header from meta data
   this.meta.header = [];
   const fields           = this.meta.fields;  // point to field meta data
@@ -775,7 +778,7 @@ msg="select field does not exist in field meta data"`)
 }
 
 
-genCSV_header(){  // tableClass - client-side
+genCSV_header(){  // table_class - client-side
   let csv = "";
   let header = this.meta_get("header");
   for(let i=0; i<header.length; i++) {
@@ -786,7 +789,7 @@ genCSV_header(){  // tableClass - client-side
 }
 
 
-genCSVrow( // tableClass - client-side
+genCSVrow( // table_class - client-side
   pk) {
   // will only work for numbers, strings, boolean
   // Will not  work for dates, objects, etc...
@@ -808,7 +811,7 @@ genCSVrow( // tableClass - client-side
 }
 
 
-getColumnFormat(i) { // tableClass - client-side
+getColumnFormat(i) { // table_class - client-side
   alert(`file="table_module.js
 method="getColumnFormat"
 msg="method deprecated"`);
@@ -819,11 +822,11 @@ return false;
 }
 
 
-//getField()       {return this.meta.field         ;} // tableClass - client-side
+//getField()       {return this.meta.field         ;} // table_class - client-side
 
 
 /*
-change_summary(  // tableClass - client-side
+change_summary(  // table_class - client-side
   field
   ){
   const change = this.changes_get("summary");
@@ -838,7 +841,7 @@ change_summary(  // tableClass - client-side
 
 
 /*
-sortList(  // tableClass - client-side
+sortList(  // table_class - client-side
     a_list     // array of row indexes that need to be sorted
   , a_fields   // array of fields to sort on
 ) {
@@ -866,12 +869,12 @@ sortList(  // tableClass - client-side
 }
 */
 
-/*getRows()        {return this.#json.rows          ;} // tableClass - client-side
-getRow(index)    {return this.#json.rows[index]   ;} // tableClass - client-side  */
-//get_primary_key(){return this.#json.primary_key   ;} // tableClass - client-side
+/*getRows()        {return this.#json.rows          ;} // table_class - client-side
+getRow(index)    {return this.#json.rows[index]   ;} // table_class - client-side  */
+//get_primary_key(){return this.#json.primary_key   ;} // table_class - client-side
 
 /*
-changes_get(key=null) { // tableClass - client-side
+changes_get(key=null) { // table_class - client-side
   // return change object for record with primary key = key
   if (key === null){
     // return all the changes is a key is not passed in
@@ -889,17 +892,17 @@ changes_get(key=null) { // tableClass - client-side
 }
 */
 /*
-getRowByIndex( // tableClass - client-side
+getRowByIndex( // table_class - client-side
    index // index number 0-> first field in table
   ,value // value of index
-  )   {return this.#json.rows[ this.#json.index[index][value] ];} // tableClass - client-side
+  )   {return this.#json.rows[ this.#json.index[index][value] ];} // table_class - client-side
 
-getRowsLength() {return this.#json.rows.length   ;} // tableClass - client-side
-getJSON(      ) {return this.#json               ;} // tableClass - client-side
+getRowsLength() {return this.#json.rows.length   ;} // table_class - client-side
+getJSON(      ) {return this.#json               ;} // table_class - client-side
 */
 
 /*
-appendRow(  // tableClass - client-side
+appendRow(  // table_class - client-side
   a_row
   ){
   this.#json.rows.push(a_row);  // adding new row
@@ -908,7 +911,7 @@ appendRow(  // tableClass - client-side
 */
 
 /*
-genRows() {  // tableClass - client-side
+genRows() {  // table_class - client-side
   // creating text file to save
   let txt="";
 
@@ -921,11 +924,11 @@ genRows() {  // tableClass - client-side
   return " "+ txt.slice(1)  // replace leading comma with a space
 }*/
 /*
-clearRows() {this.#json.rows = [];}  // tableClass - client-side
+clearRows() {this.#json.rows = [];}  // table_class - client-side
 */
 
 /*
-total(  // tableClass - client-side
+total(  // table_class - client-side
   col  // integer of column
 ) {
   // add error checking for non-numbers
@@ -942,7 +945,7 @@ total(  // tableClass - client-side
 
 
 /*
-select(   // tableClass - client-side
+select(   // table_class - client-side
   f  // f is boolean function, returns true if we want the row included in the list
 ) {
   let a=[]  // return a list of indexes of table that match the selection criteria
@@ -954,7 +957,7 @@ select(   // tableClass - client-side
         a.push(i);
       }
     }  catch(err) {
-      alert(`tableClass.select error=${err}`)
+      alert(`table_class.select error=${err}`)
     }
   });
   return a;
@@ -963,7 +966,7 @@ select(   // tableClass - client-side
 
 /*
 
-filter(  // tableClass - client-side
+filter(  // table_class - client-side
   f  // f is boolean function, returns true if we want the row included in the list
 ) {
   return this.#json.rows.filter(f);
@@ -971,6 +974,6 @@ filter(  // tableClass - client-side
 */
 
 
-} //  end  of // tableClass - client-side
+} //  end  of // table_class - client-side
 
-export {tableClass};
+export {table_class};

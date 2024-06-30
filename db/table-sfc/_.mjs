@@ -4,7 +4,7 @@ import {table_class         } from '/_lib/db/table_module.js'        ;
 import {select_order_class } from '/_lib/UX/select_order_module.js' ;
 
 
-class table_sfc_class { // table_sfc_class - client-side
+class table_sfc_class  extends HTMLElement { // table_sfc_class - client-side
   // web componet to display table
 
 
@@ -21,8 +21,8 @@ constructor(   // table_sfc_class - client-side
  	// add content to shadow dom
 	this.shadow.innerHTML =  `
 <link href="/_lib/db/table-sfc/_.css" rel="stylesheet">
-<div id="status"></div><br>
-<div id="table"></div>       
+  <div id="status" style="text-align:left; margin-bottom:10px"></div>
+  <div id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>   
 `
 
   //this.DOMid      = domID     ; // remember where table will be displayed
@@ -33,7 +33,7 @@ constructor(   // table_sfc_class - client-side
   // data
   this.recordUX          = new recordUxClass(this);
   this.searchVisible     = true; // display boxes to put search criteria in
-  this.statusLineData    = ["tableName","nextPrev","rows","firstLast","tags","rows/page","download","groupBy"];
+  this.statusLineData    = ["tableName","nextPrev","rows","firstLast","tags","rows/page"]; //,"groupBy","download"
   this.lineNumberVisible = true;
   this.rowNumberVisible  = true
   this.columnFormat      = [];  // array of td attributes, one for each column
@@ -89,24 +89,27 @@ display(        // table_sfc_class - client-side
   }
 
   // add status line and empty table to DOM
-  this.shadow.innerHTML = `
+  /*this.shadow.innerHTML = `
   <div id="status" style="text-align:left; margin-bottom:10px"></div>
   <div id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
   `;
-  
-  // add fields to group by
+  */
+
+  /* add fields to group by
   this.groupby_fields = new select_order_class(`${this.DOMid}__group_by_fields`,`${this.globalName}.groupby_fields`);
   this.groupby_fields.set_template(
     `<input type="button" value="Search"   onclick="${this.globalName}.display_intersection()"><br>
      <input type="button" value="group by" onclick="${this.globalName}.groupby()">
     `
   );
+  */
+ /*
   const fields = this.model.meta_get("fields");
   this.model.meta_get("select").forEach((field, i) => {
     this.groupby_fields.add_choice(field,{"text": fields[field].header});
   });
   this.groupby_fields.add_choices();
-
+*/
   // fill in empty table
   //this.displaySearch()      ;
   this.displayData()        ;  // will display statusLine
@@ -186,10 +189,10 @@ groupby(  // table_sfc_class - client-side
 }
 
 
-changePageSize(  // table_sfc_class - client-side
+change_page_size(  // table_sfc_class - client-side
   e
   ) {
-  this.paging.lines = parseInt(e.value); // convert string to number;
+  this.paging.lines = parseInt(this.shadow.getElementById("rows_per_page").value); // convert string to number;
   this.displayData();
 }
 
@@ -394,17 +397,19 @@ ${options}
 statusLine(   // table_sfc_class - client-side
 ){
   let html = "";
-
+  const e_l = [];
   // create status line in the order of  this.status
   this.statusLineData.forEach((item, i) => {
     switch(item) {
       case "nextPrev":
-        html += `<input id="prev" type="button" onclick ="${this.globalName}.prev()" value="Prev"/>
-                 <input id="next" type="button" onclick ="${this.globalName}.next()" value="Next"/>`
+        html += `<input id="prev" type="button" " value="Prev"/> <input id="next" type="button"  value="Next"/>`
+        e_l.push(["prev", "click", this.prev]);
+        e_l.push(["next", "click", this.next]); 
         break;
       case "firstLast":
-        html += `<input id="first" type="button" onclick ="${this.globalName}.first()" value="First"/>
-                 <input id="last"  type="button" onclick ="${this.globalName}.last() " value="Last"/>`
+        html += `<input id="first" type="button"  value="First"/> <input id="last"  type="button"  value="Last"/>`
+        e_l.push(["first", "click", this.prev]); //onclick ="${this.globalName}.first()"
+        e_l.push(["last" , "click", this.last]); //onclick ="${this.globalName}.last() "
         break;
       case "tableName":
         html += `<b>Table: ${this.tableName}</b>`
@@ -416,13 +421,15 @@ statusLine(   // table_sfc_class - client-side
         html += `tags: ${this.genTags()}`
         break;
       case "rows/page":
-        html += `rows/page: <input id="${this.DOMid}_rows_per_page" type="number" min="1" max="999" value="${this.paging.lines}" onchange="${this.globalName}.changePageSize(this)"/>`
+        html += `rows/page: <input id="rows_per_page" type="number" min="1" max="999" value="${this.paging.lines}"/>`
+        e_l.push(["rows_per_page", "change", this.change_page_size]); 
         break;
       case "download":
         html += `<input type="button" onclick="${this.globalName}.export()" value="Download CSV"/> <a id='download_link'></a>`
         break;
       case "groupBy":
-        html += `<input type="button" onclick="${this.globalName}.groupBy_toggle()" value="Group"/>`
+        html += `<input id="group_by" type="button" value="Group"/>`
+        e_l.push(["group_by", "click", this.groupBy_toggle]); //onclick="${this.globalName}.groupBy_toggle()"
         break;
       default:
         // custom
@@ -434,6 +441,13 @@ statusLine(   // table_sfc_class - client-side
 
   // add to html to DOM
   this.shadow.getElementById("status").innerHTML = html;
+
+  for(let i=0; i<e_l.length; i++) {
+    const el = e_l[i];
+    //this.shadow.getElementById("rows_per_page").addEventListener("change", this.change_page_size.bind(this));
+    this.shadow.getElementById(el[0]).addEventListener(el[1], el[2].bind(this));
+  }
+    
 }
 
 
@@ -469,7 +483,7 @@ displayFooter(){  // table_sfc_class - client-side
 groupBy_toggle(// table_sfc_class - client-side
 ){
   // toggle group_by_div
-  const div = document.getElementById(`${this.DOMid}__group_by`);
+  const div = document.getElementById("group_by");
   div.hidden  = !div.hidden;
 }
 
