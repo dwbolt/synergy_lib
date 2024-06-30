@@ -1,4 +1,4 @@
-class calendarEditClass {
+class calendar_edit_class {
 // works with calendarClass to add/edit/delete events
 
 // used to remember new event date
@@ -6,7 +6,7 @@ class calendarEditClass {
 #month
 #day
 
-constructor(  // calendarEditClass  client-side
+constructor(  // calendar_edit_class  client-side
   cal
   ){ 
     // move values in pop up form to graph edge
@@ -16,7 +16,7 @@ constructor(  // calendarEditClass  client-side
 }
 
 
-hidden(  // calendarEditClass  client-side
+hidden(  // calendar_edit_class  client-side
 bool  // true -> hide,  false -> show
 ) {
   if (bool) {
@@ -98,7 +98,7 @@ pk  // string
 }
 
 
-async event_add(  // calendarEditClass  client-side
+async event_add(  // calendar_edit_class  client-side
 // user click "add" button to save new event on server
 ) {
   this.pk = undefined;      // create a new pk
@@ -106,7 +106,7 @@ async event_add(  // calendarEditClass  client-side
 }
 
 
-get_next_key(  // calendarEditClass  client-side
+get_next_key(  // calendar_edit_class  client-side
   object  // assume keys are string version of numbers
   ) {
   const keys = Object.keys(object);
@@ -120,7 +120,7 @@ get_next_key(  // calendarEditClass  client-side
 }
 
 
-async event_delete( // calendarEditClass  client-side
+async event_delete( // calendar_edit_class  client-side
 ) {
   // dete pk, will not detelet data
   this.table          = this.calendar.table_events  // pointer events
@@ -129,14 +129,14 @@ async event_delete( // calendarEditClass  client-side
 }
 
 
-async save(   // calendarEditClass  client-side
+async save(   // calendar_edit_class  client-side
 // user clicked edits existing event, and now has clicked saved
 ) {
   await this.form_save(); // move popup form data to edit 
 }
 
 
-async processServerRefresh( // calendarEditClass  client-side
+async processServerRefresh( // calendar_edit_class  client-side
    record          // db record to process
   ,remove=false  // false -> save updateds,  true -> delete record
 ) {
@@ -178,7 +178,7 @@ weeklyRepeatDays() {
 }
 
 
-putDate(// calendarEditClass  client-side
+putDate(// calendar_edit_class  client-side
    DOMname // where to put date data
   ,date    // [year, month,day,hours, minutes]
 ){
@@ -194,7 +194,7 @@ if (document.getElementById(`${DOMname}_time`)) {
 }
 
 
-duration_changed( // calendarEditClass  client-side
+duration_changed( // calendar_edit_class  client-side
   ){
     // get duration
     const hours   = parseInt(document.getElementById(`duration_hours`  ).value);
@@ -212,7 +212,7 @@ duration_changed( // calendarEditClass  client-side
 }
 
 
-end_time_changed(){ // calendarEditClass  client-side
+end_time_changed(){ // calendar_edit_class  client-side
   let d       = this.getDate("start");                        
   const start = new Date(d[0], d[1]-1, d[2], d[3],d[4]);      // get start
       d       = this.getDate("end");
@@ -228,7 +228,7 @@ end_time_changed(){ // calendarEditClass  client-side
 }
 
 
-data2form(  // calendarEditClass  client-side
+data2form(  // calendar_edit_class  client-side
 // fills in pop up form from event data
 pk
 ) {
@@ -262,7 +262,7 @@ pk
 }
 
 
-data2form_repeat(   // calendarEditClass  client-side
+data2form_repeat(   // calendar_edit_class  client-side
   record   //
   ){
 
@@ -289,7 +289,7 @@ data2form_repeat(   // calendarEditClass  client-side
     break;
 
   default:
-    alert(`error in calendarEditClass method="data2form" repeat="${edge.repeat}" `);
+    alert(`error in calendar_edit_class method="data2form" repeat="${edge.repeat}" `);
   }
 
   // set repeat end data, use time from dateEnd
@@ -301,7 +301,7 @@ data2form_repeat(   // calendarEditClass  client-side
 }
 
 
-set_weekly_days(  // calendarEditClass  client-side
+set_weekly_days(  // calendar_edit_class  client-side
   // fills in the selector for what days of the week the event repeats on
   record
 ) {
@@ -313,7 +313,7 @@ set_weekly_days(  // calendarEditClass  client-side
 }
 
 
-closeForm(  // calendarEditClass  client-side
+closeForm(  // calendar_edit_class  client-side
   // closes pop up window
 ) {
   this.openMonthDates = 0;
@@ -338,7 +338,7 @@ validateForm(
 }
   
 
-getDate(// calendarEditClass  client-side
+getDate(// calendar_edit_class  client-side
   DOMname // 
 ){
   let dateString = document.getElementById(`${DOMname}_date`).value;   // "2023-04-05"
@@ -369,7 +369,7 @@ getDate(// calendarEditClass  client-side
 }
 
 
-async form_save( // calendarEditClass  client-side
+async form_save( // calendar_edit_class  client-side
 /// moves pop up form to edge for this.graph.edge[edge]
  //   edge // name of edge we are loading
   )   {
@@ -393,7 +393,7 @@ async form_save( // calendarEditClass  client-side
 }
 
 
-form2data_repeat(g){  // calendarEditClass  client-side
+form2data_repeat(g){  // calendar_edit_class  client-side
   // called by form2date, handle repeating data
   if (g.repeat !== "never"){
     // only need this attrebute for repeading data
@@ -432,7 +432,7 @@ repeat="${g.repeat}"`);
 }
 
 
-renderEndDateSelector(  // calendarEditClass  client-side
+renderEndDateSelector(  // calendar_edit_class  client-side
   // renders the end date selector based on chosen selected value from the repeat selector in pop up form
   ) {
   let repeat = document.getElementById("repeat").value;
@@ -473,7 +473,7 @@ renderEndDateSelector(  // calendarEditClass  client-side
 }
 
 
-addNewRepeatMonthy(  // calendarEditClass  client-side
+addNewRepeatMonthy(  // calendar_edit_class  client-side
   // This function is the onClick function for the '+' button on popupform when the 'monthly' repeating option is chosen
   // This adds a new day in the month that the event can repeat on
   // Currently maxing it at 3 dates it can repeat on
@@ -506,7 +506,7 @@ addNewRepeatMonthy(  // calendarEditClass  client-side
 }
 
 
-removeMonthlySelector(  // calendarEditClass  client-side
+removeMonthlySelector(  // calendar_edit_class  client-side
   // This function is the onclick for the '-' that appears next to the selectors when user is choosing the monthly repeat option
   // This removes the selector that it is attached to and resizes the pop up window
   element
@@ -516,6 +516,6 @@ removeMonthlySelector(  // calendarEditClass  client-side
   this.openMonthDates--;
 }
 
-} // calendarEditClass client-side  -end class
+} // calendar_edit_class client-side  -end class
 
-export {calendarEditClass} 
+export {calendar_edit_class} 

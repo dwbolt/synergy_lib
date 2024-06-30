@@ -1,30 +1,34 @@
-//import {dbClass            } from '/_lib/db/db_module.js'           ;
 import {groupByClass       } from '/_lib/db/groupBy_module.js'      ;
 import {recordUxClass      } from '/_lib/db/recordUx_module.js'     ;
-import {tableClass         } from '/_lib/db/table_module.js'        ;
+import {table_class         } from '/_lib/db/table_module.js'        ;
 import {select_order_class } from '/_lib/UX/select_order_module.js' ;
 
 
-class tableUxClass { // tableUxClass - client-side
-
-  //////////////////////////////////////////////////////
-  /*
-
-  User Experince for things that have can have table display.
-
-  */
+class table_sfc_class { // table_sfc_class - client-side
+  // web componet to display table
 
 
-// tableUxClass - client-side
-constructor(
-   domID       // where table will be displayed
-  ,globalName  // is used in UX on onChange, onClick etc events to get back to this instace of the object
-  ,model 
+constructor(   // table_sfc_class - client-side
+   //domID       // where table will be displayed
+  //,globalName  // is used in UX on onChange, onClick etc events to get back to this instace of the object
+  //,model 
 ) {
-  this.DOMid      = domID     ; // remember where table will be displayed
-  this.globalName = globalName; // remember is used in UX on onChange, onClick etc events
-  this.model      = model     ; // pointer to instance of tableClass
-  this.tableName  = model.name; // name of table in Database
+  	// constructor is called when the element is displayed
+	super();
+
+	// create a shadow dom                           
+	this.shadow = this.attachShadow({ mode: "closed" });  
+ 	// add content to shadow dom
+	this.shadow.innerHTML =  `
+<link href="/_lib/db/table-sfc/_.css" rel="stylesheet">
+<div id="status"></div><br>
+<div id="table"></div>       
+`
+
+  //this.DOMid      = domID     ; // remember where table will be displayed
+  //this.globalName = globalName; // remember is used in UX on onChange, onClick etc events
+  //this.model      = model     ; // pointer to instance of table_class
+  //this.tableName  = model.name; // name of table in Database
   
   // data
   this.recordUX          = new recordUxClass(this);
@@ -52,7 +56,7 @@ constructor(
 }
 
 
-delete_row(   // tableUxClass - client-side
+delete_row(   // table_sfc_class - client-side
   key
 ) {
   this.getModel().delete_row(key);
@@ -60,14 +64,14 @@ delete_row(   // tableUxClass - client-side
 }
 
 
-set_hidden(  // tableUxClass - client-side
+set_hidden(  // table_sfc_class - client-side
   value  // true -> hide; false -> show
   ){
-  document.getElementById(this.DOMid).hidden = value;
+  this.shadow.hidden = value;
 }
 
 
-display(        // tableUxClass - client-side
+display(        // table_sfc_class - client-side
   // display table - for first time
   rowArray=null // optional rowarray, display if passed
 ) {
@@ -85,9 +89,9 @@ display(        // tableUxClass - client-side
   }
 
   // add status line and empty table to DOM
-  document.getElementById(this.DOMid).innerHTML = `
-  <div id="${this.DOMid}_status" style="text-align:left; margin-bottom:10px"></div>
-  <div id="${this.DOMid}_table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
+  this.shadow.innerHTML = `
+  <div id="status" style="text-align:left; margin-bottom:10px"></div>
+  <div id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
   `;
   
   // add fields to group by
@@ -110,7 +114,7 @@ display(        // tableUxClass - client-side
 }
 
 
-display_intersection(  // tableUxClass - client-side 
+display_intersection(  // table_sfc_class - client-side 
 ){
   const DOM    = document.getElementById(`${this.DOMid}__intersection`);  // get DOM to fill with select values
   const fields = this.groupby_fields.selected();                          // fields to intersect search
@@ -135,7 +139,7 @@ display_intersection(  // tableUxClass - client-side
 }
 
 
-groupby(  // tableUxClass - client-side  
+groupby(  // table_sfc_class - client-side  
 ){
   // user clicked group by button, so create a group by table and display it
 
@@ -145,7 +149,7 @@ groupby(  // tableUxClass - client-side
   const list = g.groupBy(this.model, groupby_fields); // create groups
 
   // convert info in groupByClass to table
-  const table  = new tableClass();           // create blank table to put data in
+  const table  = new table_class();           // create blank table to put data in
   const fields = table.meta_get("fields");
   groupby_fields.forEach((field, index) => {
     fields[field]          = {};
@@ -182,7 +186,7 @@ groupby(  // tableUxClass - client-side
 }
 
 
-changePageSize(  // tableUxClass - client-side
+changePageSize(  // table_sfc_class - client-side
   e
   ) {
   this.paging.lines = parseInt(e.value); // convert string to number;
@@ -190,7 +194,7 @@ changePageSize(  // tableUxClass - client-side
 }
 
 
-// tableUxClass - client-side
+// table_sfc_class - client-side
 setStatusLineData(   value) {this.statusLineData    = value;}
 setSearchVisible(    value) {this.searchVisible     = value;}
 setLineNumberVisible(value) {this.lineNumberVisible = value;}
@@ -199,7 +203,7 @@ setFooter(           value) {
   this.footer   = value;
 }
 setSelected(         array) {this.selected          = array;}
-export( // tableUxClass - client-side
+export( // table_sfc_class - client-side
 ){ // as CSV file
   const table = this.getModel();    // get access to class holding the table data
   const pks  = table.get_PK();    // get access to array of rows
@@ -231,7 +235,7 @@ export( // tableUxClass - client-side
 
 
 
-displayTagSelected( // tableUxClass - client-side
+displayTagSelected( // table_sfc_class - client-side
   // user slected a tag to display
   e  // points to dropdown holding tags for table
 ) { // user selected a tags list to display
@@ -239,7 +243,7 @@ displayTagSelected( // tableUxClass - client-side
 }
 
 
-// tableUxClass - client-side
+// table_sfc_class - client-side
 displayTag(
   name  // points to dropdown holding tags for table
 ) { // user selected a tags list to display
@@ -249,7 +253,7 @@ displayTag(
 }
 
 
-// tableUxClass - client-side
+// table_sfc_class - client-side
 displaySearch(){
   if (!this.searchVisible) return;
   // add next & prev buttons
@@ -276,7 +280,7 @@ displaySearch(){
 }
 
 
-displayColumnTitles( // tableUxClass - client-side
+displayColumnTitles( // table_sfc_class - client-side
 ){
   // add header    //  this.json[table].DOMid = domID; // remember where table was displayed
   this.skip_columns = 0;
@@ -290,14 +294,14 @@ displayColumnTitles( // tableUxClass - client-side
   };
 
   // set style
-  document.getElementById(`${this.DOMid}_table`).style.setProperty("grid-template-columns",`repeat(${select.length + this.skip_columns},auto)`); 
+  this.shadow.getElementById("table").style.setProperty("grid-template-columns",`repeat(${select.length + this.skip_columns},auto)`); 
 
  // add to html to DOM
- document.getElementById(`${this.DOMid}_table`).innerHTML = html; // append to thead
+ this.shadow.getElementById("table").innerHTML = html; // append to thead
 }
 
 
-displayData(){   // tableUxClass - client-side
+displayData(){   // table_sfc_class - client-side
   let html="";  // init html
   this.displayColumnTitles();
   // build one row at a time
@@ -306,7 +310,7 @@ displayData(){   // tableUxClass - client-side
   }
 
   // display data
-  const table_data =  document.getElementById(`${this.DOMid}_table`)
+  const table_data =  this.shadow.getElementById("table");
   table_data.innerHTML += html;
 
   // format data just appended
@@ -373,7 +377,7 @@ displayData(){   // tableUxClass - client-side
 }
 
 
-genTags(){ // tableUxClass - client-side
+genTags(){ // table_sfc_class - client-side
   // delisplay the tags so user can choose which to view
   let options="";
   Object.keys(this.tags).forEach((item, i) => {
@@ -387,7 +391,7 @@ ${options}
 }
 
 
-statusLine(   // tableUxClass - client-side
+statusLine(   // table_sfc_class - client-side
 ){
   let html = "";
 
@@ -429,11 +433,11 @@ statusLine(   // tableUxClass - client-side
   });
 
   // add to html to DOM
- document.getElementById(`${this.DOMid}_status`).innerHTML = html;
+  this.shadow.getElementById("status").innerHTML = html;
 }
 
 
-displayFooter(){  // tableUxClass - client-side
+displayFooter(){  // table_sfc_class - client-side
   // put agg functions here
   // add empty columns for lineNum and rowNum if they are being displayed
   let html    = "";
@@ -462,7 +466,7 @@ displayFooter(){  // tableUxClass - client-side
 }
 
 
-groupBy_toggle(// tableUxClass - client-side
+groupBy_toggle(// table_sfc_class - client-side
 ){
   // toggle group_by_div
   const div = document.getElementById(`${this.DOMid}__group_by`);
@@ -470,35 +474,35 @@ groupBy_toggle(// tableUxClass - client-side
 }
 
 
-getTableDom(// tableUxClass - client-side
+getTableDom(// table_sfc_class - client-side
 ){
   const e=document.getElementById(this.DOMid);     // dom element where table is displayed
   const table =     e.children[0]; // should be table - brittle code
   return table;
 }
 
-// tableUxClass - client-side  --- deprecate
+// table_sfc_class - client-side  --- deprecate
 setModel( // let class know what data it will be displaying/using
   db      // database object that table is in
   ,name   // name of table
 ) {
   this.tableName  = name;           // string
-  this.model      = db.getTable(name);  // is of class tableClass
+  this.model      = db.getTable(name);  // is of class table_class
 }
 
 set_model( // let class know what data it will be displaying/using
-  table   // table object 
+   table  // table object 
   ,name   // name of table
 ) {
+  this.model      = table;  // is of class table_class
   this.tableName  = name;           // string
-  this.model      = table;  // is of class tableClass
 }
 
 
 getModel(){return this.model}  // will be table class
 
 
-appendHTMLrow(  // tableUxClass - client-side
+appendHTMLrow(  // table_sfc_class - client-side
   // append row from table or tag list
    i           // is line the row is being displayed on
   ,arrayIndex  // row data to be displayed
@@ -546,7 +550,7 @@ appendHTMLrow(  // tableUxClass - client-side
 }
 
 
-formatTransform( // tableUxClass - client-side
+formatTransform( // table_sfc_class - client-side
   value   // orig field value
   , i     // column number
 ){
@@ -582,7 +586,7 @@ formatTransform( // tableUxClass - client-side
 }
 
 
-setDom( // tableUxClass - client-side
+setDom( // table_sfc_class - client-side
   // this is used in the display() method
   element //  2022-04-16 need more doc, not sure this is still used
   ,value  //
@@ -591,7 +595,7 @@ setDom( // tableUxClass - client-side
 }
 
 
-genRows( // tableUxClass - client-side
+genRows( // table_sfc_class - client-side
 // creating text file to save
 ) {
   let txt="";
@@ -606,7 +610,7 @@ genRows( // tableUxClass - client-side
 }
 
 
-getColumnFormat( // tableUxClass - client-side
+getColumnFormat( // table_sfc_class - client-side
   i
   ) { // return <td> attributes to be added
   let f = this.columnFormat[i];
@@ -618,7 +622,7 @@ getColumnFormat( // tableUxClass - client-side
 }
 
 
-setColumnFormat( // tableUxClass - client-side
+setColumnFormat( // table_sfc_class - client-side
   i       //
   ,value  //
   ) {  // set <td> attributes to be added
@@ -627,7 +631,7 @@ setColumnFormat( // tableUxClass - client-side
 clearColumnFormat(){ this.columnFormat =[];}
 
 
-setColumnTransform( // tableUxClass - client-side
+setColumnTransform( // table_sfc_class - client-side
   i
   ,value
   ) { // set function to be called before value is displayed
@@ -638,7 +642,7 @@ setColumnTransform( // tableUxClass - client-side
 clearColumnTransform(){ this.columnTransform = [];}
 
 
-total( // tableUxClass - client-side
+total( // table_sfc_class - client-side
   // add error checking for non-numbers
   col  // column to total
 ) {
@@ -651,7 +655,7 @@ total( // tableUxClass - client-side
   } else if (typeof(col) === "string") {
     f = this.model.json.field[col];
   } else {
-    alert(`error in: tableUxClass.total(), col=${col}`);
+    alert(`error in: table_sfc_class.total(), col=${col}`);
   }
 
   // decide if entire table will be totaled or list of rows
@@ -671,7 +675,7 @@ total( // tableUxClass - client-side
 }
 
 
-unique( // tableUxClass - client-side
+unique( // table_sfc_class - client-side
   // return all the unique values in a table for the given field
   s_field
   ) {
@@ -688,7 +692,7 @@ unique( // tableUxClass - client-side
 }
 
 
-setJSON(  // tableUxClass - client-side
+setJSON(  // table_sfc_class - client-side
   j
   ) {
   // replace place holder of new table with data from loaded file
@@ -698,14 +702,14 @@ setJSON(  // tableUxClass - client-side
 }
 
 
-f(  // tableUxClass - client-side
+f(  // table_sfc_class - client-side
   fieldName
   ) {
   return this.model.json.field[fieldName];
 }
 
 
-field(  // tableUxClass - client-side
+field(  // table_sfc_class - client-side
   fieldA  // create the field attribute from the fieldA
   ) {
   if (fieldA) {
@@ -720,7 +724,7 @@ field(  // tableUxClass - client-side
 }
 
 
-search( // tableUxClass - client-side
+search( // table_sfc_class - client-side
   // user made change in search criteria
 // use recursion
    eDom      // element where search and display is done.
@@ -764,14 +768,14 @@ search( // tableUxClass - client-side
 }
 
 
-next( // tableUxClass - client-side
+next( // table_sfc_class - client-side
 ) { //next page
   this.paging.row = this.paging.row + this.paging.lines;
   this.displayData();
 }
 
 
-prev( /// tableUxClass - client-side
+prev( /// table_sfc_class - client-side
 ) { // previous page
   this.paging.row = this.paging.row - this.paging.lines;
   if (this.paging.row < 0) {
@@ -782,23 +786,22 @@ prev( /// tableUxClass - client-side
 }
 
 
-first( /// tableUxClass - client-side
+first( /// table_sfc_class - client-side
 ){  // first page
   this.paging.row = 0;
   this.displayData();
 }
 
 
-last( /// tableUxClass - client-side
+last( /// table_sfc_class - client-side
 ){  // last page
   this.paging.row = parseInt(this.paging.rowMax/this.paging.lines) * this.paging.lines;
   this.displayData();
 
 
-} // tableUxClass - client-side //  end
+} // table_sfc_class - client-side //  end
 
 }
 
-export {tableUxClass}
-
-
+export {table_sfc_class}
+customElements.define("table-sfc", table_sfc_class); 

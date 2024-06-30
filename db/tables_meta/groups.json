@@ -12,7 +12,7 @@
 }
 
 ,"fields-later" : {
-        "phones"      : {"header" : "Phones"     ,  "type" : "relation", "location" : "column"}
+     "phones"      : {"header" : "Phones"     ,  "type" : "relation", "location" : "column"}
     ,"urls"        : {"header" : "urls"       ,  "type" : "relation", "location" : "column"}
     ,"addresses"   : {"header" : "Addresses"  ,  "type" : "relation", "location" : "column"}
     ,"relations"   : {"header" : "Relations"  ,  "type" : "relation", "location" : "column"}

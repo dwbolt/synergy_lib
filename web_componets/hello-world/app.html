@@ -18,16 +18,18 @@
 
   <body>
     <!-- https://jonathanmh.com/p/web-components-101-hello-world/ --> 
+
     <article>
       <h1>Hello World of Web Components</h1>
       <p>This is a web components demo! Now let's go:</p>
 <hello-world id="v1" style="color: blue;"></hello-world><br>
 <hello-world id="v2" style="color: green;"></hello-world>
     </article>
+
   </body>
 </html>
 
 <script type="module">
-import  {hello_world_class}    from './hello-world_module.js'  ;
-customElements.define("hello-world", hello_world_class);  
+import  {hello_world_class}    from '/_lib/web_componets/hello-world/_module.js'  ;
+
 </script>

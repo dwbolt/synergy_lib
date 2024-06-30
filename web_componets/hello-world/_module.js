@@ -16,3 +16,5 @@ constructor() {
 }
 
 export {hello_world_class}
+
+customElements.define("hello-world", hello_world_class);  

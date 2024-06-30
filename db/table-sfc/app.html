@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>table-sfc</title>
+</head>
+
+<body>
+  <h1>Demo using table-sfc tag</h1>
+  <table-sfc id="table"></table-sfc>
+</body>
+</html>
+
+
+<script>
+let app={}; // only global variable
+</script>
+
+<script type="module">
+import {table_sfc_class} from '/_lib/db/table-sfc/_module.js';
+import {table_class    } from '/_lib/db/table_module.js'     ;
+
+// create some data to view
+app.model = new table_class();   // create model
+const fields = app.model.meta_get("fields"); 
+// init metadata for table
+fields["pk"          ]  = {"header":"PK"           , "type":"pk"       , "location": "column"};
+fields["name_first"  ]  = {"header":"First Name"   , "type":"text"     , "location": "column"};
+fields["name_last"   ]  = {"header":"Last Name"    , "type":"text"     , "location": "column"};
+fields["appointment" ]  = {"header":"Appointment"  , "type":"date-time", "location": "column"};
+fields["birthday"    ]  = {"header":"Birthday"     , "type":"date"     , "location": "column"};
+fields["age"         ]  = {"header":"Age"          , "type":"integer"  , "location": "column"};
+fields["number"      ]  = {"header":"float point"  , "type":"number"   , "location": "column"};
+fields["note"        ]  = {"header":"Comment"      , "type":"textarea" , "location": "column"};
+
+app.model.set_select(["pk","name_first","name_last","appointment","birthday","number","note"]);  // select all the fields
+
+// now view data
+app.view  = document.getElementById("table");  // globle object points to web component
+app.view.set_model(app.model,"people");
+
+ 
+</script>
