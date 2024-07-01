@@ -1,10 +1,10 @@
-import  {tableClass   }   from '/_lib/db/table_module.js'    
+import  {table_class   }   from '/_lib/db/table_module.js'    
 
 class dbClass {  
 /* db - database classes
 
 class dbClass       - more than one table can be in a json file
-class tableClass    -
+class table_class    -
 class groupByClass  -
 
 a Database is a collection of tables stored in a json file.  The entire file is held client side once loaded
@@ -53,7 +53,7 @@ creating from template
   // walk through table data, load and make the table class objects
   const table_names = Object.keys(this.meta.tables);
   for (let i=0; i<table_names.length; i++) {
-    const table                 = new tableClass();       // create
+    const table                 = new table_class();       // create
     this.tables[table_names[i]] = table;  // add table to database
     const table_url             = this.meta.tables[table_names[i]].location;
     await table.load(table_url);          // load
@@ -97,7 +97,7 @@ async new(  // dbClass - client-side
   
   // save relations table
   if (msg.success) {
-    const table = new tableClass(`${url}/relations`);
+    const table = new table_class(`${url}/relations`);
     msg = await table.create("relations","relations");                   // create & save meta data
     if (msg.success) {
       return await table.merge();                            // save columns.json and changes.csv
@@ -126,9 +126,9 @@ loadLocal( // dbClass - client-side   -- should be able to share code here
   // walk through table data, and make the table class objects
   Object.entries(this.#json).forEach((item, i) => {
     // covern raw json data to a table class
-    const t = new tableClass();
+    const t = new table_class();
     t.setJSON(item[1]);      // add loaded table attributes to constructor defaults
-    this.tables[item[0]] = t;  // change plan data to a tableClasse
+    this.tables[item[0]] = t;  // change plan data to a table_classe
     t.field();  // init the field attribute from fieldA array
   });
 
@@ -141,7 +141,7 @@ getJSON(){return this.#json;}  // dbClass - client-side
 
 tableAdd(tableName) { // dbClass - client-side
   // create empty table and add to database
-  const table = new tableClass(`${this.dir}/${tableName}`)  // create empty table
+  const table = new table_class(`${this.dir}/${tableName}`)  // create empty table
   this.tables[tableName] = table;                           // add it the tables obect
   table.set_db(this);                                       // let table know the database it belongs to
   this.meta.tables[tableName] = {"location": `${this.dir}/${tableName}`}// update db meta data to know about table
@@ -152,7 +152,7 @@ tableAdd(tableName) { // dbClass - client-side
 getTable( // dbClass - client-side
   s_tableName
   ) {  
-  return this.tables[s_tableName];  // return instance of tableClass
+  return this.tables[s_tableName];  // return instance of table_class
 }
 
 get_table_names(){

@@ -34,20 +34,8 @@ event_add(
   
 
 constructor( // calendar_class  client-side
- //  dom
-  //  ,appRef    // how ui calls this class
   ) {
-  super();
-  /*
-  // create a shadow dom                           
-	this.shadow = this.attachShadow({ mode: "closed" });  
-  // add content to shadow dom
- this.shadow.innerHTML =  `
-<link href="/_lib/web_componets/calendar-sfc/_.css" rel="stylesheet">
-<dialog-sfc id="dialog" class="popup"></dialog-sfc>
-<calendar-sfc id="calendar"></calendar-sfc>         
-`
-*/
+  super();  // will create this.shadow
 
   this.year      = new Date().getFullYear();  // default to current year, can be overriden when main is called.
 
@@ -61,9 +49,7 @@ constructor( // calendar_class  client-side
   this.timezones = {"ET":-300, "CT":-360, "MT":-420, "PT":-480};  // value is in minutes
   this.GMT           = {}                 // place to store GMT start and end of events
 
-
   this.windowActive = false;        // toggle for pop up window
-
 
   this.table_urls    = [];
   this.event;         // undefined, where a two dim array first number in month, second number is day of month, hold one year's calendar
@@ -142,8 +128,8 @@ calendar_display(// calendar_class - client-side
   this.calendar_create();  // convert this.events to a table that can be displayed with tableUX
 
   this.setStatusLineData( [
-    `<input type="button" id="todayButton" onClick="today_display()" value="Today" />`
-    ,`<select name="months" id="months" onChange="month_chosen()">
+    `<input id="todayButton" type="button"  value="Today" />`
+    ,`<select id="months" name="months"  ">
     <option value="weeks" selected>Viewing Weeks</option>
     <option value="0">01 January</option>
     <option value="1">02 February</option>
@@ -158,12 +144,18 @@ calendar_display(// calendar_class - client-side
     <option value="10">11 November</option>
     <option value="11">12 December</option>
      </select>`
-    ,`<input type="button" value="Prev" onclick="prev()">`
-    ,`<input type="button" value="Next" onclick="next()">`
+    ,`<input id="prev" type="button" value="Prev">`
+    ,`<input id="next" type="button" value="Next">`
     ,"rows/page"
-    ,`Year: <input type="text" value="${this.year}" size="4" onchange="year_change(this)"/>`
-    //`Year: <input type="number" value="${this.year}" oninput="year_change(this)"/>`
-  ]);  // ,"tableName","rows","rows/page","download","tags", "firstLast"
+    ,`Year: <input id="year" type="text" value="${this.year}" size="4"/>`
+  ]);  
+
+  // connect dom element to class method
+  this.shadow.getElementById("todayButton").addEventListener("click" , this.today_display.bind(this));
+  this.shadow.getElementById("months"     ).addEventListener("change", this.month_chosen.bind(this));
+  this.shadow.getElementById("prev"       ).addEventListener("click" , this.prev.bind(this));
+  this.shadow.getElementById("next"       ).addEventListener("click" , this.next.bind(this));
+  this.shadow.getElementById("next"       ).addEventListener("change", this.year_change.bind(this));
 
   for(let i=0; i<7; i++) {
     this.setColumnFormat(i,`class="day"`);  // set class of each day

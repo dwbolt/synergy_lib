@@ -24,7 +24,7 @@ constructor( // recordUxClass - client-side
    if (tableUX) {
     this.tableUX    = tableUX;                       
     this.globalName = tableUX.globalName + ".recordUX";
-    this.table      = tableUX.getModel();
+    //this.table      = tableUX.getModel();               need to convert 
     this.dom_ids_set(tableUX.DOMid+"_record");
   }
 }

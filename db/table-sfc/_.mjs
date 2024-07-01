@@ -443,8 +443,8 @@ statusLine(   // table_sfc_class - client-side
   this.shadow.getElementById("status").innerHTML = html;
 
   for(let i=0; i<e_l.length; i++) {
+    // add addEventListener for each UI element displayed
     const el = e_l[i];
-    //this.shadow.getElementById("rows_per_page").addEventListener("change", this.change_page_size.bind(this));
     this.shadow.getElementById(el[0]).addEventListener(el[1], el[2].bind(this));
   }
     
@@ -513,7 +513,17 @@ set_model( // let class know what data it will be displaying/using
 }
 
 
-getModel(){return this.model}  // will be table class
+getModel(){
+  if (this.model) {
+    return this.model;// will be table class
+  } else {
+alert(`
+this.model=${this.model}
+
+call stack=${Error().stack}
+`);
+  }
+}  
 
 
 appendHTMLrow(  // table_sfc_class - client-side
