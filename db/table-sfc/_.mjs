@@ -1,7 +1,8 @@
 import {groupByClass       } from '/_lib/db/groupBy_module.js'      ;
 import {recordUxClass      } from '/_lib/db/recordUx_module.js'     ;
 import {table_class         } from '/_lib/db/table_module.js'        ;
-import {select_order_class } from '/_lib/UX/select_order_module.js' ;
+import {select_order_class } from '/_lib/UX/select_order_module.js' ; // is this used?
+import  {dialog_sfc_class} from '/_lib/web_componets/dialog-sfc/_.mjs';  // support  <dialog-sfc>
 
 
 class table_sfc_class  extends HTMLElement { // table_sfc_class - client-side
@@ -22,7 +23,8 @@ constructor(   // table_sfc_class - client-side
 	this.shadow.innerHTML =  `
 <link href="/_lib/db/table-sfc/_.css" rel="stylesheet">
   <div id="status" style="text-align:left; margin-bottom:10px"></div>
-  <div id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>   
+  <div id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
+  <dialog-sfc id="dialog"><dialog-sfc>
 `
 
   //this.DOMid      = domID     ; // remember where table will be displayed
@@ -355,7 +357,7 @@ displayData(){   // table_sfc_class - client-side
     this.paging.rowMax = this.tags[this.tag].length;
   }
 
-   this.statusLine();    // why was this commented out?
+   this.statusLine();  
 
   // enable/disable the prev and next button - should be a better way todo this
   if (this.paging.row  ===  0 ) {
@@ -418,11 +420,11 @@ statusLine(   // table_sfc_class - client-side
         html += `Rows: ${this.paging.rowMax}`
         break;
       case "tags":
-        html += `tags: ${this.genTags()}`
+        html += `tags: ${this.genTags()}`  // allow user to chose groups of records to display
         break;
       case "rows/page":
         html += `rows/page: <input id="rows_per_page" type="number" min="1" max="999" value="${this.paging.lines}"/>`
-        e_l.push(["rows_per_page", "change", this.change_page_size]); 
+        e_l.push(["rows_per_page", "change", this.change_page_size]); //
         break;
       case "download":
         html += `<input type="button" onclick="${this.globalName}.export()" value="Download CSV"/> <a id='download_link'></a>`
@@ -443,7 +445,7 @@ statusLine(   // table_sfc_class - client-side
   this.shadow.getElementById("status").innerHTML = html;
 
   for(let i=0; i<e_l.length; i++) {
-    // add addEventListener for each UI element displayed
+    // add addEventListener for each UI element in the status div
     const el = e_l[i];
     this.shadow.getElementById(el[0]).addEventListener(el[1], el[2].bind(this));
   }

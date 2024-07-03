@@ -96,6 +96,15 @@ year //
     // display calendar
     this.calendar_display();
   }
+
+  // add capther click events in the table div
+  this.shadow.getElementById("table").addEventListener("click" , this.click.bind(this));
+}
+
+
+click(event){// calendar_class - client-side
+  // user clicked inside the table, see if they clicke on a link
+  this.event_display(event.target.dataset.event_id);
 }
 
 
@@ -112,13 +121,13 @@ event_display(  // calendar_class - client-side
     description = event.description;
   }
 
-  const popup = document.getElementById("popUpForm");
-  popup.title_set(`<b>${event.name}</b>`);
-  popup.text_set( `${description}<br><br>${link}`);
-  //popup.body_set( ``);
+  const dialog = this.shadow.getElementById("dialog");
+  dialog.title_set(`<b>${event.name}</b>`);
+  dialog.text_set( `${description}<br><br>${link}`);
+  //dialog.body_set( ``);
 
-  //popup.buttons_set(`<button onclick="app.page.edit.closeForm();">Close</button>`);
-  popup.showModal();
+  //dialog.buttons_set(`<button onclick="app.page.edit.closeForm();">Close</button>`);
+  dialog.showModal();
 }
 
 
@@ -149,6 +158,9 @@ calendar_display(// calendar_class - client-side
     ,"rows/page"
     ,`Year: <input id="year" type="text" value="${this.year}" size="4"/>`
   ]);  
+
+  // add new status line to dom
+  this.statusLine();
 
   // connect dom element to class method
   this.shadow.getElementById("todayButton").addEventListener("click" , this.today_display.bind(this));
@@ -232,7 +244,7 @@ month_chosen(  // calendar_class  client-side
   const rows_per_page = document.getElementById(`${this.DOM}_rows_per_page`);      // number of rows contained in month
   rows_per_page.value = row_end - row_start + 1;
   //rows_per_page.onchangeck();//
-  this.changePageSize(rows_per_page)
+  this.change_page_size(rows_per_page)
 }
 
 
@@ -485,7 +497,7 @@ calendar_create(  // calendar_class  client-side
         } else if(event.repeat == "yearly" ) {repeat_class = "repeat_yearly" ;}
 
         //if (event.url === undefined) {
-          html += `${editButton} <u><a onclick="event_display(${event.pk})" class="${repeat_class} pointer">${event.name}</a></u><br>`
+          html += `${editButton} <u><a data-event_id="${event.pk}" class="${repeat_class} pointer">${event.name}</a></u><br>`
         //} else {
         //  html += `${editButton} <a href="${event.url}" target="_blank" class="${repeat_class}">${event.name}</a><br>`
        // }
