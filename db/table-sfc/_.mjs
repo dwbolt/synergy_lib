@@ -1,8 +1,8 @@
 import {groupByClass       } from '/_lib/db/groupBy_module.js'      ;
 import {recordUxClass      } from '/_lib/db/recordUx_module.js'     ;
-import {table_class         } from '/_lib/db/table_module.js'        ;
-import {select_order_class } from '/_lib/UX/select_order_module.js' ; // is this used?
-import  {dialog_sfc_class} from '/_lib/web_componets/dialog-sfc/_.mjs';  // support  <dialog-sfc>
+import {table_class        } from '/_lib/db/table_module.js'        ;
+//import {select_order_class } from '/_lib/UX/select_order_module.js'     ; // is this used?
+import {dialog_sfc_class   } from '/_lib/web_componets/dialog-sfc/_.mjs';  // support  <dialog-sfc>
 
 
 class table_sfc_class  extends HTMLElement { // table_sfc_class - client-side
@@ -10,12 +10,9 @@ class table_sfc_class  extends HTMLElement { // table_sfc_class - client-side
 
 
 constructor(   // table_sfc_class - client-side
-   //domID       // where table will be displayed
-  //,globalName  // is used in UX on onChange, onClick etc events to get back to this instace of the object
-  //,model 
+  // constructor is called when the element is displayed
 ) {
-  	// constructor is called when the element is displayed
-	super();
+	super();  // call parent constructor 
 
 	// create a shadow dom                           
 	this.shadow = this.attachShadow({ mode: "closed" });  
@@ -27,11 +24,6 @@ constructor(   // table_sfc_class - client-side
   <dialog-sfc id="dialog"><dialog-sfc>
 `
 
-  //this.DOMid      = domID     ; // remember where table will be displayed
-  //this.globalName = globalName; // remember is used in UX on onChange, onClick etc events
-  //this.model      = model     ; // pointer to instance of table_class
-  //this.tableName  = model.name; // name of table in Database
-  
   // data
   this.recordUX          = new recordUxClass(this);
   this.searchVisible     = true; // display boxes to put search criteria in

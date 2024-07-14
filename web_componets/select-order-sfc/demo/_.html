@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title id="headTitle">select-order</title>
+	</head>
+
+	<body>
+	<h1>select-order web-componet Demo</h1>
+	<select-order-sfc id="select-order"></select-order-sfc>
+	</body>
+</html>
+
+<script>
+var app; // only globle variable
+</script>
+
+<script type="module">
+import  {select_order_class}    from '/_lib/web_componets/select-order-sfc/_.mjs'; // suport <select-order-sfc> web component
+app  = document.getElementById("select-order");  // get web-componet
+app.shadow_set("");            // init shadow witb no buttons, and no data
+app.choice_add("David",{});    // add three choices
+app.choice_add("Mike",{});
+app.choice_add("Billy",{});
+app.choice_display();          // display three choices
+
+</script>
