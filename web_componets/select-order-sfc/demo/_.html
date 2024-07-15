@@ -17,10 +17,11 @@ var app; // only globle variable
 <script type="module">
 import  {select_order_class}    from '/_lib/web_componets/select-order-sfc/_.mjs'; // suport <select-order-sfc> web component
 app  = document.getElementById("select-order");  // get web-componet
-app.shadow_set("");            // init shadow witb no buttons, and no data
-app.choice_add("David",{});    // add three choices
-app.choice_add("Mike",{});
-app.choice_add("Billy",{});
-app.choice_display();          // display three choices
+
+app.choices_add("David",{});    // add three choices
+app.choices_add("Mike",{});
+app.choices_add("Billy",{});
+
+app.display();          // display three choices
 
 </script>

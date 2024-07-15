@@ -13,64 +13,63 @@ they can order the selected choices on right.
 
 
 constructor( // select_order_class - client side
-//	 DOMid       // where select_order widget will be displayed
-//	,globalName  // is used in UX on onChange, onClick etc events to get back to this instace of the select_order
 ) {  
-//	this.DOMid      = DOMid;     // remember where table will be displayed
-//	this.globalName = globalName; // remember is used in UX on onChange, onClick etc events
-	super();                                                         // call parent constructor
-	this.shadow           = this.attachShadow({ mode: "closed" });   // create a shadow dom that has sepreate id scope from other main dom and other shadow doms
-	this.clear_choices();
-}
+	super();              // call parent constructor
+	this.choices   = [];  // this  [[display1,obj1], [display2, object2],...] , search on choices may narrow the options displayed
+	this.selected  = [];  // aray of indexes that the user has selected, display in reverser order
 
-
-clear_choices(){  // select_order_class - client side
-	// this.count   = 0;  // this.couices.length
-	this.choices   = [];  // this  [[display,obj], [display], object], search on choices may narrow the options displayed
-	this.selected  = [];  // aray of indexes that the user has selected
-}
-
-
-shadow_set(buttons) {  // select_order_class - client side
-	//const dom = document.getElementById(this.DOMid);
-	//if (!dom) return;  // do not like this code, refactor dwb 09/25/23
-
+	this.shadow  = this.attachShadow({ mode: "closed" });   // create a shadow dom that has sepreate id scope from other main dom and other shadow doms
 	this.shadow.innerHTML = `
+	<link href="/_lib/web_componets/select-order-sfc/_.css" rel="stylesheet">
 	<div  style="display:flex;">
-		<div>
-		Choose<br>
+		<div class="box">
+		<b>Choices</b><br>
 		<!-- add narrow at some point-->
-		<select id="choice" size="5"></select>
+		<select id="choices" size="7"></select>
 		</div>
 
-		<div>
-		selected<br>
-		<select id="selected" size="5"></select>
+		<div class="box">
+		<b>Selected</b><br>
+		<select id="selected" size="7"></select>
 		</div>
 
-		<div>
-		${buttons}
+		<div class="box">
+		<b>Operations</b><br>
+		<button id="top">Top</button> <button id="up">Up</button><br>
+		<br>
+		 <button id="bottom">Bottom</button> <button id="down">Down</button><br>
+		<br>
+		<button id="remove">Remove</button> <button id="remove_all">all</button>
 		</div>
 	</div>`
 }
 
 
-connectedCallback() { // dialog_sfc_class - client side
+connectedCallback() { // select_order_class - client side
     this.shadow.addEventListener('click', this.click.bind(this));
 }
 
 
-choice_add(  // select_order_class - client side
+display(){  // select_order_class - client side
+	this.choices_display();
+	this.selected_display();
+}
+
+
+choices_add(  // select_order_class - client side
+   // add a user choice
 	display   // text displayed to choice
 	,obj      //{"display"="??","comment"="??",order=number}  object associated with what is displayed
 	){
+
 	this.choices.push([display,obj]);             // store choice in object
 }
 
 
-choice_display( // select_order_class - client side
+choices_display( // select_order_class - client side
 ){
-	const choices = this.shadow.getElementById(`choice`);
+	// show the choices
+	const choices = this.shadow.getElementById(`choices`);
 	if(!choices) {
 		alert("error, element choice not found")
 		return;
@@ -85,73 +84,159 @@ choice_display( // select_order_class - client side
 	choices.innerHTML = html;
 }
 
-click(event){
-	switch (event.target.parentElement.id) {
-	case "choice":
-		// move to selected
-		event.target.parentElement.value
-		// remove from choice
-		dom.remove(dom.selectedIndex);
+
+selected_add(   // select_order_class - client side
+	// user made a choice
+	index // string, convert to number
+) {
+	this.selected.push(parseInt(index));  // add to selected
+	this.selected_display();
+}
+
+
+selected_display() {  // select_order_class - client side
+	// redisplay the choices that have been selected
+	const selected       = this.shadow.getElementById(`selected`);
+	const selected_value = parseInt(selected.value);
+	if(!selected) {
+		alert("error, element selected not found")
+		return;
+	}  // refactor
+
+	let html = "";
+	let select;
+	for(var i=this.selected.length-1; -1<i; i--) {
+		let index = this.selected[i];
+		if (selected_value === index) {
+			select = "selected";
+		} else {
+			select = "";
+		}
+		html  += `<option value='${index.toString()}' ${select}>${this.choices[index][0]}</option>`
+	}
+	selected.innerHTML = html;
+
+	if (this.selected.selectedIndex === undefined) {
+		// nothing selected, so disable all buttons
+		this.button_disable(" top up bottom down remove ");
+	} else if (this.selected.length === 1) {
+		// on selection disable all but remove
+		this.button_disable(" top up bottom down ");
+	}
+}
+
+
+button_disable(  // select_order_class - client side
+	name_string // " top up "
+){
+	const button_list = ["top","up","bottom","down","remove"];
+	for(let i=0; i<button_list.length; i++) {
+		let button_id   = button_list[i];
+		let button      = this.shadow.getElementById(button_id);
+		button.disabled = name_string.includes(button_id);
+	}
+}
+
+
+click(event){  // select_order_class - client side
+	let parent = event.target.parentElement;
+	switch (parent.id) {
+	case "choices":
+		// user click on a choice
+		this.selected_add(event.target.value)    // move to selected
+		event.target.remove();  // remove from choice
+		return;
+
+	case "selected":
+		// user click on a selected, enable valid button choices
+		let disable = "";
+		if (parent.length === parent.selectedIndex+1 ) {
+			// bottom is selected
+			disable += " bottom down ";
+		}
+
+		if (0 === parent.selectedIndex ) {
+			// top is selected
+			disable += " top up ";
+		} 
+
+		this.button_disable(disable);
+		return;
+
+	default:
+		// 
+		break;
+	}
+
+	// process buttons
+	const button = event.target;
+	const sel    = this.shadow.getElementById("selected");  // selection box
+	const index  =  parseInt(sel.value);                    // choice index
+	switch (button.id) {
+	case "top": // move selected to top 
+		for(let i=0; i<this.selected.length; i++){
+			if (this.selected[i] === index) {
+				this.selected.splice(i,1); // remove;
+				this.selected.push(index); // move to top 
+				break;
+			}
+		}
+		this.selected_display();
+		break;
+
+	case "up": // move selected up one place
+		for(let i=0; i<this.selected.length; i++){
+			if (this.selected[i] === index) {
+				const temp = this.selected[i+1]; 
+				this.selected[i+1] = index;
+				this.selected[i]   = temp;
+				break;
+			}
+		}
+		this.selected_display();
+		break;
+
+	case "down": // move selected down one place
+		for(let i=0; i<this.selected.length; i++){
+			if (this.selected[i] === index) {
+				const temp = this.selected[i-1]; 
+				this.selected[i-1] = index;
+				this.selected[i]   = temp;
+				break;
+			}
+		}
+		this.selected_display();
+		break;
+
+	case "bottom": // move selected to bottom 
+		for(let i=0; i<this.selected.length; i++){
+			if (this.selected[i] === index) {
+				this.selected.splice(i,1); // remove;
+				this.selected.unshift(index) ;// move to bottom 
+				break;
+			}
+		}
+		this.selected_display();
+		break;	
+
+	case "remove":  // remove selected item from selected list
+		for(let i=0; i<this.selected.length; i++){
+			if (this.selected[i] === index) {
+				this.selected.splice(i,1);  	// remove 
+				break;
+			}
+		}
+		this.choices_display();
+		this.selected_display();
 		break;
 
 	default:
-		// move to choice
 		break;
-}
-	
-
-}
-
-///////////      refactor methods below
-
-move_to(   // select_order_class - client side
-	 dom // selected clicked on
-	,move_to //
-){
-	const value = dom.value;
-
-	// remove from clicked on
-	dom.remove(dom.selectedIndex);
-
-	// add to bottom of move_to
-	const move = document.getElementById(`${this.DOMid}${move_to}`);
-	const option   = document.createElement("option");
-    option.text  = this.choices[value].text;
-	option.value = value;
-	move.add(option);
-}
-
-
-get_DOM_choice(   // select_order_class - client side
-){
-	// return DOM element that 
-	return document.getElementById("${this.DOMid}_choice");
-}
-
-
-display( // select_order_class - client side
-){
-	const html = "select_order_class";
-
-	document.getElementById(this.DOMid).innerHTML = html;
-}
-
-
-selected(  //  select_order_class - client side
-	// return array of selected vaules
-) {
-	const ret = [];
-	const options = document.getElementById(`${this.DOMid}_selected`).options;
-	for(var i=0; i<options.length; i++){
-		ret.push(options[i].value);
 	}
-
-	return ret;
 }
-
 
 
 } // select_order_class
 
 export { select_order_class };
-customElements.define("select-order-sfc", select_order_class);   // attach hello_world_class to  "hello-world" web-component
+customElements.define("select-order-sfc", select_order_class);   // attach class to  web-component
