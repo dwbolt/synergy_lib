@@ -104,7 +104,24 @@ year //
 
 click(event){// calendar_class - client-side
   // user clicked inside the table, see if they clicke on a link
-  this.event_display(event.target.dataset.event_id);
+  let data;
+  let data_list = ["data-create"];
+  for(let i=0; i<data_list.length; i++) {
+    let attribute=data_list[i];
+    data = event.target.getAttribute(attribute);
+    if (data !== null) {
+      switch (attribute) {
+        case "data-create":
+          this.edit.event_create(data);
+          break;
+      
+        default:
+          break;
+      }
+    } 
+  }
+
+  //this.event_display(event.target.dataset.event_id);
 }
 
 
@@ -474,7 +491,8 @@ calendar_create(  // calendar_class  client-side
       let add="";
       if ( this.login_status) {
         // user calendar
-        add =`<a onClick="edit.event_create(${start.getFullYear()}, ${m}, ${d})" class="pointer">+</a> `
+        //add =`<a onClick="edit.event_create(${start.getFullYear()}, ${m}, ${d})" class="pointer">+</a> `
+        add =`<a data-create="${start.getFullYear()}-${m}-${d}" class="pointer">+</a> `
       }
       style = this.style_get(start, firstDate, today);  // set style of day depending on not part of current year, past, today, future,
       let html = `<p ${style}><b>${m}-${d} ${add}</b></p>`;
