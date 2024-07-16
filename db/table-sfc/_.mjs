@@ -54,7 +54,7 @@ delete_row(   // table_sfc_class - client-side
   key
 ) {
   this.getModel().delete_row(key);
-  this.statusLine();
+  //this.statusLine();
 }
 
 
@@ -349,7 +349,7 @@ displayData(){   // table_sfc_class - client-side
     this.paging.rowMax = this.tags[this.tag].length;
   }
 
-   this.statusLine();  
+   //this.statusLine();  
 
   // enable/disable the prev and next button - should be a better way todo this
   if (this.paging.row  ===  0 ) {
@@ -780,7 +780,7 @@ search( // table_sfc_class - client-side
     this.tag           = null;  
     this.paging.rowMax = this.getModel().getRows().length;
     this.paging.row    = 0;
-    this.statusLine();
+   // this.statusLine();
     this.displayData();
   }
 }

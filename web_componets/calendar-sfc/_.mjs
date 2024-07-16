@@ -154,7 +154,7 @@ calendar_display(// calendar_class - client-side
   this.calendar_create();  // convert this.events to a table that can be displayed with tableUX
 
   this.setStatusLineData( [
-    `<input id="todayButton" type="button"  value="Today" />`
+    `<button id="todayButton">Today</button>`
     ,`<select id="months" name="months"  ">
     <option value="weeks" selected>Viewing Weeks</option>
     <option value="0">01 January</option>
@@ -184,7 +184,7 @@ calendar_display(// calendar_class - client-side
   this.shadow.getElementById("months"     ).addEventListener("change", this.month_chosen.bind(this));
   this.shadow.getElementById("prev"       ).addEventListener("click" , this.prev.bind(this));
   this.shadow.getElementById("next"       ).addEventListener("click" , this.next.bind(this));
-  this.shadow.getElementById("next"       ).addEventListener("change", this.year_change.bind(this));
+  this.shadow.getElementById("year"       ).addEventListener("change", this.year_change.bind(this));
 
   for(let i=0; i<7; i++) {
     this.setColumnFormat(i,`class="day"`);  // set class of each day
@@ -192,7 +192,6 @@ calendar_display(// calendar_class - client-side
 
   //this.displayData();
   this.display();
-  this.statusLine();  
   let now = new Date();
   if ( this.year === now.getFullYear() ) {
     // if we are displaying current year, jump to today's date
@@ -204,16 +203,15 @@ calendar_display(// calendar_class - client-side
 next( // calendar_class - client-side
 ) { //next page
   // next (day, weeks, month, year)
-  const selected  = document.getElementById("months");  // where the user selects day, weeks, year, a month
+  const selected  = this.shadow.getElementById("months");  // where the user selects day, weeks, year, a month
   const time_unit = selected.value;
   switch (time_unit) {
     case "weeks":
-      this.next();
+      super.next();
       break;
   
     default:
       // assume month, move to next month
-
       this.month_chosen(1);
       break;
   }
@@ -223,11 +221,11 @@ next( // calendar_class - client-side
 prev( // calendar_class - client-side
 ) { //next page
   // next (day, weeks, month, year)
-  const selected  = document.getElementById("months");  // where the user selects day, weeks, year, a month
+  const selected  = this.shadow.getElementById("months");  // where the user selects day, weeks, year, a month
   const time_unit = selected.value;
   switch (time_unit) {
     case "weeks":
-      this.prev();
+      super.prev();
       break;
   
     default:
@@ -240,15 +238,18 @@ prev( // calendar_class - client-side
 
 month_chosen(  // calendar_class  client-side
   // Goes to page that has first day of chosen month
-  change = 0 
+  change = 0 // maybe an int or an event
 ) {
-  const selected          = document.getElementById("months");  // where the user selects day, weeks, year, a month
+  const selected          = this.shadow.getElementById("months");  // where the user selects day, weeks, year, a month
   if (selected.value === "weeks") {
     // do nothing but change mode for next / prev
     return;
   }
 
-  selected.selectedIndex += change;
+  if (typeof(change) === "number") {
+    selected.selectedIndex += change;
+  }
+
   const month     = parseInt(selected.value);
 
   const start = new Date(this.year, month  , 1);                                         // first day of month
@@ -258,7 +259,7 @@ month_chosen(  // calendar_class  client-side
   // set rows/page so that the full month is displayed
   const row_start     = this.events[start.getMonth()+1][start.getDate()].row ;     // row of month start
   const row_end       = this.events[  end.getMonth()+1][  end.getDate()].row ;     // row of month end
-  const rows_per_page = document.getElementById(`${this.DOM}_rows_per_page`);      // number of rows contained in month
+  const rows_per_page = this.shadow.getElementById(`rows_per_page`);      // number of rows contained in month
   rows_per_page.value = row_end - row_start + 1;
   //rows_per_page.onchangeck();//
   this.change_page_size(rows_per_page)
