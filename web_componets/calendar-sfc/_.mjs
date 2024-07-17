@@ -105,18 +105,16 @@ year //
 click(event){// calendar_class - client-side
   // user clicked inside the table, see if they clicke on a link
   let data;
-  let data_list = ["data-create"];
+  let data_list = ["data-create","data-event_id","data-edit"];
   for(let i=0; i<data_list.length; i++) {
     let attribute=data_list[i];
     data = event.target.getAttribute(attribute);
     if (data !== null) {
       switch (attribute) {
-        case "data-create":
-          this.edit.event_create(data);
-          break;
-      
-        default:
-          break;
+      case "data-create"  : this.edit.event_create(data); break;
+      case "data-event_id": this.event_display(    data); break;
+      case "data-edit"    : this.edit.event_edit(  data); break;
+      default:                                            break;
       }
     } 
   }
@@ -507,7 +505,7 @@ calendar_create(  // calendar_class  client-side
         if (this.login_status) {
           // we are on a user calendar
           //user = "&u=" + this.urlParams.get('u');
-          editButton = `<a onClick="edit.event_edit(${pk})" class="pointer">${editButton}</a> `;
+          editButton = `<a data-edit="${pk}" class="pointer">${editButton}</a> `;
         }
         
         let repeat_class = ""; 
