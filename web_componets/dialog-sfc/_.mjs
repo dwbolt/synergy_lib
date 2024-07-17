@@ -3,25 +3,25 @@ class dialog_sfc_class extends HTMLElement { // dialog_class - client side
 constructor() {  // dialog_sfc_class - client side
 	// constructor is called when the element is displayed
 	super();
-
-	// create a shadow dom                           
 	this.shadow = this.attachShadow({ mode: "closed" });  
- 	// add content to shadow dom
+	// add content to shadow dom
 	this.shadow.innerHTML =  `
-<link href="/_lib/web_componets/dialog-sfc/_.css" rel="stylesheet">
-<dialog id="dialog" class="popup">
-<div id="title"></div><br>
-<hr>
-<div id="body"></div>
-<hr>
-<div id="buttons"><button id="close">Close</button></div>
-</dialog>            
-`
+   <link href="/_lib/web_componets/dialog-sfc/_.css" rel="stylesheet">
+   <dialog id="dialog" class="popup">
+   <div id="title"></div><br>
+   <hr>
+   <div id="body"></div>
+   <hr>
+   <div id="buttons"><button id="close">Close</button></div>
+   </dialog>            
+   `
+
+    this.shadow.getElementById('close').addEventListener('click', this.close.bind(this));
 }
 
 
 connectedCallback() { // dialog_sfc_class - client side
-    this.shadow.getElementById('close').addEventListener('click', this.close.bind(this));
+	// create a shadow dom                           
 }
 
 

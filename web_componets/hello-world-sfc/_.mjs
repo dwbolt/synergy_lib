@@ -9,4 +9,4 @@ constructor() {
 }  // end hello_world_class 
 
 export {hello_world_class}
-customElements.define("hello-world", hello_world_class);   // attach hello_world_class to  "hello-world" web-component
+customElements.define("hello-world-sfc", hello_world_class);   // attach hello_world_class to  "hello-world" web-component

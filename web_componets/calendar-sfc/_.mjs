@@ -36,10 +36,8 @@ event_add(
 constructor( // calendar_class  client-side
   ) {
   super();  // will create this.shadow
-
   this.year      = new Date().getFullYear();  // default to current year, can be overriden when main is called.
 
-  this.edit         = new calendar_edit_class(this);
   this.format       = new formatClass();  // format time and dates
   this.login        = new loginClass();   // loads graph data from server
   this.table_events = new table_class();  // where mulit year calander and repeating events live will be used generate this.table
@@ -56,11 +54,17 @@ constructor( // calendar_class  client-side
 }
 
 
+connectedCallback() { // calendar_class  client-side
+  //super.connectedCallback();
+}
+
+
 async year_change(  // calendar_class  client-side
   dom
   ){  
   await this.main(parseInt(dom.value),);
 }
+
 
 
 calendar_add(url) {// calendar_class  client-side
@@ -70,8 +74,7 @@ calendar_add(url) {// calendar_class  client-side
 
 async init() {  // calendar_class  client-side
   await this.table_events.load(this.table_urls[0]);   // for now just support one calendar
-  //  		<link rel="stylesheet" href="/_lib/UX/calendar.css" />
-  //customElements.define("dialog-sfc", dialog_sfc_class); 
+  this.edit         = new calendar_edit_class(this);  // class uses popup in table web component
 }
 
 

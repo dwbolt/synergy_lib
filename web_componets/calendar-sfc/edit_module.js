@@ -10,28 +10,17 @@ constructor(  // calendar_edit_class  client-side
   cal
   ){ 
     // move values in pop up form to graph edge
-  this.calendar       = cal;              // point to calander object that we are editing.
+  this.calendar       = cal;      // point to calander object that we are editing.
+  this.dialog         = this.calendar.shadow.getElementById('dialog');
+  this.shadow         = this.dialog.shadow;  // 
   this.openMonthDates = 0;        // number of selectors visible when monthly repeating option is chosen
   this.formHeight     = "500px"; 
 }
 
 
-hidden(  // calendar_edit_class  client-side
-bool  // true -> hide,  false -> show
-) {
-  if (bool) {
-    document.getElementById(`popUpForm`).style.display = "none";
-  } else {
-    document.getElementById(`popUpForm`).style.display = "block";
-  }
-}
-
-
 async event_create(  // calendarClass  client-side
 // user clicked + to add new event on a particular day
- year
-,month
-,day          //
+data  // "yyyy-m-d"
 ) {
   // determine if we are on user calendar or
   if (!await app.login.getStatus()) {
@@ -41,36 +30,35 @@ async event_create(  // calendarClass  client-side
   }
 
   // reload popup form
-  document.getElementById("popUpForm").innerHTML = await app.proxy.getText("/_lib/UX/calendarEditForm.html");
+  this.shadow.innerHTML = await app.proxy.getText("/_lib/web_componets/calendar-sfc/editForm.html");
   this.renderEndDateSelector();  // turn on input files for type of repeat (never, weekly, monthly.....)
 
-  // set member variables for event year month and day
-  this.#year  = year;
-  this.#month = month;
-  this.#day   = day;
- // this.graph   = this.calendar.graph;
+  // set member variables for event year month and 
+  const data_array = data.split("-") 
+  this.#year  = parseInt(data_array[0]);
+  this.#month = parseInt(data_array[1]);
+  this.#day   = parseInt(data_array[2]);
 
   // set start date to date clicked on
-  document.getElementById("start_date").value = 
+  this.shadow.getElementById("start_date").value = 
     `${this.#year}-${app.format.padZero(this.#month,2)}-${app.format.padZero(this.#day,2)}`
 
   // set start time to current time
   const currentdate = new Date();
-  document.getElementById("start_time").value = `${app.format.padZero(currentdate.getHours(),2)}:00`;
+  this.shadow.getElementById("start_time").value = `${app.format.padZero(currentdate.getHours(),2)}:00`;
 
   // set duration to 0 hours and 30 minues
-  document.getElementById("duration_hours"  ).value = 0;
-  document.getElementById("duration_minutes").value = 30;
+  this.shadow.getElementById("duration_hours"  ).value = 0;
+  this.shadow.getElementById("duration_minutes").value = 30;
   this.duration_changed();
   
   // Set correct buttons to display for creating new event
-  document.getElementById("saveEventButton"  ).hidden = true;
-  document.getElementById("deleteEventButton").hidden = true;
-  document.getElementById("addEventButton"   ).hidden = false;
+  this.shadow.getElementById("saveEventButton"  ).hidden = true;
+  this.shadow.getElementById("deleteEventButton").hidden = true;
+  this.shadow.getElementById("addEventButton"   ).hidden = false;
 
   // make popup vissible
-  this.hidden(false);
-
+  this.dialog.showModal();
 }
 
 
@@ -85,14 +73,14 @@ pk  // string
   this.pk = pk;  // remember of future methods
 
   // reload popup form
-  document.getElementById("popUpForm").innerHTML = await app.proxy.getText("/_lib/UX/calendarEditForm.html");
+  this.shadow.getElementById("popUpForm").innerHTML = await app.proxy.getText("/_lib/UX/calendarEditForm.html");
 
   // show/hide buttons
-  document.getElementById("addEventButton"   ).hidden = true ;     // Hide
-  document.getElementById("saveEventButton"  ).hidden = false;     // show ?
-  document.getElementById("deleteEventButton").hidden = false;     // show ?
+  this.shadow.getElementById("addEventButton"   ).hidden = true ;     // Hide
+  this.shadow.getElementById("saveEventButton"  ).hidden = false;     // show ?
+  this.shadow.getElementById("deleteEventButton").hidden = false;     // show ?
 
-  this.hidden(false    );   // make popup vissible
+  this.dialog.showModal();   // make popup vissible
   //this.graph = this.calendar.graph;
   this.data2form(pk);   // load data
 }
@@ -182,12 +170,12 @@ putDate(// calendar_edit_class  client-side
    DOMname // where to put date data
   ,date    // [year, month,day,hours, minutes]
 ){
-document.getElementById(`${DOMname}_date`).valueAsDate = new Date(date[0],date[1]-1,date[2]); // "2023-04-05"
+this.shadow.getElementById(`${DOMname}_date`).valueAsDate = new Date(date[0],date[1]-1,date[2]); // "2023-04-05"
  // "12:20"
 
-if (document.getElementById(`${DOMname}_time`)) {
+if (this.shadow.getElementById(`${DOMname}_time`)) {
   // will not exist for DOMname "repeat_end"
-  document.getElementById(`${DOMname}_time`).value = 
+  this.shadow.getElementById(`${DOMname}_time`).value = 
   `${app.format.padZero(date[3],2)}:${app.format.padZero(date[4],2)}`;  
 }
 
@@ -197,16 +185,16 @@ if (document.getElementById(`${DOMname}_time`)) {
 duration_changed( // calendar_edit_class  client-side
   ){
     // get duration
-    const hours   = parseInt(document.getElementById(`duration_hours`  ).value);
-    const minutes = parseInt(document.getElementById(`duration_minutes`).value);
+    const hours   = parseInt(this.shadow.getElementById(`duration_hours`  ).value);
+    const minutes = parseInt(this.shadow.getElementById(`duration_minutes`).value);
 
     // create end date from start + duration
     const s = this.getDate("start"); // [year,month,day,hour,sec]
     const end = new Date(s[0],s[1]-1,s[2], s[3]+hours, s[4]+minutes);
 
     // update end_date and end_time
-    document.getElementById("end_date").valueAsDate = end; 
-    document.getElementById("end_time").value       = `${app.format.padZero(end.getHours(),2)}:${app.format.padZero(end.getMinutes(),2)}`;
+    this.shadow.getElementById("end_date").valueAsDate = end; 
+    this.shadow.getElementById("end_time").value       = `${app.format.padZero(end.getHours(),2)}:${app.format.padZero(end.getMinutes(),2)}`;
 
     // if repeat end is displayed, set time po
 }
@@ -223,8 +211,8 @@ end_time_changed(){ // calendar_edit_class  client-side
   const hours   =  Math.floor(diff/       (1000*60*60));
   const mill    =  diff-(hours*1000*60*60);
   const minutes =  Math.floor(mill/(1000*60));
-  document.getElementById("duration_hours"  ).value = hours;
-  document.getElementById("duration_minutes").value = minutes;
+  this.shadow.getElementById("duration_hours"  ).value = hours;
+  this.shadow.getElementById("duration_minutes").value = minutes;
 }
 
 
@@ -234,27 +222,27 @@ pk
 ) {
   this.table          = this.calendar.table_events  // pointer events
   const record = this.table.get_object(pk);
-  document.getElementById("name"       ).value = (record.name       ? record.name         : "")       
-  document.getElementById("url"        ).value = (record.url         ? record.url         : "")       
-  document.getElementById("description").value = (record.description ? record.description : "")
+  this.shadow.getElementById("name"       ).value = (record.name       ? record.name         : "")       
+  this.shadow.getElementById("url"        ).value = (record.url         ? record.url         : "")       
+  this.shadow.getElementById("description").value = (record.description ? record.description : "")
 
   let d = record.dateStart;
-  document.getElementById("start_date").valueAsDate = new Date(d[0],d[1]-1,d[2]); 
-  document.getElementById("start_time").value       = `${app.format.padZero(d[3],2)}:${app.format.padZero(d[4],2)}`;
+  this.shadow.getElementById("start_date").valueAsDate = new Date(d[0],d[1]-1,d[2]); 
+  this.shadow.getElementById("start_time").value       = `${app.format.padZero(d[3],2)}:${app.format.padZero(d[4],2)}`;
   
   d = record.dateEnd;
-  document.getElementById("end_date").valueAsDate = new Date(d[0],d[1]-1, d[2]);
-  document.getElementById("end_time").value       = `${app.format.padZero(d[3],2)}:${app.format.padZero(d[4],2)}`;
+  this.shadow.getElementById("end_date").valueAsDate = new Date(d[0],d[1]-1, d[2]);
+  this.shadow.getElementById("end_time").value       = `${app.format.padZero(d[3],2)}:${app.format.padZero(d[4],2)}`;
 
-  document.getElementById('timeZone').value       = record.timeZone;
+  this.shadow.getElementById('timeZone').value       = record.timeZone;
  
   // fill in duration of event
   const durTimeData = record.timeDuration.split(":");
-  document.getElementById("duration_hours"  ).value = parseInt(durTimeData[0]);
-  document.getElementById("duration_minutes").value = parseInt(durTimeData[1]);
+  this.shadow.getElementById("duration_hours"  ).value = parseInt(durTimeData[0]);
+  this.shadow.getElementById("duration_minutes").value = parseInt(durTimeData[1]);
 
-  document.getElementById("repeat"    ).value = record.repeat;
-  document.getElementById("repeat_inc").value = record.repeat_inc;
+  this.shadow.getElementById("repeat"    ).value = record.repeat;
+  this.shadow.getElementById("repeat_inc").value = record.repeat_inc;
   this.renderEndDateSelector();  // hide elements not being used
 
   // fill in what days the event repeats on
@@ -280,8 +268,8 @@ data2form_repeat(   // calendar_edit_class  client-side
       this.addNewRepeatMonthy();  // create place
     }
     for (let i = 0; i < record.repeat_details.length; i++) {
-      document.getElementById(`monthlyWeekSelect-${i+1}`).value = record.repeat_details[i][1];
-      document.getElementById(`monthlyDaySelect-${i+1}` ).value = record.repeat_details[i][0];
+      this.shadow.getElementById(`monthlyWeekSelect-${i+1}`).value = record.repeat_details[i][1];
+      this.shadow.getElementById(`monthlyDaySelect-${i+1}` ).value = record.repeat_details[i][0];
     }
     break;
 
@@ -295,7 +283,7 @@ data2form_repeat(   // calendar_edit_class  client-side
   // set repeat end data, use time from dateEnd
   let r=record.repeat_end_date;
   if (r) {
-    document.getElementById('repeat_end_date').value = `${r[0]}-${app.format.padZero(r[1],2)}-${app.format.padZero(r[2],2)}`
+    this.shadow.getElementById('repeat_end_date').value = `${r[0]}-${app.format.padZero(r[1],2)}-${app.format.padZero(r[2],2)}`
   }
 
 }
@@ -313,23 +301,15 @@ set_weekly_days(  // calendar_edit_class  client-side
 }
 
 
-closeForm(  // calendar_edit_class  client-side
-  // closes pop up window
-) {
-  this.openMonthDates = 0;
-  this.hidden(true);
-}
-
-
 validateForm(
     // This function makes sure that all the necessary fields of pop up form are filled in before the user can submit or save data
   ) {
-  if (document.getElementById("name").value == "") {
+  if (this.shadow.getElementById("name").value == "") {
     alert('Name of event not filled in');
     this.setCanSubmit(false);
   }
 
-  if ((document.getElementById("repeat").value == "monthly" || document.getElementById("repeat").value == "weekly") && document.getElementById("endDateInput").value == "") {
+  if ((this.shadow.getElementById("repeat").value == "monthly" || this.shadow.getElementById("repeat").value == "weekly") && this.shadow.getElementById("endDateInput").value == "") {
     alert('End date of event not filled in');
     this.setCanSubmit(false);
   }
@@ -341,7 +321,7 @@ validateForm(
 getDate(// calendar_edit_class  client-side
   DOMname // 
 ){
-  let dateString = document.getElementById(`${DOMname}_date`).value;   // "2023-04-05"
+  let dateString = this.shadow.getElementById(`${DOMname}_date`).value;   // "2023-04-05"
   let date = [];
   if (dateString === "") {
     // date not specified
@@ -355,8 +335,8 @@ getDate(// calendar_edit_class  client-side
     date[2] = parseInt(date[2]);
   }
 
-  if (document.getElementById(`${DOMname}_time`)) {
-     const timeString = document.getElementById(`${DOMname}_time`).value;   // "12:20"
+  if (this.shadow.getElementById(`${DOMname}_time`)) {
+     const timeString = this.shadow.getElementById(`${DOMname}_time`).value;   // "12:20"
      const time       = timeString.split(":"); 
      date[3] = parseInt(time[0]);
      date[4] = parseInt(time[1]);  
@@ -376,18 +356,18 @@ async form_save( // calendar_edit_class  client-side
   const record = {};
   
   record.pk          = (this.pk ? this.pk.toString() : undefined);
-  record.name        = document.getElementById("name"       ).value;
-  record.url         = document.getElementById("url"        ).value;
-  record.description = document.getElementById("description").value;
+  record.name        = this.shadow.getElementById("name"       ).value;
+  record.url         = this.shadow.getElementById("url"        ).value;
+  record.description = this.shadow.getElementById("description").value;
   record.dateStart   = this.getDate("start");
   record.dateEnd     = this.getDate("end"  );
-  record.timeZone    = document.getElementById("timeZone"        ).value;  
+  record.timeZone    = this.shadow.getElementById("timeZone"        ).value;  
 
-  record.timeDuration = document.getElementById("duration_hours"  ).value +":"+ 
-                      document.getElementById("duration_minutes").value;
+  record.timeDuration = this.shadow.getElementById("duration_hours"  ).value +":"+ 
+                      this.shadow.getElementById("duration_minutes").value;
 
-  record.repeat     = document.getElementById("repeat"   ).value;  // chosen value of how often to repeat even
-  record.repeat_inc = document.getElementById("repeat_inc"    ).value;  // chosen value of how often to repeat even
+  record.repeat     = this.shadow.getElementById("repeat"   ).value;  // chosen value of how often to repeat even
+  record.repeat_inc = this.shadow.getElementById("repeat_inc"    ).value;  // chosen value of how often to repeat even
   this.form2data_repeat(record);  // handle different cases for types of repeating
   await this.processServerRefresh(record);
 }
@@ -411,8 +391,8 @@ form2data_repeat(g){  // calendar_edit_class  client-side
     g.repeat_details = [];
     // read input from the drop down boxes
     for (let i = 1; i <= this.openMonthDates; i++) {
-        g.repeat_details.push([parseInt(document.getElementById(`monthlyDaySelect-${i}` ).value),
-                               parseInt(document.getElementById(`monthlyWeekSelect-${i}`).value)]);
+        g.repeat_details.push([parseInt(this.shadow.getElementById(`monthlyDaySelect-${i}` ).value),
+                               parseInt(this.shadow.getElementById(`monthlyWeekSelect-${i}`).value)]);
     }
     break;
 
@@ -435,18 +415,18 @@ repeat="${g.repeat}"`);
 renderEndDateSelector(  // calendar_edit_class  client-side
   // renders the end date selector based on chosen selected value from the repeat selector in pop up form
   ) {
-  let repeat = document.getElementById("repeat").value;
+  let repeat = this.shadow.getElementById("repeat").value;
   switch( repeat ) {
   case "never":
-    document.getElementById("end_repeat"    ).hidden = true;
-    document.getElementById("weekly_repeat" ).hidden = true;
-    document.getElementById("monthly_repeat").hidden = true;
+    this.shadow.getElementById("end_repeat"    ).hidden = true;
+    this.shadow.getElementById("weekly_repeat" ).hidden = true;
+    this.shadow.getElementById("monthly_repeat").hidden = true;
     break;
 
   case "weekly":
-    document.getElementById("end_repeat"    ).hidden = false;
-    document.getElementById("weekly_repeat" ).hidden = false;
-    document.getElementById("monthly_repeat").hidden = true;
+    this.shadow.getElementById("end_repeat"    ).hidden = false;
+    this.shadow.getElementById("weekly_repeat" ).hidden = false;
+    this.shadow.getElementById("monthly_repeat").hidden = true;
     break;
     
   case "monthly":
@@ -454,16 +434,16 @@ renderEndDateSelector(  // calendar_edit_class  client-side
       // no places to select day or week, so add one
       this.addNewRepeatMonthy();
     }
-    document.getElementById("end_repeat"    ).hidden = false;
-    document.getElementById("weekly_repeat" ).hidden = true;
-    document.getElementById("monthly_repeat").hidden = false;
+    this.shadow.getElementById("end_repeat"    ).hidden = false;
+    this.shadow.getElementById("weekly_repeat" ).hidden = true;
+    this.shadow.getElementById("monthly_repeat").hidden = false;
     break;
 
   case "yearly":
     // display only a number when selecting a year
-    document.getElementById("end_repeat"    ).hidden = false;
-    document.getElementById("weekly_repeat" ).hidden = true;
-    document.getElementById("monthly_repeat").hidden = true;
+    this.shadow.getElementById("end_repeat"    ).hidden = false;
+    this.shadow.getElementById("weekly_repeat" ).hidden = true;
+    this.shadow.getElementById("monthly_repeat").hidden = true;
     break;
 
   default:
@@ -481,8 +461,8 @@ addNewRepeatMonthy(  // calendar_edit_class  client-side
   if (3 < this.openMonthDates) return;    // Make sure we are not at maximum amount of dates
   this.openMonthDates++;
   // We need to expand how large the total pop up is to fit the new items
-  document.getElementById("popUpForm").style.height = `${document.getElementById("popUpForm").clientHeight + 35}px`;
-  document.getElementById("monthly_repeat").innerHTML += 
+  this.shadow.getElementById("popUpForm").style.height = `${this.shadow.getElementById("popUpForm").clientHeight + 35}px`;
+  this.shadow.getElementById("monthly_repeat").innerHTML += 
   `<div>
   <select id = "monthlyWeekSelect-${this.openMonthDates}">
     <option value="1" selected>1st</option>
@@ -512,7 +492,7 @@ removeMonthlySelector(  // calendar_edit_class  client-side
   element
 ) {
   element.parentElement.remove();
-  document.getElementById("popUpForm").style.height = `${document.getElementById("popUpForm").clientHeight - 35}px`;
+  this.shadow.getElementById("popUpForm").style.height = `${this.shadow.getElementById("popUpForm").clientHeight - 35}px`;
   this.openMonthDates--;
 }
 

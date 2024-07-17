@@ -15,10 +15,15 @@ they can order the selected choices on right.
 constructor( // select_order_class - client side
 ) {  
 	super();              // call parent constructor
+}
+
+
+connectedCallback() { // select_order_class - client side
 	this.choices   = [];  // this  [[display1,obj1], [display2, object2],...] , search on choices may narrow the options displayed
 	this.selected  = [];  // aray of indexes that the user has selected, display in reverser order
-
+	
 	this.shadow  = this.attachShadow({ mode: "closed" });   // create a shadow dom that has sepreate id scope from other main dom and other shadow doms
+	
 	this.shadow.innerHTML = `
 	<link href="/_lib/web_componets/select-order-sfc/_.css" rel="stylesheet">
 	<div  style="display:flex;">
@@ -42,10 +47,7 @@ constructor( // select_order_class - client side
 		<button id="remove">Remove</button> <button id="remove_all">all</button>
 		</div>
 	</div>`
-}
 
-
-connectedCallback() { // select_order_class - client side
     this.shadow.addEventListener('click', this.click.bind(this));
 }
 

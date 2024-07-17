@@ -14,16 +14,6 @@ constructor(   // table_sfc_class - client-side
 ) {
 	super();  // call parent constructor 
 
-	// create a shadow dom                           
-	this.shadow = this.attachShadow({ mode: "closed" });  
- 	// add content to shadow dom
-	this.shadow.innerHTML =  `
-<link href="/_lib/db/table-sfc/_.css" rel="stylesheet">
-  <div id="status" style="text-align:left; margin-bottom:10px"></div>
-  <div id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
-  <dialog-sfc id="dialog"><dialog-sfc>
-`
-
   // data
   this.recordUX          = new recordUxClass(this);
   this.searchVisible     = true; // display boxes to put search criteria in
@@ -47,6 +37,19 @@ constructor(   // table_sfc_class - client-side
   this.selectedFields = [3]; // used by groupby, sort hardcode to test
 
   this.dom       = {};       // saves attributes like onclick that will be added when html is rendered
+
+  // create a shadow dom                           
+  this.shadow = this.attachShadow({ mode: "closed" });  
+  // add content to shadow dom
+  this.shadow.innerHTML =  `
+  <link href="/_lib/db/table-sfc/_.css" rel="stylesheet">
+  <div        id="status" style="text-align:left; margin-bottom:10px"></div>
+  <div        id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
+  <dialog-sfc id="dialog"/>`  
+}
+
+
+connectedCallback() { // table_sfc_class - client-side
 }
 
 
