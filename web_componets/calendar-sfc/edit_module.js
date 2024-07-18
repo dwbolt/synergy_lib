@@ -33,6 +33,8 @@ data  // "yyyy-m-d"
   this.dialog.title_set("<b>Create New Calandar Event</b>");
   const html = await app.proxy.getText("/_lib/web_componets/calendar-sfc/editForm.html");
   this.dialog.body_set(html);
+
+
   this.renderEndDateSelector();  // turn on input files for type of repeat (never, weekly, monthly.....)
 
   // set member variables for event year month and 
@@ -57,8 +59,8 @@ data  // "yyyy-m-d"
   // Set correct buttons to display for creating new event
   this.shadow.getElementById("saveEventButton"  ).hidden = true;
   this.shadow.getElementById("deleteEventButton").hidden = true;
-  this.shadow.getElementById("addEventButton"   ).hidden = false;
-
+  let button = this.shadow.getElementById("addEventButton"   ); button.hidden = false; button.addEventListener("click", this.event_add.bind(this));
+  //  <button id="addEventButton"   onClick="app.page.edit.event_add();">Add Event</button>
   // make popup vissible
   this.dialog.showModal();
 }
@@ -81,11 +83,10 @@ pk  // string
 
   // show/hide buttons
   this.shadow.getElementById("addEventButton"   ).hidden = true ;     // Hide
-  this.shadow.getElementById("saveEventButton"  ).hidden = false;     // show ?
-  this.shadow.getElementById("deleteEventButton").hidden = false;     // show ?
+  let button = this.shadow.getElementById("saveEventButton"  ); button.hidden = false; button.addEventListener("click", this.save.bind(this));
+      button = this.shadow.getElementById("deleteEventButton"); button.hidden = false; button.addEventListener("click", this.event_delete.bind(this));
 
   this.dialog.showModal();   // make popup vissible
-  //this.graph = this.calendar.graph;
   this.data2form(pk);   // load data
 }
 
@@ -465,7 +466,7 @@ addNewRepeatMonthy(  // calendar_edit_class  client-side
   if (3 < this.openMonthDates) return;    // Make sure we are not at maximum amount of dates
   this.openMonthDates++;
   // We need to expand how large the total pop up is to fit the new items
-  this.shadow.getElementById("popUpForm").style.height = `${this.shadow.getElementById("popUpForm").clientHeight + 35}px`;
+  const dialog = this.shadow.getElementById("dialog"); dialog.style.height = `${dialog.clientHeight + 35}px`;
   this.shadow.getElementById("monthly_repeat").innerHTML += 
   `<div>
   <select id = "monthlyWeekSelect-${this.openMonthDates}">
