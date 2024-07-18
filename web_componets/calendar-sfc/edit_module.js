@@ -30,7 +30,9 @@ data  // "yyyy-m-d"
   }
 
   // reload popup form
-  this.shadow.innerHTML = await app.proxy.getText("/_lib/web_componets/calendar-sfc/editForm.html");
+  this.dialog.title_set("<b>Create New Calandar Event</b>");
+  const html = await app.proxy.getText("/_lib/web_componets/calendar-sfc/editForm.html");
+  this.dialog.body_set(html);
   this.renderEndDateSelector();  // turn on input files for type of repeat (never, weekly, monthly.....)
 
   // set member variables for event year month and 
@@ -73,7 +75,9 @@ pk  // string
   this.pk = pk;  // remember of future methods
 
   // reload popup form
-  this.shadow.getElementById("popUpForm").innerHTML = await app.proxy.getText("/_lib/UX/calendarEditForm.html");
+  this.dialog.title_set("<b>Edit Calandar Event</b>");
+  const html = await app.proxy.getText("/_lib/web_componets/calendar-sfc/editForm.html");
+  this.dialog.body_set(html);
 
   // show/hide buttons
   this.shadow.getElementById("addEventButton"   ).hidden = true ;     // Hide

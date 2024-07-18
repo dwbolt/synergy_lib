@@ -36,6 +36,7 @@ event_add(
 constructor( // calendar_class  client-side
   ) {
   super();  // will create this.shadow
+  this.css_add("/_lib/web_componets/calendar-sfc/_.css" );// load calendar css
   this.year      = new Date().getFullYear();  // default to current year, can be overriden when main is called.
 
   this.format       = new formatClass();  // format time and dates
@@ -56,6 +57,15 @@ constructor( // calendar_class  client-side
 
 connectedCallback() { // calendar_class  client-side
   //super.connectedCallback();
+}
+
+
+async css_add(path) { // calendar_class  client-side
+  //<link rel="stylesheet" href="app.css" />
+  const element = document.createElement('link');
+  element.href = path;
+  element.rel = "stylesheet";
+  this.shadow.appendChild(element);
 }
 
 
@@ -141,11 +151,18 @@ event_display(  // calendar_class - client-side
 
   const dialog = this.shadow.getElementById("dialog");
   dialog.title_set(`<b>${event.name}</b>`);
-  dialog.text_set( `${description}<br><br>${link}`);
-  //dialog.body_set( ``);
+  //dialog.text_set( `${description}<br><br>${link}`);
+  dialog.body_set( `${description}<br><br>${link}`);
 
   //dialog.buttons_set(`<button onclick="app.page.edit.closeForm();">Close</button>`);
   dialog.showModal();
+}
+
+
+weeks_per_page(number){
+  var element = this.shadow.getElementById("rows_per_page");
+  element.value = number;
+  element.dispatchEvent(new Event('change'));
 }
 
 

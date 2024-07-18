@@ -187,9 +187,9 @@ groupby(  // table_sfc_class - client-side
 
 
 change_page_size(  // table_sfc_class - client-side
-  e
+  e  // event
   ) {
-  this.paging.lines = parseInt(this.shadow.getElementById("rows_per_page").value); // convert string to number;
+  this.paging.lines = parseInt(e.target.value); // convert string to number;
   this.displayData();
 }
 
