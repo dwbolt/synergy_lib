@@ -1,8 +1,13 @@
+// <table-sfc> web compont - viewer for a table
+
 import {groupByClass       } from '/_lib/db/groupBy_module.js'      ;
-import {recordUxClass      } from '/_lib/db/recordUx_module.js'     ;
+
 import {table_class        } from '/_lib/db/table_module.js'        ;
 //import {select_order_class } from '/_lib/UX/select_order_module.js'     ; // is this used?
-import {dialog_sfc_class   } from '/_lib/web_componets/dialog-sfc/_.mjs';  // support  <dialog-sfc>
+
+// web componets
+import {dialog_sfc_class} from '/_lib/web_componets/dialog-sfc/_.mjs';  // <dialog-sfc>
+import {record_sfc_class} from '/_lib/db/record-sfc/_.mjs'           ;  // <record-sfc>
 
 
 class table_sfc_class  extends HTMLElement { // table_sfc_class - client-side
@@ -15,7 +20,7 @@ constructor(   // table_sfc_class - client-side
 	super();  // call parent constructor 
 
   // data
-  this.recordUX          = new recordUxClass(this);
+  //this.recordUX          = new recordUxClass(this);
   this.searchVisible     = true; // display boxes to put search criteria in
   this.statusLineData    = ["tableName","nextPrev","rows","firstLast","tags","rows/page"]; //,"groupBy","download"
   this.lineNumberVisible = true;
@@ -46,7 +51,22 @@ constructor(   // table_sfc_class - client-side
   <div        id="status" style="text-align:left; margin-bottom:10px"></div>
   <div        id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
   <dialog-sfc id="dialog"/>`  
+
+  this.shadow.getElementById('table').addEventListener('click', this.record_show.bind(this));
 }
+
+
+record_show(  // table_sfc_class - client-side
+  event
+){
+  const data = event.target.getAttribute("data-pk");   // get pk of record to dislplay
+  if (data) {
+      // user clicked on pk to view record detal
+      const id = this.getAttribute("id");                   // get id of table
+      document.getElementById(`${id}_record`).show(data);   // get record-sfc accociated with table & dislay record clicked on
+  }
+}
+
 
 
 connectedCallback() { // table_sfc_class - client-side
@@ -546,8 +566,7 @@ appendHTMLrow(  // table_sfc_class - client-side
   // create html for each column in the row
   let lineNum=""; 
   if (this.lineNumberVisible ) {
-    //let callback = "app.spa.copy2record(2);"
-    lineNum = `<div onclick="${this.globalName}.recordUX.show('${PK}')"><a class="link"> ${i} </a></div>`;
+    lineNum = `<div data-pk="${PK}" class="link"> ${i} </div>`;
   }
 
   let selected = "";

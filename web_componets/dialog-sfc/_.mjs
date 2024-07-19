@@ -7,7 +7,7 @@ constructor() {  // dialog_sfc_class - client side
 	// add content to shadow dom
 	this.shadow.innerHTML =  `
    <link href="/_lib/web_componets/dialog-sfc/_.css" rel="stylesheet">
-   <dialog id="dialog" class="popup">
+   <dialog id="dialog">
    <div id="title"></div><br>
    <hr>
    <div id="body"></div>
@@ -17,6 +17,7 @@ constructor() {  // dialog_sfc_class - client side
    `
 
     this.shadow.getElementById('close').addEventListener('click', this.close.bind(this));
+	this.dialog = this.shadow.getElementById('dialog');
 }
 
 
@@ -49,11 +50,13 @@ buttons_set(html){  // dialog_sfc_class- client side
 
 
 show() {      // dialog_sfc_class- client side
+	this.dialog.className = "";      // we do not want it to popup
 	this.shadow.getElementById("dialog").show();
 }
 
 
 showModal() { // dialog_sfc_class- client side
+	this.dialog.className = "popup";      // we do not want it to popup
 	this.close();       // close dialog if open
 	this.shadow.getElementById("dialog").showModal();
 }

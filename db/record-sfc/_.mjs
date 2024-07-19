@@ -1,4 +1,6 @@
-class recordUxClass { // recordUxClass - client-side
+// web compont - viewer for a table record
+
+class record_sfc_class extends HTMLElement { // record_sfc_class - client-side
 
   //////////////////////////////////////////////////////
   /*
@@ -10,41 +12,94 @@ class recordUxClass { // recordUxClass - client-side
 #primary_key_value  // can these be moved from tableUxClass
 
 
-constructor( // recordUxClass - client-side
-   tableUX       // where table will be displayed
+constructor( // record_sfc_class - client-side
+ //  tableUX       // where table will be displayed
 ) {
+  super();  // call parent constructor 
   this.dom_id         ; //  root 
   this.dom_id_data    ; // data
   this.dom_id_buttons ; // buttons
 
   this.tableUX    ;                       
   this.globalName ;
-  this.table      ; // model
+  this.table      ; // 
+  
+  this.shadow = this.attachShadow({ mode: "closed" });  
+ this.shadow.innerHTML =  `
+  <div id="title"></div>
 
+  <div id="body"></div>
+  
+  <div id='buttons'> 
+  <button>New</button>
+  <button>Add</button>
+  <button>Duplicate</button> &nbsp - &nbsp
+  
+  <button>Edit</button> 
+  <button>Delete</button> 
+  <button>Save</button>
+  &nbsp - &nbsp
+  <button>Stack<button> &nbsp - &nbsp
+  
+  <button>Clear</button>
+  <button>Cancel</button>
+  </div>`
+
+
+/*
    if (tableUX) {
     this.tableUX    = tableUX;                       
     this.globalName = tableUX.globalName + ".recordUX";
     //this.table      = tableUX.getModel();               need to convert 
     this.dom_ids_set(tableUX.DOMid+"_record");
   }
+  */
 }
 
+/*
 
-dom_ids_set(root){ // recordUxClass - client-side
+html_create(){ // client side record_sfc_class - for a page
+  const dom = document.getElementById(this.dom_id);
+  if(0<dom.innerHTML.length) {
+    // allready created, no work todo
+    return;
+  }
+
+  // first time UX is used, so make space for data, and add buttons
+  dom.innerHTML = `<div id='${this.dom_id_data}' class="record"></div>
+  <div id='${this.dom_id_buttons}'> 
+  <input hidden type='button' value='New'       onclick="${this.globalName}.new()">
+  <input hidden type='button' value='Add'       onclick="${this.globalName}.save()">
+  <input hidden type='button' value='Duplicate' onclick="${this.globalName}.duplicate()">
+  &nbsp - &nbsp
+  <input hidden type='button' value='Edit'      onclick="${this.globalName}.edit()"> 
+  <input hidden type='button' value='Delete'    onclick="${this.globalName}.delete()"> 
+  <input hidden type='button' value='Save'      onclick="${this.globalName}.save()">
+  &nbsp - &nbsp
+  <input hidden type='button' value='Stack'  onclick="app.spa.stack.push()">
+  &nbsp - &nbsp
+  <input hidden type='button' value='Clear'     onclick="${this.globalName}.clear()">
+  <input hidden type='button' value='Cancel'    onclick="${this.globalName}.cancel()">
+  </div>`
+  this.buttonsShow("New");
+}
+*/
+
+dom_ids_set(root){ // record_sfc_class - client-side
   this.dom_id          =  root             ;
   this.dom_id_data     =  root + "_data"   ;
   this.dom_id_buttons  =  root + "_buttons";
 }
 
 
-globalName_set( // recordUxClass - client-side
+globalName_set( // record_sfc_class - client-side
   value
 ) {
   this.globalName = value;
 }
 
 
-show(  // client side recordUxClass - for a page
+show(  // client side record_sfc_class - for a page
   pk // primary key to show
 ){
   // show buttons for record
@@ -125,11 +180,11 @@ show(  // client side recordUxClass - for a page
 }
 
 
-buttonsShow( // client side recordUxClass - for a page
+buttonsShow( // client side record_sfc_class - for a page
   // "New Add  Edit Duplicate Delete Save  Cancel"
   s_values   // walk through id=Buttons and show all in the list   
-){  // client side recordUxClass - for a page
-  let button = document.getElementById(this.dom_id_buttons).firstElementChild;
+){ 
+  let button = this.shadow.getElementById(this.dom_id_buttons).firstElementChild;
   while(button) {
     button.hidden = (s_values.includes(button.value) ? 
       false  // show button
@@ -139,7 +194,7 @@ buttonsShow( // client side recordUxClass - for a page
 }
 
 
-form_create( // client side recordUxClass - for a page
+form_create( // client side record_sfc_class - for a page
   dom // id 
   ,fields_meta
   ,fields_list
@@ -152,7 +207,7 @@ form_create( // client side recordUxClass - for a page
 }
 
 
-form_add( // client side recordUxClass - for a page
+form_add( // client side record_sfc_class - for a page
   dom
   ,fields_meta
   ,field_name
@@ -178,7 +233,7 @@ form_add( // client side recordUxClass - for a page
 }
 
 
-form_write(  // client side recordUxClass - for a page
+form_write(  // client side record_sfc_class - for a page
     obj
     ,dom // id 
     ,fields_meta
@@ -191,19 +246,19 @@ form_write(  // client side recordUxClass - for a page
         
         if (value!==undefined) {
         switch (type) {
-        case "pk"      :
-        case "float"   :
-        case "integer" : 
-        case "text"    :
-        case "json"    :
-        case "textarea": document.getElementById(`${dom}_${field_name}`).value        =  value                                 ; break;
-        case "boolean" : document.getElementById(`${dom}_${field_name}`).checked      =  value                                 ; break;
-        case "date"    : document.getElementById(`${dom}_${field_name}`).valueAsDate  =  new Date(value[0],value[1]-1,value[2]); break;
+        case "pk"       :
+        case "float"    :
+        case "integer"  : 
+        case "text"     :
+        case "json"     :
+        case "textarea" : document.getElementById(`${dom}_${field_name}`).value       =  value                                 ; break;
+        case "boolean"  : document.getElementById(`${dom}_${field_name}`).checked     =  value                                 ; break;
+        case "date"     : document.getElementById(`${dom}_${field_name}`).valueAsDate =  new Date(value[0],value[1]-1,value[2]); break;
         case "date-time": document.getElementById(`${dom}_${field_name}`).valueAsDate =  new Date(value[0],value[1]-1,value[2]); 
                           document.getElementById(`${dom}_${field_name}_time`).value  =  
                                                `${app.format.padZero(value[3],2)}:${app.format.padZero(value[4],2)}`           ; break;
         default        : alert(`
-file="recordUx_module.js"
+file="db/record-sfc/_.mjs"
 method="form_write"
 field_name=${field_name}
 type="${type}"
@@ -214,7 +269,7 @@ no case for type
 }
 
 
-edit(){ // client side recordUxClass - for a page
+edit(){ // client side record_sfc_class - for a page
   const dom        = `${this.dom_id_data}`;
   const fields     = this.table.meta_get("fields");
   const field_list = this.table.meta_get("select");
@@ -231,7 +286,7 @@ edit(){ // client side recordUxClass - for a page
 }
 
 
-async save( // client side recordUxClass - for a page
+async save( // client side record_sfc_class - for a page
 ) {
   // user clicked save or add record
   // save to change file
@@ -255,14 +310,14 @@ async save( // client side recordUxClass - for a page
     this.show();          // display record with new data
     } else {
       // error
-      alert(`file="recordUx_module.js"
+      alert(`file="db/record-sfc/_.mjs"
 method="save"
 msg.message="${msg.message}"`);
     }
   }
 
 
-form_read( // client side recordUxClass - for a page
+form_read( // client side record_sfc_class - for a page
     table  // 
 ){
   const obj         = {};
@@ -281,7 +336,7 @@ form_read( // client side recordUxClass - for a page
 }
 
 
-form_value( // client side recordUxClass
+form_value( // client side record_sfc_class
   dom // id 
   ,fields_meta
   ,fields_name
@@ -321,7 +376,7 @@ form_value( // client side recordUxClass
   case "boolean" : value = document.getElementById(`${dom}`).checked          ; break;
   case "relation" : value = ""; break;
 
-  default        : alert(`file="recordUX_module.js"
+  default        : alert(`file="db/record-sfc/_.mjs"
 methed="form_value"
 field.type="${field.type}"
 fields_name="${fields_name}"
@@ -336,55 +391,29 @@ case not handled`);
 }
 
 
-new(){// client side recordUxClass - for a page
+new(){// client side record_sfc_class - for a page
   this.#primary_key_value = undefined;   // will cause edit to create new record on this.save()
   this.edit();
 }
 
 
-html_create(){ // client side recordUxClass - for a page
-  const dom = document.getElementById(this.dom_id);
-  if(0<dom.innerHTML.length) {
-    // allready created, no work todo
-    return;
-  }
 
-  // first time UX is used, so make space for data, and add buttons
-  dom.innerHTML = `<div id='${this.dom_id_data}' class="record"></div>
-  <div id='${this.dom_id_buttons}'> 
-  <input hidden type='button' value='New'       onclick="${this.globalName}.new()">
-  <input hidden type='button' value='Add'       onclick="${this.globalName}.save()">
-  <input hidden type='button' value='Duplicate' onclick="${this.globalName}.duplicate()">
-  &nbsp - &nbsp
-  <input hidden type='button' value='Edit'      onclick="${this.globalName}.edit()"> 
-  <input hidden type='button' value='Delete'    onclick="${this.globalName}.delete()"> 
-  <input hidden type='button' value='Save'      onclick="${this.globalName}.save()">
-  &nbsp - &nbsp
-  <input hidden type='button' value='Stack'  onclick="app.spa.stack.push()">
-  &nbsp - &nbsp
-  <input hidden type='button' value='Clear'     onclick="${this.globalName}.clear()">
-  <input hidden type='button' value='Cancel'    onclick="${this.globalName}.cancel()">
-  </div>`
-  this.buttonsShow("New");
-}
-
-
-get_pk() {  // client side recordUxClass - for a page
+get_pk() {  // client side record_sfc_class - for a page
   return this.#primary_key_value;
 }
 
-set_pk(value) {  // client side recordUxClass - for a page
+set_pk(value) {  // client side record_sfc_class - for a page
  this.#primary_key_value = value;
 }
 
 
-clear(){  // client side recordUxClass - for a page
+clear(){  // client side record_sfc_class - for a page
   document.getElementById(`${this.tableUX.DOMid}_record_data`).innerHTML = "";
   this.buttonsShow("New");
 }
 
 
-cancel(){ // client side recordUxClass - for a page
+cancel(){ // client side record_sfc_class - for a page
   // similar to save, move data from buffer to memory, then save
   if (this.#primary_key_value === null ) {
     // cancled from new
@@ -396,19 +425,20 @@ cancel(){ // client side recordUxClass - for a page
 }
 
 
-recordDuplicate(){// client side recordUxClass - for a page
+recordDuplicate(){// client side record_sfc_class - for a page
   alert("recordDuplicate from memery, not implemented yet")
 }
 
 
-delete(){// client side recordUxClass - for a page
+delete(){// client side record_sfc_class - for a page
   this.table.delete({"pk": this.#primary_key_value});  // delete row from data
   this.tableUX.display();                              // redisplay data
   this.clear();                                        // hide record form since it record is delted
 }
 
 
-} // recordUxClass - client-side //  end
+} // record_sfc_class - client-side //  end
 
 
-export {recordUxClass};
+export {record_sfc_class};
+customElements.define("record-sfc", record_sfc_class); 

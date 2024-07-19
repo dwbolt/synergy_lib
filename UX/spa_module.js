@@ -33,7 +33,7 @@ async main() { // spa_class - client side
 
 	// load spa_module
 	let element = document.createElement('script');
-	element.src = `/synergyData/spa/${this.pageName}/_.js`;
+	element.src = `/synergyData/spa/${this.pageName}/_.mjs`;
 	element.type = "module";
 	document.head.appendChild(element);
 
