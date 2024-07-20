@@ -26,7 +26,7 @@ connectedCallback() { // select_order_class - client side
 	
 	this.shadow.innerHTML = `
 	<link href="/_lib/web_componets/select-order-sfc/_.css" rel="stylesheet">
-	<div  style="display:flex;">
+	<div  style="display:flex;" hidden>
 		<div class="box">
 		<b>Choices</b><br>
 		<!-- add narrow at some point-->

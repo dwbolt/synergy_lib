@@ -18,7 +18,8 @@ constructor( // record_sfc_class - client-side
   super();  // call parent constructor 
 
   this.id         = this.getAttribute("id"); // dom id  assume of the form "table_tableName_record"
-  
+  this.setAttribute("class","border");
+
   this.shadow = this.attachShadow({ mode: "closed" });  
   this.shadow.innerHTML =  `
   <p id="title"></p>
@@ -32,9 +33,9 @@ constructor( // record_sfc_class - client-side
   
   <button>Edit</button> 
   <button>Delete</button> 
-  <button>Save</button>
-  &nbsp - &nbsp
-  <button>Stack<button> &nbsp - &nbsp
+  <button>Save</button>  &nbsp - &nbsp
+
+  <button>Stack</button> &nbsp - &nbsp
   
   <button>Clear</button>
   <button>Cancel</button>
@@ -43,7 +44,17 @@ constructor( // record_sfc_class - client-side
   this.shadow.getElementById("buttons").addEventListener('click', this.click.bind(this));
 }
 
-click(event){
+
+table_set(  // record_sfc_class - client-side
+  model // table class where data lives
+){
+  this.table = model;
+}
+
+
+click(  // record_sfc_class - client-side
+  event // 
+){
   // use clicked on a button,  lower case of button name is method to execute
   const method=event.target.innerHTML.toLowerCase();
   if (" new add duplicate edit delte save clear cancel ".includes(method) ) {
@@ -68,13 +79,6 @@ dom_ids_set(root){ // record_sfc_class - client-side
 }
 
 
-globalName_set( // record_sfc_class - client-side
-  value
-) {
-  this.globalName = value;
-}
-
-
 show(  // client side record_sfc_class - for a page
   pk // primary key to show
 ){
@@ -91,6 +95,7 @@ show(  // client side record_sfc_class - for a page
   }
 
   if (this.table === undefined) {
+    // sets table
     this.table_sfc  = document.getElementById( this.id.slice(0, this.id.length-7));   // web component that displays table
     this.table      = this.table_sfc.getModel();                                     // table model
   }
@@ -104,7 +109,8 @@ show(  // client side record_sfc_class - for a page
   for(var i=0; i<select.length; i++) {
     rowValue = this.table.get_value_relation(this.#primary_key_value, select[i]);
     if (fields[select[i]].type === "textarea") {
-      rowValue = `<textarea rows="5" cols="40" readonly>${rowValue}</textarea>`
+      //rowValue = `<textarea rows="5" cols="40" readonly>${rowValue}</textarea>`
+      rowValue = `<textarea rows="5" readonly>${rowValue}</textarea>`
     }
     html += `<div>${i+1}</div> <div>${fields[select[i]].header}</div> <div>${rowValue}</div>`
   }
@@ -201,7 +207,7 @@ form_add( // client side record_sfc_class - for a page
   case "pk"       : return `${html} <div><input    id="${field_name}" type="text" readonly></div>`;
   case "text"     : return `${html} <div><input    id="${field_name}" type="text">    </div>`;
   case "json"     :
-  case "textarea" : return `${html} <div><textarea id="${field_name}" rows="5" cols="80"></textarea>     </div>`;
+  case "textarea" : return `${html} <div><textarea id="${field_name}" rows="5"></textarea>     </div>`;
   case "integer"  : return `${html} <div><input    id="${field_name}" type="number" onfocusout="app.integer_validate(this)">  </div>`;
   case "float"    : return `${html} <div><input    id="${field_name}" type="number" onfocusout="app.float_validate(  this)">  </div>`;
   case "date"     : return `${html} <div><input    id="${field_name}" type="date">    </div>`;
