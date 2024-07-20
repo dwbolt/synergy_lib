@@ -20,7 +20,6 @@ constructor(   // table_sfc_class - client-side
 	super();  // call parent constructor 
 
   // data
-  //this.recordUX          = new recordUxClass(this);
   this.searchVisible     = true; // display boxes to put search criteria in
   this.statusLineData    = ["tableName","nextPrev","rows","firstLast","tags","rows/page"]; //,"groupBy","download"
   this.lineNumberVisible = true;

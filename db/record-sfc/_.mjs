@@ -16,19 +16,14 @@ constructor( // record_sfc_class - client-side
  //  tableUX       // where table will be displayed
 ) {
   super();  // call parent constructor 
-  this.dom_id         ; //  root 
-  this.dom_id_data    ; // data
-  this.dom_id_buttons ; // buttons
 
-  this.tableUX    ;                       
-  this.globalName ;
-  this.table      ; // 
+  this.id         = this.getAttribute("id"); // dom id  assume of the form "table_tableName_record"
   
   this.shadow = this.attachShadow({ mode: "closed" });  
- this.shadow.innerHTML =  `
-  <div id="title"></div>
+  this.shadow.innerHTML =  `
+  <p id="title"></p>
 
-  <div id="body"></div>
+  <div id="body" style="display: grid; grid-template-columns: 20px 100px 300px;"></div>
   
   <div id='buttons'> 
   <button>New</button>
@@ -45,45 +40,26 @@ constructor( // record_sfc_class - client-side
   <button>Cancel</button>
   </div>`
 
-
-/*
-   if (tableUX) {
-    this.tableUX    = tableUX;                       
-    this.globalName = tableUX.globalName + ".recordUX";
-    //this.table      = tableUX.getModel();               need to convert 
-    this.dom_ids_set(tableUX.DOMid+"_record");
-  }
-  */
+  this.shadow.getElementById("buttons").addEventListener('click', this.click.bind(this));
 }
 
-/*
-
-html_create(){ // client side record_sfc_class - for a page
-  const dom = document.getElementById(this.dom_id);
-  if(0<dom.innerHTML.length) {
-    // allready created, no work todo
-    return;
+click(event){
+  // use clicked on a button,  lower case of button name is method to execute
+  const method=event.target.innerHTML.toLowerCase();
+  if (" new add duplicate edit delte save clear cancel ".includes(method) ) {
+    this[method]();
+  } else if (method==="stack") {
+     app.spa.stack.push();
+  } else {
+    alert(`method=${method} is not a valid`)
   }
-
-  // first time UX is used, so make space for data, and add buttons
-  dom.innerHTML = `<div id='${this.dom_id_data}' class="record"></div>
-  <div id='${this.dom_id_buttons}'> 
-  <input hidden type='button' value='New'       onclick="${this.globalName}.new()">
-  <input hidden type='button' value='Add'       onclick="${this.globalName}.save()">
-  <input hidden type='button' value='Duplicate' onclick="${this.globalName}.duplicate()">
-  &nbsp - &nbsp
-  <input hidden type='button' value='Edit'      onclick="${this.globalName}.edit()"> 
-  <input hidden type='button' value='Delete'    onclick="${this.globalName}.delete()"> 
-  <input hidden type='button' value='Save'      onclick="${this.globalName}.save()">
-  &nbsp - &nbsp
-  <input hidden type='button' value='Stack'  onclick="app.spa.stack.push()">
-  &nbsp - &nbsp
-  <input hidden type='button' value='Clear'     onclick="${this.globalName}.clear()">
-  <input hidden type='button' value='Cancel'    onclick="${this.globalName}.cancel()">
-  </div>`
-  this.buttonsShow("New");
 }
-*/
+
+shadow_by_id(
+  id  // id of shadow elemnt
+){
+  return this.shadow.getElementById(id);
+}
 
 dom_ids_set(root){ // record_sfc_class - client-side
   this.dom_id          =  root             ;
@@ -114,11 +90,17 @@ show(  // client side record_sfc_class - for a page
     // adding a new record
   }
 
+  if (this.table === undefined) {
+    this.table_sfc  = document.getElementById( this.id.slice(0, this.id.length-7));   // web component that displays table
+    this.table      = this.table_sfc.getModel();                                     // table model
+  }
+
   // recordShow Fields
-  let      html = `<div></div> <div></div> <div><b>Table:</b>  ${this.table.name} <b>PK:</b> ${this.#primary_key_value}</div>`;
+  this.shadow.getElementById("title").innerHTML = `<div><b>Table:</b>  ${this.table.name} <b>PK:</b> ${this.#primary_key_value}</div>`;
   const  select = this.table.meta_get("select");
   const  fields = this.table.meta_get("fields");
   let rowValue;
+  let html = ""
   for(var i=0; i<select.length; i++) {
     rowValue = this.table.get_value_relation(this.#primary_key_value, select[i]);
     if (fields[select[i]].type === "textarea") {
@@ -127,10 +109,8 @@ show(  // client side record_sfc_class - for a page
     html += `<div>${i+1}</div> <div>${fields[select[i]].header}</div> <div>${rowValue}</div>`
   }
 
-  let dom = document.getElementById(this.dom_id_data);
+  let dom = this.shadow.getElementById("body");
   dom.innerHTML = html;
-  dom.display = "block";
-
 
   if (this.dom_id === "relation_record") {
     // just displayed relation between stack_record and the table record, no need to do more
@@ -152,7 +132,7 @@ show(  // client side record_sfc_class - for a page
   // add hide hide all relations
   let table_names = app.spa.db.get_table_names();
   for (let i=0; i<table_names.length; i++) {
-    app.spa.id_hide(`tableUX_${table_names[i]}_rel`);
+    app.spa.id_hide(`table_${table_names[i]}_rel`);
   }
   
   if (relation !== undefined) {
@@ -165,8 +145,8 @@ show(  // client side record_sfc_class - for a page
       let pks_table  = Object.keys(relations);
       
       // walk the relations in the table, add to array to display
-      let ux = app.spa.tableUX_rel[table_name];  // ux for table
-      app.spa.id_show(`tableUX_${table_name}_rel`);
+      let ux = document.getElementById(`table_${table_name}_rel`);  // ux for table
+      app.spa.id_show(`table_${table_name}_rel`);
       let pks = [];
       for (let ii=0; ii<pks_table.length; ii++) {
           let pk          = pks_table[ii];                            // pk of the relation
@@ -184,32 +164,33 @@ buttonsShow( // client side record_sfc_class - for a page
   // "New Add  Edit Duplicate Delete Save  Cancel"
   s_values   // walk through id=Buttons and show all in the list   
 ){ 
-  let button = this.shadow.getElementById(this.dom_id_buttons).firstElementChild;
+  let button = this.shadow.getElementById("buttons").firstElementChild;
   while(button) {
-    button.hidden = (s_values.includes(button.value) ? 
+    if (button.nodeName === "BUTTON") {
+      button.hidden = (s_values.includes(button.innerHTML) ? 
       false  // show button
     : true  )// hide button
+    }
     button = button.nextSibling;
   }
 }
 
 
 form_create( // client side record_sfc_class - for a page
-  dom // id 
+   element // id 
   ,fields_meta
   ,fields_list
 ){
   let html = ``;
   for(let i=0; i<fields_list.length; i++) {
-      html += this.form_add(dom, fields_meta, fields_list[i],i);
+      html += this.form_add(fields_meta, fields_list[i],i);
   }
-  document.getElementById(dom).innerHTML = html;
+  element.innerHTML = html;
 }
 
 
 form_add( // client side record_sfc_class - for a page
-  dom
-  ,fields_meta
+   fields_meta
   ,field_name
   ,i
 ){
@@ -217,25 +198,24 @@ form_add( // client side record_sfc_class - for a page
   let html = `<div>${i}</div> <div>${field.header}</div>`
   switch (field.type) {
 
-  case "pk"       : return `${html} <div><input    id="${dom}_${field_name}" type="text" readonly></div>`;
-  case "text"     : return `${html} <div><input    id="${dom}_${field_name}" type="text">    </div>`;
+  case "pk"       : return `${html} <div><input    id="${field_name}" type="text" readonly></div>`;
+  case "text"     : return `${html} <div><input    id="${field_name}" type="text">    </div>`;
   case "json"     :
-  case "textarea" : return `${html} <div><textarea id="${dom}_${field_name}" rows="5" cols="80"></textarea>     </div>`;
-  case "integer"  : return `${html} <div><input    id="${dom}_${field_name}" type="number" onfocusout="app.integer_validate(this)">  </div>`;
-  case "float"    : return `${html} <div><input    id="${dom}_${field_name}" type="number" onfocusout="app.float_validate(  this)">  </div>`;
-  case "date"     : return `${html} <div><input    id="${dom}_${field_name}" type="date">    </div>`;
-  case "date-time": return `${html} <div><input    id="${dom}_${field_name}" type="date"> <input id="${dom}_${field_name}_time" type="time"> </div>`;
-  case "boolean"  : return `${html} <div><input    id="${dom}_${field_name}" type="checkbox"></div>`;
+  case "textarea" : return `${html} <div><textarea id="${field_name}" rows="5" cols="80"></textarea>     </div>`;
+  case "integer"  : return `${html} <div><input    id="${field_name}" type="number" onfocusout="app.integer_validate(this)">  </div>`;
+  case "float"    : return `${html} <div><input    id="${field_name}" type="number" onfocusout="app.float_validate(  this)">  </div>`;
+  case "date"     : return `${html} <div><input    id="${field_name}" type="date">    </div>`;
+  case "date-time": return `${html} <div><input    id="${field_name}" type="date"> <input id="${field_name}_time" type="time"> </div>`;
+  case "boolean"  : return `${html} <div><input    id="${field_name}" type="checkbox"></div>`;
   case "relation" : return `${html} <div><relation needs work`;
 
-  default        :  return `${html} <div>field.type=${field.type} field_name="${field_name} not handeld</div>`;
+  default         :  return `${html} <div>field.type=${field.type} field_name="${field_name} not handeld</div>`;
   }
 }
 
 
 form_write(  // client side record_sfc_class - for a page
     obj
-    ,dom // id 
     ,fields_meta
     ,fields_list
 ){
@@ -251,12 +231,12 @@ form_write(  // client side record_sfc_class - for a page
         case "integer"  : 
         case "text"     :
         case "json"     :
-        case "textarea" : document.getElementById(`${dom}_${field_name}`).value       =  value                                 ; break;
-        case "boolean"  : document.getElementById(`${dom}_${field_name}`).checked     =  value                                 ; break;
-        case "date"     : document.getElementById(`${dom}_${field_name}`).valueAsDate =  new Date(value[0],value[1]-1,value[2]); break;
-        case "date-time": document.getElementById(`${dom}_${field_name}`).valueAsDate =  new Date(value[0],value[1]-1,value[2]); 
-                          document.getElementById(`${dom}_${field_name}_time`).value  =  
-                                               `${app.format.padZero(value[3],2)}:${app.format.padZero(value[4],2)}`           ; break;
+        case "textarea" : this.shadow.getElementById(field_name).value       =  value                                 ; break;
+        case "boolean"  : this.shadow.getElementById(field_name).checked     =  value                                 ; break;
+        case "date"     : this.shadow.getElementById(field_name).valueAsDate =  new Date(value[0],value[1]-1,value[2]); break;
+        case "date-time": this.shadow.getElementById(field_name).valueAsDate =  new Date(value[0],value[1]-1,value[2]); 
+                          this.shadow.getElementById(`${field_name}_time`).value  =  
+                                               `${app.format.padZero(value[3],2)}:${app.format.padZero(value[4],2)}`; break;
         default        : alert(`
 file="db/record-sfc/_.mjs"
 method="form_write"
@@ -270,13 +250,13 @@ no case for type
 
 
 edit(){ // client side record_sfc_class - for a page
-  const dom        = `${this.dom_id_data}`;
+  const element     = this.shadow.getElementById("body");
   const fields     = this.table.meta_get("fields");
   const field_list = this.table.meta_get("select");
 
-  this.form_create(          dom, fields, field_list  );  // create empty form
+  this.form_create(element, fields, field_list  );  // create empty form
   const obj = this.table.get_object(this.#primary_key_value);  // get object from table
-  this.form_write(obj,       dom, fields, field_list  );  // load form with values
+  this.form_write(obj,      fields, field_list  );  // load form with values
 
   if (this.#primary_key_value  === undefined ) {
     this.buttonsShow("Add Cancel");  // adding new record
@@ -408,19 +388,18 @@ set_pk(value) {  // client side record_sfc_class - for a page
 
 
 clear(){  // client side record_sfc_class - for a page
-  document.getElementById(`${this.tableUX.DOMid}_record_data`).innerHTML = "";
+  this.shadow.getElementById(`title`).innerHTML = "";
+  this.shadow.getElementById(`body`).innerHTML = "";
   this.buttonsShow("New");
 }
 
 
 cancel(){ // client side record_sfc_class - for a page
   // similar to save, move data from buffer to memory, then save
-  if (this.#primary_key_value === null ) {
-    // cancled from new
-    this.clear();
+  if (typeof(this.#primary_key_value) === "string") {
+        this.show(this.#primary_key_value);   // cancled from edit
   } else {
-    // cancled from edit
-    this.show();
+    this.clear();  // cancled from new
   }
 }
 
