@@ -27,18 +27,18 @@ connectedCallback() { // select_order_class - client side
 	this.shadow.innerHTML = `
 	<link href="/_lib/web_componets/select-order-sfc/_.css" rel="stylesheet">
 	<div  style="display:flex;" hidden>
-		<div class="box">
+		<div id="choices_box" class="box">
 		<b>Choices</b><br>
 		<!-- add narrow at some point-->
 		<select id="choices" size="7"></select>
 		</div>
 
-		<div class="box">
+		<div id="selected_box" class="box">
 		<b>Selected</b><br>
 		<select id="selected" size="7"></select>
 		</div>
 
-		<div class="box">
+		<div id="button_box" class="box">
 		<b>Operations</b><br>
 		<button id="top">Top</button> <button id="up">Up</button><br>
 		<br>
@@ -57,6 +57,10 @@ display(){  // select_order_class - client side
 	this.selected_display();
 }
 
+toggle(id) {
+	const element = this.shadow.getElementById(id+"_box");
+	element.hidden = !element.hidden;
+}
 
 choices_add(  // select_order_class - client side
    // add a user choice
@@ -93,6 +97,14 @@ selected_add(   // select_order_class - client side
 ) {
 	this.selected.push(parseInt(index));  // add to selected
 	this.selected_display();
+}
+
+
+selected_return(){  // select_order_class - client side
+	const selected = [];
+	const element = this.shadow.getElementById("selected");
+	for(let i=0; i)
+	return selected;
 }
 
 

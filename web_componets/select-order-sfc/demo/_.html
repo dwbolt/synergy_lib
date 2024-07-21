@@ -6,6 +6,12 @@
 
 	<body>
 	<h1>select-order web-componet Demo</h1>
+	<button onclick="app.toggle('componet'   )">toggle web componet</button> 
+	<button onclick="app.toggle('choices'   )">toggle choices</button> 
+	<button onclick="app.toggle('selections')">toggle selections</button> 
+	<button onclick="app.toggle('selections')">toggle buttons</button><br><br>
+	<button onclick="app.selected_show()">show user selected</button> 
+
 	<select-order-sfc id="select-order"></select-order-sfc>
 	</body>
 </html>
@@ -16,12 +22,42 @@ var app; // only globle variable
 
 <script type="module">
 import  {select_order_class}    from '/_lib/web_componets/select-order-sfc/_.mjs'; // suport <select-order-sfc> web component
-app  = document.getElementById("select-order");  // get web-componet
 
-app.choices_add("David",{});    // add three choices
-app.choices_add("Mike",{});
-app.choices_add("Billy",{});
+class app_class { // client side app_class 
+ 
 
-app.display();          // display three choices
+constructor() {  // client side app_class
+	this.select_order = document.getElementById("select-order");  // get web-componet
+	this.choices = {};
+	this.choices[1] = {"name":"build"   , "table":"tasks"};
+	this.choices[1] = {"name":"john"    , "table":"people"};
+	this.choices[1] = {"name":"birthday", "table":"events"};
+	}
+}
+
+toggle(id) { // client side app_class
+	if (id==="componet") {
+		this.select_order.hidden = !this.select_order.hidden  // toggle web componet
+	} else {
+		this.select_order.toggle(id);                        // toggle web componet shadow element
+	}
+}
+
+
+show(){  // client side app_class
+	for(let i=0; i<this.choices; i++) {
+		this.select_order.choices_add(i, this.choices[i].name);  
+	}
+
+	this.select_order.display();          // display three choices
+}
+
+app.selected_show() {// client side app_class 
+  alert(this.select_order.)
+
+} // end client side app_class
+
+app = new app_class();
+app.show();
 
 </script>
