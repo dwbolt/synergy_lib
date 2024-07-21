@@ -28,14 +28,18 @@ class app_class { // client side app_class
 
 constructor() {  // client side app_class
 	this.select_order = document.getElementById("select-order");  // get web-componet
-	this.choices = {};
-	this.choices[1] = {"name":"build"   , "table":"tasks"};
-	this.choices[1] = {"name":"john"    , "table":"people"};
-	this.choices[1] = {"name":"birthday", "table":"events"};
-	}
+	this.choices = [
+	 ["build"   , "tasks"]
+	,["john"    , "people"]
+	,["birthday", "event"]
+	];
+
+	this.select_order.choices_add(this.choices);
 }
 
+
 toggle(id) { // client side app_class
+	// toggle if element is hidden
 	if (id==="componet") {
 		this.select_order.hidden = !this.select_order.hidden  // toggle web componet
 	} else {
@@ -44,20 +48,12 @@ toggle(id) { // client side app_class
 }
 
 
-show(){  // client side app_class
-	for(let i=0; i<this.choices; i++) {
-		this.select_order.choices_add(i, this.choices[i].name);  
-	}
-
-	this.select_order.display();          // display three choices
+selected_show() {// client side app_class 
+  alert(this.select_order.selected_return());
 }
-
-app.selected_show() {// client side app_class 
-  alert(this.select_order.)
 
 } // end client side app_class
 
-app = new app_class();
-app.show();
+app = new app_class();  
 
 </script>

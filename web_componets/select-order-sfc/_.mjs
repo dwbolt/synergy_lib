@@ -15,13 +15,6 @@ they can order the selected choices on right.
 constructor( // select_order_class - client side
 ) {  
 	super();              // call parent constructor
-}
-
-
-connectedCallback() { // select_order_class - client side
-	this.choices   = [];  // this  [[display1,obj1], [display2, object2],...] , search on choices may narrow the options displayed
-	this.selected  = [];  // aray of indexes that the user has selected, display in reverser order
-	
 	this.shadow  = this.attachShadow({ mode: "closed" });   // create a shadow dom that has sepreate id scope from other main dom and other shadow doms
 	
 	this.shadow.innerHTML = `
@@ -48,7 +41,16 @@ connectedCallback() { // select_order_class - client side
 		</div>
 	</div>`
 
-    this.shadow.addEventListener('click', this.click.bind(this));
+	this.choices   = this.shadow.getElementById("choices");  
+	this.selected  = this.shadow.getElementById("selected"); 
+
+    this.shadow.getElementById("choices"   ).addEventListener('click', this.choices_click.bind( this));
+	this.shadow.getElementById("selected"  ).addEventListener('click', this.selected_click.bind(this));
+	this.shadow.getElementById("button_box").addEventListener('click', this.button_click.bind(  this));
+}
+
+
+connectedCallback() { // select_order_class - client side
 }
 
 
@@ -57,37 +59,23 @@ display(){  // select_order_class - client side
 	this.selected_display();
 }
 
+
 toggle(id) {
 	const element = this.shadow.getElementById(id+"_box");
 	element.hidden = !element.hidden;
 }
 
+
 choices_add(  // select_order_class - client side
    // add a user choice
-	display   // text displayed to choice
-	,obj      //{"display"="??","comment"="??",order=number}  object associated with what is displayed
-	){
-
-	this.choices.push([display,obj]);             // store choice in object
-}
-
-
-choices_display( // select_order_class - client side
+   choices // [ [value1,dispaly1], [value2, display2].....]
 ){
-	// show the choices
-	const choices = this.shadow.getElementById(`choices`);
-	if(!choices) {
-		alert("error, element choice not found")
-		return;
-	}  // refactor
-
+	this.choices_array = choices;
 	let html = "";
-	for(var i=0; i<this.choices.length; i++) {
-		if ( this.selected.findIndex( val => val === i ) === -1 ) {
-			html  += `<option value='${i.toString()}'>${this.choices[i][0]}</option>`
-		}
+	for(let i=0; i<choices.length; i++) {
+		html += `<option value="${choices[i][0]}">${choices[i][1]}</option>` // store choice in object
 	}
-	choices.innerHTML = html;
+	this.choices.innerHTML += html;
 }
 
 
@@ -103,8 +91,10 @@ selected_add(   // select_order_class - client side
 selected_return(){  // select_order_class - client side
 	const selected = [];
 	const element = this.shadow.getElementById("selected");
-	for(let i=0; i)
-	return selected;
+	for(let i=0; element.length;i++) {
+		selected.push();
+	}
+	return selected;  // return an array of values
 }
 
 
@@ -152,99 +142,60 @@ button_disable(  // select_order_class - client side
 }
 
 
-click(event){  // select_order_class - client side
-	let parent = event.target.parentElement;
-	switch (parent.id) {
-	case "choices":
-		// user click on a choice
-		this.selected_add(event.target.value)    // move to selected
-		event.target.remove();  // remove from choice
-		return;
+choices_click(event){  // select_order_class - client side
+	// user click on a choice, move it to the selected
+	this.selected.insertBefore(event.target,this.selected.firstChild);
+}
 
-	case "selected":
-		// user click on a selected, enable valid button choices
-		let disable = "";
-		if (parent.length === parent.selectedIndex+1 ) {
-			// bottom is selected
-			disable += " bottom down ";
-		}
 
-		if (0 === parent.selectedIndex ) {
-			// top is selected
-			disable += " top up ";
-		} 
+selected_click(event){  // select_order_class - client side
+	// user click on a selected
+	parent = event.target.parent;
 
-		this.button_disable(disable);
-		return;
-
-	default:
-		// 
-		break;
+	let disable = "";
+	if (parent.length === parent.selectedIndex+1 ) {
+		// bottom is selected
+		disable += " bottom down ";
 	}
 
+	if (0 === parent.selectedIndex ) {
+		// top is selected
+		disable += " top up ";
+	} 
+
+	this.button_disable(disable); // diaable buttons that should not be used
+}
+
+
+button_click(event) {  // select_order_class - client side
 	// process buttons
 	const button = event.target;
 	const sel    = this.shadow.getElementById("selected");  // selection box
 	const index  =  parseInt(sel.value);                    // choice index
 	switch (button.id) {
 	case "top": // move selected to top 
-		for(let i=0; i<this.selected.length; i++){
-			if (this.selected[i] === index) {
-				this.selected.splice(i,1); // remove;
-				this.selected.push(index); // move to top 
-				break;
-			}
-		}
-		this.selected_display();
+		this.selected.insertBefore(event.target, this.selected.firstChild);
 		break;
 
 	case "up": // move selected up one place
-		for(let i=0; i<this.selected.length; i++){
-			if (this.selected[i] === index) {
-				const temp = this.selected[i+1]; 
-				this.selected[i+1] = index;
-				this.selected[i]   = temp;
-				break;
-			}
-		}
-		this.selected_display();
+		this.selected.insertBefore(event.target, event.target.previousSibling);
 		break;
 
 	case "down": // move selected down one place
-		for(let i=0; i<this.selected.length; i++){
-			if (this.selected[i] === index) {
-				const temp = this.selected[i-1]; 
-				this.selected[i-1] = index;
-				this.selected[i]   = temp;
-				break;
-			}
-		}
-		this.selected_display();
+		this.selected.insertBefore(event.target, event.target.nextSibling);
 		break;
 
 	case "bottom": // move selected to bottom 
-		for(let i=0; i<this.selected.length; i++){
-			if (this.selected[i] === index) {
-				this.selected.splice(i,1); // remove;
-				this.selected.unshift(index) ;// move to bottom 
-				break;
-			}
-		}
-		this.selected_display();
+		this.selected.insertBefore(event.target, this.selected.lastChild);
 		break;	
 
 	case "remove":  // remove selected item from selected list
-		for(let i=0; i<this.selected.length; i++){
-			if (this.selected[i] === index) {
-				this.selected.splice(i,1);  	// remove 
-				break;
-			}
-		}
-		this.choices_display();
-		this.selected_display();
+		this.selected.remove(event.target);
+		this.
 		break;
 
 	default:
+
 		break;
 	}
 }
