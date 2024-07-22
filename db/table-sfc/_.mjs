@@ -511,6 +511,7 @@ getTableDom(// table_sfc_class - client-side
   return table;
 }
 
+
 // table_sfc_class - client-side  --- deprecate
 setModel( // let class know what data it will be displaying/using
   db      // database object that table is in
@@ -519,6 +520,7 @@ setModel( // let class know what data it will be displaying/using
   this.tableName  = name;           // string
   this.model      = db.getTable(name);  // is of class table_class
 }
+
 
 set_model( // let class know what data it will be displaying/using
    table  // table object 

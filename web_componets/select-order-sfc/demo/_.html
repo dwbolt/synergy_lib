@@ -6,11 +6,11 @@
 
 	<body>
 	<h1>select-order web-componet Demo</h1>
-	<button onclick="app.toggle('componet'   )">toggle web componet</button> 
-	<button onclick="app.toggle('choices'   )">toggle choices</button> 
-	<button onclick="app.toggle('selections')">toggle selections</button> 
-	<button onclick="app.toggle('selections')">toggle buttons</button><br><br>
-	<button onclick="app.selected_show()">show user selected</button> 
+	<button onclick="app.toggle('componet')">toggle web componet</button> 
+	<button onclick="app.toggle('choices' )">toggle choices</button> 
+	<button onclick="app.toggle('selected')">toggle selections</button> 
+	<button onclick="app.toggle('button'  )">toggle buttons</button><br><br>
+	<button onclick="app.selected_show()"   >show user selected</button> 
 
 	<select-order-sfc id="select-order"></select-order-sfc>
 	</body>
@@ -49,7 +49,12 @@ toggle(id) { // client side app_class
 
 
 selected_show() {// client side app_class 
-  alert(this.select_order.selected_return());
+	let msg = ""
+	const sel = this.select_order.selected_return();
+	for(let i=0; i<sel.length; i++) {
+		msg += JSON.stringify(this.choices[sel[i]])+"\n";
+	};
+	alert(msg);
 }
 
 } // end client side app_class

@@ -55,29 +55,24 @@ table_set(  // record_sfc_class - client-side
 click(  // record_sfc_class - client-side
   event // 
 ){
-  // use clicked on a button,  lower case of button name is method to execute
-  const method=event.target.innerHTML.toLowerCase();
+  // user clicked on a button,  lower case of button name is method to execute
+  const method = event.target.innerHTML.toLowerCase();
   if (" new add duplicate edit delte save clear cancel ".includes(method) ) {
     this[method]();
   } else if (method==="stack") {
-     app.spa.stack.push();
+     app.spa.stack_push(this); // hardcoded do not like this, stack should not be an part of this component
   } else {
     alert(`method=${method} is not a valid`)
   }
 }
 
-shadow_by_id(
+
+shadow_by_id( // record_sfc_class - client-side
   id  // id of shadow elemnt
 ){
   return this.shadow.getElementById(id);
 }
-
-dom_ids_set(root){ // record_sfc_class - client-side
-  this.dom_id          =  root             ;
-  this.dom_id_data     =  root + "_data"   ;
-  this.dom_id_buttons  =  root + "_buttons";
-}
-
+  
 
 show(  // client side record_sfc_class - for a page
   pk // primary key to show
