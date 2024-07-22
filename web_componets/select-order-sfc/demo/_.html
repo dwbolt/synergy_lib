@@ -6,15 +6,19 @@
 
 	<body>
 	<h1>select-order web-componet Demo</h1>
-	<button onclick="app.toggle('componet')">toggle web componet</button> 
 	<button onclick="app.toggle('choices' )">toggle choices</button> 
 	<button onclick="app.toggle('selected')">toggle selections</button> 
-	<button onclick="app.toggle('button'  )">toggle buttons</button><br><br>
+	<button onclick="app.toggle('button'  )">toggle buttons</button>
+	<button onclick="app.toggle('narrow'  )">toggle narrow</button>
+	<br><br>
 	<button onclick="app.selected_show()"   >show user selected</button> 
 
 	<select-order-sfc id="select-order"></select-order-sfc>
 	</body>
 </html>
+
+
+
 
 <script>
 var app; // only globle variable
@@ -29,22 +33,30 @@ class app_class { // client side app_class
 constructor() {  // client side app_class
 	this.select_order = document.getElementById("select-order");  // get web-componet
 	this.choices = [
-	 ["build"   , "tasks"]
-	,["john"    , "people"]
-	,["birthday", "event"]
+	 ["build"   , "tasks" , "red"]
+	,["john"    , "people", "red"]
+	,["birthday", "event" , "red"]
+
+	,["build"   , "tasks" ,"white"]
+	,["john"    , "people","white"]
+	,["birthday", "event" ,"white"]
+
+	,["build"   , "tasks" ,"blue"]
+	,["john"    , "people","blue"]
+	,["birthday", "event" ,"blue"]
+
+	,["build"   , "tasks" ,"green"]
+	,["john"    , "people","green"]
+	,["birthday", "event" ,"green"]
 	];
 
 	this.select_order.choices_add(this.choices);
+	this.select_order.title_set("<h2>In select order web component</h2>")
 }
 
 
 toggle(id) { // client side app_class
-	// toggle if element is hidden
-	if (id==="componet") {
-		this.select_order.hidden = !this.select_order.hidden  // toggle web componet
-	} else {
-		this.select_order.toggle(id);                        // toggle web componet shadow element
-	}
+	this.select_order.toggle(id);    // toggle web componet shadow element
 }
 
 

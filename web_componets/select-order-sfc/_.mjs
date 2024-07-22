@@ -18,7 +18,10 @@ constructor( // select_order_class - client side
 	this.shadow  = this.attachShadow({ mode: "closed" });   // create a shadow dom that has sepreate id scope from other main dom and other shadow doms
 	
 	this.shadow.innerHTML = `
+	<div class="box" style="display: inline-block;">
 	<link href="/_lib/web_componets/select-order-sfc/_.css" rel="stylesheet">
+	<div id="title"></div>
+	<input id="narrow" type="text" placeholder="Narrow choices" hidden> 
 	<div  style="display:flex;" hidden>
 		<div id="choices_box" class="box">
 		<b>Choices</b><br>
@@ -40,15 +43,19 @@ constructor( // select_order_class - client side
 		<br>
 		<button id="remove">Remove</button> <button id="remove_all">All</button>
 		</div>
-	</div>`
+	</div></div>`
 
-	this.choices   = this.shadow.getElementById("choices");  
-	this.selected  = this.shadow.getElementById("selected"); 
-	this.buttons   = this.shadow.getElementById("button_box");
+	this.choices   = this.shadow.getElementById("choices")   ; this.choices .addEventListener('click', this.choices_click.bind( this));
+	this.selected  = this.shadow.getElementById("selected")  ; this.selected.addEventListener('click', this.selected_click.bind(this));
+	this.buttons   = this.shadow.getElementById("button_box"); this.buttons.addEventListener( 'click', this.button_click.bind(  this));
+	this.narrow    = this.shadow.getElementById("narrow"    ); this.narrow.addEventListener(  'keyup', this.choices_html.bind(  this));
+}
 
-    this.shadow.getElementById("choices"   ).addEventListener('click', this.choices_click.bind( this));
-	this.shadow.getElementById("selected"  ).addEventListener('click', this.selected_click.bind(this));
-	this.shadow.getElementById("button_box").addEventListener('click', this.button_click.bind(  this));
+
+narrow_keyup(){
+	// change choices bassed on what was typed in
+	
+
 }
 
 
@@ -56,14 +63,20 @@ connectedCallback() { // select_order_class - client side
 }
 
 
+title_set(html) {  // select_order_class - client side
+	this.shadow.getElementById("title").innerHTML = html;
+}
+
 display(){  // select_order_class - client side
 	this.choices_display();
-	//this.selected_display();
 }
 
 
 toggle(id) {
-	const element = this.shadow.getElementById(id+"_box");
+	let element = this.shadow.getElementById(id+"_box");
+	if (element === null) {
+		element = this.shadow.getElementById(id);
+	}
 	element.hidden = !element.hidden;
 }
 
@@ -73,15 +86,23 @@ choices_add(  // select_order_class - client side
    choices // [ [value1,dispaly1], [value2, display2].....]
 ){
 	this.choices_array = choices;
+	if (10 < this.choices_array.length) {
+		// show narrow if there are more than 10 items to choose from
+		this.shadow.getElementById("narrow").hidden = false;
+	}
 	this.choices_html();
 }
+
 
 choices_html(){
 	let html = "";
 	const selected = this.selected_return();
 	for(let i=0; i<this.choices_array.length; i++) {
-		if ( !selected.includes(i.toString()) ) {
-			html += `<option value="${i}">${this.choices_array[i][0]}</option>`; // store choice in object
+		if ( !selected.includes(i.toString()) ) { // only add things not alread selected
+		    let display = this.choices_array[i][0];
+			if (display.includes(this.narrow.value) ) { // only add things that meet narrow search criteria
+				html += `<option value="${i}">${display}</option>`; // store choice in object
+			}
 		}
 	}
 	this.choices.innerHTML = html;
