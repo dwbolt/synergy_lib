@@ -13,6 +13,7 @@
 	<button onclick="app.selected_show()"   >show user selected</button> 
 
 	<select-order-sfc id="select-order"></select-order-sfc>
+	<p id="msg"></p>
 	</body>
 </html>
 
@@ -31,6 +32,7 @@ class app_class { // client side app_class
 
 constructor() {  // client side app_class
 	this.select_order = document.getElementById("select-order");  // get web-componet
+	this.msg          = document.getElementById("msg");
 	this.choices = [
 	 ["build"   , "tasks" , "red"]
 	,["john"    , "people", "red"]
@@ -51,6 +53,16 @@ constructor() {  // client side app_class
 
 	this.select_order.choices_add(this.choices);
 	this.select_order.title_set("<h2>In select order web component</h2>")
+
+	// overite custom click
+	this.select_order.choices_click_custom = this.choices_click_custom.bind(this);
+
+}
+
+
+choices_click_custom(event){ // client side app_class
+	const choice = event.target.parentElement.value;
+	this.msg.innerHTML = `event.type=${event.type} <br>this.clicked on = ${JSON.stringify(this.choices[choice])}`
 }
 
 

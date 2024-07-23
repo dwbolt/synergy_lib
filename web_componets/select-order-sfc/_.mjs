@@ -41,7 +41,7 @@ constructor( // select_order_class - client side
 		<button id="down">v</button><br>
 		 <button id="bottom">Bottom</button><br>
 		<br>
-		<button id="remove">Remove</button> <button id="remove_all">All</button>
+		<button id="remove">-</button> <button id="remove_all">- All</button>
 		</div>
 	</div></div>`
 
@@ -49,6 +49,8 @@ constructor( // select_order_class - client side
 	this.selected  = this.shadow.getElementById("selected")  ; this.selected.addEventListener('click', this.buttons_disable.bind(this));
 	this.buttons   = this.shadow.getElementById("button_box"); this.buttons.addEventListener( 'click', this.button_click.bind(   this));
 	this.narrow    = this.shadow.getElementById("narrow"    ); this.narrow.addEventListener(  'keyup', this.choices_html.bind(   this));
+
+	this.multi = true;
 }
 
 
@@ -83,6 +85,10 @@ toggle(id) {
 	element.hidden = !element.hidden;
 }
 
+multi_set(value){
+	this.multi = value;
+	this.shadow.getElementById("selected_box").hidden = !value;  // hide or show 
+}
 
 multi_display(){// select_order_class - client side
 	this.shadow.getElementById("selected_box").hidden = !this.multi;
@@ -103,13 +109,19 @@ choices_add(  // select_order_class - client side
 
 
 choices_html(){
+	// rray has changed - rebuild choices html
 	let html = "";
-	const selected = this.selected_return();
+	const selected     = this.selected_return(); // will be [] if multi = false
+	const record_table = (app.spa.stack_record.table ? app.spa.stack_record.table.name : "");  // name of table
+	const record_pk    = app.spa.stack_record.get_pk();    // pk
+
 	for(let i=0; i<this.choices_array.length; i++) {
-		if ( !selected.includes(i.toString()) ) { // only add things not alread selected
-		    let display = this.choices_array[i][0];
-			if (display.includes(this.narrow.value) ) { // only add things that meet narrow search criteria
-				html += `<option value="${i}">${display}</option>`; // store choice in object
+		if ( !selected.includes(i.toString()) ) {   // only add things not already selected
+		    let display = this.choices_array[i][0]; // what users sees in list box
+			if (display.includes(this.narrow.value) ) { // only add things that meet narrow search criteria  
+				// select if record is displayed in stack
+				let sel = ( (record_table === this.choices_array[i][1] && record_pk === this.choices_array[i][2] ) ?  "selected": "")                 
+				html += `<option value="${i}" ${sel}>${display}</option>`; // store choice in object
 			}
 		}
 	}
@@ -134,7 +146,7 @@ selected_return() {  // select_order_class - client side
 		child = child.nextSibling;
 	}
 
-	return selected;  // return an array of values
+	return selected;  // return an array of values from selected array
 }
 
 
@@ -181,17 +193,17 @@ button_disable(  // select_order_class - client side
 
 
 choices_click(event){  // select_order_class - client side
-	if (this.muli) {
+	if (this.multi) {
 		// user click on a choice, move it to the selected
 		this.selected.insertBefore(event.target,this.selected.firstChild);
 	} else {
-		this.choices_click_custom(); //
+		this.choices_click_custom(event); //
 	}
 	this.buttons_disable();
 }
 
 
-choices_click_custom() {
+choices_click_custom(event) {
 	alert("for muli=false the developer needs to overide this method")
 }
 
@@ -267,40 +279,42 @@ selected_move(event) { // select_order_class - client side
 
 
 choices_move(event) {  // select_order_class - client side
-	
-	const element = this.selected.options[this.selected.selectedIndex];  // selected element
+	const index = parseInt(this.choices.value);          // selected element
+	const current = this.choices_array[index]; // remember selected value
 	switch (event.target.id) {
 	case "top": // move selected to top 
-		this.selected.insertBefore(element, this.selected.firstChild);
+		this.choices_array.splice(index,1);  // remove from list
+		this.choices_array.unshift(current);
 		break;
 
 	case "up": // move selected up one place
-		this.selected.insertBefore(element, element.previousSibling);
+		this.choices_array[index]   = this.choices_array[index-1];
+		this.choices_array[index-1] = current;
 		break;
 
 	case "down": // move selected down one place
-		this.selected.insertBefore(element.nextSibling, element) ;
+		this.choices_array[index]   = this.choices_array[index+1];
+		this.choices_array[index+1] = current;
 		break;
 
 	case "bottom": // move selected to bottom 
-		this.selected.insertBefore(element,                 this.selected.lastChild);
-		this.selected.insertBefore(this.selected.lastChild, element );
+		this.choices_array.splice(index,1);  // remove from list
+		this.choices_array.push(current); 
 		break;	
 
 	case "remove":  // remove selected item from selected list
-		this.selected.remove(element);
-		this.selected.selectedIndex = 0; // select the top item
-		this.choices_html();
+		this.choices_array.splice(index,1);
 		break;
 
 	case "remove_all":  // remove all selected
-		this.selected.innerHTML = "";
-		this.choices_html();
+		this.choices_array=[];
 		break;
 
 	default:
-		break;
+		alert(`event.target.id=${event.target.id}  case not handled - choices_move`)
+		return;
 	}
+	this.choices_html();
 }
 
 } // select_order_class
