@@ -45,10 +45,10 @@ constructor( // select_order_class - client side
 		</div>
 	</div></div>`
 
-	this.choices   = this.shadow.getElementById("choices")   ; this.choices .addEventListener('click', this.choices_click.bind( this));
-	this.selected  = this.shadow.getElementById("selected")  ; this.selected.addEventListener('click', this.selected_click.bind(this));
-	this.buttons   = this.shadow.getElementById("button_box"); this.buttons.addEventListener( 'click', this.button_click.bind(  this));
-	this.narrow    = this.shadow.getElementById("narrow"    ); this.narrow.addEventListener(  'keyup', this.choices_html.bind(  this));
+	this.choices   = this.shadow.getElementById("choices")   ; this.choices .addEventListener('click', this.choices_click.bind(  this));
+	this.selected  = this.shadow.getElementById("selected")  ; this.selected.addEventListener('click', this.buttons_disable.bind(this));
+	this.buttons   = this.shadow.getElementById("button_box"); this.buttons.addEventListener( 'click', this.button_click.bind(   this));
+	this.narrow    = this.shadow.getElementById("narrow"    ); this.narrow.addEventListener(  'keyup', this.choices_html.bind(   this));
 }
 
 
@@ -73,11 +73,19 @@ display(){  // select_order_class - client side
 
 
 toggle(id) {
-	let element = this.shadow.getElementById(id+"_box");
-	if (element === null) {
-		element = this.shadow.getElementById(id);
+	let element;
+	switch (id) {
+	case "multi" : this.multi = !this.multi; this.multi_display()   ; return;
+	case "button": element= this.shadow.getElementById("button_box"); break ;
+	case "narraw": element= this.shadow.getElementById(id)          ; break ;
+	default      : alert(`error id=${id} case not handdled`)        ; return;
 	}
 	element.hidden = !element.hidden;
+}
+
+
+multi_display(){// select_order_class - client side
+	this.shadow.getElementById("selected_box").hidden = !this.multi;
 }
 
 
@@ -173,35 +181,55 @@ button_disable(  // select_order_class - client side
 
 
 choices_click(event){  // select_order_class - client side
-	// user click on a choice, move it to the selected
-	this.selected.insertBefore(event.target,this.selected.firstChild);
-	this.selected_click(); //
+	if (this.muli) {
+		// user click on a choice, move it to the selected
+		this.selected.insertBefore(event.target,this.selected.firstChild);
+	} else {
+		this.choices_click_custom(); //
+	}
+	this.buttons_disable();
 }
 
 
-selected_click(){  // select_order_class - client side
-	// user click on a selected -  update button status
+choices_click_custom() {
+	alert("for muli=false the developer needs to overide this method")
+}
+
+
+buttons_disable(){  // select_order_class - client side
 	let disable = "";
-	if (this.selected.selectedIndex === -1 || this.selected.length === this.selected.selectedIndex+1 ) {
+	let select = (this.multi ? this.selected: this.choices );
+
+	if (select.selectedIndex === -1 || select.length === select.selectedIndex+1 ) {
 		// bottom is selected
 		disable += " bottom down ";
 	}
 
-	if ( this.selected.selectedIndex < 1 ) {
+	if ( select.selectedIndex < 1 ) {
 		// top is selected
 		disable += " top up ";
 	} 
 
-	if (this.selected.selectedIndex === -1 ) {
+	if (select.selectedIndex === -1 ) {
 		disable += " remove remove_all "
 	}
 
-	this.button_disable(disable); // diaable buttons that should not be used
+	this.button_disable(disable); // disable buttons that should not be used
 }
 
 
 button_click(event) {  // select_order_class - client side
 	// process buttons
+	if (this.multi) {
+		this.selected_move(event);
+	} else {
+		this.choices_move(event);
+	}
+	this.buttons_disable();  // see if some buttons need to be disabled
+}
+
+
+selected_move(event) { // select_order_class - client side
 	const element = this.selected.options[this.selected.selectedIndex];  // selected element
 	switch (event.target.id) {
 	case "top": // move selected to top 
@@ -235,9 +263,45 @@ button_click(event) {  // select_order_class - client side
 	default:
 		break;
 	}
-	this.selected_click();  // see if some buttons need to be disabled
 }
 
+
+choices_move(event) {  // select_order_class - client side
+	
+	const element = this.selected.options[this.selected.selectedIndex];  // selected element
+	switch (event.target.id) {
+	case "top": // move selected to top 
+		this.selected.insertBefore(element, this.selected.firstChild);
+		break;
+
+	case "up": // move selected up one place
+		this.selected.insertBefore(element, element.previousSibling);
+		break;
+
+	case "down": // move selected down one place
+		this.selected.insertBefore(element.nextSibling, element) ;
+		break;
+
+	case "bottom": // move selected to bottom 
+		this.selected.insertBefore(element,                 this.selected.lastChild);
+		this.selected.insertBefore(this.selected.lastChild, element );
+		break;	
+
+	case "remove":  // remove selected item from selected list
+		this.selected.remove(element);
+		this.selected.selectedIndex = 0; // select the top item
+		this.choices_html();
+		break;
+
+	case "remove_all":  // remove all selected
+		this.selected.innerHTML = "";
+		this.choices_html();
+		break;
+
+	default:
+		break;
+	}
+}
 
 } // select_order_class
 
