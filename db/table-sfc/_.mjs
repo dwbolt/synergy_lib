@@ -21,7 +21,7 @@ constructor(   // table_sfc_class - client-side
 
   // data
   this.searchVisible     = true; // display boxes to put search criteria in
-  this.statusLineData    = ["tableName","nextPrev","rows","firstLast","tags","rows/page"]; //,"groupBy","download"
+  this.statusLineData    = ["tableName","nextPrev","rows","firstLast","rows/page"]; //,"groupBy","download","tags"
   this.lineNumberVisible = true;
   this.rowNumberVisible  = true
   this.columnFormat      = [];  // array of td attributes, one for each column
@@ -60,7 +60,13 @@ record_show(  // table_sfc_class - client-side
 ){
   const data = event.target.getAttribute("data-pk");   // get pk of record to dislplay
   if (data) {
-      // user clicked on pk to view record detal
+      // user clicked on pk to view record deta
+      const collection = this.shadow.getElementById("table").getElementsByClassName("link selected");
+      for(let i=0; i<collection.length; i++) {
+        collection[i].setAttribute("class","link")   // un-select any previous selection
+      }
+
+      event.target.setAttribute("class","link selected");   // add selected class to what the user clicked on
       const id = this.getAttribute("id");                   // get id of table
       document.getElementById(`${id}_record`).show(data);   // get record-sfc accociated with table & dislay record clicked on
   }
@@ -103,13 +109,6 @@ display(        // table_sfc_class - client-side
     this.tag = "filtered";
     this.tags.filtered = this.getModel().get_PK();
   }
-
-  // add status line and empty table to DOM
-  /*this.shadow.innerHTML = `
-  <div id="status" style="text-align:left; margin-bottom:10px"></div>
-  <div id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
-  `;
-  */
 
   /* add fields to group by
   this.groupby_fields = new select_order_class(`${this.DOMid}__group_by_fields`,`${this.globalName}.groupby_fields`);
@@ -371,7 +370,7 @@ displayData(){   // table_sfc_class - client-side
     this.paging.rowMax = this.tags[this.tag].length;
   }
 
-   //this.statusLine();  
+   this.statusLine();  
 
   // enable/disable the prev and next button - should be a better way todo this
   if (this.paging.row  ===  0 ) {

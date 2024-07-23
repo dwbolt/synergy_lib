@@ -1,0 +1,8 @@
+.link { /* back ground color for table1 */
+	color: blue;
+  text-decoration-line: underline;
+}
+
+.selected { /* back ground color for table1 */
+	background-color: lightgray;
+}
