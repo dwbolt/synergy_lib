@@ -1,19 +1,11 @@
-// web compont - viewer for a table record
+// <sfc-record> web component.  Displays one table record. allows add,edit,delete and moveing to stack
 
-class record_sfc_class extends HTMLElement { // record_sfc_class - client-side
-
-  //////////////////////////////////////////////////////
-  /*
-
-  User Experince for things that have can have table display.
-
-  */
+class sfc_record_class extends HTMLElement { // sfc_record_class - client-side
 
 #primary_key_value  // can these be moved from tableUxClass
 
 
-constructor( // record_sfc_class - client-side
- //  tableUX       // where table will be displayed
+constructor( // sfc_record_class - client-side
 ) {
   super();  // call parent constructor 
 
@@ -45,14 +37,14 @@ constructor( // record_sfc_class - client-side
 }
 
 
-table_set(  // record_sfc_class - client-side
+table_set(  // sfc_record_class - client-side
   model // table class where data lives
 ){
   this.table = model;
 }
 
 
-click(  // record_sfc_class - client-side
+click(  // sfc_record_class - client-side
   event // 
 ){
   // user clicked on a button,  lower case of button name is method to execute
@@ -67,14 +59,14 @@ click(  // record_sfc_class - client-side
 }
 
 
-shadow_by_id( // record_sfc_class - client-side
+shadow_by_id( // sfc_record_class - client-side
   id  // id of shadow elemnt
 ){
   return this.shadow.getElementById(id);
 }
   
 
-show(  // client side record_sfc_class - for a page
+show(  // client side sfc_record_class - for a page
   pk // primary key to show
 ){
   // show buttons for record
@@ -123,47 +115,11 @@ show(  // client side record_sfc_class - for a page
     return;
   }
 
-  app.spa.relation.edit(this.table.name, this.#primary_key_value);
-
-  // show relations
-  const table_relation = app.spa.relation.index[this.table.name]; // all relations attached to table
-  let relation;
-  if (table_relation != undefined) {
-    relation = table_relation[this.#primary_key_value];  // all the relations connenting displayed object to other objects
-  }
-
-  // add hide hide all relations
-  let table_names = app.spa.db.get_table_names();
-  for (let i=0; i<table_names.length; i++) {
-    app.spa.id_hide(`table_${table_names[i]}_rel`);
-  }
-  
-  if (relation !== undefined) {
-    // show tables that have relations
-    table_names = Object.keys(relation);  // array of tables that object is related to
-    // walk the tables
-    for(i=0; i<table_names.length; i++) {
-      let table_name = table_names[i];               
-      let relations  = relation[table_name];
-      let pks_table  = Object.keys(relations);
-      
-      // walk the relations in the table, add to array to display
-      let ux = document.getElementById(`table_${table_name}_rel`);  // ux for table
-      app.spa.id_show(`table_${table_name}_rel`);
-      let pks = [];
-      for (let ii=0; ii<pks_table.length; ii++) {
-          let pk          = pks_table[ii];                            // pk of the relation
-          //let record      = app.spa.db.tables[table].get_object(pk);  // relation 
-          //let pk_relation = relation[table][pk];
-          pks.push(pk)
-      }
-      ux.display(pks);  // display table
-    }
-  }
+  //app.spa.relation.edit(this.table.name, this.#primary_key_value);
 }
 
 
-buttonsShow( // client side record_sfc_class - for a page
+buttonsShow( // client side sfc_record_class - for a page
   // "New Add  Edit Duplicate Delete Save  Cancel"
   s_values   // walk through id=Buttons and show all in the list   
 ){ 
@@ -179,7 +135,7 @@ buttonsShow( // client side record_sfc_class - for a page
 }
 
 
-form_create( // client side record_sfc_class - for a page
+form_create( // client side sfc_record_class - for a page
    element // id 
   ,fields_meta
   ,fields_list
@@ -192,7 +148,7 @@ form_create( // client side record_sfc_class - for a page
 }
 
 
-form_add( // client side record_sfc_class - for a page
+form_add( // client side sfc_record_class - for a page
    fields_meta
   ,field_name
   ,i
@@ -217,7 +173,7 @@ form_add( // client side record_sfc_class - for a page
 }
 
 
-form_write(  // client side record_sfc_class - for a page
+form_write(  // client side sfc_record_class - for a page
     obj
     ,fields_meta
     ,fields_list
@@ -241,7 +197,7 @@ form_write(  // client side record_sfc_class - for a page
                           this.shadow.getElementById(`${field_name}_time`).value  =  
                                                `${app.format.padZero(value[3],2)}:${app.format.padZero(value[4],2)}`; break;
         default        : alert(`
-file="db/record-sfc/_.mjs"
+file="db/sfc-record/_.mjs"
 method="form_write"
 field_name=${field_name}
 type="${type}"
@@ -252,7 +208,7 @@ no case for type
 }
 
 
-edit(){ // client side record_sfc_class - for a page
+edit(){ // client side sfc_record_class - for a page
   const element     = this.shadow.getElementById("body");
   const fields     = this.table.meta_get("fields");
   const field_list = this.table.meta_get("select");
@@ -269,7 +225,7 @@ edit(){ // client side record_sfc_class - for a page
 }
 
 
-async save( // client side record_sfc_class - for a page
+async save( // client side sfc_record_class - for a page
 ) {
   // user clicked save or add record
   // save to change file
@@ -293,14 +249,14 @@ async save( // client side record_sfc_class - for a page
     this.show();          // display record with new data
     } else {
       // error
-      alert(`file="db/record-sfc/_.mjs"
+      alert(`file="db/sfc-record/_.mjs"
 method="save"
 msg.message="${msg.message}"`);
     }
   }
 
 
-form_read( // client side record_sfc_class - for a page
+form_read( // client side sfc_record_class - for a page
     table  // 
 ){
   const obj         = {};
@@ -319,7 +275,7 @@ form_read( // client side record_sfc_class - for a page
 }
 
 
-form_value( // client side record_sfc_class
+form_value( // client side sfc_record_class
   dom // id 
   ,fields_meta
   ,fields_name
@@ -359,7 +315,7 @@ form_value( // client side record_sfc_class
   case "boolean" : value = document.getElementById(`${dom}`).checked          ; break;
   case "relation" : value = ""; break;
 
-  default        : alert(`file="db/record-sfc/_.mjs"
+  default        : alert(`file="db/sfc-record/_.mjs"
 methed="form_value"
 field.type="${field.type}"
 fields_name="${fields_name}"
@@ -374,30 +330,30 @@ case not handled`);
 }
 
 
-new(){// client side record_sfc_class - for a page
+new(){// client side sfc_record_class - for a page
   this.#primary_key_value = undefined;   // will cause edit to create new record on this.save()
   this.edit();
 }
 
 
 
-get_pk() {  // client side record_sfc_class - for a page
+get_pk() {  // client side sfc_record_class - for a page
   return this.#primary_key_value;
 }
 
-set_pk(value) {  // client side record_sfc_class - for a page
+set_pk(value) {  // client side sfc_record_class - for a page
  this.#primary_key_value = value;
 }
 
 
-clear(){  // client side record_sfc_class - for a page
+clear(){  // client side sfc_record_class - for a page
   this.shadow.getElementById(`title`).innerHTML = "";
   this.shadow.getElementById(`body`).innerHTML = "";
   this.buttonsShow("New");
 }
 
 
-cancel(){ // client side record_sfc_class - for a page
+cancel(){ // client side sfc_record_class - for a page
   // similar to save, move data from buffer to memory, then save
   if (typeof(this.#primary_key_value) === "string") {
         this.show(this.#primary_key_value);   // cancled from edit
@@ -407,20 +363,20 @@ cancel(){ // client side record_sfc_class - for a page
 }
 
 
-recordDuplicate(){// client side record_sfc_class - for a page
+recordDuplicate(){// client side sfc_record_class - for a page
   alert("recordDuplicate from memery, not implemented yet")
 }
 
 
-delete(){// client side record_sfc_class - for a page
+delete(){// client side sfc_record_class - for a page
   this.table.delete({"pk": this.#primary_key_value});  // delete row from data
   this.tableUX.display();                              // redisplay data
   this.clear();                                        // hide record form since it record is delted
 }
 
 
-} // record_sfc_class - client-side //  end
+} // sfc_record_class - client-side //  end
 
 
-export {record_sfc_class};
-customElements.define("record-sfc", record_sfc_class); 
+export {sfc_record_class};
+customElements.define("sfc-record", sfc_record_class); 

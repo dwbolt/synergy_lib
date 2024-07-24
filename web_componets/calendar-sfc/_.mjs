@@ -1,7 +1,7 @@
 import  {formatClass         } from '/_lib/format/format_module.js'  ;
 import  {loginClass          } from '/_lib/UX/login_module.js'     ;
 import  {table_class         } from '/_lib/db/table_module.js'       ;
-import  {table_sfc_class     } from '/_lib/db/table-sfc/_.mjs'     ;
+import  {table_sfc_class     } from '/_lib/db/sfc-table/_.mjs'     ;
 import  {calendar_edit_class } from '/_lib/web_componets/calendar-sfc/edit_module.js';
 //import  {dialog_sfc_class   } from '/_lib/web_componets/dialog-sfc/_module.js';
 

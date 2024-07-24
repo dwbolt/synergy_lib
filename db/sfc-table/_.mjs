@@ -1,18 +1,18 @@
-// <table-sfc> web compont - viewer for a table
+// <sfc-table> web compont - viewer for a table
 
 import {groupByClass       } from '/_lib/db/groupBy_module.js'      ;
 import {table_class        } from '/_lib/db/table_module.js'        ;
 
 // web componets
 import {dialog_sfc_class} from '/_lib/web_componets/dialog-sfc/_.mjs';  // <dialog-sfc>
-import {record_sfc_class} from '/_lib/db/record-sfc/_.mjs'           ;  // <record-sfc>
+import {sfc_record_class} from '/_lib/db/sfc-record/_.mjs'           ;  // <sfc-record>
 
 
-class table_sfc_class  extends HTMLElement { // table_sfc_class - client-side
+class sfc_table_class  extends HTMLElement { // sfc_table_class - client-side
   // web componet to display table
 
 
-constructor(   // table_sfc_class - client-side
+constructor(   // sfc_table_class - client-side
   // constructor is called when the element is displayed
 ) {
 	super();  // call parent constructor 
@@ -44,7 +44,7 @@ constructor(   // table_sfc_class - client-side
   this.shadow = this.attachShadow({ mode: "closed" });  
   // add content to shadow dom
   this.shadow.innerHTML =  `
-  <link href="/_lib/db/table-sfc/_.css" rel="stylesheet">
+  <link href="/_lib/db/sfc-table/_.css" rel="stylesheet">
   <div        id="status" style="text-align:left; margin-bottom:10px"></div>
   <div        id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
   <dialog-sfc id="dialog"/>`  
@@ -53,7 +53,7 @@ constructor(   // table_sfc_class - client-side
 }
 
 
-record_show(  // table_sfc_class - client-side
+record_show(  // sfc_table_class - client-side
   event
 ){
   const data = event.target.getAttribute("data-pk");   // get pk of record to dislplay
@@ -66,16 +66,24 @@ record_show(  // table_sfc_class - client-side
 
       event.target.setAttribute("class","link selected");   // add selected class to what the user clicked on
       this.record_sfc.table_set(this.model);  
-      this.record_sfc.show(data);                           // get record-sfc accociated with table & dislay record clicked on
+      this.record_sfc.show(data);                           // get sfc-record accociated with table & dislay record clicked on
+      if (this.record_show_custom) this.record_show_custom(event); 
   }
 }
 
 
-connectedCallback() { // table_sfc_class - client-side
+record_show_custom(event) {
+   if (this.relations) {
+      this.relations.show(this);
+   }
 }
 
 
-delete_row(   // table_sfc_class - client-side
+connectedCallback() { // sfc_table_class - client-side
+}
+
+
+delete_row(   // sfc_table_class - client-side
   key
 ) {
   this.getModel().delete_row(key);
@@ -83,14 +91,14 @@ delete_row(   // table_sfc_class - client-side
 }
 
 
-set_hidden(  // table_sfc_class - client-side
+set_hidden(  // sfc_table_class - client-side
   value  // true -> hide; false -> show
   ){
   this.shadow.hidden = value;
 }
 
 
-display(        // table_sfc_class - client-side
+display(        // sfc_table_class - client-side
   // display table - for first time
   rowArray=null // optional rowarray, display if passed
 ) {
@@ -129,7 +137,7 @@ display(        // table_sfc_class - client-side
 }
 
 
-display_intersection(  // table_sfc_class - client-side 
+display_intersection(  // sfc_table_class - client-side 
 ){
   const DOM    = document.getElementById(`${this.DOMid}__intersection`);  // get DOM to fill with select values
   const fields = this.groupby_fields.selected();                          // fields to intersect search
@@ -154,7 +162,7 @@ display_intersection(  // table_sfc_class - client-side
 }
 
 
-groupby(  // table_sfc_class - client-side  
+groupby(  // sfc_table_class - client-side  
 ){
   // user clicked group by button, so create a group by table and display it
 
@@ -201,7 +209,7 @@ groupby(  // table_sfc_class - client-side
 }
 
 
-change_page_size(  // table_sfc_class - client-side
+change_page_size(  // sfc_table_class - client-side
   e  // event
   ) {
   this.paging.lines = parseInt(e.target.value); // convert string to number;
@@ -209,7 +217,7 @@ change_page_size(  // table_sfc_class - client-side
 }
 
 
-// table_sfc_class - client-side
+// sfc_table_class - client-side
 setStatusLineData(   value) {this.statusLineData    = value;}
 setSearchVisible(    value) {this.searchVisible     = value;}
 setLineNumberVisible(value) {this.lineNumberVisible = value;}
@@ -218,7 +226,7 @@ setFooter(           value) {
   this.footer   = value;
 }
 setSelected(         array) {this.selected          = array;}
-export( // table_sfc_class - client-side
+export( // sfc_table_class - client-side
 ){ // as CSV file
   const table = this.getModel();    // get access to class holding the table data
   const pks  = table.get_PK();    // get access to array of rows
@@ -250,7 +258,7 @@ export( // table_sfc_class - client-side
 
 
 
-displayTagSelected( // table_sfc_class - client-side
+displayTagSelected( // sfc_table_class - client-side
   // user slected a tag to display
   e  // points to dropdown holding tags for table
 ) { // user selected a tags list to display
@@ -258,7 +266,7 @@ displayTagSelected( // table_sfc_class - client-side
 }
 
 
-// table_sfc_class - client-side
+// sfc_table_class - client-side
 displayTag(
   name  // points to dropdown holding tags for table
 ) { // user selected a tags list to display
@@ -268,7 +276,7 @@ displayTag(
 }
 
 
-// table_sfc_class - client-side
+// sfc_table_class - client-side
 displaySearch(){
   if (!this.searchVisible) return;
   // add next & prev buttons
@@ -295,7 +303,7 @@ displaySearch(){
 }
 
 
-displayColumnTitles( // table_sfc_class - client-side
+displayColumnTitles( // sfc_table_class - client-side
 ){
   // add header    //  this.json[table].DOMid = domID; // remember where table was displayed
   this.skip_columns = 0;
@@ -316,7 +324,7 @@ displayColumnTitles( // table_sfc_class - client-side
 }
 
 
-displayData(){   // table_sfc_class - client-side
+displayData(){   // sfc_table_class - client-side
   let html="";  // init html
   this.displayColumnTitles();
   // build one row at a time
@@ -392,7 +400,7 @@ displayData(){   // table_sfc_class - client-side
 }
 
 
-genTags(){ // table_sfc_class - client-side
+genTags(){ // sfc_table_class - client-side
   // delisplay the tags so user can choose which to view
   let options="";
   Object.keys(this.tags).forEach((item, i) => {
@@ -406,7 +414,7 @@ ${options}
 }
 
 
-statusLine(   // table_sfc_class - client-side
+statusLine(   // sfc_table_class - client-side
 ){
   let html = "";
   const e_l = [];
@@ -463,7 +471,7 @@ statusLine(   // table_sfc_class - client-side
 }
 
 
-displayFooter(){  // table_sfc_class - client-side
+displayFooter(){  // sfc_table_class - client-side
   // put agg functions here
   // add empty columns for lineNum and rowNum if they are being displayed
   let html    = "";
@@ -492,7 +500,7 @@ displayFooter(){  // table_sfc_class - client-side
 }
 
 
-groupBy_toggle(// table_sfc_class - client-side
+groupBy_toggle(// sfc_table_class - client-side
 ){
   // toggle group_by_div
   const div = document.getElementById("group_by");
@@ -500,7 +508,7 @@ groupBy_toggle(// table_sfc_class - client-side
 }
 
 
-getTableDom(// table_sfc_class - client-side
+getTableDom(// sfc_table_class - client-side
 ){
   const e=document.getElementById(this.DOMid);     // dom element where table is displayed
   const table =     e.children[0]; // should be table - brittle code
@@ -508,7 +516,7 @@ getTableDom(// table_sfc_class - client-side
 }
 
 
-// table_sfc_class - client-side  --- deprecate
+// sfc_table_class - client-side  --- deprecate
 setModel( // let class know what data it will be displaying/using
   db      // database object that table is in
   ,name   // name of table
@@ -540,7 +548,7 @@ call stack=${Error().stack}
 }  
 
 
-appendHTMLrow(  // table_sfc_class - client-side
+appendHTMLrow(  // sfc_table_class - client-side
   // append row from table or tag list
    i           // is line the row is being displayed on
   ,arrayIndex  // row data to be displayed
@@ -587,7 +595,7 @@ appendHTMLrow(  // table_sfc_class - client-side
 }
 
 
-formatTransform( // table_sfc_class - client-side
+formatTransform( // sfc_table_class - client-side
   value   // orig field value
   , i     // column number
 ){
@@ -623,7 +631,7 @@ formatTransform( // table_sfc_class - client-side
 }
 
 
-setDom( // table_sfc_class - client-side
+setDom( // sfc_table_class - client-side
   // this is used in the display() method
   element //  2022-04-16 need more doc, not sure this is still used
   ,value  //
@@ -632,7 +640,7 @@ setDom( // table_sfc_class - client-side
 }
 
 
-genRows( // table_sfc_class - client-side
+genRows( // sfc_table_class - client-side
 // creating text file to save
 ) {
   let txt="";
@@ -647,7 +655,7 @@ genRows( // table_sfc_class - client-side
 }
 
 
-getColumnFormat( // table_sfc_class - client-side
+getColumnFormat( // sfc_table_class - client-side
   i
   ) { // return <td> attributes to be added
   let f = this.columnFormat[i];
@@ -659,7 +667,7 @@ getColumnFormat( // table_sfc_class - client-side
 }
 
 
-setColumnFormat( // table_sfc_class - client-side
+setColumnFormat( // sfc_table_class - client-side
   i       //
   ,value  //
   ) {  // set <td> attributes to be added
@@ -668,7 +676,7 @@ setColumnFormat( // table_sfc_class - client-side
 clearColumnFormat(){ this.columnFormat =[];}
 
 
-setColumnTransform( // table_sfc_class - client-side
+setColumnTransform( // sfc_table_class - client-side
   i
   ,value
   ) { // set function to be called before value is displayed
@@ -679,7 +687,7 @@ setColumnTransform( // table_sfc_class - client-side
 clearColumnTransform(){ this.columnTransform = [];}
 
 
-total( // table_sfc_class - client-side
+total( // sfc_table_class - client-side
   // add error checking for non-numbers
   col  // column to total
 ) {
@@ -692,7 +700,7 @@ total( // table_sfc_class - client-side
   } else if (typeof(col) === "string") {
     f = this.model.json.field[col];
   } else {
-    alert(`error in: table_sfc_class.total(), col=${col}`);
+    alert(`error in: sfc_table_class.total(), col=${col}`);
   }
 
   // decide if entire table will be totaled or list of rows
@@ -712,7 +720,7 @@ total( // table_sfc_class - client-side
 }
 
 
-unique( // table_sfc_class - client-side
+unique( // sfc_table_class - client-side
   // return all the unique values in a table for the given field
   s_field
   ) {
@@ -729,7 +737,7 @@ unique( // table_sfc_class - client-side
 }
 
 
-setJSON(  // table_sfc_class - client-side
+setJSON(  // sfc_table_class - client-side
   j
   ) {
   // replace place holder of new table with data from loaded file
@@ -739,14 +747,14 @@ setJSON(  // table_sfc_class - client-side
 }
 
 
-f(  // table_sfc_class - client-side
+f(  // sfc_table_class - client-side
   fieldName
   ) {
   return this.model.json.field[fieldName];
 }
 
 
-field(  // table_sfc_class - client-side
+field(  // sfc_table_class - client-side
   fieldA  // create the field attribute from the fieldA
   ) {
   if (fieldA) {
@@ -761,7 +769,7 @@ field(  // table_sfc_class - client-side
 }
 
 
-search( // table_sfc_class - client-side
+search( // sfc_table_class - client-side
   // user made change in search criteria
 // use recursion
    eDom      // element where search and display is done.
@@ -805,14 +813,14 @@ search( // table_sfc_class - client-side
 }
 
 
-next( // table_sfc_class - client-side
+next( // sfc_table_class - client-side
 ) { //next page
   this.paging.row = this.paging.row + this.paging.lines;
   this.displayData();
 }
 
 
-prev( /// table_sfc_class - client-side
+prev( /// sfc_table_class - client-side
 ) { // previous page
   this.paging.row = this.paging.row - this.paging.lines;
   if (this.paging.row < 0) {
@@ -823,22 +831,22 @@ prev( /// table_sfc_class - client-side
 }
 
 
-first( /// table_sfc_class - client-side
+first( /// sfc_table_class - client-side
 ){  // first page
   this.paging.row = 0;
   this.displayData();
 }
 
 
-last( /// table_sfc_class - client-side
+last( /// sfc_table_class - client-side
 ){  // last page
   this.paging.row = parseInt(this.paging.rowMax/this.paging.lines) * this.paging.lines;
   this.displayData();
 
 
-} // table_sfc_class - client-side //  end
+} // sfc_table_class - client-side //  end
 
 }
 
-export {table_sfc_class}
-customElements.define("table-sfc", table_sfc_class); 
+export {sfc_table_class}
+customElements.define("sfc-table", sfc_table_class); 
