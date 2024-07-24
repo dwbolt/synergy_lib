@@ -1,9 +1,7 @@
 // <table-sfc> web compont - viewer for a table
 
 import {groupByClass       } from '/_lib/db/groupBy_module.js'      ;
-
 import {table_class        } from '/_lib/db/table_module.js'        ;
-//import {select_order_class } from '/_lib/UX/select_order_module.js'     ; // is this used?
 
 // web componets
 import {dialog_sfc_class} from '/_lib/web_componets/dialog-sfc/_.mjs';  // <dialog-sfc>
@@ -67,11 +65,10 @@ record_show(  // table_sfc_class - client-side
       }
 
       event.target.setAttribute("class","link selected");   // add selected class to what the user clicked on
-      const id = this.getAttribute("id");                   // get id of table
-      document.getElementById(`${id}_record`).show(data);   // get record-sfc accociated with table & dislay record clicked on
+      this.record_sfc.table_set(this.model);  
+      this.record_sfc.show(data);                           // get record-sfc accociated with table & dislay record clicked on
   }
 }
-
 
 
 connectedCallback() { // table_sfc_class - client-side

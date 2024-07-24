@@ -22,9 +22,8 @@ save to server
 
 
 constructor() {   // dbClass - client-side
-  this.tables = {};  // init tables to an object.  needed if createing tables in code rather than loading them.
   this.dir      = undefined ;  // where the loaded database came from
-  this.url_meta = undefined ;  // location mof meta data
+  this.url_meta = undefined ;  // location of meta data
   this.meta     = undefined ;  // loaded meta data
  }
 
@@ -35,7 +34,7 @@ async load(  // dbClass - client-side
   ) {
   this.dir      = dir;
   this.url_meta = this.dir+"/_meta.json";
-  this.tables   = {};
+  this.tables   = {};  // init tables to an object.  needed if createing tables in code rather than loading them.
   const msg     = await app.proxy.getJSONwithError(this.url_meta);
   if(msg.status === 404){
     //error

@@ -89,11 +89,13 @@ show(  // client side record_sfc_class - for a page
     // adding a new record
   }
 
+/*
   if (this.table === undefined) {
     // sets table
     this.table_sfc  = document.getElementById( this.id.slice(0, this.id.length-7));   // web component that displays table
     this.table      = this.table_sfc.getModel();                                     // table model
   }
+    */
 
   // recordShow Fields
   this.shadow.getElementById("title").innerHTML = `<div><b>Table:</b>  ${this.table.name} <b>PK:</b> ${this.#primary_key_value}</div>`;
