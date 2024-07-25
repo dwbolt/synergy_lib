@@ -1,12 +1,16 @@
 import  {formatClass         } from '/_lib/format/format_module.js'  ;
 import  {loginClass          } from '/_lib/UX/login_module.js'     ;
 import  {table_class         } from '/_lib/db/table_module.js'       ;
-import  {table_sfc_class     } from '/_lib/db/sfc-table/_.mjs'     ;
+
 import  {calendar_edit_class } from '/_lib/web_componets/calendar-sfc/edit_module.js';
+
+// web componets
+import  {sfc_table_class     } from '/_lib/db/sfc-table/_.mjs'     ;
+
 //import  {dialog_sfc_class   } from '/_lib/web_componets/dialog-sfc/_module.js';
 
 
-class calendar_class extends table_sfc_class {  // calendar_class  client-side
+class calendar_class extends sfc_table_class {  // calendar_class  client-side
   /*
    Calendar data is stored in a database.
   
