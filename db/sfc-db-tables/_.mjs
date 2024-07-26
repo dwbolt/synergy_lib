@@ -22,6 +22,7 @@ db_set(  // sfc_db_tables_class - client side
     });
 
     this.shadow.innerHTML = html;
+    
 }
 
 
