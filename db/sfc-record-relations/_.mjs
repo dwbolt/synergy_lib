@@ -131,36 +131,32 @@ show(   // sfc_record_relations_class - client side
 	record // <sfc-record>
 ) { 
 	// show relations
-	const table_relation = this.index[record.tableName]; // all relations attached to table
-	let relation;
+	const table_relation = this.index[record.table.name][record.get_pk()]; // all relations attached to table
 	if (table_relation != undefined) {
 		//relation = table_relation[this.#primary_key_value];  // all the relations connenting displayed object to other objects
 	}
 
-	// add hide hide all relations
+	// add hide hide all relation tables
 	let table_names = app.spa.db.get_table_names();
 	for (let i=0; i<table_names.length; i++) {
-	app.spa.id_hide(`table_${table_names[i]}_rel`);
+		this.shadow.getElementById(table_names[i]).style.display = "none";
 	}
 
-	if (relation !== undefined) {
+	if (table_relation !== undefined) {
 		// show tables that have relations
-		table_names = Object.keys(relation);  // array of tables that object is related to
+		table_names = Object.keys(table_relation);  // array of tables that object is related to
 		// walk the tables
-		for(i=0; i<table_names.length; i++) {
+		for(let i=0; i<table_names.length; i++) {
 			let table_name = table_names[i];               
-			let relations  = relation[table_name];
+			let relations  = table_relation[table_name];
 			let pks_table  = Object.keys(relations);
 			
 			// walk the relations in the table, add to array to display
-			let ux = document.getElementById(`table_${table_name}_rel`);  // ux for table
-			app.spa.id_show(`table_${table_name}_rel`);
+			let ux = this.shadow.getElementById(table_name);  // ux for table
+			ux.style.display = "block";  // show table
 			let pks = [];
-			for (let ii=0; ii<pks_table.length; ii++) {
-				let pk          = pks_table[ii];                            // pk of the relation
-				//let record      = app.spa.db.tables[table].get_object(pk);  // relation 
-				//let pk_relation = relation[table][pk];
-				pks.push(pk)
+			for (let ii=0; ii<pks_table.length; ii++) {              
+				pks.push(pks_table[ii]);  // pk of the relation
 			}
 			ux.display(pks);  // display table
 		}

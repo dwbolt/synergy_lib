@@ -74,7 +74,7 @@ record_show(  // sfc_table_class - client-side
 
 record_show_custom(event) {
    if (this.relations) {
-      this.relations.show(this);
+      this.relations.show(this.record_sfc);
    }
 }
 
