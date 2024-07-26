@@ -16,13 +16,18 @@ db_set(  // sfc_db_tables_class - client side
 ){
     this.db = db;  // remember database we are working with
 
+    // add <sfc-table> for each table in the database
     let html = "";
-    Object.keys(this.db.tables).forEach((table, i) => {
-        html += `<sfc-table  id="${table}" hidden></sfc-table>` // create a place to disoplay each table in database
+    Object.keys(this.db.tables).forEach((table_name, i) => {
+        html += `<sfc-table  id="${table_name}" hidden></sfc-table>` // create a place to disoplay each table in database
     });
+    this.shadow.innerHTML = html;  // add to shadowdom
 
-    this.shadow.innerHTML = html;
-    
+    //  <sfc-table> attach model for
+    Object.keys(this.db.tables).forEach((table_name, i) => {
+        let model  = this.db.getTable(table_name);
+        this.shadow.getElementById(table_name).set_model(model,table_name) // let <sfc-table> know the model it is a viewer for
+    });
 }
 
 

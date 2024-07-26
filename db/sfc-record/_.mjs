@@ -81,14 +81,6 @@ show(  // client side sfc_record_class - for a page
     // adding a new record
   }
 
-/*
-  if (this.table === undefined) {
-    // sets table
-    this.table_sfc  = document.getElementById( this.id.slice(0, this.id.length-7));   // web component that displays table
-    this.table      = this.table_sfc.getModel();                                     // table model
-  }
-    */
-
   // recordShow Fields
   this.shadow.getElementById("title").innerHTML = `<div><b>Table:</b>  ${this.table.name} <b>PK:</b> ${this.#primary_key_value}</div>`;
   const  select = this.table.meta_get("select");
@@ -104,18 +96,11 @@ show(  // client side sfc_record_class - for a page
     html += `<div>${i+1}</div> <div>${fields[select[i]].header}</div> <div>${rowValue}</div>`
   }
 
-  let dom = this.shadow.getElementById("body");
-  dom.innerHTML = html;
+  this.shadow.getElementById("body").innerHTML = html;
 
-  if (this.dom_id === "relation_record") {
-    // just displayed relation between stack_record and the table record, no need to do more
-    if (pk === undefined) {
-      // put in tables and pk for add.
-    } 
-    return;
+  if (this.show_custom) {
+    this.show_custom(this);
   }
-
-  //app.spa.relation.edit(this.table.name, this.#primary_key_value);
 }
 
 
