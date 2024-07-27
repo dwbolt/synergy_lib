@@ -1,4 +1,12 @@
-// <sfc-table> web compont - viewer for a table
+/*
+
+<sfc-table> web compont
+
+viewer for a table
+
+supports display in a grid, paging, search,...
+
+*/
 
 import {groupByClass       } from '/_lib/db/groupBy_module.js'      ;
 import {table_class        } from '/_lib/db/table_module.js'        ;
@@ -131,7 +139,6 @@ display(        // sfc_table_class - client-side
   this.groupby_fields.add_choices();
 */
   // fill in empty table
-  //this.displaySearch()      ;
   this.displayData()        ;  // will display statusLine
  // this.displayFooter()      ;
 }
@@ -279,6 +286,7 @@ displayTag(
 // sfc_table_class - client-side
 displaySearch(){
   if (!this.searchVisible) return;
+
   // add next & prev buttons
   let html = `
   <tr onchange="${this.globalName}.search(this)" id="search">
@@ -287,12 +295,8 @@ displaySearch(){
 
   // add search input for each row column
   let search, size   = 10;  // number of characters allowed in search
-  if (this.searchVisible) {
-    // do not display search fields
-    search = `<input type="text" size="${size}">`;
-  } else {
-    search = "";
-  }
+  search = `<input type="text" size="${size}">`;
+
   this.model.meta_get("select").forEach((item, i) => {
     html += `<th>${search}</th>`;
   });
@@ -307,9 +311,11 @@ displayColumnTitles( // sfc_table_class - client-side
 ){
   // add header    //  this.json[table].DOMid = domID; // remember where table was displayed
   this.skip_columns = 0;
-  let line=""; if (this.lineNumberVisible) {line = "<div><b>line</b></div>"; this.skip_columns++}
-  let html = line;
-
+  let html=""; 
+  if (this.lineNumberVisible) {
+    html += "<div><b>line</b></div>"; this.skip_columns++;
+  }
+  
   const select = this.model.meta_get("select");
   const fields = this.model.meta_get("fields");
   for(var i=0; i<select.length; i++){
@@ -326,6 +332,7 @@ displayColumnTitles( // sfc_table_class - client-side
 
 displayData(){   // sfc_table_class - client-side
   let html="";  // init html
+  this.displaySearch()      ;
   this.displayColumnTitles();
   // build one row at a time
   for (let i = 0; i < this.paging.lines; i++) {

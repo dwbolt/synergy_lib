@@ -1,6 +1,9 @@
 class sfc_db_tables_class extends HTMLElement { // <sfc-db-tables>  web component
 /*
-creates a <sfc-table> for each table in database
+<sfc-db-tables>  web component
+
+contains on <sfc-table> for each table in database
+
 */
 
 

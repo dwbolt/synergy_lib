@@ -1,9 +1,11 @@
 /*
 
-<sfc-record-relations>  web component - displays relations for one record in table
-holds one <sfc-db-table> for each table in the database
-hide tables that have not relation
+<sfc-record-relations>  web component
 
+contains one <sfc-table> for each table in the database
+
+displays relations for one record in table
+hide tables that have not relation
 
 */
 
