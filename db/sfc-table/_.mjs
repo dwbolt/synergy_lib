@@ -48,6 +48,7 @@ constructor(   // sfc_table_class - client-side
 
   this.dom       = {};       // saves attributes like onclick that will be added when html is rendered
 
+
   // create a shadow dom                           
   this.shadow = this.attachShadow({ mode: "closed" });  
   // add content to shadow dom
@@ -264,7 +265,6 @@ export( // sfc_table_class - client-side
 }
 
 
-
 displayTagSelected( // sfc_table_class - client-side
   // user slected a tag to display
   e  // points to dropdown holding tags for table
@@ -283,27 +283,18 @@ displayTag(
 }
 
 
-// sfc_table_class - client-side
-displaySearch(){
-  if (!this.searchVisible) return;
+search_display(){ // sfc_table_class - client-side
+  if (!this.searchVisible) return ""; // not displaying search
 
-  // add next & prev buttons
-  let html = `
-  <tr onchange="${this.globalName}.search(this)" id="search">
-  ${( this.lineNumberVisible ? "<th></th>": "") }
-  ${( this.rowNumberVisible  ? "<th></th>": "") }`;
+  let html = `${( this.lineNumberVisible ? "<div>Search</div>": "") }`
 
   // add search input for each row column
-  let search, size   = 10;  // number of characters allowed in search
-  search = `<input type="text" size="${size}">`;
-
+  let  size   = 10;  // number of characters allowed in search
   this.model.meta_get("select").forEach((item, i) => {
-    html += `<th>${search}</th>`;
+    html += `<div><input id="${item}" type="text" value="${this.search_values[item]}" size="${size}"/></div>`;
   });
-  html += "</tr>";
 
-  // add to html to DOM
-  document.getElementById(``).innerHTML = html;
+  return html;
 }
 
 
@@ -326,22 +317,28 @@ displayColumnTitles( // sfc_table_class - client-side
   this.shadow.getElementById("table").style.setProperty("grid-template-columns",`repeat(${select.length + this.skip_columns},auto)`); 
 
  // add to html to DOM
- this.shadow.getElementById("table").innerHTML = html; // append to thead
+ return html;
 }
 
 
 displayData(){   // sfc_table_class - client-side
+  const table_data =  this.shadow.getElementById("table");
+
   let html="";  // init html
-  this.displaySearch()      ;
-  this.displayColumnTitles();
+  html += this.search_display();
+  html += this.displayColumnTitles();
   // build one row at a time
   for (let i = 0; i < this.paging.lines; i++) {
     html += this.appendHTMLrow(i+1, i+this.paging.row);
   }
+  table_data.innerHTML = html;   // display data
 
-  // display data
-  const table_data =  this.shadow.getElementById("table");
-  table_data.innerHTML += html;
+  // add event for search
+  if  (this.searchVisible) {
+    this.model.meta_get("select").forEach((item, i) => {
+      this.shadow.getElementById(item).addEventListener('keyup', this.search.bind(this) );
+    });
+  }
 
   // format data just appended
   // allow first child of each <td> tag to set attribute of <td> tag, the calenderClass was the first to use this
@@ -538,7 +535,15 @@ set_model( // let class know what data it will be displaying/using
   ,name   // name of table
 ) {
   this.model      = table;  // is of class table_class
-  this.tableName  = name;           // string
+  this.tableName  = name;   // string
+  this.search_values = {} ; // remembers what user has typed in as search values
+  this.search_clear();
+}
+
+search_clear(){
+  this.model.meta_get("select").forEach((item, i) => {
+    this.search_values[item] = "";  // init to blank
+  })
 }
 
 
@@ -779,13 +784,17 @@ field(  // sfc_table_class - client-side
 search( // sfc_table_class - client-side
   // user made change in search criteria
 // use recursion
-   eDom      // element where search and display is done.
+   //eDom      // element where search and display is done.
   //,index = 2 // skip first two columns, there is not search values there
+  event
 ) {
   let i;
-  const c = eDom.children;  // array of <th> tags were search criteria are stored
+  const field_name   = event.target.id;
+  const search_value = event.target.value;
+  this.search_values[field_name] = search_value;
   let searched = false;
   // look at search field, if something is not empty search for all
+/*
   for (i=this.skip_columns; i<c.length; i++) {
     this.search_value = c[i].firstChild.value.toLowerCase();  // get value of text search box
     if ( 0 < this.search_value.length) {
@@ -804,15 +813,28 @@ search( // sfc_table_class - client-side
       }
       i=c.length;  // end loop
     }
-  }
+  } */
 
+  if (0 < search_value.length) {
+    searched         = true;
+    this.tags.search = [];
+    const pks        = this.getModel().get_PK();
+    for(let ii=0; ii<pks.length; ii++) {
+      let field_value = this.model.get_value(pks[ii],field_name); 
+      if (typeof(field_value) ==="number" ){field_value = field_value.toString();}
+      if (field_value && field_value.toLowerCase().includes(search_value)) {
+        this.tags.search.push(pks[ii]);  // push the primary key
+      }
+    }
+  }
+  
   if (searched) {
     // display found records
     this.displayTag("search");
   } else {
     // search cleared, so display all
     this.tag           = null;  
-    this.paging.rowMax = this.getModel().getRows().length;
+    //this.paging.rowMax = this.getModel().getRows().length;
     this.paging.row    = 0;
    // this.statusLine();
     this.displayData();

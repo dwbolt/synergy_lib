@@ -27,7 +27,15 @@ db_set( // sfc_record_relations_class - client side
 	db  // pointer to database
 ){
 	super.db_set(db);  // call parent class method
-  /*this.index = {
+
+	// trun off search in all the tables
+	const tables =this.shadow.children;
+	for(let i=0; i<tables.length; i++){
+		tables[i].searchVisible  = false;
+	}
+  
+	this.index = {};
+	/*this.index = {
     "table1":{
       "pk1":{table1:{pk1: "pk_edge", pk2":"pk_edge"}
             ...
@@ -38,17 +46,15 @@ db_set( // sfc_record_relations_class - client side
     ,"tableN":{...}
   }
 */
-  
-  this.index = {};
-  
-  this.relations = app.spa.db.getTable("relations");
-  if (this.relations === undefined) {
-    return // this database does not have a relation table.
-  }
-  const pks       = this.relations.get_PK();    // array of PK keys for entire table;
-  for(let i=0; i< pks.length; i++) {
-    this.pk_index(pks[i]);
-  }
+
+	this.relations = app.spa.db.getTable("relations");
+	if (this.relations === undefined) {
+		return // this database does not have a relation table.
+	}
+	const pks       = this.relations.get_PK();    // array of PK keys for entire table;
+	for(let i=0; i< pks.length; i++) {
+		this.pk_index(pks[i]);
+	}
 }
 
 
@@ -132,17 +138,22 @@ init(  // sfc_record_relations_class - client side
 show(   // sfc_record_relations_class - client side
 	record // <sfc-record>
 ) { 
+	// hide hide all relation tables
+	let table_names = app.spa.db.get_table_names();
+	for (let i=0; i<table_names.length; i++) {
+		this.shadow.getElementById(table_names[i]).style.display = "none";
+	}
+	
+	if (this.index[record.table.name] === undefined) {
+		return; // not relations, nothing to show;
+	}
+
 	// show relations
 	const table_relation = this.index[record.table.name][record.get_pk()]; // all relations attached to table
 	if (table_relation != undefined) {
 		//relation = table_relation[this.#primary_key_value];  // all the relations connenting displayed object to other objects
 	}
 
-	// add hide hide all relation tables
-	let table_names = app.spa.db.get_table_names();
-	for (let i=0; i<table_names.length; i++) {
-		this.shadow.getElementById(table_names[i]).style.display = "none";
-	}
 
 	if (table_relation !== undefined) {
 		// show tables that have relations

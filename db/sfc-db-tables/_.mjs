@@ -35,13 +35,13 @@ db_set(  // sfc_db_tables_class - client side
 
 
 show(table_name) {  // sfc_db_tables_class - client side
-    this.shadow.querySelectorAll('[hidden=false]').forEach( (element) => {
-        element.hidden = true;
-    }); // hide visible tables
+    // hide all tables except the one we are going to display
+    for(let i=0; i< this.shadow.children.length; i++)  {
+        let child = this.shadow.children[i];
+        child.hidden = ! (child.id === table_name);
+    } 
 
-    let viewer = this.shadow.getElementById(table_name); // get table viewer <sfc-table>
-    viewer.display();                                    // put html in viewer
-    viewer.hidden = false;                               // show viewer
+    this.shadow.getElementById(table_name).display(); // display <sfc-table>
 }
 
 

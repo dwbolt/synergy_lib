@@ -148,11 +148,32 @@ parse_value() {  // csvClass: client-side, return false if end of line, return t
 
 
 parseQuote() {  // csvClass: client-side
-  // find the end of the quote   "            "\r\n     --- did not handle this case
   let end = -1;
-  let end_of_line = false;
-  const end_comma = this.csv.indexOf('",' , this.valueStart+1);  
+  // most common case
+  const end_comma    = this.csv.indexOf('",' , this.valueStart+1); 
+  const csv_part     = this.csv.slice(this.valueStart+1,end_comma);   
 
+  // see if end of line happend before end_comma
+  const end_of_line  = csv_part.indexOf('"\n'  ); 
+  const end_of_lineR = csv_part.indexOf('"\r\n');
+  let end_inc;
+
+  if (end_of_line === -1 && end_of_lineR === -1) {
+    // end ",    the most common case
+    end = end_comma;
+    end_inc = 2;
+  } else if (0<end_of_line && end_ofLineR === -1) {
+    // end "/n    end of line next most common case
+    end = this.valueStart + 1 +end_of_line;
+    end_inc = 2;
+  } else if (-1===end_of_line && 0<end_ofLineR) {
+    // end "/r/n   very rare
+    end = this.valueStart + 1 + end_ofLineR
+    end_inc = 3;
+  } else {
+    alert("error - parseQuote")
+  }
+/*
   if (0 < end_comma && end_comma < this.nextN) {
     end = end_comma   // case  "            ",
   } 
@@ -162,11 +183,25 @@ parseQuote() {  // csvClass: client-side
       end = end_of_line  // find the end of the quote   "            "\n
     }
   }
+*/
 
-  let start = this.valueStart;
-
+//end = min(end_comma, end_of_line, )
+/*if (0 < end_comma && end_comma < this.nextN) {
+  end = end_comma   // case  "            ",
+} 
+if (end<0) {
+  end_of_line  = this.csv.indexOf('"\n' , this.valueStart+1);  
+  if (0<end_of_line ){
+    end = end_of_line  // find the end of the quote   "            "\n
+  }
+}
+*/
+  let start       = this.valueStart+1;
+  this.valueStart = end + end_inc;
+  
+  return this.csv.slice(start, end);
+  /*
   if        (0<end) {
-    // most common case, end_quote inside line
     let v = this.csv.slice( this.valueStart+1, end);
     if (end_of_line === false) {
       this.valueStart = end + 2 // get on the other side of "
@@ -179,7 +214,7 @@ parseQuote() {  // csvClass: client-side
   } else {
     alert(`errow file="csv_module.js" method="parseQuote" end=${end}`);
     return null;
-  }
+  }*/
 
 }
 
