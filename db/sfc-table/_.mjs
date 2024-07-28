@@ -590,7 +590,6 @@ appendHTMLrow(  // sfc_table_class - client-side
   if (this.selected.find(
     val => val === PK) )
      {selected="class='selected'";}
-  //let html   = `<tr ${selected} data-row=${PK}>${lineNum}${rowNum}`;
   let html   = lineNum;
   const select = this.model.meta_get("select");
   for(let i=0; i<select.length; i++) {
@@ -620,16 +619,7 @@ formatTransform( // sfc_table_class - client-side
   }
 
   const format = this.getColumnFormat(i);
-/*
-  if (typeof(value) === "string" && (value.startsWith("https://")  || value.startsWith("http://")) ) {
-      // display URL
-      html += `<td ${format}><a href="${show}" target="_blank">URL</a></td>`;
-  } else if (!format && typeof(value) === "number" ) { // display number right justified
-      html += `<td align='right'>${show}</td>`;
-  } else {
-      html += `<td ${format}>${show}</td>`;   // display raw data
-  }
-*/
+
   if (typeof(value) === "string" && (value.startsWith("https://")  || value.startsWith("http://")) ) {
     // display URL
     html += `<td ${format}><a href="${show}" target="_blank">URL</a></td>`;
