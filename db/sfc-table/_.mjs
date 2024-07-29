@@ -343,7 +343,7 @@ displayData(){   // sfc_table_class - client-side
   // format data just appended
   // allow first child of each <td> tag to set attribute of <td> tag, the calenderClass was the first to use this
   // walk tr, then td to change class for td
-  for(let i=0; i<table_data.children.length; i++) {
+  /*for(let i=0; i<table_data.children.length; i++) {
     let div = table_data.children[i];
     // if we are displaying html, all first element to set parent class
     if (0 < div.children.length) {
@@ -359,16 +359,8 @@ displayData(){   // sfc_table_class - client-side
       } catch (error) {
         // just ignor error 
       }
-/*
-      attribute = div.firstChild.getAttribute("data-parentAttribute2");  // is this still used?
-      if (attribute) {
-        array = eval( attribute );
-        if ( Array.isArray(array)) {
-          div.setAttribute(array[0],array[1]);
-        }
-      }*/
     }
-  }
+  }*/
 
   // figure out maxrow
  if (this.tag === "null"  || this.tag === null) {
@@ -619,15 +611,16 @@ formatTransform( // sfc_table_class - client-side
   }
 
   const format = this.getColumnFormat(i);
-
-  if (typeof(value) === "string" && (value.startsWith("https://")  || value.startsWith("http://")) ) {
+  if ( this.table.meta.fields[i].type === "html" ) { // display number right justified
+    html += show;  // add no formating to type html
+  } else  if (typeof(value) === "string" && (value.startsWith("https://")  || value.startsWith("http://")) ) {
     // display URL
-    html += `<td ${format}><a href="${show}" target="_blank">URL</a></td>`;
-} else if (!format && typeof(value) === "number" ) { // display number right justified
+    html += `<div ${format}><a href="${show}" target="_blank">URL</a></div>`;
+  } else if (!format && typeof(value) === "number" ) { // display number right justified
     html += `<div align='right'>${show}</div>`;
-} else {
+  } else {
     html += `<div ${format}>${show}</div>`;   // display raw data
-}
+  }
 
   return html;
 }

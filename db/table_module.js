@@ -700,9 +700,19 @@ method="merge"
 this.url_changes="${this.url_changes}"
 RESTpost failed`);
   };
-  
+
+  // save meta data 
+  msg  = await this.proxy.RESTpost(JSON.stringify(this.meta), this.url_meta);
+  if(!msg.success) {
+    alert(`file="table_module.js"
+      method="merge"
+      this.url_changes="${this.url_meta}"
+      RESTpost failed`);
+  }
+
   return msg;
 }
+
 
 async delete(record){// table_class - client-side
   let msg;

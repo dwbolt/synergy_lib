@@ -155,7 +155,6 @@ event_display(  // calendar_class - client-side
 
   const dialog = this.shadow.getElementById("dialog");
   dialog.title_set(`<b>${event.name}</b>`);
-  //dialog.text_set( `${description}<br><br>${link}`);
   dialog.body_set( `${description}<br><br>${link}`);
 
   //dialog.buttons_set(`<button onclick="app.page.edit.closeForm();">Close</button>`);
@@ -485,13 +484,13 @@ calendar_create(  // calendar_class  client-side
   const t      = this.table;  // t -> table we will put event data in to display
   // init metadata for table
   const fields = t.meta_get("fields");
-  fields["0"]  = {"header":"Sunday"   ,"location": "column"};
-  fields["1"]  = {"header":"Monday"   ,"location": "column"};
-  fields["2"]  = {"header":"Tuesday"  ,"location": "column"};
-  fields["3"]  = {"header":"Wednesday","location": "column"};
-  fields["4"]  = {"header":"Thursday" ,"location": "column"};
-  fields["5"]  = {"header":"Friday"   ,"location": "column"};
-  fields["6"]  = {"header":"Saturday" ,"location": "column"};
+  fields["0"]  = {"type":"html", "location": "column", "header":"Sunday"   };
+  fields["1"]  = {"type":"html", "location": "column", "header":"Monday"   };
+  fields["2"]  = {"type":"html", "location": "column", "header":"Tuesday"  };
+  fields["3"]  = {"type":"html", "location": "column", "header":"Wednesday"};
+  fields["4"]  = {"type":"html", "location": "column", "header":"Thursday" };
+  fields["5"]  = {"type":"html", "location": "column", "header":"Friday"   };
+  fields["6"]  = {"type":"html", "location": "column", "header":"Saturday" };
 
   t.set_select(["0","1","2","3","4","5","6"]);  // select all the fields
 
@@ -514,11 +513,10 @@ calendar_create(  // calendar_class  client-side
       let add="";
       if ( this.login_status) {
         // user calendar
-        //add =`<a onClick="edit.event_create(${start.getFullYear()}, ${m}, ${d})" class="pointer">+</a> `
-        add =`<a data-create="${start.getFullYear()}-${m}-${d}" class="pointer">+</a> `
+        add =`<a data-create="${start.getFullYear()}-${m}-${d}" class="pointer">+</a><br>`
       }
       style = this.style_get(start, firstDate, today);  // set style of day depending on not part of current year, past, today, future,
-      let html = `<p ${style}><b>${m}-${d} ${add}</b></p>`;
+      let html = `<div class="${style}"><b>${m}-${d} ${add}</b>`;
 
       // loop for all events for day [m][d]
       let eventList = this.events[m][d].pks.sort(this.sort.bind(this));   // list of pks
@@ -537,17 +535,12 @@ calendar_create(  // calendar_class  client-side
         } else if(event.repeat == "monthly") {repeat_class = "repeat_monthly";
         } else if(event.repeat == "yearly" ) {repeat_class = "repeat_yearly" ;}
 
-        //if (event.url === undefined) {
           html += `${editButton} <u><a data-event_id="${event.pk}" class="${repeat_class} pointer">${event.name}</a></u><br>`
-        //} else {
-        //  html += `${editButton} <a href="${event.url}" target="_blank" class="${repeat_class}">${event.name}</a><br>`
-       // }
-        
       }
 
   
       // only add events for current year
-      t.add_column_value(x.toString(),y.toString(), html + "</br>")
+      t.add_column_value(x.toString(),y.toString(), html + "</div>")
       }
       
       start.setDate( start.getDate() + 1 ); // move to next day
@@ -577,13 +570,13 @@ sort(// calendar_class  client-side
 style_get(start, firstDate, today) {  // calendar_class  client-side
   if (start<firstDate || start.getFullYear()>this.year) {
     // day is before january 1st of this year  or     // day is after last day of year
-    return `data-parentAttribute="['class','notYear']"`
+    return "notYear"
   } else if (start.getMonth() == today.getMonth() && start.getDate() == today.getDate() && start.getFullYear() == today.getFullYear()) {
-    return `data-parentAttribute="['class','today']"`  // tableUxClass will put class='past' in the TD tag
+    return "today"  // tableUxClass will put class='past' in the TD tag
   } else if (start<today) {
-    return `data-parentAttribute="['class','past']"`  // tableUxClass will put class='past' in the TD tag
+    return "past"  // tableUxClass will put class='past' in the TD tag
   } else {
-    return `data-parentAttribute="['class','future']"` 
+    return "future" 
   }
 }
 

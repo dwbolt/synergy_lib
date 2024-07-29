@@ -178,17 +178,24 @@ async save_all(  // dbClass - client-side
 }
 */
 
-async table_merge(  // dbClass - client-side
-  table) {
-  // save table
-  const msg = await this.tables[table].merge();
 
-  // uppdate and save database meta data if it is a new table
-  if ( this.meta.tables[table]  ==  undefined) {
-       this.meta.tables[table] = {"location": `${this.dir}/${table}`, comments: "imported table"};
-    await app.proxy.RESTpost(JSON.stringify(this.tablesJson), this.url);
-    }
+async table_merge(      // dbClass - client-side
+  table_name   //
+) {
+  // save table
+  let msg = await this.tables[table_name].merge();
+  if (!msg.success) {
+    alert("save faild table_merge")
   }
+  // uppdate and save database meta data if it is a new table
+/*  if ( this.meta.tables[table_name]  ==  undefined) {
+    this.meta.tables[table_name] = {"location": `${this.dir}/${table}`, comments: "imported table"};
+  }*/
+  msg = await app.proxy.RESTpost(JSON.stringify(this.meta), `${this.dir}/_meta.json`);
+  if (!msg.success) {
+    alert("save faild table_merge")
+  }
+}
 
 
 displaySummery( // dbClass - clien-side
