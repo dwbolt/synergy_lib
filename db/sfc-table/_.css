@@ -6,3 +6,5 @@
 .selected { /* back ground color for table1 */
 	background-color: lightgray;
 }
+
+#table div {padding: 5px 5px 5px 5px;}

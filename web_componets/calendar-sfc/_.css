@@ -5,8 +5,8 @@
 .pointer {cursor: pointer;}
 
 /* for dates in the past on the calendar*/
-.notYear {font-size: 0;}
-.past     {background-color: lightgrey;}
+.notYear  {font-size: 0;}
+.past     {background-color: #d3d3d3; }
 .today    {background-color: yellow;}
 .future   {background-color: cyan;}
 .calendar {display: block;}

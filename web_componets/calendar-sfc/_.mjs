@@ -162,13 +162,6 @@ event_display(  // calendar_class - client-side
 }
 
 
-weeks_per_page(number){
-  var element = this.shadow.getElementById("rows_per_page");
-  element.value = number;
-  element.dispatchEvent(new Event('change'));
-}
-
-
 calendar_display(// calendar_class - client-side
 ) {
   // display calenda
@@ -200,18 +193,10 @@ calendar_display(// calendar_class - client-side
   // add new status line to dom
   this.statusLine();
 
-  // connect dom element to class method
-  this.shadow.getElementById("todayButton").addEventListener("click" , this.today_display.bind(this));
-  this.shadow.getElementById("months"     ).addEventListener("change", this.month_chosen.bind(this));
-  this.shadow.getElementById("prev"       ).addEventListener("click" , this.prev.bind(this));
-  this.shadow.getElementById("next"       ).addEventListener("click" , this.next.bind(this));
-  this.shadow.getElementById("year"       ).addEventListener("change", this.year_change.bind(this));
-
   for(let i=0; i<7; i++) {
     this.setColumnFormat(i,`class="day"`);  // set class of each day
   }
 
-  //this.displayData();
   this.display();
   let now = new Date();
   if ( this.year === now.getFullYear() ) {
@@ -220,6 +205,16 @@ calendar_display(// calendar_class - client-side
   }
 }
 
+statusLine() {
+  super.statusLine();  // display and addEventLisenter
+
+    // connect dom element to class method
+    this.shadow.getElementById("todayButton").addEventListener("click" , this.today_display.bind(this));
+    this.shadow.getElementById("months"     ).addEventListener("change", this.month_chosen.bind(this));
+    this.shadow.getElementById("prev"       ).addEventListener("click" , this.prev.bind(this));
+    this.shadow.getElementById("next"       ).addEventListener("click" , this.next.bind(this));
+    this.shadow.getElementById("year"       ).addEventListener("change", this.year_change.bind(this));
+}
 
 next( // calendar_class - client-side
 ) { //next page
@@ -280,11 +275,10 @@ month_chosen(  // calendar_class  client-side
   // set rows/page so that the full month is displayed
   const row_start     = this.events[start.getMonth()+1][start.getDate()].row ;     // row of month start
   const row_end       = this.events[  end.getMonth()+1][  end.getDate()].row ;     // row of month end
-  const rows_per_page = this.shadow.getElementById(`rows_per_page`);      // number of rows contained in month
-  rows_per_page.value = row_end - row_start + 1;
-  //rows_per_page.onchangeck();//
-  this.change_page_size(rows_per_page)
+  const rows_per_page = this.shadow.getElementById(`rows_per_page`).value;      // number of rows contained in month
+  this.rows_displayed(rows_per_page);
 }
+
 
 
 createDate(  // calendar_class  client-side
@@ -516,7 +510,7 @@ calendar_create(  // calendar_class  client-side
         add =`<a data-create="${start.getFullYear()}-${m}-${d}" class="pointer">+</a><br>`
       }
       style = this.style_get(start, firstDate, today);  // set style of day depending on not part of current year, past, today, future,
-      let html = `<div class="${style}"><b>${m}-${d} ${add}</b>`;
+      let html = `<div class="${style}"><b>${m}-${d} ${add}</b><br>`;
 
       // loop for all events for day [m][d]
       let eventList = this.events[m][d].pks.sort(this.sort.bind(this));   // list of pks

@@ -56,7 +56,7 @@ constructor(   // sfc_table_class - client-side
   <link href="/_lib/db/sfc-table/_.css" rel="stylesheet">
   <div        id="status" style="text-align:left; margin-bottom:10px"></div>
   <div        id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
-  <dialog-sfc id="dialog"/>`  
+  <dialog-sfc id="dialog"></dialog-sfc>`
 
   this.shadow.getElementById('table').addEventListener('click', this.record_show.bind(this));
 }
@@ -96,7 +96,7 @@ delete_row(   // sfc_table_class - client-side
   key
 ) {
   this.getModel().delete_row(key);
-  //this.statusLine();
+  //this.statusLine ();
 }
 
 
@@ -140,7 +140,8 @@ display(        // sfc_table_class - client-side
   this.groupby_fields.add_choices();
 */
   // fill in empty table
-  this.displayData()        ;  // will display statusLine
+  this.statusLine();
+  this.displayData()        ;  
  // this.displayFooter()      ;
 }
 
@@ -222,6 +223,13 @@ change_page_size(  // sfc_table_class - client-side
   ) {
   this.paging.lines = parseInt(e.target.value); // convert string to number;
   this.displayData();
+}
+
+
+rows_displayed(int){
+  var element = this.shadow.getElementById("rows_per_page");
+  element.value = int;
+  element.dispatchEvent(new Event('change'));
 }
 
 
@@ -371,8 +379,6 @@ displayData(){   // sfc_table_class - client-side
     this.paging.rowMax = this.tags[this.tag].length;
   }
 
-   this.statusLine();  
-
   // enable/disable the prev and next button - should be a better way todo this
   if (this.paging.row  ===  0 ) {
     // hide previous & first button
@@ -424,7 +430,7 @@ statusLine(   // sfc_table_class - client-side
         break;
       case "firstLast":
         html += `<input id="first" type="button"  value="First"/> <input id="last"  type="button"  value="Last"/>`
-        e_l.push(["first", "click", this.prev]); //onclick ="${this.globalName}.first()"
+        e_l.push(["first", "click", this.first]); //onclick ="${this.globalName}.first()"
         e_l.push(["last" , "click", this.last]); //onclick ="${this.globalName}.last() "
         break;
       case "tableName":
@@ -611,7 +617,7 @@ formatTransform( // sfc_table_class - client-side
   }
 
   const format = this.getColumnFormat(i);
-  if ( this.table.meta.fields[i].type === "html" ) { // display number right justified
+  if ( this.model.get_field(i,"type") === "html" ) { // display number right justified
     html += show;  // add no formating to type html
   } else  if (typeof(value) === "string" && (value.startsWith("https://")  || value.startsWith("http://")) ) {
     // display URL
@@ -819,7 +825,7 @@ search( // sfc_table_class - client-side
     this.tag           = null;  
     //this.paging.rowMax = this.getModel().getRows().length;
     this.paging.row    = 0;
-   // this.statusLine();
+   // this.statusLine ();
     this.displayData();
   }
 }
