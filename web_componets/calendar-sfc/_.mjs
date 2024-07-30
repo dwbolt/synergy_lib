@@ -275,8 +275,8 @@ month_chosen(  // calendar_class  client-side
   // set rows/page so that the full month is displayed
   const row_start     = this.events[start.getMonth()+1][start.getDate()].row ;     // row of month start
   const row_end       = this.events[  end.getMonth()+1][  end.getDate()].row ;     // row of month end
-  const rows_per_page = this.shadow.getElementById(`rows_per_page`).value;      // number of rows contained in month
-  this.rows_displayed(rows_per_page);
+  //this.shadow.getElementById(`rows_per_page`).value = row_end-row_start;           // number of rows contained in month
+  this.rows_displayed(row_end-row_start);                                    // show all the weeks in the month
 }
 
 

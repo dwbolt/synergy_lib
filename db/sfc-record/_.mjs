@@ -250,7 +250,7 @@ form_read( // client side sfc_record_class - for a page
 
   for(let i=0; i<fields_list.length; i++) {
       let field_name = fields_list[i]
-      obj[fields_list[i]] = this.form_value(`${this.dom_id_data}_${field_name}`, fields_meta, field_name);
+      obj[fields_list[i]] = this.form_value(field_name, fields_meta, field_name);
       if (obj[fields_list[i]] === undefined){
           delete obj[fields_list[i]];  // do not save undevined attributes
       }
@@ -272,9 +272,9 @@ form_value( // client side sfc_record_class
   case "float":
   case "integer" :
   case "text"    :
-  case "textarea": value = document.getElementById(`${dom}`).value; break;
+  case "textarea": value = this.shadow.getElementById(dom).value; break;
   case "date"    : 
-      date = document.getElementById(`${dom}`).value.split("-");
+      date = this.shadow.getElementById(`${dom}`).value.split("-");
       if (date[0] === "" && date.length === 1) {
           value = "";
       } else {
@@ -283,8 +283,8 @@ form_value( // client side sfc_record_class
       break;
 
   case "date-time"    : 
-      date = document.getElementById(`${dom}`).value.split("-");
-      time = document.getElementById(`${dom}_time`).value.split(":");
+      date = this.shadow.getElementById(`${dom}`).value.split("-");
+      time = this.shadow.getElementById(`${dom}_time`).value.split(":");
       if (date[0] === "" && date.length === 1 && time[0] === "" && time.length === 1) {
           value = "";
       } else {
@@ -292,7 +292,7 @@ form_value( // client side sfc_record_class
       }
       break;
   case "json"    : 
-    value = document.getElementById(`${dom}`).value;
+    value = this.shadow.getElementById(`${dom}`).value;
     if ( !(value === "") ) {
       value = JSON.parse(value);
     }
