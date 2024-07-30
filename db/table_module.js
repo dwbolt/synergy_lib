@@ -120,7 +120,7 @@ pk
 ,field
 ) {
   let value = this.get_value(pk,field);
-  if (this.meta_get("fields")[field].location === "relation") {
+  if (this.meta_get("fields")[field].location === "relation") {        // 2024-07-30  not sure this is still used dwb
     // value is an array of PK, convert to human readable
     let r_value="";
     for(var i=0; i<value.length; i++){

@@ -11,6 +11,7 @@ constructor(  // calendar_edit_class  client-side
   ){ 
     // move values in pop up form to graph edge
   this.calendar       = cal;      // point to calander object that we are editing.
+  this.table          = this.calendar.table_events  // pointer events
   this.dialog         = this.calendar.shadow.getElementById('dialog');
   this.shadow         = this.dialog.shadow;  // 
   this.openMonthDates = 0;        // number of selectors visible when monthly repeating option is chosen
@@ -116,7 +117,6 @@ get_next_key(  // calendar_edit_class  client-side
 async event_delete( // calendar_edit_class  client-side
 ) {
   // dete pk, will not detelet data
-  this.table          = this.calendar.table_events  // pointer events
   const record = this.table.get_object(this.pk);
   await this.processServerRefresh(record, true);
 }
@@ -134,8 +134,6 @@ async processServerRefresh( // calendar_edit_class  client-side
   ,remove=false  // false -> save updateds,  true -> delete record
 ) {
   // save new graph
-  this.table  = this.calendar.table_events  // pointer events
-
   let resp;
   if (remove) {
     resp    = await this.table.delete(record);
@@ -158,7 +156,7 @@ weeklyRepeatDays() {
   // Returns array where each item is an index of day of the week starting at 0
   // ex [0,2,4] is [sunday, tuesday, thursday]
   // grab all checkboxes
-  let options = document.getElementsByClassName("repeatCheckbox");
+  let options = this.shadow.getElementById("weekly_repeat").getElementsByClassName("repeatCheckbox");
   let rv = [];
 
   // go through all the checkboxes for the days and push back the index if they are checked
@@ -225,7 +223,6 @@ data2form(  // calendar_edit_class  client-side
 // fills in pop up form from event data
 pk
 ) {
-  this.table          = this.calendar.table_events  // pointer events
   const record = this.table.get_object(pk);
   this.shadow.getElementById("name"       ).value = (record.name       ? record.name         : "")       
   this.shadow.getElementById("url"        ).value = (record.url         ? record.url         : "")       
@@ -299,7 +296,7 @@ set_weekly_days(  // calendar_edit_class  client-side
   record
 ) {
   let days = record.repeat_details; // arrays of day to repeat, 0->sunday 1-monday..
-  let daysOfWeek = document.getElementsByClassName("repeatCheckbox");
+  let daysOfWeek = this.shadow.getElementById("weekly_repeat").getElementsByClassName("repeatCheckbox");
   for (let i = 0; i < days.length; i++) {
     daysOfWeek[days[i]].checked = true;
   }
