@@ -49,8 +49,10 @@ click(  // sfc_record_class - client-side
 ){
   // user clicked on a button,  lower case of button name is method to execute
   const method = event.target.innerHTML.toLowerCase();
-  if (" new add duplicate edit delte save clear cancel ".includes(method) ) {
+  if (" new duplicate edit delte save clear cancel ".includes(method) ) {
     this[method]();
+  } else if (method==="add") {
+    this.save(); // add and save use the same code, the value pk=undefined for add
   } else if (method==="stack") {
      app.spa.stack_push(this); // hardcoded do not like this, stack should not be an part of this component
   } else {
@@ -144,7 +146,7 @@ form_add( // client side sfc_record_class - for a page
 
   case "pk"       : return `${html} <div><input    id="${field_name}" type="text" readonly></div>`;
   case "text"     : return `${html} <div><input    id="${field_name}" type="text">    </div>`;
-  case "json"     :
+  case "json"     : case   "html" :
   case "textarea" : return `${html} <div><textarea id="${field_name}" rows="5"></textarea>     </div>`;
   case "integer"  : return `${html} <div><input    id="${field_name}" type="number" onfocusout="app.integer_validate(this)">  </div>`;
   case "float"    : return `${html} <div><input    id="${field_name}" type="number" onfocusout="app.float_validate(  this)">  </div>`;
@@ -175,6 +177,7 @@ form_write(  // client side sfc_record_class - for a page
         case "integer"  : 
         case "text"     :
         case "json"     :
+        case "html"     :
         case "textarea" : this.shadow.getElementById(field_name).value       =  value                                 ; break;
         case "boolean"  : this.shadow.getElementById(field_name).checked     =  value                                 ; break;
         case "date"     : this.shadow.getElementById(field_name).valueAsDate =  new Date(value[0],value[1]-1,value[2]); break;
@@ -268,11 +271,9 @@ form_value( // client side sfc_record_class
   let date,time,value;
   const field = fields_meta[fields_name];
   switch (field.type) {
-  case "pk":
-  case "float":
-  case "integer" :
-  case "text"    :
+  case "pk": case "float": case "integer" : case "text"    : case "html" :
   case "textarea": value = this.shadow.getElementById(dom).value; break;
+
   case "date"    : 
       date = this.shadow.getElementById(`${dom}`).value.split("-");
       if (date[0] === "" && date.length === 1) {

@@ -374,7 +374,7 @@ msg=${JSON.stringify(msg)}`);
 
   // load and apply change log
   await this.apply_changes();
-  this.setHeader();
+  this.header_set();
 }
 
 
@@ -767,7 +767,7 @@ get_field( // table_class - client-side
  }
  
 
-setHeader() {   // table_class - client-side
+header_set() {   // table_class - client-side
   // create header from meta data
   this.meta.header = [];
   const fields           = this.meta.fields;  // point to field meta data
@@ -776,7 +776,7 @@ setHeader() {   // table_class - client-side
     let field = fields[select[i]];
     if (field === undefined) {
       alert(`file="table_module.js"
-method="setHeader"
+method="header_set"
 select[i] = "${select[i]}"
 this.dir="${this.dir}"
 msg="select field does not exist in field meta data"`)
