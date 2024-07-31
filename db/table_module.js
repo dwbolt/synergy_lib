@@ -396,7 +396,7 @@ msg="${JSON.stringify(msg)}"`);
 
   // walk through change file and apply changes
   let start =0;
-  while(start < log.length-1) {  // last caracter in file is \n, do not process
+  while(start < log.length) {  // last caracter in file is \n, do not process
     let obj,str;
     let end = log.indexOf("\n", start);
     try {
