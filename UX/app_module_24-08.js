@@ -12,6 +12,7 @@ constructor() {  // appClass - client side
 	this.format     = new formatClass();
 
 	this.css;           // var to hold json css file
+	this.main_shadow = document.getElementById("main").attachShadow({ mode: "closed" }); 
 }
 
 
@@ -27,18 +28,21 @@ async main() { // appClass - client side
 	}
 	this.css  = await this.proxy.getJSON("css.json");  // hold color squence for buttons and strips
 
-	this.page = await this.proxy.getJSON(`pages/${this.pageName}/_.json`);  // load json data the has page html and other data
+	this.page_json = await this.proxy.getJSON(`pages/${this.pageName}/_.json`);  // load json data the has page html and other data
 
-	// load page module
+	// load page module code
 	let element = document.getElementById("page_module");
 	if (element) {
 		element.remove();  // if previous module was loaded, remove it.
 	}
-	element     = document.createElement('script');
-	element.id  = "page_module";
-	element.src = `pages/${this.pageName}/_.mjs`;
-	element.type = "module";
-	document.head.appendChild(element);
+	if (true) {  // test if script exists
+		element     = document.createElement('script');
+		element.id  = "page_module";
+		element.src = `pages/${this.pageName}/_.mjs`;
+		element.type = "module";
+		document.head.appendChild(element);
+	}
+
 
 	// load menu html
 	let msg = await this.proxy.RESTget("menu.html");  // make web-component? or put in shadow dom
@@ -50,6 +54,12 @@ async main() { // appClass - client side
 
 	this.display_header_buttons();
 	this.display(0); // display the first list/button
+
+	/*
+	if (typeof(page_class) === "class") {
+		this.page_json = new page_class();
+		this.page_json.main();
+	}*/
 }
 
 picture(url){
@@ -74,12 +84,12 @@ async getPage(  // appClass - client side
 
 
 display_header_buttons(){
-	document.getElementById("header" ).innerHTML = app.page.header;
-	const buttons = app.page.buttons;
+	document.getElementById("header" ).innerHTML = this.page_json.header;
+	const buttons = this.page_json.buttons;
 
 	let html = "";
-	for(var i=0; i<app.page.buttons.length; i++) {
-		let button = app.page.buttons[i];
+	for(var i=0; i<buttons.length; i++) {
+		let button = buttons[i];
 		if (typeof(button.value) === "string") {
 			// display button if button.value is defined
 			let color = this.css.button_colors[i % this.css.button_colors.length];
@@ -91,15 +101,16 @@ display_header_buttons(){
 	document.getElementById("buttons").innerHTML = html;
 }
 
+
 display( // appClass - client side
 	// called from json buttons
 	button_index
 ){
 	let list, html = "";
 
-	if (button_index<app.page.buttons.length) {
-		list = app.page.buttons[button_index].list;
-	} else if (app.page.buttons.length === 0){
+	if (button_index < this.page_json.buttons.length) {
+		list = this.page_json.buttons[button_index].list;
+	} else if (this.page_json.buttons.length === 0){
 		alert(`error - file="app_module_24-08"
 method="display"
 button_index=${button_index}`);
@@ -110,10 +121,10 @@ return;
 	for(var i=0; i<list.length; i++) {
 		let color = this.css.button_colors[(i+button_index) % this.css.button_colors.length];
 		html += `<div class="row" style="border-radius: 6px; border-style: solid; margin: 5px 5px 5px 5px; padding:  5px 5px 5px 5px; background-color: var(${color}_fill);  ">
-		${app.page.nodes[list[i]]}</div>`;
+		${this.page_json.nodes[list[i]]}</div>`;
 	}
 
-	document.getElementById("main").innerHTML = html;  // display HTML
+	this.main_shadow.innerHTML = html;  // display HTML
 
 /*
 	// goto url that will have the current button selected
