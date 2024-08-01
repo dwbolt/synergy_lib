@@ -12,7 +12,7 @@ import {groupByClass       } from '/_lib/db/groupBy_module.js'      ;
 import {table_class        } from '/_lib/db/table_module.js'        ;
 
 // web componets
-import {dialog_sfc_class} from '/_lib/web_componets/dialog-sfc/_.mjs';  // <dialog-sfc>
+import {dialog_sfc_class} from '/_lib/web_componets/sfc-dialog/_.mjs';  // <sfc-dialog>
 import {sfc_record_class} from '/_lib/db/sfc-record/_.mjs'           ;  // <sfc-record>
 
 
@@ -56,7 +56,7 @@ constructor(   // sfc_table_class - client-side
   <link href="/_lib/db/sfc-table/_.css" rel="stylesheet">
   <div        id="status" style="text-align:left; margin-bottom:10px"></div>
   <div        id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
-  <dialog-sfc id="dialog"></dialog-sfc>`
+  <sfc-dialog id="dialog"></sfc-dialog>`
 
   this.shadow.getElementById('table').addEventListener('click', this.record_show.bind(this));
 }

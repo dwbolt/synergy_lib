@@ -7,7 +7,7 @@ import  {calendar_edit_class } from '/_lib/web_componets/calendar-sfc/edit_modul
 // web componets
 import  {sfc_table_class     } from '/_lib/db/sfc-table/_.mjs'     ;
 
-//import  {dialog_sfc_class   } from '/_lib/web_componets/dialog-sfc/_module.js';
+//import  {dialog_sfc_class   } from '/_lib/web_componets/sfc-dialog/_module.js';
 
 
 class calendar_class extends sfc_table_class {  // calendar_class  client-side

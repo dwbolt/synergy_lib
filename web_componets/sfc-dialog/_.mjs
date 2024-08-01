@@ -6,7 +6,7 @@ constructor() {  // dialog_sfc_class - client side
 	this.shadow = this.attachShadow({ mode: "closed" });  
 	// add content to shadow dom
 	this.shadow.innerHTML =  `
-   <link href="/_lib/web_componets/dialog-sfc/_.css" rel="stylesheet">
+   <link href="/_lib/web_componets/sfc-dialog/_.css" rel="stylesheet">
    <dialog id="dialog">
    <div id="title"></div><br>
    <hr>
@@ -71,4 +71,4 @@ close(){ // dialog_sfc_class- client side
 
 
 export { dialog_sfc_class };
-customElements.define("dialog-sfc", dialog_sfc_class); 
+customElements.define("sfc-dialog", dialog_sfc_class); 

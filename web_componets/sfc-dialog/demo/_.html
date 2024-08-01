@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>dialog-sfc</title>
+  <title>sfc-dialog</title>
 </head>
 
 <body>
-  <h1>dialog-sfc Web component demo</h1>
+  <h1>sfc-dialog Web component demo</h1>
   <p>Migrating to this to replace alert and all modal and none modal dialog boxes</p>
   <input type="button" onclick="app.show()"      value="Show normal dialog"><br>
   <input type="button" onclick="app.showModal()" value="Show Modal same dialog as modal"><br>
@@ -18,7 +18,7 @@
   `);app.show();" value="change dialog content to some html"><br>
 
   <div>before</div>
-  <dialog-sfc id="dialog" style="position: relative;"></dialog-sfc>
+  <sfc-dialog id="dialog" style="position: relative;"></sfc-dialog>
   <div>after</div>
 </body>
 </html>
@@ -30,7 +30,7 @@ let app; // only global variable
 
 <script type="module">
   
-import  {dialog_sfc_class} from '/_lib/web_componets/dialog-sfc/_.mjs';  // support  <dialog-sfc>
+import  {dialog_sfc_class} from '/_lib/web_componets/sfc-dialog/_.mjs';  // support  <sfc-dialog>
 
 app = document.getElementById("dialog");  // create popup object
 app.title_set(`<b>Title of box</b>`);
