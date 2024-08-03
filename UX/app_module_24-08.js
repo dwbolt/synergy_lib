@@ -2,49 +2,24 @@ import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'  ;
 import  {formatClass    }   from '/_lib/format/format_module.js';
 import  {loginClass     }   from '/_lib/UX/login_module.js'     ;
 
+
 class appClass { // synergy.SFCKnox.org web site
 
 
 constructor() {  // appClass - client side
-	this.urlParams  = new URLSearchParams( window.location.search );
-	this.login      = new loginClass();
-	this.proxy      = new proxyClass();
-	this.format     = new formatClass();
-
-	this.css;           // var to hold json css file
+	this.urlParams   = new URLSearchParams( window.location.search );
+	this.login       = new loginClass();
+	this.proxy       = new proxyClass();
+	this.format      = new formatClass();
 	this.main_shadow = document.getElementById("main").attachShadow({ mode: "closed" }); 
 }
 
 
 async main() { // appClass - client side
-	this.pageName = this.urlParams.get('p'); // page to load
-	if (this.pageName === null) {
-		// show home page if page is not specified
-		const newURL  = encodeURI(`${window.location.pathname}`);
-		const newURLs = newURL.split('/');
-		const lastToken = newURLs[newURLs.length-1].toLowerCase();
-		if (lastToken === ""        ) { window.location.replace(newURL+"app.html?p=home"); }
-		if (lastToken === "app.html") { window.location.replace(newURL+"?p=home"        ); }
-	}
-	this.css  = await this.proxy.getJSON("css.json");  // hold color squence for buttons and strips
+	// should just be called once for when a new spa (single page app) is load
+	this.pages      = {}  // contians pointers to page classes as they are loaded
 
-	this.page_json = await this.proxy.getJSON(`pages/${this.pageName}/_.json`);  // load json data the has page html and other data
-
-	// load page module code
-	let element = document.getElementById("page_module");
-	if (element) {
-		element.remove();  // if previous module was loaded, remove it.
-	}
-	if (true) {  // test if script exists
-		element     = document.createElement('script');
-		element.id  = "page_module";
-		element.src = `pages/${this.pageName}/_.mjs`;
-		element.type = "module";
-		document.head.appendChild(element);
-	}
-
-
-	// load menu html
+	// display app menu html
 	let msg = await this.proxy.RESTget("menu.html");  // make web-component? or put in shadow dom
 	if (msg.ok) {
 		document.getElementById("menu").innerHTML = msg.value;
@@ -52,15 +27,36 @@ async main() { // appClass - client side
 		alert("error app_module_24main()")
 	}
 
-	this.display_header_buttons();
-	this.display(0); // display the first list/button
+	this.css  = await this.proxy.getJSON("css.json");  // holds json info for styling 
 
-	/*
-	if (typeof(page_class) === "class") {
-		this.page_json = new page_class();
-		this.page_json.main();
-	}*/
+	let page_name = this.urlParams.get('p'); // page to load from url
+	if (page_name === null) {
+		page_name = "home";  // set page to home if one is not given
+	}
+
+	await this.page_display(page_name);
 }
+
+
+async page_display(page_name=null) {
+	// called each time a new page is displayed
+	if (page_name !== null) {
+		// displaying a new page so remember it
+		this.page_name = page_name;  // remember the page we are displaying
+	}
+
+	// load page module code if not already loaded
+	if (this.pages[this.page_name] === undefined) {
+		let element  = document.createElement('script');
+		element.src  = `pages/${this.page_name}/_.mjs`;
+		element.type = "module";
+		document.head.appendChild(element);
+	} else {
+		app.pages[this.page_name].display();
+	}
+}
+
+
 
 picture(url){
 	return `<div style="float:right;width:320px; height:200px;"><img style="object-fit:contain; width:320px; height:200px;" src="${url}"></div>`
@@ -83,64 +79,7 @@ async getPage(  // appClass - client side
 }
 
 
-display_header_buttons(){
-	document.getElementById("header" ).innerHTML = this.page_json.header;
-	const buttons = this.page_json.buttons;
 
-	let html = "";
-	for(var i=0; i<buttons.length; i++) {
-		let button = buttons[i];
-		if (typeof(button.value) === "string") {
-			// display button if button.value is defined
-			let color = this.css.button_colors[i % this.css.button_colors.length];
-			html +=  `<input class="button" type="button" value="${button.value}"  onclick="app.display(${i})" 
-			style="background-color: var(${color}_fill); border-color: var(${color}_border);">`
-		}
-
-	}
-	document.getElementById("buttons").innerHTML = html;
-}
-
-
-display( // appClass - client side
-	// called from json buttons
-	button_index
-){
-	let list, html = "";
-
-	if (button_index < this.page_json.buttons.length) {
-		list = this.page_json.buttons[button_index].list;
-	} else if (this.page_json.buttons.length === 0){
-		alert(`error - file="app_module_24-08"
-method="display"
-button_index=${button_index}`);
-return;
-	}
-
-	// walk list, build html
-	for(var i=0; i<list.length; i++) {
-		let color = this.css.button_colors[(i+button_index) % this.css.button_colors.length];
-		html += `<div class="row" style="border-radius: 6px; border-style: solid; margin: 5px 5px 5px 5px; padding:  5px 5px 5px 5px; background-color: var(${color}_fill);  ">
-		${this.page_json.nodes[list[i]]}</div>`;
-	}
-
-	this.main_shadow.innerHTML = html;  // display HTML
-
-/*
-	// goto url that will have the current button selected
-	const urlParams = new URLSearchParams( window.location.search );
-	let page="";
-	if   (urlParams.get('p') != null) {
-		let u="";
-		if (urlParams.get('u') != null) {
-			u="&u=" + urlParams.get('u');
-		}
-		page =  "p=" +urlParams.get('p') +u+ "&";
-	}
-
-	window.location.href = encodeURI(`${window.location.origin}/app.html?${page}b=${dom.id}`);
-	*/
-}
 
 goto(select){
 	window.location.href = encodeURI(`${window.location.origin}/${select.value}`)

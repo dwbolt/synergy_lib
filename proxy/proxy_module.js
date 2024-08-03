@@ -153,9 +153,16 @@ async getJSON(  // proxyClass - client - side
         let j = await  f.json();
         return j;
       } else {
-        alert(`proxyClass.getJSON error: url = ${url}  status = ${f.status}`);
+        alert(`${new Error().stack}`)
+        alert(`proxyClass.getJSON error: 
+url = ${url}  
+status = ${f.status}`);
       }
     } catch (e) {
+      alert(`${new Error().stack}`)
+      alert(`proxyClass.getJSON 
+error: url = ${url}  
+error = ${e}`);
       alert("getJSON" + e);
     }
 }
