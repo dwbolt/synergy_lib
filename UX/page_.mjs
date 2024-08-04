@@ -31,9 +31,10 @@ display_buttons(){
 		let button = buttons[i];
 		if (typeof(button.value) === "string") {
 			// display button if button.value is defined
-			let color = this.css.button_colors[i % this.css.button_colors.length];
-			html +=  `<input class="button" type="button" value="${button.value}"  onclick="app.display(${i})" 
-			style="background-color: var(${color}_fill); border-color: var(${color}_border);">`
+			let color = app.css.button_colors[i % app.css.button_colors.length];
+			html +=  `<button  class="button" onclick="app.button_press(${i})" 
+			style="background-color: var(${color}_fill); border-color: var(${color}_border);">${button.value}</button>`
+
 		}
 
 	}

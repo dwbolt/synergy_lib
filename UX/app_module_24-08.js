@@ -38,12 +38,9 @@ async main() { // appClass - client side
 }
 
 
-async page_display(page_name=null) {
+async page_display(page_name) {
 	// called each time a new page is displayed
-	if (page_name !== null) {
-		// displaying a new page so remember it
-		this.page_name = page_name;  // remember the page we are displaying
-	}
+	this.page_name = page_name;  // remember the page we are displaying
 
 	// load page module code if not already loaded
 	if (this.pages[this.page_name] === undefined) {
@@ -54,6 +51,11 @@ async page_display(page_name=null) {
 	} else {
 		app.pages[this.page_name].display();
 	}
+}
+
+
+button_press(index){
+	this.pages[this.page_name].button_press(index);
 }
 
 
