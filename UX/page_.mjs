@@ -3,6 +3,7 @@ class page_ { // sfcknox2/pages/home
 
 constructor(name){
 	this.name = name; // name of page
+	app.pages[name] = this;
 }
 
 async init() {
