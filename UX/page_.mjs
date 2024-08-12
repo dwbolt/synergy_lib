@@ -8,6 +8,7 @@ constructor(name){
 
 async init() {
 	this.json = await app.proxy.getJSON(`pages/${this.name}/_.json`);  // load json data the has page html and other data
+	this.display();
 }
 
 

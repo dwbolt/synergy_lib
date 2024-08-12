@@ -12,7 +12,7 @@ import {groupByClass       } from '/_lib/db/groupBy_module.js'      ;
 import {table_class        } from '/_lib/db/table_module.js'        ;
 
 // web componets
-import {dialog_sfc_class} from '/_lib/web_componets/sfc-dialog/_.mjs';  // <sfc-dialog>
+import {sfc_dialog} from '/_lib/web_componets/sfc-dialog/_.mjs';  // <sfc-dialog>
 import {sfc_record_class} from '/_lib/db/sfc-record/_.mjs'           ;  // <sfc-record>
 
 

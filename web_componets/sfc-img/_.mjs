@@ -1,23 +1,27 @@
-class sfc_dialog extends HTMLElement { // dialog_class - client side
+class sfc_img extends HTMLElement { // dialog_class - client side
 
 constructor() {  // sfc_dialog - client side
 	// constructor is called when the element is displayed
 	super();
 	this.shadow = this.attachShadow({ mode: "closed" });  
 	// add content to shadow dom
+	this.setAttribute("display","inline-block")
 	this.shadow.innerHTML =  `
-   <link href="/_lib/web_componets/sfc-dialog/_.css" rel="stylesheet">
-   <dialog id="dialog">
-   <div id="title"></div><br>
-   <hr>
-   <div id="body"></div>
-   <hr>
-   <div id="buttons"><button id="close">Close</button></div>
-   </dialog>            
+<div style="float:right;width:320px; height:200px;">
+<img style="object-fit:contain; width:320px; height:200px;" src="/synergyData/visit/map.jpg">
+</div>
    `
 
-    this.shadow.getElementById('close').addEventListener('click', this.close.bind(this));
-	this.dialog = this.shadow.getElementById('dialog');
+/**
+ 
+<div id="pic_main_0" style="float:right;width:320px; height:200px;">
+<img style="object-fit:contain; width:320px; height:200px;" src="/synergyData/visit/map.jpg">
+</div>
+
+ */
+
+  //  this.shadow.getElementById('close').addEventListener('click', this.close.bind(this));
+//	this.dialog = this.shadow.getElementById('dialog');
 }
 
 
@@ -40,13 +44,6 @@ text_set(text){    // sfc_dialog- client side
 	this.body_set(text.replaceAll("\n","<br/>")); // convet /n to <br>,  this does not handle all cases
 }
 
-/*
-buttons_set(html){  // sfc_dialog- client side
-	// needs more work - will screw up eventlistnener
-
-	this.shadow.getElementById("buttons").innerHTML = html;
-}
-	*/
 
 
 show() {      // sfc_dialog- client side
@@ -67,8 +64,8 @@ close(){ // sfc_dialog- client side
 }
 
 
-} // end sfc_dialog
+} // end sfc_img
 
 
-export { sfc_dialog };
-customElements.define("sfc-dialog", sfc_dialog); 
+export { sfc_img };
+customElements.define("sfc-img", sfc_img); 

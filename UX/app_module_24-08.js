@@ -2,6 +2,7 @@ import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'  ;
 import  {formatClass    }   from '/_lib/format/format_module.js';
 import  {loginClass     }   from '/_lib/UX/login_module.js'     ;
 
+import  {sfc_img        }   from '/_lib/web_componets/sfc-img/_.mjs';  // preload sfc-img web component
 
 class appClass { // synergy.SFCKnox.org web site
 
