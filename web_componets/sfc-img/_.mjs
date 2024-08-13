@@ -5,7 +5,7 @@ constructor() {  // sfc_dialog - client side
 	super();
 	this.shadow = this.attachShadow({ mode: "closed" });  
 	// add content to shadow dom
-	this.setAttribute("display","inline-block")
+//	this.setAttribute("display","inline-block")
 	this.shadow.innerHTML =  `
 <div style="float:right;width:320px; height:200px;">
 <img style="object-fit:contain; width:320px; height:200px;" src="/synergyData/visit/map.jpg">

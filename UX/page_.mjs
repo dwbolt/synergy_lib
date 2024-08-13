@@ -50,7 +50,7 @@ button_press( // appClass - client side
 ){
 	let list, html = "";
 
-	// validate button_index rabge
+	// validate button_index range
 	if ( ( -1 < button_index) && (button_index < this.json.buttons.length) ) {
 		list = this.json.buttons[button_index].list;
 	} else if (this.json.buttons.length === 0){
@@ -63,7 +63,7 @@ return;
 	// walk list, build html
 	for(var i=0; i<list.length; i++) {
 		let color = app.css.button_colors[(i+button_index) % app.css.button_colors.length];
-		html += `<div class="row" style="border-radius: 6px; border-style: solid; margin: 5px 5px 5px 5px; padding:  5px 5px 5px 5px; background-color: var(${color}_fill);  ">
+		html += `<div id="${list[i]}" class="row" style="border-radius: 6px; border-style: solid; margin: 5px 5px 5px 5px; padding:  5px 5px 5px 5px; background-color: var(${color}_fill);  ">
 		${this.json.nodes[list[i]]}</div>`;
 	}
 
