@@ -50,6 +50,7 @@ button_press( // appClass - client side
 ){
 	let list, html = "";
 
+	// validate button_index rabge
 	if ( ( -1 < button_index) && (button_index < this.json.buttons.length) ) {
 		list = this.json.buttons[button_index].list;
 	} else if (this.json.buttons.length === 0){
