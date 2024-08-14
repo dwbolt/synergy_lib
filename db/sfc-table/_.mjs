@@ -125,7 +125,7 @@ display(        // sfc_table_class - client-side
   }
 
   /* add fields to group by
-  this.groupby_fields = new select_order_class(`${this.DOMid}__group_by_fields`,`${this.globalName}.groupby_fields`);
+  this.groupby_fields = new sfc_select_order(`${this.DOMid}__group_by_fields`,`${this.globalName}.groupby_fields`);
   this.groupby_fields.set_template(
     `<input type="button" value="Search"   onclick="${this.globalName}.display_intersection()"><br>
      <input type="button" value="group by" onclick="${this.globalName}.groupby()">

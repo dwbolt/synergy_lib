@@ -2,7 +2,7 @@ import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'  ;
 import  {formatClass    }   from '/_lib/format/format_module.js';
 import  {loginClass     }   from '/_lib/UX/login_module.js'     ;
 
-class appClass { // synergy.SFCKnox.org web site
+export class appClass { // synergy.SFCKnox.org web site
 
 
 constructor() {  // appClass - client side
@@ -16,14 +16,6 @@ constructor() {  // appClass - client side
 async main() { // appClass - client side
 	// should just be called once for when a new spa (single page app) is load
 	this.pages      = {}  // contians pointers to page classes as they are loaded
-
-	// display app menu html
-	let msg = await this.proxy.RESTget("menu.html");  // make web-component? or put in shadow dom
-	if (msg.ok) {
-		document.getElementById("menu").innerHTML = msg.value;
-	} else {
-		//alert("error app_module_24main()") - some applications may not have menu.html
-	}
 
 	this.css  = await this.proxy.getJSON("css.json");  // holds json info for styling 
 
@@ -140,5 +132,3 @@ value="${value}"
 
 
 } // end appClass
-
-export { appClass };

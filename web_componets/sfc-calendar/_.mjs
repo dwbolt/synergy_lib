@@ -2,7 +2,7 @@ import  {formatClass         } from '/_lib/format/format_module.js'  ;
 import  {loginClass          } from '/_lib/UX/login_module.js'     ;
 import  {table_class         } from '/_lib/db/table_module.js'       ;
 
-import  {calendar_edit_class } from '/_lib/web_componets/calendar-sfc/edit_module.js';
+import  {calendar_edit_class } from '/_lib/web_componets/sfc-calendar/edit_module.js';
 
 // web componets
 import  {sfc_table_class     } from '/_lib/db/sfc-table/_.mjs'     ;
@@ -40,7 +40,7 @@ event_add(
 constructor( // calendar_class  client-side
   ) {
   super();  // will create this.shadow
-  this.css_add("/_lib/web_componets/calendar-sfc/_.css" );// load calendar css
+  this.css_add("/_lib/web_componets/sfc-calendar/_.css" );// load calendar css
   this.year      = new Date().getFullYear();  // default to current year, can be overriden when main is called.
 
   this.format       = new formatClass();  // format time and dates
@@ -622,4 +622,4 @@ today_display( // calendar_class  client-side
 
 
 export { calendar_class };
-customElements.define("calendar-sfc", calendar_class);
+customElements.define("sfc-calendar", calendar_class);

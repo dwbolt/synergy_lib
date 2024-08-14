@@ -1,4 +1,4 @@
-class sfc_dialog extends HTMLElement { // dialog_class - client side
+export class sfc_dialog extends HTMLElement { // dialog_class - client side
 
 constructor() {  // sfc_dialog - client side
 	// constructor is called when the element is displayed
@@ -70,5 +70,4 @@ close(){ // sfc_dialog- client side
 } // end sfc_dialog
 
 
-export { sfc_dialog };
 customElements.define("sfc-dialog", sfc_dialog); 

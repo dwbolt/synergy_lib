@@ -32,7 +32,7 @@ data  // "yyyy-m-d"
 
   // reload popup form
   this.dialog.title_set("<b>Create New Calandar Event</b>");
-  const html = await app.proxy.getText("/_lib/web_componets/calendar-sfc/editForm.html");
+  const html = await app.proxy.getText("/_lib/web_componets/sfc-calendar/editForm.html");
   this.dialog.body_set(html);
 
 
@@ -79,7 +79,7 @@ pk  // string
 
   // reload popup form
   this.dialog.title_set("<b>Edit Calandar Event</b>");
-  const html = await app.proxy.getText("/_lib/web_componets/calendar-sfc/editForm.html");
+  const html = await app.proxy.getText("/_lib/web_componets/sfc-calendar/editForm.html");
   this.dialog.body_set(html);
 
   // show/hide buttons

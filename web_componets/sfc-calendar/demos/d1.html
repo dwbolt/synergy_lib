@@ -3,11 +3,11 @@
 	<head>
 		<title id="headTitle"></title>
 		<meta name="description" content="Calendar" />
-		<link rel="stylesheet" href="/_lib/web_componets/calendar-sfc/_.css" />
+		<link rel="stylesheet" href="/_lib/web_componets/sfc-calendar/_.css" />
 	</head>
 
 	<body class="page">
-	<calendar-sfc id="calendar" class="content"></calendar-sfc>
+	<sfc-calendar id="calendar" class="content"></sfc-calendar>
 	</body>
 </html>
 
@@ -19,7 +19,7 @@ var app; // only globle variable
 /*
 display user_mlc public calendar
 */
-import  {calendar_class}    from '/_lib/web_componets/calendar-sfc/_.mjs'; // suport <calendar-sfc> web component
+import  {calendar_class}    from '/_lib/web_componets/sfc-calendar/_.mjs'; // suport <sfc-calendar> web component
 app  = document.getElementById("calendar");  // get web-componet
 
 app.calendar_add("/user/user_mlc/calendar");            //  pulic readonly link to mlc user calender

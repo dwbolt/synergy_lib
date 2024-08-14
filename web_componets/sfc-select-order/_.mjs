@@ -1,4 +1,4 @@
-class select_order_class  extends HTMLElement { 
+export class sfc_select_order  extends HTMLElement { 
 
 /*
 input -  [
@@ -12,14 +12,14 @@ they can order the selected choices on right.
 */
 
 
-constructor( // select_order_class - client side
+constructor( // sfc_select_order - client side
 ) {  
 	super();              // call parent constructor
 	this.shadow  = this.attachShadow({ mode: "closed" });   // create a shadow dom that has sepreate id scope from other main dom and other shadow doms
 	
 	this.shadow.innerHTML = `
 	<div class="box" style="display: inline-block;">
-	<link href="/_lib/web_componets/select-order-sfc/_.css" rel="stylesheet">
+	<link href="/_lib/web_componets/sfc-select-order/_.css" rel="stylesheet">
 	<div id="title"></div>
 	<input id="narrow" type="text" placeholder="Narrow choices" hidden> 
 	<div  style="display:flex;" hidden>
@@ -61,15 +61,15 @@ narrow_keyup(){
 }
 
 
-connectedCallback() { // select_order_class - client side
+connectedCallback() { // sfc_select_order - client side
 }
 
 
-title_set(html) {  // select_order_class - client side
+title_set(html) {  // sfc_select_order - client side
 	this.shadow.getElementById("title").innerHTML = html;
 }
 
-display(){  // select_order_class - client side
+display(){  // sfc_select_order - client side
 	this.choices_display();
 }
 
@@ -90,12 +90,12 @@ multi_set(value){
 	this.shadow.getElementById("selected_box").hidden = !value;  // hide or show 
 }
 
-multi_display(){// select_order_class - client side
+multi_display(){// sfc_select_order - client side
 	this.shadow.getElementById("selected_box").hidden = !this.multi;
 }
 
 
-choices_add(  // select_order_class - client side
+choices_add(  // sfc_select_order - client side
    // add a user choice
    choices // [ [value1,dispaly1], [value2, display2].....]
 ){
@@ -129,7 +129,7 @@ choices_html(){
 }
 
 
-selected_add(   // select_order_class - client side
+selected_add(   // sfc_select_order - client side
 	// user made a choice
 	choices  // [ [value1,dispaly1], [value2, display2].....]
 ) {
@@ -138,7 +138,7 @@ selected_add(   // select_order_class - client side
 }
 
 
-selected_return() {  // select_order_class - client side
+selected_return() {  // sfc_select_order - client side
 	const selected = [];
 	let child = this.selected.firstChild;
 	while (child) {
@@ -150,7 +150,7 @@ selected_return() {  // select_order_class - client side
 }
 
 
-selected_html() {  // select_order_class - client side
+selected_html() {  // sfc_select_order - client side
 	// redisplay the choices that have been selected
 	const selected_value = parseInt(this.selected.value);
 
@@ -177,7 +177,7 @@ selected_html() {  // select_order_class - client side
 }
 
 
-button_disable(  // select_order_class - client side
+button_disable(  // sfc_select_order - client side
 	name_string // " top up "
 ){
 	const button_list = this.buttons.children;
@@ -192,7 +192,7 @@ button_disable(  // select_order_class - client side
 }
 
 
-choices_click(event){  // select_order_class - client side
+choices_click(event){  // sfc_select_order - client side
 	if (this.multi) {
 		// user click on a choice, move it to the selected
 		this.selected.insertBefore(event.target,this.selected.firstChild);
@@ -208,7 +208,7 @@ choices_click_custom(event) {
 }
 
 
-buttons_disable(){  // select_order_class - client side
+buttons_disable(){  // sfc_select_order - client side
 	let disable = "";
 	let select = (this.multi ? this.selected: this.choices );
 
@@ -230,7 +230,7 @@ buttons_disable(){  // select_order_class - client side
 }
 
 
-button_click(event) {  // select_order_class - client side
+button_click(event) {  // sfc_select_order - client side
 	// process buttons
 	if (this.multi) {
 		this.selected_move(event);
@@ -241,7 +241,7 @@ button_click(event) {  // select_order_class - client side
 }
 
 
-selected_move(event) { // select_order_class - client side
+selected_move(event) { // sfc_select_order - client side
 	const element = this.selected.options[this.selected.selectedIndex];  // selected element
 	switch (event.target.id) {
 	case "top": // move selected to top 
@@ -278,7 +278,7 @@ selected_move(event) { // select_order_class - client side
 }
 
 
-choices_move(event) {  // select_order_class - client side
+choices_move(event) {  // sfc_select_order - client side
 	const index = parseInt(this.choices.value);          // selected element
 	const current = this.choices_array[index]; // remember selected value
 	switch (event.target.id) {
@@ -317,7 +317,6 @@ choices_move(event) {  // select_order_class - client side
 	this.choices_html();
 }
 
-} // select_order_class
+} // sfc_select_order
 
-export { select_order_class };
-customElements.define("select-order-sfc", select_order_class);   // attach class to  web-component
+customElements.define("sfc-select-order", sfc_select_order);   // attach class to  web-component
