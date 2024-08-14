@@ -63,11 +63,11 @@ return;
 	// walk list, build html
 	for(var i=0; i<list.length; i++) {
 		let color = app.css.button_colors[(i+button_index) % app.css.button_colors.length];
-		html += `<div id="${list[i]}" class="row" style="border-radius: 6px; border-style: solid; margin: 5px 5px 5px 5px; padding:  5px 5px 5px 5px; background-color: var(${color}_fill);  ">
-		${this.json.nodes[list[i]]}</div>`;
+		html += `<div id="${list[i]}" class="row" style="background-color: var(${color}_fill);  ">
+		${this.json.html[list[i]]}</div>`;
 	}
 
-	app.main_shadow.innerHTML = html;  // display HTML
+	document.getElementById("main").innerHTML = html;  // display HTML
 }
 
 }

@@ -2,8 +2,6 @@ import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'  ;
 import  {formatClass    }   from '/_lib/format/format_module.js';
 import  {loginClass     }   from '/_lib/UX/login_module.js'     ;
 
-import  {sfc_img        }   from '/_lib/web_componets/sfc-img/_.mjs';  // preload sfc-img web component
-
 class appClass { // synergy.SFCKnox.org web site
 
 
@@ -12,7 +10,6 @@ constructor() {  // appClass - client side
 	this.login       = new loginClass();
 	this.proxy       = new proxyClass();
 	this.format      = new formatClass();
-	this.main_shadow = document.getElementById("main").attachShadow({ mode: "closed" }); 
 }
 
 
@@ -25,7 +22,7 @@ async main() { // appClass - client side
 	if (msg.ok) {
 		document.getElementById("menu").innerHTML = msg.value;
 	} else {
-		alert("error app_module_24main()")
+		//alert("error app_module_24main()") - some applications may not have menu.html
 	}
 
 	this.css  = await this.proxy.getJSON("css.json");  // holds json info for styling 
@@ -52,6 +49,11 @@ async page_display(page_name) {
 	} else {
 		app.pages[this.page_name].display();
 	}
+}
+
+
+page_json_get() {
+	return this.pages[this.page_name].json;
 }
 
 
