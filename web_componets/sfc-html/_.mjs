@@ -1,15 +1,18 @@
+import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'  ;
+
 export class sfc_html extends HTMLElement { // sfc_html - client side
 
 constructor() {  // sfc_html - client side
 	// constructor is called when the element is displayed
 	super();
-	this.id = this.getAttribute("id"); // we will load 
+	this.id = this.getAttribute("id"); // we will load
+	this.proxy = new proxyClass();
 }
 
 
-connectedCallback() { // sfc_html - client side
+async connectedCallback() { // sfc_html - client side
 	// create a shadow dom   
-	const msg = await app.proxy.RESTget(`${this.id}.html`)
+	const msg = await this.proxy.RESTget(`${this.id}.html`)
 
 	// add content sfc_html
 	if (msg.ok) {

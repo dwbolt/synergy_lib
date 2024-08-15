@@ -529,7 +529,7 @@ calendar_create(  // calendar_class  client-side
         } else if(event.repeat == "monthly") {repeat_class = "repeat_monthly";
         } else if(event.repeat == "yearly" ) {repeat_class = "repeat_yearly" ;}
 
-          html += `${editButton} <u><a data-event_id="${event.pk}" class="${repeat_class} pointer">${event.name}</a></u><br>`
+          html += `${editButton} <a href="javascript:void(0)" data-event_id="${event.pk}" class="${repeat_class} pointer">${event.name}</a><br>`
       }
 
   

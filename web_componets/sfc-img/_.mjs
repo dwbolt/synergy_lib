@@ -50,40 +50,6 @@ connectedCallback() { // sfc_dialog - client side
 }
 
 
-title_set( html){ // sfc_dialog- client side
-	this.shadow.getElementById("title").innerHTML = html;
-}
-
-
-body_set(html){    // sfc_dialog- client side
-	this.shadow.getElementById("body").innerHTML = html;
-}
-
-text_set(text){    // sfc_dialog- client side
-	// not sure I like this, need to add html editor, and get rid of this, could just fource people to use raw html for now.
-	this.body_set(text.replaceAll("\n","<br/>")); // convet /n to <br>,  this does not handle all cases
-}
-
-
-
-show() {      // sfc_dialog- client side
-	this.dialog.className = "";      // we do not want it to popup
-	this.shadow.getElementById("dialog").show();
-}
-
-
-showModal() { // sfc_dialog- client side
-	this.dialog.className = "popup";      // we do not want it to popup
-	this.close();       // close dialog if open
-	this.shadow.getElementById("dialog").showModal();
-}
-
-
-close(){ // sfc_dialog- client side
-	this.shadow.getElementById("dialog").close();
-}
-
-
 } // end sfc_img
 
 

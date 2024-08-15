@@ -121,7 +121,7 @@ style_display(domid,value) {
 
 		default:
 			alert(`
-file="app_module_24-03.js"
+file="app_24-03.js"
 method="style_display"
 domid=${domid}
 value="${value}"
