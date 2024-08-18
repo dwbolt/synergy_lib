@@ -44,7 +44,7 @@ display_buttons(){
 }
 
 
-button_press( // appClass - client side
+async button_press( // appClass - client side
 	// called from json buttons
 	button_index
 ){
@@ -63,12 +63,23 @@ return;
 	// walk list, build html
 	for(var i=0; i<list.length; i++) {
 		let color = app.css.button_colors[(i+button_index) % app.css.button_colors.length];
-		html += `<div id="${list[i]}" class="row" style="background-color: var(${color}_fill);  ">
-		${this.json.html[list[i]]}</div>`;
+		html += `<div id="${list[i]}" class="row" style="background-color: var(${color}_fill);  ">`
+		if ( this.json.html && this.json.html[list[i]]) {
+			// use html in already loaded json file
+			html += `${this.json.html[list[i]]}`;
+		}
+		if ( this.json.load && this.json.load[list[i]] ) {
+			// load html from file
+			let msg =  await  await app.proxy.RESTget(this.json.load[list[i]]);
+			if (msg.ok) {
+				html += msg.value;
+			}
+		}
+		html += "</div>"
 	}
 
 	document.getElementById("main").innerHTML = html;  // display HTML
 }
 
-}
+} 
 export {page_};
