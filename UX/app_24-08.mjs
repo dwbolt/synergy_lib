@@ -1,13 +1,12 @@
 import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'  ;
 import  {formatClass    }   from '/_lib/format/format_module.js';
-import  {loginClass     }   from '/_lib/UX/login_module.js'     ;
+
 
 export class appClass { // synergy.SFCKnox.org web site
 
 
 constructor() {  // appClass - client side
 	this.urlParams   = new URLSearchParams( window.location.search );
-	this.login       = new loginClass();
 	this.proxy       = new proxyClass();
 	this.format      = new formatClass();
 }
