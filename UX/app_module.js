@@ -1,6 +1,5 @@
 import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'  ;
 import  {formatClass    }   from '/_lib/format/format_module.js';
-import  {loginClass     }   from '/_lib/UX/login_module.js'     ;
 import  {widgetListClass}   from '/_lib/UX/widgetList_module.js';
 //import  {calendarClass  }   from '/_lib/UX/calendar_module.js';
 

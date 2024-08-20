@@ -1,6 +1,7 @@
 import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'  ;
 import  {formatClass    }   from '/_lib/format/format_module.js';
-
+import  {sfc_dialog     }   from '/_lib/web_componets/sfc-dialog/_.mjs'; // preload sfc-login 
+import  {sfc_login      }   from '/_lib/web_componets/sfc-login/_.mjs'; // preload sfc-login 
 
 export class appClass { // synergy.SFCKnox.org web site
 
@@ -9,6 +10,8 @@ constructor() {  // appClass - client side
 	this.urlParams   = new URLSearchParams( window.location.search );
 	this.proxy       = new proxyClass();
 	this.format      = new formatClass();
+	this.sfc_dialog  = document.querySelector("sfc-dialog"); // assume only one
+	this.sfc_login   = document.querySelector("sfc-login" ); // assume only one
 }
 
 

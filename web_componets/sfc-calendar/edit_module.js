@@ -24,7 +24,7 @@ async event_create(  // calendarClass  client-side
 data  // "yyyy-m-d"
 ) {
   // determine if we are on user calendar or
-  if (!await app.login.getStatus()) {
+  if (!await app.sfc_login.getStatus()) {
     // not on user calendar
     alert('Error, not on user calendar');
     return;
@@ -70,7 +70,7 @@ data  // "yyyy-m-d"
 async event_edit(  // calendarClass  client-side
 pk  // string
 ) {
-  if (! await app.login.getStatus()) {
+  if (! await app.sfc_login.getStatus()) {
     // not on user calendar
     alert('Error, not on user calendar');
     return;

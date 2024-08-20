@@ -1,5 +1,4 @@
 import  {formatClass         } from '/_lib/format/format_module.js'  ;
-import  {loginClass          } from '/_lib/UX/login_module.js'     ;
 import  {table_class         } from '/_lib/db/table_module.js'       ;
 
 import  {calendar_edit_class } from '/_lib/web_componets/sfc-calendar/edit_module.js';
@@ -44,7 +43,7 @@ constructor( // calendar_class  client-side
   this.year      = new Date().getFullYear();  // default to current year, can be overriden when main is called.
 
   this.format       = new formatClass();  // format time and dates
-  this.login        = new loginClass();   // loads graph data from server
+  this.login        = app.sfc_login;      // 2024-08-20 do not like assuming the app create login web-component
   this.table_events = new table_class();  // where mulit year calander and repeating events live will be used generate this.table
 
   this.urlParams    = new URLSearchParams( window.location.search );  // read params send in the URL

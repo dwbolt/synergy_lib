@@ -35,19 +35,6 @@ body_set(html){    // sfc_dialog- client side
 	this.shadow.getElementById("body").innerHTML = html;
 }
 
-text_set(text){    // sfc_dialog- client side
-	// not sure I like this, need to add html editor, and get rid of this, could just fource people to use raw html for now.
-	this.body_set(text.replaceAll("\n","<br/>")); // convet /n to <br>,  this does not handle all cases
-}
-
-/*
-buttons_set(html){  // sfc_dialog- client side
-	// needs more work - will screw up eventlistnener
-
-	this.shadow.getElementById("buttons").innerHTML = html;
-}
-	*/
-
 
 show() {      // sfc_dialog- client side
 	this.dialog.className = "";      // we do not want it to popup
