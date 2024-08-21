@@ -8,14 +8,15 @@ constructor(name){
 
 async init() {
 	this.json = await app.proxy.getJSON(`pages/${this.name}/_.json`);  // load json data the has page html and other data
-	this.display();
+	await this.display();
 }
 
 
 async display(){
 	this.display_header();
 	this.display_buttons();
-	this.button_press(0); // display the first list/button
+	await this.button_press(0); // display the first list/button
+	app.page = this;            // remember the page displayed
 }
 
 
@@ -70,7 +71,7 @@ return;
 		}
 		if ( this.json.load && this.json.load[list[i]] ) {
 			// load html from file
-			let msg =  await  await app.proxy.RESTget(this.json.load[list[i]]);
+			let msg =  await app.proxy.RESTget(this.json.load[list[i]]);
 			if (msg.ok) {
 				html += msg.value;
 			}

@@ -54,7 +54,7 @@ click(  // sfc_record_class - client-side
   } else if (method==="add") {
     this.save(); // add and save use the same code, the value pk=undefined for add
   } else if (method==="stack") {
-     app.spa.stack_push(this); // hardcoded do not like this, stack should not be an part of this component
+     app.page.stack_push(this); // hardcoded do not like this, stack should not be an part of this component
   } else {
     alert(`method=${method} is not a valid`)
   }
@@ -228,7 +228,7 @@ async save( // client side sfc_record_class - for a page
       this.tableUX.display(); // will update pk display list
       if (this.dom_id === "relation_record") {
         // update relation index
-        app.spa.relation.pk_index(obj.pk);
+        app.page.relation.pk_index(obj.pk);
       }
     } else {
       // updated an existing record

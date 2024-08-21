@@ -47,7 +47,7 @@ db_set( // sfc_record_relations_class - client side
   }
 */
 
-	this.relations = app.spa.db.getTable("relations");
+	this.relations = app.page.db.getTable("relations");
 	if (this.relations === undefined) {
 		return // this database does not have a relation table.
 	}
@@ -139,7 +139,7 @@ show(   // sfc_record_relations_class - client side
 	record // <sfc-record>
 ) { 
 	// hide hide all relation tables
-	let table_names = app.spa.db.get_table_names();
+	let table_names = app.page.db.get_table_names();
 	for (let i=0; i<table_names.length; i++) {
 		this.shadow.getElementById(table_names[i]).style.display = "none";
 	}

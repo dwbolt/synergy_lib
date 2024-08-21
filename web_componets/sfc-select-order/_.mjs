@@ -112,8 +112,8 @@ choices_html(){
 	// rray has changed - rebuild choices html
 	let html = "";
 	const selected     = this.selected_return(); // will be [] if multi = false
-	const record_table = (app.spa.stack_record.table ? app.spa.stack_record.table.name : "");  // name of table
-	const record_pk    = app.spa.stack_record.get_pk();    // pk
+	const record_table = (app.page.stack_record.table ? app.page.stack_record.table.name : "");  // name of table
+	const record_pk    = app.page.stack_record.get_pk();    // pk
 
 	for(let i=0; i<this.choices_array.length; i++) {
 		if ( !selected.includes(i.toString()) ) {   // only add things not already selected
