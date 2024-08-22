@@ -30,10 +30,11 @@ async main() { // appClass - client side
 }
 
 async url_copy(){
+	// copy the url and page info so a user can get back do the page
 	this.sfc_dialog.title_set("<h1>Copied URL to clipboard</h1>");
-	let text = window.location.href;
-	
-	this.sfc_dialog.body_set(`"${text}" <br><br>has been copied to your clip board`);
+	const wl = window.location;
+	const text = `${wl.protocol}//${wl.hostname}${wl.pathname}?p=${this.page_name}`;
+	this.sfc_dialog.body_set(`"${text}" <br><br>has been copied to your clip board. You may now past it to an email or other document.`);
 	await navigator.clipboard.writeText(text);
 	this.sfc_dialog.show_modal();
 }
