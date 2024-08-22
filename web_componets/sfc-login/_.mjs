@@ -117,7 +117,7 @@ Password: <input id='password'  type='password'> enter or return key will attemp
 	this.shadow.getElementById("password"  ).addEventListener('keydown', this.on_enter.bind(  this));
 
 	await this.login_status_update();
-	this.showModal();
+	this.show_modal();
 }
 
 async login_out(  // sfc_login - client side

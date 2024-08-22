@@ -157,7 +157,7 @@ event_display(  // calendar_class - client-side
   dialog.body_set( `${description}<br><br>${link}`);
 
   //dialog.buttons_set(`<button onclick="app.page.edit.closeForm();">Close</button>`);
-  dialog.showModal();
+  dialog.show_modal();
 }
 
 

@@ -63,7 +63,7 @@ data  // "yyyy-m-d"
   let button = this.shadow.getElementById("addEventButton"   ); button.hidden = false; button.addEventListener("click", this.event_add.bind(this));
   //  <button id="addEventButton"   onClick="app.page.edit.event_add();">Add Event</button>
   // make popup vissible
-  this.dialog.showModal();
+  this.dialog.show_modal();
 }
 
 
@@ -87,7 +87,7 @@ pk  // string
   let button = this.shadow.getElementById("saveEventButton"  ); button.hidden = false; button.addEventListener("click", this.save.bind(this));
       button = this.shadow.getElementById("deleteEventButton"); button.hidden = false; button.addEventListener("click", this.event_delete.bind(this));
 
-  this.dialog.showModal();   // make popup vissible
+  this.dialog.show_modal();   // make popup vissible
   this.data2form(pk);   // load data
 }
 

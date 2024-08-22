@@ -29,6 +29,14 @@ async main() { // appClass - client side
 	await this.page_display(page_name);
 }
 
+async url_copy(){
+	this.sfc_dialog.title_set("<h1>Copied URL to clipboard</h1>");
+	let text = window.location.href;
+	
+	this.sfc_dialog.body_set(`"${text}" <br><br>has been copied to your clip board`);
+	await navigator.clipboard.writeText(text);
+	this.sfc_dialog.show_modal();
+}
 
 async page_display(page_name) {
 	// called each time a new page is displayed

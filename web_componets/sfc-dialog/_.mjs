@@ -42,7 +42,7 @@ show() {      // sfc_dialog- client side
 }
 
 
-showModal() { // sfc_dialog- client side
+show_modal() { // sfc_dialog- client side
 	this.dialog.className = "popup";      // we do not want it to popup
 	this.close();       // close dialog if open
 	this.shadow.getElementById("dialog").showModal();
