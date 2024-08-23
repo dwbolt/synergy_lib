@@ -1,4 +1,4 @@
-import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'  ;
+import  {proxyClass     }   from '/_lib/proxy/_.mjs'  ;
 import  {formatClass    }   from '/_lib/format/format_module.js'  ;
 
 

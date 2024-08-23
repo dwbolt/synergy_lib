@@ -1,4 +1,4 @@
-class proxyClass { // proxyClass - client - side
+export class proxyClass { // proxyClass - client - side
 
 /*
 
@@ -204,4 +204,3 @@ async getText(url) {   // proxyClass - client - side
 
 }  // proxyClass - client - side  // end of class
 
-export { proxyClass };

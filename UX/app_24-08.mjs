@@ -1,4 +1,4 @@
-import  {proxyClass     }   from '/_lib/proxy/proxy_module.js'  ;
+import  {proxyClass     }   from '/_lib/proxy/_.mjs'  ;
 import  {formatClass    }   from '/_lib/format/format_module.js';
 import  {sfc_dialog     }   from '/_lib/web_componets/sfc-dialog/_.mjs'; // preload sfc-login 
 import  {sfc_login      }   from '/_lib/web_componets/sfc-login/_.mjs'; // preload sfc-login 
@@ -18,9 +18,9 @@ constructor() {  // appClass - client side
 async main() { // appClass - client side
 	// should just be called once for when a new spa (single page app) is load
 	this.pages      = {}  // contians pointers to page classes as they are loaded
+	this.pages_my   = {}  // user created pages
 
 	this.css  = await this.proxy.getJSON("css.json");  // holds json info for styling 
-
 	let page_name = this.urlParams.get('p'); // page to load from url
 	if (page_name === null) {
 		page_name = "home";  // set page to home if one is not given
@@ -41,16 +41,45 @@ async url_copy(){
 
 async page_display(page_name) {
 	// called each time a new page is displayed
-	this.page_name = page_name;  // remember the page we are displaying
+	this.page_name = page_name;  // remember the page we are displaying - not sure this is used
 
 	// load page module code if not already loaded
-	if (this.pages[this.page_name] === undefined) {
+	if (this.pages[page_name] === undefined) {
 		let element  = document.createElement('script');
-		element.src  = `pages/${this.page_name}/_.mjs`;
+		element.src  = `pages/${page_name}/_.mjs`;
 		element.type = "module";
 		document.head.appendChild(element);
 	} else {
-		app.pages[this.page_name].display();
+		app.pages[page_name].display();
+	}
+}
+
+
+async page_display_my(page_name) {
+	// called each time a new page is displayed
+	this.page_name_my = page_name;  // remember the page we are displaying - not sure this is used
+
+	// load page module code if not already loaded
+	if (this.pages_my[page_name] === undefined) {
+		let element  = document.createElement('script');
+		element.src  = `/users/my_synergy_pages/${page_name}/_.mjs`;
+		element.type = "module";
+		document.head.appendChild(element);
+	} else {
+		app.pages_my[page_name].display();
+	}
+}
+
+async page_display_url(url) {
+
+	// load page module code if not already loaded
+	if (this.pages_my[page_name] === undefined) {
+		let element  = document.createElement('script');
+		element.src  = `/users/my_synergy_pages/${page_name}/_.mjs`;
+		element.type = "module";
+		document.head.appendChild(element);
+	} else {
+		app.pages_my[page_name].display();
 	}
 }
 

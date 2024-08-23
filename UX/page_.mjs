@@ -6,8 +6,17 @@ constructor(name){
 	app.pages[name] = this;
 }
 
-async init() {
-	this.json = await app.proxy.getJSON(`pages/${this.name}/_.json`);  // load json data the has page html and other data
+async init(url) {
+	debugger
+	let dir = url;
+	if (dir === undefined) {
+		dir = `pages/${this.name}/`;// default value
+	} else {
+		// page is not one level down from where index.html is
+		dir = url.slice(0,url.length - "_.mjs".length);
+	}
+
+	this.json = await app.proxy.getJSON(`${dir}_.json`);  // load json data the has page html and other data
 	await this.display();
 }
 

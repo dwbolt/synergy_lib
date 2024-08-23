@@ -1,4 +1,4 @@
-import  {proxyClass   }   from '/_lib/proxy/proxy_module.js'  ;
+import  {proxyClass   }   from '/_lib/proxy/_.mjs'  ;
 
 class loginClass { // loginClass - client side
 
