@@ -1,4 +1,4 @@
-import  {formatClass         } from '/_lib/format/format_module.js'  ;
+import  {formatClass         } from '/_lib/format/_.mjs'  ;
 import  {table_class         } from '/_lib/db/table_module.js'       ;
 
 import  {calendar_edit_class } from '/_lib/web_componets/sfc-calendar/edit_module.js';
@@ -6,10 +6,8 @@ import  {calendar_edit_class } from '/_lib/web_componets/sfc-calendar/edit_modul
 // web componets
 import  {sfc_table_class     } from '/_lib/db/sfc-table/_.mjs'     ;
 
-//import  {sfc_dialog   } from '/_lib/web_componets/sfc-dialog/_module.js';
 
-
-class calendar_class extends sfc_table_class {  // calendar_class  client-side
+export class calendar_class extends sfc_table_class {  // calendar_class  client-side
   /*
    Calendar data is stored in a database.
   
@@ -152,12 +150,12 @@ event_display(  // calendar_class - client-side
     description = event.description;
   }
 
-  const dialog = this.shadow.getElementById("dialog");
-  dialog.title_set(`<b>${event.name}</b>`);
-  dialog.body_set( `${description}<br><br>${link}`);
+  //const dialog = this.shadow.getElementById("dialog");
+  app.sfc_dialog.title_set(`<b>${event.name}</b>`);
+  app.sfc_dialog.body_set( `${description}<br><br>${link}`);
 
   //dialog.buttons_set(`<button onclick="app.page.edit.closeForm();">Close</button>`);
-  dialog.show_modal();
+  app.sfc_dialog.show_modal();
 }
 
 
@@ -620,5 +618,5 @@ today_display( // calendar_class  client-side
 } // calendar_class  client-side  -end class
 
 
-export { calendar_class };
+
 customElements.define("sfc-calendar", calendar_class);

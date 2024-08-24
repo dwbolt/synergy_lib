@@ -1,7 +1,12 @@
-import  {proxyClass     }   from '/_lib/proxy/_.mjs'  ;
-import  {formatClass    }   from '/_lib/format/format_module.js';
+import  {proxyClass     }   from '/_lib/proxy/_.mjs'            ;
+import  {formatClass    }   from '/_lib/format/_.mjs';
+import  {page_          }   from '/_lib/UX/page_.mjs'           ; // 
+
+
+// web-components
 import  {sfc_dialog     }   from '/_lib/web_componets/sfc-dialog/_.mjs'; // preload sfc-login 
-import  {sfc_login      }   from '/_lib/web_componets/sfc-login/_.mjs'; // preload sfc-login 
+import  {sfc_login      }   from '/_lib/web_componets/sfc-login/_.mjs' ; // preload sfc-login 
+
 
 export class appClass { // synergy.SFCKnox.org web site
 
@@ -10,15 +15,14 @@ constructor() {  // appClass - client side
 	this.urlParams   = new URLSearchParams( window.location.search );
 	this.proxy       = new proxyClass();
 	this.format      = new formatClass();
-	this.sfc_dialog  = document.querySelector("sfc-dialog"); // assume only one
-	this.sfc_login   = document.querySelector("sfc-login" ); // assume only one
 }
 
 
 async main() { // appClass - client side
 	// should just be called once for when a new spa (single page app) is load
-	this.pages      = {}  // contians pointers to page classes as they are loaded
-	this.pages_my   = {}  // user created pages
+	this.pages       = {}  // contians pointers to page classes as they are loaded
+	this.sfc_dialog  = document.querySelector("sfc-dialog"); // assume only one
+	this.sfc_login   = document.querySelector("sfc-login" ); // assume only one
 
 	this.css  = await this.proxy.getJSON("css.json");  // holds json info for styling 
 	let page_name = this.urlParams.get('p'); // page to load from url
@@ -29,7 +33,9 @@ async main() { // appClass - client side
 	await this.page_display(page_name);
 }
 
-async url_copy(){
+
+async url_copy(   // appClass - client side
+){
 	// copy the url and page info so a user can get back do the page
 	this.sfc_dialog.title_set("<h1>Copied URL to clipboard</h1>");
 	const wl = window.location;
@@ -39,63 +45,79 @@ async url_copy(){
 	this.sfc_dialog.show_modal();
 }
 
-async page_display(page_name) {
-	// called each time a new page is displayed
-	this.page_name = page_name;  // remember the page we are displaying - not sure this is used
+
+async page_display(  // appClass - client side
+	page_name
+) {
+	const url_dir = `pages/${page_name}/`
+	await this.page_display_url(page_name, url_dir);
+}
+
+
+async page_display_my(  // appClass - client side
+	page_name
+) {
+	const url_dir = `/users/my_synergy_pages/${page_name}/`
+	await this.page_display_url(page_name, url_dir);
+}
+
+
+async page_display_url(  // appClass - client side
+	 page_name  // 
+	,url_dir    //  to _.json for page
+) {
+	this.page_name    = page_name;  // remember the page we are displaying - 
+	this.page_url_dir = url_dir; 
 
 	// load page module code if not already loaded
-	if (this.pages[page_name] === undefined) {
-		let element  = document.createElement('script');
-		element.src  = `pages/${page_name}/_.mjs`;
-		element.type = "module";
-		document.head.appendChild(element);
+	if (this.pages[url_dir] === undefined) {
+		this.pages[url_dir] = await this.page_load(url_dir);
 	} else {
-		app.pages[page_name].display();
+		app.pages[url_dir].display();
 	}
 }
 
 
-async page_display_my(page_name) {
-	// called each time a new page is displayed
-	this.page_name_my = page_name;  // remember the page we are displaying - not sure this is used
+async page_load(   // appClass - client side
+	url_dir
+) {
+	// load page json - it has or points to resources to display page
+	app.page_json          = await this.proxy.getJSON(`${url_dir}_.json`);
+	app.page_json.url_dir  = url_dir;    // remember where the json was loaded from
 
-	// load page module code if not already loaded
-	if (this.pages_my[page_name] === undefined) {
+	if        (app.page_json.module === undefined) {
+		// used base class of page_
+		const page_module = new page_(this.page_name, url_dir);
+		await page_module.init(app.page_json);
+		return page_module;
+	} else if (app.page_json.module === true) {
+		// load custom page module from same directory as _.json
 		let element  = document.createElement('script');
-		element.src  = `/users/my_synergy_pages/${page_name}/_.mjs`;
+		element.src  = `${url_dir}_.mjs`;
 		element.type = "module";
 		document.head.appendChild(element);
+		// loaded module must 
 	} else {
-		app.pages_my[page_name].display();
-	}
-}
-
-async page_display_url(url) {
-
-	// load page module code if not already loaded
-	if (this.pages_my[page_name] === undefined) {
-		let element  = document.createElement('script');
-		element.src  = `/users/my_synergy_pages/${page_name}/_.mjs`;
-		element.type = "module";
-		document.head.appendChild(element);
-	} else {
-		app.pages_my[page_name].display();
+		alert("error, file='app_24-08' method='page_load'")
 	}
 }
 
 
-page_json_get() {
-	return this.pages[this.page_name].json;
+page_json_get(     // appClass - client side
+) {
+	return this.pages[this.page_url_dir].json;
 }
 
 
-button_press(index){
-	this.pages[this.page_name].button_press(index);
+button_press(index){   // appClass - client side
+	this.pages[this.page_url_dir].button_press(index);
 }
 
 
 
-picture(url){
+picture(   // appClass - client side
+	url
+){
 	return `<div style="float:right;width:320px; height:200px;"><img style="object-fit:contain; width:320px; height:200px;" src="${url}"></div>`
 }
 
@@ -116,29 +138,33 @@ async getPage(  // appClass - client side
 }
 
 
-
-
-goto(select){
+goto(    // appClass - client side  ------- is this still used?
+	select
+){
 	window.location.href = encodeURI(`${window.location.origin}/${select.value}`)
 }
+
 
 buttonURL() {  // appClass - client side
 	this.widgetList.buttonURL();
 }
 
 
-show(dom){ // appClass - client side
+show(dom){  // appClass - client side
 	document.getElementById(dom).hidden = false;
 	document.getElementById(dom).style.visibility = true;
 }
 
 
-hide(dom) { // appClass - client side
+hide(dom) {  // appClass - client side
 	document.getElementById(dom).hidden = true;
 	document.getElementById(dom).style.visibility = false;
 }
 
-style_display(domid,value) {
+
+style_display(   // appClass - client side
+	domid,value
+) {
 	// similar to show, hideå
 	const element = document.getElementById(domid);
 

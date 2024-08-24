@@ -1,27 +1,23 @@
 // page module should extend this class 
-class page_ { // sfcknox2/pages/home
+export class page_ { // sfcknox2/pages/home
 
-constructor(name){
+constructor(  // class page_ - client side
+	name
+){ 
 	this.name = name; // name of page
-	app.pages[name] = this;
 }
 
-async init(url) {
-	debugger
-	let dir = url;
-	if (dir === undefined) {
-		dir = `pages/${this.name}/`;// default value
-	} else {
-		// page is not one level down from where index.html is
-		dir = url.slice(0,url.length - "_.mjs".length);
-	}
 
-	this.json = await app.proxy.getJSON(`${dir}_.json`);  // load json data the has page html and other data
+async init(         // class page_ - client side
+	json  // page difintion
+) {
+	this.json = json;
 	await this.display();
 }
 
 
-async display(){
+async display(     // class page_ - client side
+){
 	this.display_header();
 	this.display_buttons();
 	await this.button_press(0); // display the first list/button
@@ -29,13 +25,15 @@ async display(){
 }
 
 
-display_header(){
+display_header(     // class page_ - client side
+){
 	// copy header from json to dom
 	document.getElementById("header" ).innerHTML = this.json.header;
 }
 
 
-display_buttons(){
+display_buttons(    // class page_ - client side
+){
 	// generate buttons from json to dom
 	const buttons = this.json.buttons;
 	let html = "";
@@ -54,8 +52,7 @@ display_buttons(){
 }
 
 
-async button_press( // appClass - client side
-	// called from json buttons
+async button_press(   // class page_ - client side
 	button_index
 ){
 	let list, html = "";
@@ -80,7 +77,7 @@ return;
 		}
 		if ( this.json.load && this.json.load[list[i]] ) {
 			// load html from file
-			let msg =  await app.proxy.RESTget(this.json.load[list[i]]);
+			let msg =  await app.proxy.RESTget(`${this.json.url_dir}${this.json.load[list[i]]}` );
 			if (msg.ok) {
 				html += msg.value;
 			}
@@ -91,5 +88,4 @@ return;
 	document.getElementById("main").innerHTML = html;  // display HTML
 }
 
-} 
-export {page_};
+}   // end class page_ - client side

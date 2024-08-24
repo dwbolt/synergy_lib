@@ -16,31 +16,8 @@ constructor() {  // sfc_login - client side
 	} else {
 		this.shadow.innerHTML =`error, no code to support "${this.shadow.innerHTML}"  `;
 	}*/
-
 }
 
-
-/*
-buildForm(  // sfc_login - client side
-  ) { 
-	// sfc_dialog- client side
-	this.shadow.innerHTML = `
-	Username: <input id='user_name'> <br/>
-	Password: <input id='password'  type='password'> enter or return key will attempt login<br/>
-	<button id="login_out"  class="button">Log Out</button>
-	<button id="pwd_change" class="button">Change Password</button>
-	<p id='msg'></p>`;
-
-	this.input_user_name  = this.shadow.getElementById("user_name");
-	this.input_password   = this.shadow.getElementById("password" );
-	this.button_login_out = this.shadow.getElementById("login_out");
-	this.p_msg            = this.shadow.getElementById("msg");
-
-	this.shadow.getElementById("login_out" ).addEventListener('click'  , this.login_out.bind( this));
-	this.shadow.getElementById("pwd_change").addEventListener('click'  , this.pwd_change.bind(this));
-	this.shadow.getElementById("password"  ).addEventListener('keydown', this.on_enter.bind(  this));
-}
-*/
 
 displayUser(){  // sfc_login - client side
 	return `${localStorage.user} - ${localStorage.nameLast }, ${localStorage.nameFirst} `
@@ -119,6 +96,7 @@ Password: <input id='password'  type='password'> enter or return key will attemp
 	await this.login_status_update();
 	this.show_modal();
 }
+
 
 async login_out(  // sfc_login - client side
   ) {

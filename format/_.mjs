@@ -1,4 +1,4 @@
-class formatClass {
+export class formatClass {
 
 /* class to format input and output data
 
@@ -30,7 +30,7 @@ padZero(    // formatClass - client-side
     str   = number.toString();
   } else {
     alert(`
-file="format_module.js"
+file="_.mjs"
 method="padZero"
 typeof(number) ="${typeof(number)}"
 number=${number}
@@ -212,6 +212,3 @@ obj2string( // formatClass - client-side
 
 // formatClass - client-side
 }  // end
-
-
-export { formatClass };

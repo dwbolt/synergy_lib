@@ -12,8 +12,9 @@ constructor(  // calendar_edit_class  client-side
     // move values in pop up form to graph edge
   this.calendar       = cal;      // point to calander object that we are editing.
   this.table          = this.calendar.table_events  // pointer events
-  this.dialog         = this.calendar.shadow.getElementById('dialog');
-  this.shadow         = this.dialog.shadow;  // 
+ // this.dialog         = this.calendar.shadow.getElementById('dialog');
+  this.dialog         = document.getElementById('dialog');
+  //this.shadow         = this.dialog.shadow;  // 
   this.openMonthDates = 0;        // number of selectors visible when monthly repeating option is chosen
   this.formHeight     = "500px"; 
 }

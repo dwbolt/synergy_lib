@@ -6,17 +6,18 @@ viewer for a table
 
 supports display in a grid, paging, search,...
 
+assumes <sfc-dialog id='dialog'></sfc-dialog> is in dom
+
 */
 
 import {groupByClass       } from '/_lib/db/groupBy_module.js'      ;
 import {table_class        } from '/_lib/db/table_module.js'        ;
 
 // web componets
-import {sfc_dialog} from '/_lib/web_componets/sfc-dialog/_.mjs';  // <sfc-dialog>
 import {sfc_record_class} from '/_lib/db/sfc-record/_.mjs'           ;  // <sfc-record>
 
 
-class sfc_table_class  extends HTMLElement { // sfc_table_class - client-side
+export class sfc_table_class  extends HTMLElement { // sfc_table_class - client-side
   // web componet to display table
 
 
@@ -56,7 +57,7 @@ constructor(   // sfc_table_class - client-side
   <link href="/_lib/db/sfc-table/_.css" rel="stylesheet">
   <div        id="status" style="text-align:left; margin-bottom:10px"></div>
   <div        id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
-  <sfc-dialog id="dialog"></sfc-dialog>`
+`
 
   this.shadow.getElementById('table').addEventListener('click', this.record_show.bind(this));
 }
@@ -866,5 +867,5 @@ last( /// sfc_table_class - client-side
 
 }
 
-export {sfc_table_class}
+
 customElements.define("sfc-table", sfc_table_class); 

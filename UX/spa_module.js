@@ -1,5 +1,5 @@
 import  {proxyClass     }   from '/_lib/proxy/_.mjs'  ;
-import  {formatClass    }   from '/_lib/format/format_module.js'  ;
+import  {formatClass    }   from '/_lib/format/_.mjs'  ;
 
 
 class spa_class { // synergy.SFCKnox.org web site
