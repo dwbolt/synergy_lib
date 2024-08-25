@@ -39,10 +39,13 @@ async url_copy(   // appClass - client side
 	// copy the url and page info so a user can get back do the page
 	this.sfc_dialog.title_set("<h1>Copied URL to clipboard</h1>");
 	const wl = window.location;
-	const text = `${wl.protocol}//${wl.hostname}${wl.pathname}?p=${this.page_name}`;
-	this.sfc_dialog.body_set(`"${text}" <br><br>has been copied to your clip board. You may now past it to an email or other document.`);
-	await navigator.clipboard.writeText(text);
-	this.sfc_dialog.show_modal();
+
+	// set text of dialog
+	const url = `${wl.protocol}//${wl.hostname}${wl.pathname}?p=${this.page_name}`;
+	this.sfc_dialog.body_set(`<p>"${url}" <br><br>has been copied to your clip board. You may now paste it to an email or other document.</p> <p>Sustainable Future Center implements their web information as Single Page Apps (SPA).  This means faster reponse times and less network trafic between your browser and the server.  You will notice that as you change pages, the url does not change.  The url that has been copied to your clipboard allows you to get back quickly to page you are on.</p>`);
+ 
+	await navigator.clipboard.writeText(url);  // copy url to clipboard
+	this.sfc_dialog.show_modal();               // show dialog
 }
 
 

@@ -22,7 +22,6 @@ constructor() {  // sfc_urls - client side
 			html += obj[i] + " &nbsp "
 		}
 		this.innerHTML = html;
-		debugger;
 	}
 }
 

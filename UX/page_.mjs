@@ -10,8 +10,10 @@ constructor(  // class page_ - client side
 
 async init(         // class page_ - client side
 	json  // page difintion
+	,dir_url
 ) {
-	this.json = json;
+	this.json    = json   ; // define page resources
+	this.dir_url = dir_url; // url to get to the json file, may need to load custom page_module
 	await this.display();
 }
 
