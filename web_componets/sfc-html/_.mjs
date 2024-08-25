@@ -5,20 +5,35 @@ export class sfc_html extends HTMLElement { // sfc_html - client side
 constructor() {  // sfc_html - client side
 	// constructor is called when the element is displayed
 	super();
-	this.id = this.getAttribute("id"); // we will load
+	//this.id   = this.getAttribute("id"); // we will load
+	this.href = this.getAttribute("href")
 	this.proxy = new proxyClass();
 }
 
 
 async connectedCallback() { // sfc_html - client side
 	// create a shadow dom   
-	const msg = await this.proxy.RESTget(`${this.id}.html`)
+	let msg;
+/*
+	if        ( ! (this.id === "null")) {
+		// id is first priorgyt
+		msg = await this.proxy.RESTget(`${this.id}.html`)
+	} else 
+*/
+	if (! (this.href === null) )  {
+		msg = await this.proxy.RESTget(this.href)
+	} else {
+		// error
+		this.innerHTML = `error - sfc_htm  href="${this.href}"  `
+		return;
+	}
+
 
 	// add content sfc_html
 	if (msg.ok) {
 		this.innerHTML = msg.value;
 	} else {
-		// error
+		this.innerHTML = `error, load faild - sfc_htm -  href="${this.href}"`;
 	}                       
 }
 

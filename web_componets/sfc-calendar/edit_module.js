@@ -1,4 +1,4 @@
-class calendar_edit_class {
+export class calendar_edit_class {
 // works with calendarClass to add/edit/delete events
 
 // used to remember new event date
@@ -12,9 +12,6 @@ constructor(  // calendar_edit_class  client-side
     // move values in pop up form to graph edge
   this.calendar       = cal;      // point to calander object that we are editing.
   this.table          = this.calendar.table_events  // pointer events
- // this.dialog         = this.calendar.shadow.getElementById('dialog');
-  this.dialog         = document.getElementById('dialog');
-  //this.shadow         = this.dialog.shadow;  // 
   this.openMonthDates = 0;        // number of selectors visible when monthly repeating option is chosen
   this.formHeight     = "500px"; 
 }
@@ -27,16 +24,11 @@ data  // "yyyy-m-d"
   // determine if we are on user calendar or
   if (!await app.sfc_login.getStatus()) {
     // not on user calendar
-    alert('Error, not on user calendar');
+    alert('login to view your calendar user');
     return;
   }
 
-  // reload popup form
-  this.dialog.title_set("<b>Create New Calandar Event</b>");
-  const html = await app.proxy.getText("/_lib/web_componets/sfc-calendar/editForm.html");
-  this.dialog.body_set(html);
-
-
+  await this.form_load();
   this.renderEndDateSelector();  // turn on input files for type of repeat (never, weekly, monthly.....)
 
   // set member variables for event year month and 
@@ -62,9 +54,16 @@ data  // "yyyy-m-d"
   this.shadow.getElementById("saveEventButton"  ).hidden = true;
   this.shadow.getElementById("deleteEventButton").hidden = true;
   let button = this.shadow.getElementById("addEventButton"   ); button.hidden = false; button.addEventListener("click", this.event_add.bind(this));
-  //  <button id="addEventButton"   onClick="app.page.edit.event_add();">Add Event</button>
-  // make popup vissible
-  this.dialog.show_modal();
+
+  app.sfc_dialog.show_modal();    // make popup vissible
+}
+
+
+async form_load(){  // calendarClass  client-side
+  app.sfc_dialog.title_set("<b>Edit Calandar Event</b>");
+  const html = await app.proxy.getText("/_lib/web_componets/sfc-calendar/editForm.html");
+  app.sfc_dialog.body_set(html);
+  this.shadow = app.sfc_dialog.shadow;
 }
 
 
@@ -79,16 +78,14 @@ pk  // string
   this.pk = pk;  // remember of future methods
 
   // reload popup form
-  this.dialog.title_set("<b>Edit Calandar Event</b>");
-  const html = await app.proxy.getText("/_lib/web_componets/sfc-calendar/editForm.html");
-  this.dialog.body_set(html);
+  await this.form_load();
 
   // show/hide buttons
   this.shadow.getElementById("addEventButton"   ).hidden = true ;     // Hide
   let button = this.shadow.getElementById("saveEventButton"  ); button.hidden = false; button.addEventListener("click", this.save.bind(this));
       button = this.shadow.getElementById("deleteEventButton"); button.hidden = false; button.addEventListener("click", this.event_delete.bind(this));
 
-  this.dialog.show_modal();   // make popup vissible
+  app.sfc_dialog.show_modal();   // make popup vissible
   this.data2form(pk);   // load data
 }
 
@@ -483,7 +480,7 @@ addNewRepeatMonthy(  // calendar_edit_class  client-side
     <option value="5">          Friday   </option>
     <option value="6">          Saturday </option>
   </select>
-  <a onclick="app.page.edit.removeMonthlySelector(this)" class="removeMonthlySelectorButton">-</a>
+  <a onclick="app.edit.removeMonthlySelector(this)" class="removeMonthlySelectorButton">-</a>
 </div>
 `
 }
@@ -500,5 +497,3 @@ removeMonthlySelector(  // calendar_edit_class  client-side
 }
 
 } // calendar_edit_class client-side  -end class
-
-export {calendar_edit_class} 

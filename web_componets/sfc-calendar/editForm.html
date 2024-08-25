@@ -20,14 +20,14 @@
   <div class="section">
     End:
     <label>Date <input id="end_date" type="date"/> </label>
-    <label>Time <input id="end_time" type="time" onblur="app.page.edit.end_time_changed()"/></label>
+    <label>Time <input id="end_time" type="time" onblur="app.edit.end_time_changed()"/></label>
   </div>
 
 
   <div class="section">
     <label>Duration: 
-    <input id="duration_hours"   type="number" min="0" max="23" onblur="app.page.edit.duration_changed()"/>:
-    <input id="duration_minutes" type="number" min="0" max="59" onblur="app.page.edit.duration_changed()"/>
+    <input id="duration_hours"   type="number" min="0" max="23" onblur="app.edit.duration_changed()"/>:
+    <input id="duration_minutes" type="number" min="0" max="59" onblur="app.edit.duration_changed()"/>
     </label>
 
     <label>Time Zone: 
@@ -42,7 +42,7 @@
 
   <div class="section">
     <label>Repeats: 
-    <select id="repeat" onChange="app.page.edit.renderEndDateSelector()">
+    <select id="repeat" onChange="app.edit.renderEndDateSelector()">
       <option value="never" selected>Never</option>
       <option value="weekly" >Weekly </option>
       <option value="monthly">Monthly</option>
@@ -56,7 +56,7 @@
   <div id="monthly_repeat" class="section">
     <div class="monthlyRepeatsLabel">
       <label>Repeats On:</label>
-      <a class="addNewRepeatMonthly" onClick="app.page.edit.addNewRepeatMonthy()">+</a>
+      <a class="addNewRepeatMonthly" onClick="app.edit.addNewRepeatMonthy()">+</a>
     </div>
   </div>
 

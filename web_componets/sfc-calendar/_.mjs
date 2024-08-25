@@ -153,8 +153,6 @@ event_display(  // calendar_class - client-side
   //const dialog = this.shadow.getElementById("dialog");
   app.sfc_dialog.title_set(`<b>${event.name}</b>`);
   app.sfc_dialog.body_set( `${description}<br><br>${link}`);
-
-  //dialog.buttons_set(`<button onclick="app.page.edit.closeForm();">Close</button>`);
   app.sfc_dialog.show_modal();
 }
 

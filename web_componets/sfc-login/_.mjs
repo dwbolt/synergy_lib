@@ -3,6 +3,7 @@ import  {sfc_dialog     }   from '/_lib/web_componets/sfc-dialog/_.mjs'  ;
 
 export class sfc_login extends sfc_dialog { // sfc_login - client side
 
+
 constructor() {  // sfc_login - client side
 	// constructor is called when the element is displayed
 	super();  // will create this.shadow
@@ -56,7 +57,8 @@ async pwd_change() { // sfc_login - client side
   }
 
 
-async login_status_update() {
+async login_status_update(       // sfc_login - client side
+) {
 	let logInOut,loginState;
   
 	// get login State
@@ -75,7 +77,8 @@ async login_status_update() {
 }
 
 
-async show_login(){
+async show_login(     // sfc_login - client side
+){
 	this.body_set(`
 Username: <input id='user_name'> <br/>
 Password: <input id='password'  type='password'> enter or return key will attempt login<br/>
@@ -160,7 +163,7 @@ async login_out(  // sfc_login - client side
   }
 
 
-async logout( // loginClass - client side
+async logout(            // sfc_login - client side
   ) {
 	// ask server to logout
 	const msg = `{
@@ -194,6 +197,7 @@ on_enter( // sfc_login - client side
 		}
   }
 
+  
   async getStatus( // sfc_login - client side
   ){
 	// ask server still logged in
