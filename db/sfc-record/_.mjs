@@ -217,7 +217,7 @@ async save( // client side sfc_record_class - for a page
 ) {
   // user clicked save or add record
   // save to change file
-  const obj    = this.form_read(this.table);    // move data from form to obj
+  const obj    = this.form_read();    // move data from form to obj
 
   const prior_key = this.#primary_key_value;
   const msg = await this.table.save(obj);
@@ -245,11 +245,10 @@ msg.message="${msg.message}"`);
 
 
 form_read( // client side sfc_record_class - for a page
-    table  // 
 ){
   const obj         = {};
-  const fields_list = table.meta_get("select");
-  const fields_meta = table.meta_get("fields");
+  const fields_list = this.table.meta_get("select");
+  const fields_meta = this.table.meta_get("fields");
 
   for(let i=0; i<fields_list.length; i++) {
       let field_name = fields_list[i]

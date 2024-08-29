@@ -60,15 +60,11 @@ async page_display(  // appClass - client side
 async page_display_my(  // appClass - client side
 	page_name
 ) {
-	// make sure user is logged in
-	if (await this.sfc_login.getStatus()) {
+	if ( await app.sfc_login.login_force( this.page_display_my.bind(this,page_name) )) {
 		// user is logged in
 		const url_dir = `/users/my_synergy_pages/${page_name}/`
 		await this.page_display_url(page_name, url_dir);
-	} else {
-		// user is not logged in
-		this.sfc_login.show_modal(); 
-	}
+  }
 }
 
 

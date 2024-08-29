@@ -38,19 +38,19 @@ body_set(html){    // sfc_dialog- client side
 
 show() {      // sfc_dialog- client side
 	this.dialog.className = "";      // we do not want it to popup
-	this.shadow.getElementById("dialog").show();
+	this.dialog.show();
 }
 
 
 show_modal() { // sfc_dialog- client side
 	this.dialog.className = "popup";      // we do not want it to popup
 	this.close();       // close dialog if open
-	this.shadow.getElementById("dialog").showModal();
+	this.dialog.showModal();
 }
 
 
 close(){ // sfc_dialog- client side
-	this.shadow.getElementById("dialog").close();
+	this.dialog.close();
 }
 
 

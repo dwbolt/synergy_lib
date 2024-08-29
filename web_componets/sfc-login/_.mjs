@@ -101,6 +101,19 @@ Password: <input id='password'  type='password'> enter or return key will attemp
 }
 
 
+async login_force( callback ) {   // sfc_login - client side
+	// prompt user to login if they are not logged in
+	if (await this.getStatus() ) {
+		// already logged in, no need to do anything
+		return true;
+	} else {
+		// prompt user to logint
+		this.loginTrue = callback;  // will call function, if login is successfull
+		this.show_login();	
+	}
+}
+
+
 async login_out(  // sfc_login - client side
   ) {
 	// get user credentials from web page
@@ -141,16 +154,17 @@ async login_out(  // sfc_login - client side
 	if (serverResponse.msg) {
 		// login worked
 		// this instance will go away when a new page loads, so save info in localStorage
-		localStorage.user      = user;
+		localStorage.user        = user;
 		sessionStorage.user      = user;
-		localStorage.nameFirst = serverResponse.nameFirst;
+		localStorage.nameFirst   = serverResponse.nameFirst;
 		sessionStorage.nameFirst = serverResponse.nameFirst;
-		localStorage.nameLast  = serverResponse.nameLast;
+		localStorage.nameLast    = serverResponse.nameLast;
 		sessionStorage.nameLast  = serverResponse.nameLast;
 
 		if (typeof(this.loginTrue) === "function") {
 			// call application login true function
-			this.loginTrue(msg);
+			this.loginTrue();
+			this.close();        // close login dialog box hid 
 		}
 	} else {
 		// login failed
