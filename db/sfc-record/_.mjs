@@ -1,6 +1,6 @@
 // <sfc-record> web component.  Displays one table record. allows add,edit,delete and moveing to stack
 
-class sfc_record_class extends HTMLElement { // sfc_record_class - client-side
+export class sfc_record_class extends HTMLElement { // sfc_record_class - client-side
 
 #primary_key_value  // can these be moved from tableUxClass
 
@@ -36,6 +36,10 @@ constructor( // sfc_record_class - client-side
   this.shadow.getElementById("buttons").addEventListener('click', this.click.bind(this));
 }
 
+
+table_viewer_set(viewer){
+  this.table_viewer = viewer;
+}
 
 table_set(  // sfc_record_class - client-side
   model // table class where data lives
@@ -127,11 +131,19 @@ form_create( // client side sfc_record_class - for a page
   ,fields_meta
   ,fields_list
 ){
+  // add html
   let html = ``;
   for(let i=0; i<fields_list.length; i++) {
       html += this.form_add(fields_meta, fields_list[i],i);
   }
   element.innerHTML = html;
+
+  //add validation
+/*
+onfocusout="app.money_validate(this)"> 
+onfocusout="app.integer_validate(this)"
+onfocusout="app.float_validate(  this)"
+*/
 }
 
 
@@ -146,18 +158,26 @@ form_add( // client side sfc_record_class - for a page
 
   case "pk"       : return `${html} <div><input    id="${field_name}" type="text" readonly></div>`;
   case "text"     : return `${html} <div><input    id="${field_name}" type="text">    </div>`;
-  case "json"     : case   "html" :
-  case "textarea" : return `${html} <div><textarea id="${field_name}" rows="5"></textarea>     </div>`;
-  case "integer"  : return `${html} <div><input    id="${field_name}" type="number" onfocusout="app.integer_validate(this)">  </div>`;
-  case "float"    : return `${html} <div><input    id="${field_name}" type="number" onfocusout="app.float_validate(  this)">  </div>`;
-  case "date"     : return `${html} <div><input    id="${field_name}" type="date">    </div>`;
-  case "date-time": return `${html} <div><input    id="${field_name}" type="date"> <input id="${field_name}_time" type="time"> </div>`;
+  case "json"     : 
+  case "html"     :
+  case "textarea" : return `${html} <div><textarea id="${field_name}" rows="5"></textarea>  </div>`;
+  case "money"    : return `${html} <div><input    id="${field_name}" type="number"  > </div>`;
+  case "integer"  : return `${html} <div><input    id="${field_name}" type="number"  > </div>`;
+  case "float"    : return `${html} <div><input    id="${field_name}" type="number"  > </div>`;
+  case "date"     : return `${html} <div><input    id="${field_name}" type="date"    > </div>`;
+  case "date-time": return `${html} <div><input    id="${field_name}" type="date"    > <input id="${field_name}_time" type="time"> </div>`;
   case "boolean"  : return `${html} <div><input    id="${field_name}" type="checkbox"></div>`;
   case "relation" : return `${html} <div><relation needs work`;
 
-  default         :  return `${html} <div>field.type=${field.type} field_name="${field_name} not handeld</div>`;
+  default         :  return `${html} <div>field.type=${field.type} field_name="${field_name} not handeld in sfc-record </div>`;
   }
 }
+
+money_validate(
+  element) {
+  
+}
+
 
 
 form_write(  // client side sfc_record_class - for a page
@@ -225,14 +245,14 @@ async save( // client side sfc_record_class - for a page
     this.#primary_key_value = obj.pk;
     if (prior_key != this.#primary_key_value) {
       // added a new record, update tableUX PK list
-      this.tableUX.display(); // will update pk display list
+      this.table_viewer.display(); // will update pk display list
       if (this.dom_id === "relation_record") {
         // update relation index
         app.page.relation.pk_index(obj.pk);
       }
     } else {
       // updated an existing record
-      this.tableUX.displayData();
+      thist.table_viewer.displayData();
     }
     this.show();          // display record with new data
     } else {
@@ -272,6 +292,7 @@ form_value( // client side sfc_record_class
   switch (field.type) {
   case "pk": case "float": case "integer" : case "text"    : case "html" :
   case "textarea": value = this.shadow.getElementById(dom).value; break;
+  case "money"   : value = this.shadow.getElementById(dom).value; break;
 
   case "date"    : 
       date = this.shadow.getElementById(`${dom}`).value.split("-");
@@ -355,13 +376,11 @@ recordDuplicate(){// client side sfc_record_class - for a page
 
 delete(){// client side sfc_record_class - for a page
   this.table.delete({"pk": this.#primary_key_value});  // delete row from data
-  this.tableUX.display();                              // redisplay data
+  thist.table_viewer.display();                              // redisplay data
   this.clear();                                        // hide record form since it record is delted
 }
 
 
 } // sfc_record_class - client-side //  end
 
-
-export {sfc_record_class};
 customElements.define("sfc-record", sfc_record_class); 

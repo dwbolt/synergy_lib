@@ -540,6 +540,10 @@ get_object( // table_class - client-side
           value = this.columns[field_name][id];  // maybe undefined
           if ( "string pk json text textarea float integer date-time date".includes(field.type) ) {
              // value is already set, do not want to trigger the alert below
+          } else if (field.type === "money") {
+            if (value !== undefined) {
+            // convert pennies to  $xx,xxx.xx
+            }
           } else {
             alert(`file="table_module"
 method="get_object"

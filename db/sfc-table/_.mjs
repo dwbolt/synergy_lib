@@ -12,6 +12,7 @@ assumes <sfc-dialog id='dialog'></sfc-dialog> is in dom
 
 import {groupByClass       } from '/_lib/db/groupBy_module.js'      ;
 import {table_class        } from '/_lib/db/table_module.js'        ;
+import {formatClass        } from '/_lib/format/_.mjs'              ;
 
 // web componets
 import {sfc_record_class} from '/_lib/db/sfc-record/_.mjs'           ;  // <sfc-record>
@@ -27,6 +28,7 @@ constructor(   // sfc_table_class - client-side
 	super();  // call parent constructor 
 
   // data
+  this.format            = new formatClass();
   this.searchVisible     = true; // display boxes to put search criteria in
   this.statusLineData    = ["tableName","nextPrev","rows","firstLast","rows/page"]; //,"groupBy","download","tags"
   this.lineNumberVisible = true;
@@ -610,7 +612,15 @@ formatTransform( // sfc_table_class - client-side
   , i     // column number
 ){
   let html = "";
-  let show;
+
+  switch (this.model.get_field(i,"type") ) {
+    case "html" :  html = value                                                   ; break;
+    case "money":  html = `<div align="right">${this.format.money(value)}</div>`  ; break;
+    default     :  html = `<div>${value}</div>`                                   ; break;
+  }
+
+  return html;
+  /*
   if (this.columnTransform[i]) {
     show = this.columnTransform[i](value); //  convert pennys to dollars for example
   } else {
@@ -628,8 +638,8 @@ formatTransform( // sfc_table_class - client-side
   } else {
     html += `<div ${format}>${show}</div>`;   // display raw data
   }
+*/
 
-  return html;
 }
 
 
