@@ -396,6 +396,7 @@ msg="${JSON.stringify(msg)}"`);
 
   // walk through change file and apply changes
   let start =0;
+  this.field_names = undefined; // assume fields are not defined
   while(start < log.length) {  // last caracter in file is \n, do not process
     let obj,str;
     let end = log.indexOf("\n", start);
@@ -419,6 +420,10 @@ JSON.parse(str) failed
 
       case "h":  // header
         this.meta_from_header(obj)
+        break;    
+
+      case "f":  // field  names
+        this.field_names = obj;  // 
         break;    
 
       default:
@@ -485,7 +490,8 @@ append(  // table_class - client-side
   const pk = this.meta.PK_max;
   this.set_value(pk,"pk",pk);                    // add the pk
   for(let i=2; i<record.length; i++) {  // s
-    this.set_value(pk,(i-2).toString(),record[i]);  // add remainder of record
+    let field_name = (this.field_names ? this.field_names[i]: (i-2).toString())
+    this.set_value(pk, field_name, record[i]);  // add remainder of record
   }
 }
 
