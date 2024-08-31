@@ -1,4 +1,4 @@
-class sfc_db_tables_class extends HTMLElement { // <sfc-db-tables>  web component
+export class sfc_db_tables_class extends HTMLElement { // <sfc-db-tables>  web component
 /*
 <sfc-db-tables>  web component
 
@@ -22,7 +22,7 @@ db_set(  // sfc_db_tables_class - client side
     // add <sfc-table> for each table in the database
     let html = "";
     Object.keys(this.db.tables).forEach((table_name, i) => {
-        html += `<sfc-table  id="${table_name}" hidden></sfc-table>` // create a place to disoplay each table in database
+        html += `<sfc-table  id="${table_name}" hidden></sfc-table>` // create a place to display each table in database
     });
     this.shadow.innerHTML = html;  // add to shadowdom
 
@@ -47,6 +47,4 @@ show(table_name) {  // sfc_db_tables_class - client side
 
 } // end sfc_db_tables_class
 
-
-export { sfc_db_tables_class };
 customElements.define("sfc-db-tables", sfc_db_tables_class); 

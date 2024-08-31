@@ -5,13 +5,13 @@
 contains one <sfc-table> for each table in the database
 
 displays relations for one record in table
-hide tables that have not relation
+hide tables that are not part of relation
 
 */
 
 import {sfc_db_tables_class}  from '/_lib/db/sfc-db-tables/_.mjs'              ;  // <sfc-db-tables>
 
-class sfc_record_relations_class extends sfc_db_tables_class { 
+export class sfc_record_relations_class extends sfc_db_tables_class { 
 /*
 creates a <sfc-table> for each table in database to be used to display relations assocaited with a record
 */
@@ -46,6 +46,7 @@ db_set( // sfc_record_relations_class - client side
     ,"tableN":{...}
   }
 */
+
 
 	this.relations = app.page.db.getTable("relations");
 	if (this.relations === undefined) {
@@ -179,6 +180,4 @@ show(   // sfc_record_relations_class - client side
 
 } // end sfc_db_tables_class
 
-
-export { sfc_record_relations_class };
 customElements.define("sfc-record-relations", sfc_record_relations_class); 

@@ -74,6 +74,11 @@ async login_status_update(       // sfc_login - client side
 	
 	this.button_login_out.innerHTML = logInOut  ;  // update button
 	this.title_set(loginState);  // update message
+
+	const login_status = document.getElementById("login_status");
+	if (login_status) {
+		login_status.innerHTML = this.displayUser();
+	}
 }
 
 

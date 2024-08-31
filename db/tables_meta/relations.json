@@ -5,6 +5,7 @@
 
 ,"fields":{
     "pk"        : {"header":"PK"         ,"type":"pk"    , "location":"column"}
+    ,"status"   : {"header":"Status"     ,"type":"text"  , "location":"column", "help":"active,inactive"}
 
     ,"pk_1"     : {"header":"PK 1"       ,"type":"text", "location":"column"}
     ,"table_1"  : {"header":"Table 1"    ,"type":"text", "location":"column"}
@@ -17,6 +18,6 @@
     ,"table_2"  : {"header":"Table 2"    ,"type":"text" ,"location":"column"}
 }
 
-,"select":["pk","pk_1","table_1","direction","relation","comment","pk_2","table_2"]
+,"select":["pk","status","pk_1","table_1","direction","relation","comment","pk_2","table_2"]
 ,"PK_max" :0
 }

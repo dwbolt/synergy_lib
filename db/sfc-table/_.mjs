@@ -57,8 +57,10 @@ constructor(   // sfc_table_class - client-side
   // add content to shadow dom
   this.shadow.innerHTML =  `
   <link href="/_lib/db/sfc-table/_.css" rel="stylesheet">
+  <br>
   <div        id="status" style="text-align:left; margin-bottom:10px"></div>
   <div        id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
+  <br>
 `
 
   this.shadow.getElementById('table').addEventListener('click', this.record_show.bind(this));

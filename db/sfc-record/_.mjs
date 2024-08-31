@@ -245,14 +245,14 @@ async save( // client side sfc_record_class - for a page
     this.#primary_key_value = obj.pk;
     if (prior_key != this.#primary_key_value) {
       // added a new record, update tableUX PK list
-      this.table_viewer.display(); // will update pk display list
+      this.table_viewer && this.table_viewer.display(); // will update pk display list
       if (this.dom_id === "relation_record") {
         // update relation index
         app.page.relation.pk_index(obj.pk);
       }
     } else {
       // updated an existing record
-      thist.table_viewer.displayData();
+      this.table_viewer && this.table_viewer.displayData();
     }
     this.show();          // display record with new data
     } else {
