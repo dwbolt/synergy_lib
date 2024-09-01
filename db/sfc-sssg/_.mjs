@@ -13,11 +13,11 @@ Search, Select, Sort, Group
 //import {sfc_record_class} from '/_lib/db/sfc-record/_.mjs'           ;  // <sfc-record>
 
 
-export class sfc_sssg  extends HTMLElement { // sfc_table_class - client-side
+export class sfc_sssg  extends HTMLElement { // sfc_sssg - client-side
   // web componet to display table
 
 
-constructor(   // sfc_table_class - client-side
+constructor(   // sfc_sssg - client-side
   // constructor is called when the element is displayed
 ) {
 	super();  // call parent constructor 
@@ -32,22 +32,18 @@ constructor(   // sfc_table_class - client-side
 
   <div>
     <div id="search_tab" >
-    <h3>Search</h3>
-    <sfc-select-order id=""search></sfc-select-order>
+    <sfc-select-order id="search"></sfc-select-order>
     </div>
 
     <div id="select_tab" style="display: none;">
-    <h3>Select</h3>
     <sfc-select-order id="select"></sfc-select-order>
     </div>
 
     <div id="sort_tab" style="display: none;">
-    <h3>Sort</h3>
     <sfc-select-order id="sort"></sfc-select-order>
     </div>
 
     <div id="group_tab" style="display: none;">
-    <h3>Group</h3>
     <sfc-select-order id="group"></sfc-select-order>
     </div>
   </div>
@@ -55,8 +51,8 @@ constructor(   // sfc_table_class - client-side
 `
   this.tab = "search";   // start with search tab selected
 
-  this.select     = this.shadow.querySelector("select");              // get first <select>
-  this.select.addEventListener('change', this.show_tab.bind(this));   // add change event hander
+  this.main_select     = this.shadow.querySelector("select");              // get first <select>
+  this.main_select.addEventListener('change', this.show_tab.bind(this));   // add change event hander
 
   // load the select with all the fields
   ["search","select","sort","group"].forEach(item => {
@@ -66,27 +62,34 @@ constructor(   // sfc_table_class - client-side
 }
 
 
-connectedCallback() { // sfc_table_class - client-side
+connectedCallback() { // sfc_sssg - client-side
 }
 
-load(
+
+load(   // sfc_sssg - client-side
   name // name of tab
 ){
-  const s = ( name === this.tab ? " selected" : "")           ; // set select option
-  this.select.innerHTML += `<option${s}>${name}</option>`     ; // allow user to select
-  this[name]        = this.shadow.getElementById(name        ); // remember the <sfc-select-order> web componets
-  this[name+"_tab"] = this.shadow.getElementById(name+"_tab "); // remember the tabs
+  const s                     = ( name === this.tab ? " selected" : ""); // set select option
+  this.main_select.innerHTML += `<option${s}>${name}</option>`         ; // add option to select
+  this[name]                  = this.shadow.getElementById(name       ); // remember the <sfc-select-order> web componets
+  this[name+"_tab"]           = this.shadow.getElementById(name+"_tab"); // remember the tabs
 
-  this[name].  // load up choices with fields names
+  this[name].title_set(`<h3>${name}</h3>`)  // load up choices with fields names
+  const a =[
+    ["f1","xx"]
+    ,["f2","x2x"]
+  ]
+  this[name].choices_add(a);
 }
 
-show_tab( // sfc_table_class - client-side
+
+show_tab( // sfc_sssg - client-side
 ){
   // hide current tab
   this[`${this.tab}_tab`].style.display = "none";
 
   // show tab clicked on
-  this.tab = this.select.value;
+  this.tab = this.main_select.value;
   this[`${this.tab}_tab`].style.display = "block";
 }
 
