@@ -2,7 +2,7 @@ export class sfc_select_order  extends HTMLElement {
 
 /*
 input -  [
-	[value,display,comment]
+	[display, object]   value is array index
 	....
 ]
 
@@ -47,17 +47,10 @@ constructor( // sfc_select_order - client side
 
 	this.choices   = this.shadow.getElementById("choices")   ; this.choices .addEventListener('click', this.choices_click.bind(  this));
 	this.selected  = this.shadow.getElementById("selected")  ; this.selected.addEventListener('click', this.buttons_disable.bind(this));
-	this.buttons   = this.shadow.getElementById("button_box"); this.buttons.addEventListener( 'click', this.button_click.bind(   this));
-	this.narrow    = this.shadow.getElementById("narrow"    ); this.narrow.addEventListener(  'keyup', this.choices_html.bind(   this));
+	this.buttons   = this.shadow.getElementById("button_box");  this.buttons.addEventListener('click', this.button_click.bind(   this));
+	this.narrow    = this.shadow.getElementById("narrow"    );   this.narrow.addEventListener('keyup', this.choices_html.bind(   this));
 
-	this.multi = true;
-}
-
-
-narrow_keyup(){
-	// change choices bassed on what was typed in
-	
-
+	this.multi = true;  // default is display multi value
 }
 
 
@@ -69,6 +62,7 @@ title_set(html) {  // sfc_select_order - client side
 	this.shadow.getElementById("title").innerHTML = html;
 }
 
+
 display(){  // sfc_select_order - client side
 	this.choices_display();
 }
@@ -79,16 +73,18 @@ toggle(id) {
 	switch (id) {
 	case "multi" : this.multi = !this.multi; this.multi_display()   ; return;
 	case "button": element= this.shadow.getElementById("button_box"); break ;
-	case "narraw": element= this.shadow.getElementById(id)          ; break ;
+	case "narrow": element= this.shadow.getElementById(id)          ; break ;
 	default      : alert(`error id=${id} case not handdled`)        ; return;
 	}
 	element.hidden = !element.hidden;
 }
 
+
 multi_set(value){
 	this.multi = value;
 	this.shadow.getElementById("selected_box").hidden = !value;  // hide or show 
 }
+
 
 multi_display(){// sfc_select_order - client side
 	this.shadow.getElementById("selected_box").hidden = !this.multi;
@@ -109,18 +105,20 @@ choices_add(  // sfc_select_order - client side
 
 
 choices_html(){
-	// rray has changed - rebuild choices html
+	// array has changed - rebuild choices html
 	let html = "";
 	const selected     = this.selected_return(); // will be [] if multi = false
-	const record_table = (app.page.stack_record.table ? app.page.stack_record.table.name : "");  // name of table
-	const record_pk    = app.page.stack_record.get_pk();    // pk
+// all referecs to app.page need to be moved to methed in /apps/database/pages/database/_.mjs
+//	const record_table = (app.page.stack_record.table ? app.page.stack_record.table.name : "");  // name of table
+//	const record_pk    = app.page.stack_record.get_pk();    // pk
 
 	for(let i=0; i<this.choices_array.length; i++) {
 		if ( !selected.includes(i.toString()) ) {   // only add things not already selected
 		    let display = this.choices_array[i][0]; // what users sees in list box
 			if (display.includes(this.narrow.value) ) { // only add things that meet narrow search criteria  
 				// select if record is displayed in stack
-				let sel = ( (record_table === this.choices_array[i][1] && record_pk === this.choices_array[i][2] ) ?  "selected": "")                 
+//				let sel = ( (record_table === this.choices_array[i][1] && record_pk === this.choices_array[i][2] ) ?  "selected": "")                 
+				let sel = "" // 
 				html += `<option value="${i}" ${sel}>${display}</option>`; // store choice in object
 			}
 		}

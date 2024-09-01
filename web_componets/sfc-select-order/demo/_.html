@@ -7,12 +7,14 @@
 	<body>
 	<h1>select-order web-componet Demo</h1>
 	<button onclick="app.toggle('multi' )">toggle multi select</button> 
-	<button onclick="app.toggle('button'  )">toggle buttons</button>
-	<button onclick="app.toggle('narrow'  )">toggle narrow</button>
+	<button onclick="app.toggle('button')">toggle buttons</button>
+	<button onclick="app.toggle('narrow')">toggle narrow</button>
 	<br><br>
 	<button onclick="app.selected_show()"   >show user selected</button> 
 
 	<sfc-select-order id="select-order"></sfc-select-order>
+
+	<h2>show selected:</h2>
 	<p id="msg"></p>
 	</body>
 </html>
@@ -32,31 +34,32 @@ class app_class { // client side app_class
 
 constructor() {  // client side app_class
 	this.select_order = document.getElementById("select-order");  // get web-componet
-	this.msg          = document.getElementById("msg");
+	this.msg          = document.getElementById("msg");           // msg dom
 	this.choices = [
-	 ["build"   , "tasks" , "red"]
-	,["john"    , "people", "red"]
-	,["birthday", "event" , "red"]
+	 ["tasks-r"    , {"red":"stuf", "object":"example"}]
+	,["John-r"     , "red"]
+	,["birthday-r" , "red"]
 
-	,["build"   , "tasks" ,"white"]
-	,["john"    , "people","white"]
-	,["birthday", "event" ,"white"]
+	,["tasks-w"    ,"white"]
+	,["john-w"     ,"white"]
+	,["birthday-w" ,"white"]
 
-	,["build"   , "tasks" ,"blue"]
-	,["john"    , "people","blue"]
-	,["birthday", "event" ,"blue"]
+	,["build-b"    ,"blue"]
+	,["john-b"     ,"blue"]
+	,["birthday-b" ,"blue"]
 
-	,["build"   , "tasks" ,"green"]
-	,["john"    , "people","green"]
-	,["birthday", "event" ,"green"]
+	,["build-g"    ,"green"]
+	,["john-g"     ,"green"]
+	,["birthday-g" ,"green"]
 	];
+}
 
+init(){
 	this.select_order.choices_add(this.choices);
 	this.select_order.title_set("<h2>In select order web component</h2>")
 
 	// overite custom click
 	this.select_order.choices_click_custom = this.choices_click_custom.bind(this);
-
 }
 
 
@@ -75,13 +78,14 @@ selected_show() {// client side app_class
 	let msg = ""
 	const sel = this.select_order.selected_return();
 	for(let i=0; i<sel.length; i++) {
-		msg += JSON.stringify(this.choices[sel[i]])+"\n";
+		msg += JSON.stringify(this.choices[sel[i]])+"<br>";
 	};
-	alert(msg);
+	this.msg.innerHTML = msg;
 }
 
 } // end client side app_class
 
 app = new app_class();  
+app.init();
 
 </script>
