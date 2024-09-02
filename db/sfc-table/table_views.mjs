@@ -1,53 +1,24 @@
 /*
 
-<sfc-ssss> web compont
+allows user to define, name and save table views
 
-Search, Select, Sort, Group
+filter(search),  select fileds and order to display, Sort, Group
+export csv and njs files
 
 */
 
-//import {groupByClass       } from '/_lib/db/groupBy_module.js'      ;
+
+export class table_views { // table_views - client-side
 
 
-// web componets
-//import {sfc_record_class} from '/_lib/db/sfc-record/_.mjs'           ;  // <sfc-record>
-
-
-export class sfc_sssg  extends HTMLElement { // sfc_sssg - client-side
-  // web componet to display table
-
-
-constructor(   // sfc_sssg - client-side
+constructor(   // table_views - client-side
   // constructor is called when the element is displayed
 ) {
-	super();  // call parent constructor 
-
   // create a shadow dom                           
   this.shadow = this.attachShadow({ mode: "closed" });  
   // add content to shadow dom
   this.shadow.innerHTML =  `
-<div style="display: flex; flex-direction: row;">
-  <select size="5" style="margin-right: 2em;">
-  </select>  
 
-  <div>
-    <div id="search_tab" >
-    <sfc-select-order id="search"></sfc-select-order>
-    </div>
-
-    <div id="select_tab" style="display: none;">
-    <sfc-select-order id="select"></sfc-select-order>
-    </div>
-
-    <div id="sort_tab" style="display: none;">
-    <sfc-select-order id="sort"></sfc-select-order>
-    </div>
-
-    <div id="group_tab" style="display: none;">
-    <sfc-select-order id="group"></sfc-select-order>
-    </div>
-  </div>
-<div>
 `
   this.tab = "search";   // start with search tab selected
 
@@ -62,11 +33,11 @@ constructor(   // sfc_sssg - client-side
 }
 
 
-connectedCallback() { // sfc_sssg - client-side
+connectedCallback() { // table_views - client-side
 }
 
 
-load(   // sfc_sssg - client-side
+load(   // table_views - client-side
   name // name of tab
 ){
   const s                     = ( name === this.tab ? " selected" : ""); // set select option
@@ -83,7 +54,7 @@ load(   // sfc_sssg - client-side
 }
 
 
-show_tab( // sfc_sssg - client-side
+show_tab( // table_views - client-side
 ){
   // hide current tab
   this[`${this.tab}_tab`].style.display = "none";
@@ -94,7 +65,4 @@ show_tab( // sfc_sssg - client-side
 }
 
 
-} // sfc_ssss - client-side //  end
-
-
-customElements.define("sfc-sssg", sfc_sssg); 
+} // table_views - client-side //  end

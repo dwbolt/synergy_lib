@@ -14,6 +14,10 @@ import {groupByClass       } from '/_lib/db/groupBy_module.js'      ;
 import {table_class        } from '/_lib/db/table_module.js'        ;
 import {formatClass        } from '/_lib/format/_.mjs'              ;
 
+// helper class
+import {table_views     } from '/_lib/db/sfc-table/table_views.mjs'; // 
+
+
 // web componets
 import {sfc_record_class} from '/_lib/db/sfc-record/_.mjs'           ;  // <sfc-record>
 
@@ -30,7 +34,7 @@ constructor(   // sfc_table_class - client-side
   // data
   this.format            = new formatClass();
   this.searchVisible     = true; // display boxes to put search criteria in
-  this.statusLineData    = ["tableName","nextPrev","rows","firstLast","rows/page"]; //,"groupBy","download","tags"
+  this.statusLineData    = ["tableName","nextPrev","rows","firstLast","rows/page","views"]; 
   this.lineNumberVisible = true;
   this.rowNumberVisible  = true
   this.columnFormat      = [];  // array of td attributes, one for each column
@@ -56,14 +60,39 @@ constructor(   // sfc_table_class - client-side
   this.shadow = this.attachShadow({ mode: "closed" });  
   // add content to shadow dom
   this.shadow.innerHTML =  `
-  <link href="/_lib/db/sfc-table/_.css" rel="stylesheet">
-  <br>
-  <div        id="status" style="text-align:left; margin-bottom:10px"></div>
-  <div        id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
-  <br>
+<link href="/_lib/db/sfc-table/_.css" rel="stylesheet">
+<br>
+
+<div id="views" style="display: none;" >
+  <select size="5" style="margin-right: 2em;">
+  </select>  
+
+  <div>
+    <div id="search_tab" >
+    <sfc-select-order id="search"></sfc-select-order>
+    </div>
+
+    <div id="select_tab" style="display: none;">
+    <sfc-select-order id="select"></sfc-select-order>
+    </div>
+
+    <div id="sort_tab" style="display: none;">
+    <sfc-select-order id="sort"></sfc-select-order>
+    </div>
+
+    <div id="group_tab" style="display: none;">
+    <sfc-select-order id="group"></sfc-select-order>
+    </div>
+  </div>
+<div>
+
+<div        id="status" style="text-align:left; margin-bottom:10px"></div>
+<div        id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
+<br>
 `
 
   this.shadow.getElementById('table').addEventListener('click', this.record_show.bind(this));
+  this.views = this.shadow.getElementById('views');
 }
 
 
@@ -451,6 +480,12 @@ statusLine(   // sfc_table_class - client-side
         html += `rows/page: <input id="rows_per_page" type="number" min="1" max="999" value="${this.paging.lines}"/>`
         e_l.push(["rows_per_page", "change", this.change_page_size]); //
         break;
+      case "views":
+        html += `<button id="views">Views</button>`
+        e_l.push(["views", "click", this.views_toggle]); //
+        break;
+
+// move download & groupby to views
       case "download":
         html += `<input type="button" onclick="${this.globalName}.export()" value="Download CSV"/> <a id='download_link'></a>`
         break;
@@ -469,12 +504,20 @@ statusLine(   // sfc_table_class - client-side
   // add to html to DOM
   this.shadow.getElementById("status").innerHTML = html;
 
+  // add addEventListener for each UI element in the status div
   for(let i=0; i<e_l.length; i++) {
-    // add addEventListener for each UI element in the status div
     const el = e_l[i];
     this.shadow.getElementById(el[0]).addEventListener(el[1], el[2].bind(this));
   }
-    
+}
+
+
+views_toggle(){  // sfc_table_class - client-side
+  if (this.views.style.display === "none") {
+    this.views.style.display  = "flex";
+  } else { 
+    this.views.style.display = "none";
+  }
 }
 
 
