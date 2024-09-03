@@ -2,7 +2,6 @@
 <head>
 <title>Proxy</title>
 <link rel="stylesheet" href="/app.css">
-<script type="text/javascript" src="lib.js"></script>
 </head>
 
 <body>
@@ -25,8 +24,20 @@
 </html>
 
 <script>
-const app = new proxyClass();
+let app = {}
+</script>
 
+<script type="module">
+import  {proxy     }   from '../_.mjs'  ;
+
+let msg = await proxy.rest_get("https://synergy_local.sfcknox.org/apps/database/index.html");
+if (msg.ok) {
+  alert(msg.value);
+}
+
+</script>
+
+<script>
 async function getURL() {
   let url = document.getElementById("url").value;
 
@@ -40,8 +51,10 @@ async function getURL() {
   */
 }
 
+/*
 function getField(table,fName) {
   return table.balance[0].indexOf(fName);
 }
+  */
 
 </script>

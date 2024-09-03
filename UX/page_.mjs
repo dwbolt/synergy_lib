@@ -1,4 +1,7 @@
 // page module should extend this class 
+
+import {proxy} from '/_lib/proxy/_.mjs' ;
+
 export class page_ { // sfcknox2/pages/home
 
 constructor(  // class page_ - client side
@@ -79,7 +82,7 @@ return;
 		}
 		if ( this.json.load && this.json.load[list[i]] ) {
 			// load html from file
-			let msg =  await app.proxy.RESTget(`${this.json.url_dir}${this.json.load[list[i]]}` );
+			let msg =  await proxy.RESTget(`${this.json.url_dir}${this.json.load[list[i]]}` );
 			if (msg.ok) {
 				html += msg.value;
 			}

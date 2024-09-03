@@ -1,4 +1,4 @@
-import  {proxyClass   }   from '/_lib/proxy/_.mjs'  ;
+import  {proxy   }   from '/_lib/proxy/_.mjs'  ;
 
 class nodes2htmlClass {
 
@@ -43,7 +43,6 @@ constructor( // nodes2htmlClass - client-side
     this.timer;              // ?
     this.list ;              // ?
     this.selected;           // remember the button selected
-    this.proxy  = new proxyClass();
 }
 
 async displayList(list, html=""){  // nodes2htmlClass - client-side
@@ -190,7 +189,7 @@ async convertLine(  // nodes2htmlClass - client-side
       return "";
     case "load":
       // load external html
-      return await this.proxy.getText(line[2]);
+      return await proxy.getText(line[2]);
     case "redirect":
       // redirect to another page
       window.location.replace(line[2]);

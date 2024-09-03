@@ -1,4 +1,4 @@
-export class proxyClass { // proxyClass - client - side
+export class proxy { // proxyClass - client - side
 
 /*
 
@@ -19,7 +19,7 @@ Update - patch - only update new or changed fileds
 Delete. - delete
 */
 
-async RESTget(url) {   // proxyClass - client - side
+static async RESTget(url) {   // proxyClass - client - side
   try {
     const f = await fetch(url);
     if (f.ok) { // if HTTP-status is 200-299
@@ -38,7 +38,7 @@ async RESTget(url) {   // proxyClass - client - side
 }
 
 
-async RESTpost(   // proxyClass - client - side
+static async RESTpost(   // proxyClass - client - side
    buffer // create binary resource on server
   ,url = window.location.href // server, default to current server
 ) {
@@ -58,7 +58,7 @@ async RESTpost(   // proxyClass - client - side
   return await response.json();
 }
 
-async RESTput(   // proxyClass - client - side
+static async RESTput(   // proxyClass - client - side
    buffer // create binary resource on server
   ,url = window.location.href // server, default to current server
 ) {
@@ -79,7 +79,7 @@ async RESTput(   // proxyClass - client - side
 }
 
 
-async RESTpatch(   // proxyClass - client - side
+static async RESTpatch(   // proxyClass - client - side
    buffer // create binary resource on server
   ,url = window.location.href // server, default to current server
 ) {
@@ -101,7 +101,7 @@ async RESTpatch(   // proxyClass - client - side
 
 
 
-async RESTdelete(   // proxyClass - client - side
+static async RESTdelete(   // proxyClass - client - side
   url 
 ) {
   const response = await fetch(encodeURI(url), {
@@ -122,7 +122,7 @@ async RESTdelete(   // proxyClass - client - side
 
 ///////////////////////////////----------------------  replace these with rest api
 
-async postJSON(   // proxyClass - client - side
+static async postJSON(   // proxyClass - client - side
    json // json messege to send
   ,url = window.location.href // server, default to current server
 ) {
@@ -143,7 +143,7 @@ async postJSON(   // proxyClass - client - side
 }
 
 
-async getJSON(  // proxyClass - client - side
+static async getJSON(  // proxyClass - client - side
   url // location of json file
 ) {
     try {
@@ -168,7 +168,7 @@ error = ${e}`);
 }
 
 
-async getJSONwithError(  // proxyClass - client - side
+static async getJSONwithError(  // proxyClass - client - side
   url // location of json file
 ) {
     try {
@@ -186,7 +186,7 @@ async getJSONwithError(  // proxyClass - client - side
 }
 
 
-async getText(url) {   // proxyClass - client - side
+static async getText(url) {   // proxyClass - client - side
     try {
       const f = await fetch(url);
       if (f.ok) { // if HTTP-status is 200-299

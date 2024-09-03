@@ -1,5 +1,5 @@
-import  {proxyClass     }   from '/_lib/proxy/_.mjs'  ;
-import  {sfc_dialog     }   from '/_lib/web_componets/sfc-dialog/_.mjs'  ;
+import  {proxy     } from '/_lib/proxy/_.mjs'  ;
+import  {sfc_dialog} from '/_lib/web_componets/sfc-dialog/_.mjs'  ;
 
 export class sfc_login extends sfc_dialog { // sfc_login - client side
 
@@ -7,7 +7,6 @@ export class sfc_login extends sfc_dialog { // sfc_login - client side
 constructor() {  // sfc_login - client side
 	// constructor is called when the element is displayed
 	super();  // will create this.shadow
-	this.proxy  = new proxyClass();
 	this.title_set("Login");
 	/*
 	if (this.innerHTML === "user_add") {
@@ -46,7 +45,7 @@ async pwd_change() { // sfc_login - client side
 	  ,"pwdNew"     : "${pwdNew}"
 	}`
   
-	const serverResp = await this.proxy.postJSON(msg);
+	const serverResp = await proxy.postJSON(msg);
 	if (serverResp.msg) {
 	  // password changed
 	  alert("Password was sucessfully changed");
@@ -155,7 +154,7 @@ async login_out(  // sfc_login - client side
 	}`
   
 	// process server responce
-	const serverResponse = await this.proxy.postJSON(msg);
+	const serverResponse = await proxy.postJSON(msg);
 	if (serverResponse.msg) {
 		// login worked
 		// this instance will go away when a new page loads, so save info in localStorage
@@ -191,7 +190,7 @@ async logout(            // sfc_login - client side
 	}`
   
 	// process server responce
-	const serverResponse = await this.proxy.postJSON(msg);
+	const serverResponse = await proxy.postJSON(msg);
 	if (serverResponse.msg) {
 	  // log out worked on server side, all session information cleared
   
@@ -220,7 +219,7 @@ on_enter( // sfc_login - client side
   async getStatus( // sfc_login - client side
   ){
 	// ask server still logged in
-	const serverResponse = await this.proxy.postJSON(`{"server":"web", "msg":"logged_in"}`);
+	const serverResponse = await proxy.postJSON(`{"server":"web", "msg":"logged_in"}`);
 	return serverResponse.msg;  // true -> logged in 
   }
 

@@ -1,7 +1,6 @@
-import  {proxyClass     }   from '/_lib/proxy/_.mjs'  ;
-import  {formatClass    }   from '/_lib/format/_.mjs';
-import  {widgetListClass}   from '/_lib/UX/widgetList_module.js';
-//import  {calendarClass  }   from '/_lib/UX/calendar_module.js';
+import  {proxy          } from '/_lib/proxy/_.mjs'            ;
+import  {formatClass    } from '/_lib/format/_.mjs'           ;
+import  {widgetListClass} from '/_lib/UX/widgetList_module.js';
 
 
 class appClass { // synergy.SFCKnox.org web site
@@ -10,9 +9,7 @@ class appClass { // synergy.SFCKnox.org web site
 constructor() {  // appClass - client side
 	this.urlParams  = new URLSearchParams( window.location.search );
 	this.login      = new loginClass();
-	this.proxy      = new proxyClass();
 	this.format     = new formatClass();
-	//this.calendar   = new calendarClass();
 
 	this.widgetList;    // will hold instance of widgetListClass
 	this.css;           // var to hold json css file
@@ -30,16 +27,16 @@ async main() { // appClass - client side
 		if (lastToken === "app.html") { window.location.replace(newURL+"?p=home"        ); }
 	}
 
-	this.css                                        = await this.proxy.getJSON("css.json");
-	document.getElementById("footer"    ).innerHTML = await this.proxy.getText("footer.html");
+	this.css                                        = await proxy.getJSON("css.json");
+	document.getElementById("footer"    ).innerHTML = await proxy.getText("footer.html");
 
 	if (await this.login.getStatus()) {
 		// user logged in
-		document.getElementById("navigation").innerHTML = await this.proxy.getText("menuUser.html") 
+		document.getElementById("navigation").innerHTML = await proxy.getText("menuUser.html") 
 		document.getElementById("user_loggedin"  ).innerHTML = `${localStorage.nameFirst} ${localStorage.nameLast}`
 	} else {
 		// user not logged in
-		document.getElementById("navigation").innerHTML = await this.proxy.getText("menu.html")
+		document.getElementById("navigation").innerHTML = await proxy.getText("menu.html")
 	}
 
 	// load data for page
@@ -82,7 +79,7 @@ async getPage(  // appClass - client side
 		url = `synergyData/${page}`;
 	}
 
-	return await this.proxy.getJSON(url);
+	return await proxy.getJSON(url);
 }
 
 

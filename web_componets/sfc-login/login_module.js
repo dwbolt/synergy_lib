@@ -1,4 +1,4 @@
-import  {proxyClass   }   from '/_lib/proxy/_.mjs'  ;
+import  {proxy   }   from '/_lib/proxy/_.mjs'  ;
 
 class loginClass { // loginClass - client side
 
@@ -18,7 +18,6 @@ class loginClass { // loginClass - client side
 
 constructor(  // loginClass - client side
 ) {
-  this.proxy = new proxyClass();
   this.user;            // json object returned when users logs in
   this.requests    = [];   // Used by REST to track requests made by this widget.
   this.form        = null; // holds pointer to form
@@ -81,7 +80,7 @@ idDom
     ,"pwd"        : "${document.getElementById("password" ).value}"
   }`
 
-  const serverResp = await this.proxy.postJSON(msg);
+  const serverResp = await proxy.postJSON(msg);
   if (serverResp.msg) {
     // user added
     alert("User was sucessfully Added/changed");
@@ -113,7 +112,7 @@ async changePWD() {// loginClass - client side
     ,"pwdNew"     : "${pwdNew}"
   }`
 
-  const serverResp = await this.proxy.postJSON(msg);
+  const serverResp = await proxy.postJSON(msg);
   if (serverResp.msg) {
     // password changed
     alert("Password was sucessfully changed");
@@ -158,7 +157,7 @@ async changePWD() {// loginClass - client side
     ,"pwdNew"     : "${pwdNew}"
   }`
 
-  const serverResp = await this.proxy.postJSON(msg);
+  const serverResp = await proxy.postJSON(msg);
   if (serverResp.msg) {
     // password changed
     alert("Password was sucessfully changed");
@@ -216,7 +215,7 @@ async login( // loginClass - client side
     }`
 
   // process server responce
-  const serverResponse = await this.proxy.postJSON(msg);
+  const serverResponse = await proxy.postJSON(msg);
   if (serverResponse.msg) {
     // login worked
     // this instance will go away when a new page loads, so save info in localStorage
@@ -261,7 +260,7 @@ async logout( // loginClass - client side
   }`
 
   // process server responce
-  const serverResponse = await this.proxy.postJSON(msg);
+  const serverResponse = await proxy.postJSON(msg);
   if (serverResponse.msg) {
     // log out worked on server side, all session information cleared
 
@@ -299,7 +298,7 @@ setLoginFalse( // loginClass-  client-side
 async getStatus( // loginClass - client side
 ){
   // ask server still logged in
-  const serverResponse = await this.proxy.postJSON(`{"server":"web", "msg":"logged_in"}`);
+  const serverResponse = await proxy.postJSON(`{"server":"web", "msg":"logged_in"}`);
   return serverResponse.msg;  // true -> logged in 
 }
 

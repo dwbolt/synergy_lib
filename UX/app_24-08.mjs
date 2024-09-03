@@ -1,6 +1,6 @@
-import  {proxyClass     }   from '/_lib/proxy/_.mjs'            ;
-import  {formatClass    }   from '/_lib/format/_.mjs';
-import  {page_          }   from '/_lib/UX/page_.mjs'           ; // 
+import  {proxy      } from '/_lib/proxy/_.mjs' ;
+import  {formatClass} from '/_lib/format/_.mjs';
+import  {page_      } from '/_lib/UX/page_.mjs'; // 
 
 
 // web-components
@@ -13,7 +13,6 @@ export class appClass { // synergy.SFCKnox.org web site
 
 constructor() {  // appClass - client side
 	this.urlParams   = new URLSearchParams( window.location.search );
-	this.proxy       = new proxyClass();
 	this.format      = new formatClass();
 }
 
@@ -24,7 +23,7 @@ async main() { // appClass - client side
 	this.sfc_dialog  = document.querySelector("sfc-dialog"); // assume only one
 	this.sfc_login   = document.querySelector("sfc-login" ); // assume only one
 
-	this.css  = await this.proxy.getJSON("css.json");  // holds json info for styling 
+	this.css  = await proxy.getJSON("css.json");  // holds json info for styling 
 	let page_name = this.urlParams.get('p'); // page to load from url
 	if (page_name === null) {
 		page_name = "home";  // set page to home if one is not given
@@ -88,7 +87,7 @@ async page_load(   // appClass - client side
 	url_dir
 ) {
 	// load page json - it has or points to resources to display page
-	app.page_json          = await this.proxy.getJSON(`${url_dir}_.json`);
+	app.page_json          = await proxy.getJSON(`${url_dir}_.json`);
 	app.page_json.url_dir  = url_dir;    // remember where the json was loaded from
 
 	if        (app.page_json.module === undefined) {
@@ -144,7 +143,7 @@ async getPage(  // appClass - client side
 		url = `synergyData/${page}`;
 	}
 
-	return await this.proxy.getJSON(url);
+	return await proxy.getJSON(url);
 }
 
 

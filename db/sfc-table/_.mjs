@@ -10,9 +10,10 @@ assumes <sfc-dialog id='dialog'></sfc-dialog> is in dom
 
 */
 
-import {groupByClass       } from '/_lib/db/groupBy_module.js'      ;
-import {table_class        } from '/_lib/db/table_module.js'        ;
-import {formatClass        } from '/_lib/format/_.mjs'              ;
+import {groupByClass} from '/_lib/db/groupBy_module.js';
+import {table_class } from '/_lib/db/table_module.js'  ;
+import {formatClass } from '/_lib/format/_.mjs'        ;
+import {proxy       } from '/_lib/proxy/_.mjs'         ;
 
 // helper class
 import {table_views     } from '/_lib/db/sfc-table/table_views.mjs'; // 
@@ -64,35 +65,22 @@ constructor(   // sfc_table_class - client-side
 <br>
 
 <div id="views" style="display: none;" >
-  <select size="5" style="margin-right: 2em;">
-  </select>  
+  <select size="5" style="margin-right: 2em;"></select>  
 
-  <div>
-    <div id="search_tab" >
-    <sfc-select-order id="search"></sfc-select-order>
-    </div>
+  <div id="search_tab"                       ><sfc-select-order id="search"></sfc-select-order></div>
+  <div id="select_tab" style="display: none;"><sfc-select-order id="select"></sfc-select-order></div>
+  <div id="sort_tab" style="display: none;"  ><sfc-select-order id="sort">  </sfc-select-order></div>
+  <div id="group_tab" style="display: none;" ><sfc-select-order id="group"> </sfc-select-order></div>
+</div>
 
-    <div id="select_tab" style="display: none;">
-    <sfc-select-order id="select"></sfc-select-order>
-    </div>
-
-    <div id="sort_tab" style="display: none;">
-    <sfc-select-order id="sort"></sfc-select-order>
-    </div>
-
-    <div id="group_tab" style="display: none;">
-    <sfc-select-order id="group"></sfc-select-order>
-    </div>
-  </div>
-<div>
-
-<div        id="status" style="text-align:left; margin-bottom:10px"></div>
-<div        id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
+<div id="status" style="text-align:left; margin-bottom:10px"></div>
+<div id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
 <br>
 `
 
   this.shadow.getElementById('table').addEventListener('click', this.record_show.bind(this));
-  this.views = this.shadow.getElementById('views');
+  this.views        = this.shadow.getElementById('views');
+  this.table_views  = new table_views(this.shadow );
 }
 
 
@@ -481,8 +469,8 @@ statusLine(   // sfc_table_class - client-side
         e_l.push(["rows_per_page", "change", this.change_page_size]); //
         break;
       case "views":
-        html += `<button id="views">Views</button>`
-        e_l.push(["views", "click", this.views_toggle]); //
+        html += `<button id="views_toggle">Views</button>`
+        e_l.push(["views_toggle", "click", this.views_toggle]); //
         break;
 
 // move download & groupby to views

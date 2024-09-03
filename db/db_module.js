@@ -1,4 +1,6 @@
-import  {table_class   }   from '/_lib/db/table_module.js'    
+import {table_class } from '/_lib/db/table_module.js'  ; 
+import {proxy       } from '/_lib/proxy/_.mjs'         ;
+
 
 class dbClass {  
 /* db - database classes
@@ -35,7 +37,7 @@ async load(  // dbClass - client-side
   this.dir      = dir;
   this.url_meta = this.dir+"/_meta.json";
   this.tables   = {};  // init tables to an object.  needed if createing tables in code rather than loading them.
-  const msg     = await app.proxy.getJSONwithError(this.url_meta);
+  const msg     = await proxy.getJSONwithError(this.url_meta);
   if(msg.status === 404){
     //error
     alert(`file="db_module.js"
@@ -64,7 +66,7 @@ creating from template
 
 async delete(){  // dbClass - client-side  
   // delete database files from server
-  let msg = await app.proxy.RESTdelete(this.dir);
+  let msg = await proxy.RESTdelete(this.dir);
 }
 
 
@@ -106,7 +108,7 @@ async new(  // dbClass - client-side
 
 
 async meta_save(){
-  let    msg = await app.proxy.RESTpost(JSON.stringify(this.meta), this.url_meta );
+  let    msg = await proxy.RESTpost(JSON.stringify(this.meta), this.url_meta );
   if (!msg.success) {
     alert(`in file="db_module.js"
 method="meta_save"
@@ -191,7 +193,7 @@ async table_merge(      // dbClass - client-side
 /*  if ( this.meta.tables[table_name]  ==  undefined) {
     this.meta.tables[table_name] = {"location": `${this.dir}/${table}`, comments: "imported table"};
   }*/
-  msg = await app.proxy.RESTpost(JSON.stringify(this.meta), `${this.dir}/_meta.json`);
+  msg = await proxy.RESTpost(JSON.stringify(this.meta), `${this.dir}/_meta.json`);
   if (!msg.success) {
     alert("save faild table_merge")
   }

@@ -1,5 +1,5 @@
-import  {proxyClass     }   from '/_lib/proxy/_.mjs'  ;
-import  {formatClass    }   from '/_lib/format/_.mjs'  ;
+import  {proxy      } from '/_lib/proxy/_.mjs' ;
+import  {formatClass} from '/_lib/format/_.mjs';
 
 
 class spa_class { // synergy.SFCKnox.org web site
@@ -7,7 +7,6 @@ class spa_class { // synergy.SFCKnox.org web site
 constructor() {  // spa_class - client side
 	this.urlParams  = new URLSearchParams( window.location.search );
 	this.login      = new loginClass();
-	this.proxy      = new proxyClass();
 	this.format     = new formatClass();
 }
 	
@@ -24,11 +23,11 @@ async main() { // spa_class - client side
 		// should  never get here, since above code replaces this page 
 	}
 	
-	document.getElementById("footer"    ).innerHTML = await this.proxy.getText("footer.html");
+	document.getElementById("footer"    ).innerHTML = await proxy.getText("footer.html");
 
 	// load main html
 	document.getElementById("main").innerHTML = 
-	    await this.proxy.getText(`/synergyData/spa/${this.pageName}/_.html`);
+	    await proxy.getText(`/synergyData/spa/${this.pageName}/_.html`);
 
 	// load spa_module
 	let element = document.createElement('script');

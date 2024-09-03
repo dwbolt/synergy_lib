@@ -1,3 +1,6 @@
+import  {proxy     } from '/_lib/proxy/_.mjs'  ;
+
+
 export class sfc_dialog extends HTMLElement { // dialog_class - client side
 
 constructor() {  // sfc_dialog - client side
@@ -53,6 +56,31 @@ close(){ // sfc_dialog- client side
 	this.dialog.close();
 }
 
+
+async show_error(error_msg_client){
+	const msg_client = ` 
+	client msg: ${error_msg_client} <br>
+	<br>
+	${new Error().stack}
+	`;	
+
+	// show user error message
+	this.title_set("<h2>Client Side Error</h2>");
+	this.body_set(`Will try to save the following error message on the server<br>${msg_client}`);
+	this.show_modal();
+
+	// save client error on server
+	const msg = {
+		"server"      : "web"
+		,"msg"        : "client_error"
+		,"msg_client" : msg_client
+		}
+
+	const serverResp = await proxy.postJSON(JSON.stringify(msg));
+	if (!msg.ok) {
+		alert("save of error was not successfull")
+	}
+}
 
 } // end sfc_dialog
 

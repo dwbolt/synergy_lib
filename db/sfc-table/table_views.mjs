@@ -13,13 +13,13 @@ export class table_views { // table_views - client-side
 
 constructor(   // table_views - client-side
   // constructor is called when the element is displayed
+  view // <sfc-table>
 ) {
-  // create a shadow dom                           
-  this.shadow = this.attachShadow({ mode: "closed" });  
-  // add content to shadow dom
-  this.shadow.innerHTML =  `
+  // create a shadow dom  
+  this.sfc_table = view;
 
-`
+  this.shadow =  view.shadow ;  // shadow of <sfc-table>
+
   this.tab = "search";   // start with search tab selected
 
   this.main_select     = this.shadow.querySelector("select");              // get first <select>
@@ -45,11 +45,16 @@ load(   // table_views - client-side
   this[name]                  = this.shadow.getElementById(name       ); // remember the <sfc-select-order> web componets
   this[name+"_tab"]           = this.shadow.getElementById(name+"_tab"); // remember the tabs
 
-  this[name].title_set(`<h3>${name}</h3>`)  // load up choices with fields names
-  const a =[
-    ["f1","xx"]
-    ,["f2","x2x"]
-  ]
+  // load up choices with fields names
+  this[name].title_set(`<h3>${name}</h3>`)
+  const fields = this.sfc_table.model.fields_get(); // array of all field names
+  const a =[];
+  for(let i=0; i<fields.length; i++) {
+    a.push([fields[i],"xxx"]);
+  }
+
+
+   
   this[name].choices_add(a);
 }
 
