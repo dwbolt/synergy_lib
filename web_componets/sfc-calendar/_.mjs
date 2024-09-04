@@ -1,10 +1,11 @@
 import  {format         } from '/_lib/format/_.mjs'  ;
 import  {table_class    } from '/_lib/db/table_module.js'       ;
 
+// web componets
 import  {calendar_edit_class } from '/_lib/web_componets/sfc-calendar/edit_module.js';
 
-// web componets
-import  {sfc_table_class     } from '/_lib/db/sfc-table/_.mjs'     ;
+
+import  {sfc_table_class  } from '/_lib/db/sfc-table/_.mjs'     ;
 
 
 export class calendar_class extends sfc_table_class {  // calendar_class  client-side
@@ -38,9 +39,8 @@ constructor( // calendar_class  client-side
   ) {
   super();  // will create this.shadow
   this.css_add("/_lib/web_componets/sfc-calendar/_.css" );// load calendar css
-  this.year      = new Date().getFullYear();  // default to current year, can be overriden when main is called.
+  this.year      = new Date().getFullYear();              // default to current year, can be overriden when main is called.
 
-  this.login        = app.sfc_login;      // 2024-08-20 do not like assuming the app create login web-component
   this.table_events = new table_class();  // where mulit year calander and repeating events live will be used generate this.table
 
   this.urlParams    = new URLSearchParams( window.location.search );  // read params send in the URL
@@ -99,7 +99,7 @@ year //
   this.event_init(); // will fill out this.events - array for each day of the year 
 
   // display entire calendar
-  this.login_status = await this.login.getStatus();  // cashe login status for duration of load and build
+  this.login_status = await app.sfc_login.getStatus();  // cashe login status for duration of load and build
   //const event = app.urlParams.get('e'); // page to load
   const event = new URLSearchParams( window.location.search ).get('e'); // page to load
   if (event) {

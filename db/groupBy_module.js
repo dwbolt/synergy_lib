@@ -1,4 +1,4 @@
-class groupByClass {  // groupbeClass.js
+export class groupByClass {  // groupbeClass.js
 /*
 
 provides methods that agreate rows similar to SQL groupBY
@@ -64,4 +64,3 @@ aggregate(  // groupByClass - client-side
 
 }  //  end  groupByClass - client-side
 
-export {groupByClass}

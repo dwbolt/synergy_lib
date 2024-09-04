@@ -1,7 +1,7 @@
 import {csvClass  } from '/_lib/db/csv_module.js'     ;
 import {proxy     } from '/_lib/proxy/_.mjs'  ;
 
-class table_class {  // table_class - client-side
+export class table_class {  // table_class - client-side
 
 /*
 similar to a table in sql rdb. working on support for:
@@ -1002,5 +1002,3 @@ filter(  // table_class - client-side
 
 
 } //  end  of // table_class - client-side
-
-export {table_class};

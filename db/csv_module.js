@@ -1,4 +1,4 @@
-class csvClass { // csvClass: client-side   _lib/db/csv_module.js
+export class csvClass { // csvClass: client-side   _lib/db/csv_module.js
 
   /*
 
@@ -199,5 +199,3 @@ parse(){  // csvClass: client-side
 
 
 } // end of csvClass: client-side
-
-export {csvClass}
