@@ -1,5 +1,5 @@
 import  {proxy          } from '/_lib/proxy/_.mjs'            ;
-import  {formatClass    } from '/_lib/format/_.mjs'           ;
+//import  {format         } from '/_lib/format/_.mjs'           ;
 import  {widgetListClass} from '/_lib/UX/widgetList_module.js';
 
 
@@ -9,7 +9,6 @@ class appClass { // synergy.SFCKnox.org web site
 constructor() {  // appClass - client side
 	this.urlParams  = new URLSearchParams( window.location.search );
 	this.login      = new loginClass();
-	this.format     = new formatClass();
 
 	this.widgetList;    // will hold instance of widgetListClass
 	this.css;           // var to hold json css file

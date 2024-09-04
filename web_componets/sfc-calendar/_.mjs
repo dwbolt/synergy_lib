@@ -1,5 +1,5 @@
-import  {formatClass         } from '/_lib/format/_.mjs'  ;
-import  {table_class         } from '/_lib/db/table_module.js'       ;
+import  {format         } from '/_lib/format/_.mjs'  ;
+import  {table_class    } from '/_lib/db/table_module.js'       ;
 
 import  {calendar_edit_class } from '/_lib/web_componets/sfc-calendar/edit_module.js';
 
@@ -40,7 +40,6 @@ constructor( // calendar_class  client-side
   this.css_add("/_lib/web_componets/sfc-calendar/_.css" );// load calendar css
   this.year      = new Date().getFullYear();  // default to current year, can be overriden when main is called.
 
-  this.format       = new formatClass();  // format time and dates
   this.login        = app.sfc_login;      // 2024-08-20 do not like assuming the app create login web-component
   this.table_events = new table_class();  // where mulit year calander and repeating events live will be used generate this.table
 
@@ -512,7 +511,7 @@ calendar_create(  // calendar_class  client-side
       for(let i=0;  i<eventList.length; i++ ) {
         let pk   = eventList[i];                        // get primary key
         let event = this.table_events.get_object(pk);    // get event at primary key
-        let editButton = this.format.timeFormat(this.GMT[event.pk].start);
+        let editButton = format.timeFormat(this.GMT[event.pk].start);
         if (this.login_status) {
           // we are on a user calendar
           //user = "&u=" + this.urlParams.get('u');

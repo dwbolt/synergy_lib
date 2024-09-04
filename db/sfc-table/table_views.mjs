@@ -18,7 +18,7 @@ constructor(   // table_views - client-side
   // create a shadow dom  
   this.sfc_table = view;
 
-  this.shadow =  view.shadow ;  // shadow of <sfc-table>
+  this.shadow =  this.sfc_table.shadow ;  // shadow of <sfc-table>
 
   this.tab = "search";   // start with search tab selected
 

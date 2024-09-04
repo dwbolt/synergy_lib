@@ -12,7 +12,7 @@ assumes <sfc-dialog id='dialog'></sfc-dialog> is in dom
 
 import {groupByClass} from '/_lib/db/groupBy_module.js';
 import {table_class } from '/_lib/db/table_module.js'  ;
-import {formatClass } from '/_lib/format/_.mjs'        ;
+import {format      } from '/_lib/format/_.mjs'        ;
 import {proxy       } from '/_lib/proxy/_.mjs'         ;
 
 // helper class
@@ -33,7 +33,6 @@ constructor(   // sfc_table_class - client-side
 	super();  // call parent constructor 
 
   // data
-  this.format            = new formatClass();
   this.searchVisible     = true; // display boxes to put search criteria in
   this.statusLineData    = ["tableName","nextPrev","rows","firstLast","rows/page","views"]; 
   this.lineNumberVisible = true;
@@ -80,7 +79,13 @@ constructor(   // sfc_table_class - client-side
 
   this.shadow.getElementById('table').addEventListener('click', this.record_show.bind(this));
   this.views        = this.shadow.getElementById('views');
-  this.table_views  = new table_views(this.shadow );
+  if (this.db) {
+    // do not like this, refactor
+    let model  = this.db.getTable(table_name);
+    this.set_model(model,table_name)
+  }
+
+  //this.table_views  = new table_views(this);
 }
 
 
@@ -648,7 +653,7 @@ formatTransform( // sfc_table_class - client-side
 
   switch (this.model.get_field(i,"type") ) {
     case "html" :  html = value                                                   ; break;
-    case "money":  html = `<div align="right">${this.format.money(value)}</div>`  ; break;
+    case "money":  html = `<div align="right">${format.money(value)}</div>`  ; break;
     default     :  html = `<div>${value}</div>`                                   ; break;
   }
 

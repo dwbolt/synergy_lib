@@ -1,26 +1,23 @@
-export class formatClass {
+export class format {
 
 /* class to format input and output data
 
 */
-
-
-
-// formatClass - client-side
-constructor() {
-    this.days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+constructor() {  // format - client - side
 }
 
-
 // formatClass - client-side
-weekNumber(
+static  days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+
+static weekNumber(   // formatClass - client-side
   number   // 1 -> 1st   2->2nd
 ){
     const str=["1st", "2nd", "3rd", "4th", "5th"]
     return str[number-1];
 }
 
-padZero(    // formatClass - client-side
+static padZero(    // formatClass - client-side
    number  // number to convert to string with leading zeros
   ,length  // total length of string
 ) {
@@ -46,14 +43,14 @@ errow, nember should be of type number
 }
 
 
-getDayOfWeek( // formatClass - client-side
+static getDayOfWeek( // formatClass - client-side
   numberDay   // 0->Sunday
 ){
-  return( this.days[numberDay] );
+  return( days[numberDay] );
 }
 
 // formatClass - client-side
-getISO(  // return YYYY-MM-DD
+static getISO(  // return YYYY-MM-DD
   date  // Date object
 ){
   let day = date.getDate().toString()  //1-31
@@ -65,12 +62,15 @@ getISO(  // return YYYY-MM-DD
 }
 
 
+static money(   // formatClass - client-side
+  i_money
+) {  
 
-// formatClass - client-side
-// i_money is in penneys
+  // i_money is in penneys
 // returns a string in dollars with $ , , and decmal point
 //  123   ->  $1.23
-money(i_money) {
+
+
   let s_money = Math.abs(i_money).toString();
   let f_money = "";  // formated string to return
 
@@ -102,10 +102,11 @@ money(i_money) {
 }
 
 
-// formatClass - client-side
-// s_string is an arbitry string that will be stored in a json value
+static escStringForJson(  // formatClass - client-side
+  s_string
+) {  
+  // s_string is an arbitry string that will be stored in a json value
 // return s_string and replace all new lines with \n
-escStringForJson(s_string) {
   return s_string
   .replace(/\"/g, '\\"')   // " ->\ "
   .replace(/\n/g, '\\n');   // newline -> \n
@@ -126,8 +127,7 @@ https://stackoverflow.com/questions/4253367/how-to-escape-a-json-string-containi
 */
 
 
-// formatClass - client-side
-timeFormat(
+static timeFormat(   // formatClass - client-side
   date  // date object
 ) {
   // get date, return am pm timeout
@@ -146,8 +146,8 @@ timeFormat(
   return hours + ":" + minutes + " " + ampm;
 }
 
-// formatClass - client-side
-timeRange(
+
+static timeRange(  // formatClass - client-side
   start  // date
   ,end   // date
 ){
@@ -156,19 +156,20 @@ timeRange(
 
 
 // formatClass - client-side
-getDaysOfWeek(
+static getDaysOfWeek(
   dayOffsets  // array of day off sets from day object
 ) {
   let str = "";
   // walk array and add day strings
    for (let i=0; i< dayOffsets.length; i++) {
-     str +=   ", " + this.days[dayOffsets[i]];
+     str +=   ", " + days[dayOffsets[i]];
    }
 
   return str.slice(2);  // trim leading ", "
 }
 
-obj2string( // formatClass - client-side
+
+static obj2string( // formatClass - client-side
   obj,level=0  // to convert to string with each attribute on a newline - will make debugging saved json easy to read, each new attribute is on a seperate line, with intetion
 ){
   let str,pad;
@@ -210,5 +211,5 @@ obj2string( // formatClass - client-side
 }
 
 
-// formatClass - client-side
-}  // end
+
+}  // end  format - client-side

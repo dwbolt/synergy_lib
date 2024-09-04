@@ -1,5 +1,5 @@
 import  {proxy      } from '/_lib/proxy/_.mjs' ;
-import  {formatClass} from '/_lib/format/_.mjs';
+//import  {format     } from '/_lib/format/_.mjs';
 import  {page_      } from '/_lib/UX/page_.mjs'; // 
 
 
@@ -13,7 +13,6 @@ export class appClass { // synergy.SFCKnox.org web site
 
 constructor() {  // appClass - client side
 	this.urlParams   = new URLSearchParams( window.location.search );
-	this.format      = new formatClass();
 }
 
 

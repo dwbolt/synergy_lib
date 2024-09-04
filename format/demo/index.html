@@ -1,51 +1,19 @@
 <html>
 <head>
 <title>Format</title>
-<!--link rel="stylesheet" href="../app.css"-->
-<script type="text/javascript" src="lib.js"></script>
-<script>
-
-const app = new formatClass();
-
-
-// toggle money conversion
-function money() {
-  // demo converting penneys to  $22,232.23 format
-  const a_money =  [1,12,145,134567,-3,];  // integers in penneys
-  let html = document.getElementById('money').innerHTML;
-  if (html.length === 0) {
-    a_money.forEach((penneys, i) => {
-      html += `<br>penneys ${penneys} - money format ${app.money(penneys)}`
-    });
-  } else {
-    html = "";
-  }
-
-  document.getElementById('money').innerHTML = html;
-}
-
-
-// view
-function updateViews(){
-  const txt=document.getElementById('input').value;
-  document.getElementById('escaped').value = app.escStringForJson(txt);
-  document.getElementById('html'   ).innerHTML = txt;
-}
-
-
-</script>
-
 </head>
 
 <body>
-<p>Formating data on reports and input</p>
-<p><b>text files:</b></p>
+<h1>Formating data on reports and input</h1>
+
+<h2>text files:</h2> 
 <textarea id="input" rows="8" cols="50" onchange="updateViews()">
 {"data": "{}"
 }
 </textarea><br>
+<button onclick="update_views()">show Escaped and html</button>
 
-<p><b>escaped</b></p>
+<h2><b>escaped</h2><br>
 <textarea id="escaped" rows="8" cols="50">
 </textarea><br>
 
@@ -56,10 +24,50 @@ function updateViews(){
 
 
 <p>Formating money, input is in penneys
-<input type="button" value="run money()" onclick="money()">
+<button onclick="money2()">Convert interger penneys to $xx,xxx.yy</button>
 </p>
 <div id="money"></div>
 
 
 </body>
 </html>
+
+<script type="module">
+export function money2(){
+  document.getElementById("money").innerHTML = "stuff"
+}
+
+
+</script>
+
+<script type="module">
+   import {format} from "/_lib/format/_.mjs" 
+  
+
+  // toggle money conversion
+  export function money2() {
+    // demo converting penneys to  $22,232.23 format
+    const a_money =  [1,12,145,134567,-3,];  // integers in penneys
+    let html = document.getElementById('money').innerHTML;
+    if (html.length === 0) {
+      a_money.forEach((penneys, i) => {
+        html += `<br>penneys ${penneys} - money format ${format.money(penneys)}`
+      });
+    } else {
+      html = "";
+    }
+  
+    document.getElementById('money').innerHTML = html;
+  }
+  
+  
+  // view
+  export function update_views(){
+    const txt=document.getElementById('input').value;
+    document.getElementById('escaped').value = format.escStringForJson(txt);
+    document.getElementById('html'   ).innerHTML = txt;
+  }
+  
+  window.money2       = money2;
+  window.update_views = update_views;
+  </script>

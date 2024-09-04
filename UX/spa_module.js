@@ -1,5 +1,5 @@
 import  {proxy      } from '/_lib/proxy/_.mjs' ;
-import  {formatClass} from '/_lib/format/_.mjs';
+import  {format     } from '/_lib/format/_.mjs';
 
 
 class spa_class { // synergy.SFCKnox.org web site
@@ -7,7 +7,6 @@ class spa_class { // synergy.SFCKnox.org web site
 constructor() {  // spa_class - client side
 	this.urlParams  = new URLSearchParams( window.location.search );
 	this.login      = new loginClass();
-	this.format     = new formatClass();
 }
 	
 	
