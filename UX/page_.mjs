@@ -85,6 +85,8 @@ return;
 			let msg =  await proxy.RESTget(`${this.json.url_dir}${this.json.load[list[i]]}` );
 			if (msg.ok) {
 				html += msg.value;
+			} else {
+				debugger
 			}
 		}
 		html += "</div>"

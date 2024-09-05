@@ -4,8 +4,6 @@ import  {page_      } from '/_lib/UX/page_.mjs'; //
 
 
 // web-components
-import  {sfc_dialog} from '/_lib/web_componets/sfc-dialog/_.mjs'; // preload sfc-dialog 
-import  {sfc_login } from '/_lib/web_componets/sfc-login/_.mjs' ; // preload sfc-login 
 import  {sfc_img   } from '/_lib/web_componets/sfc-img/_.mjs'   ; // preload sfc-img web component
 import  {sfc_html  } from '/_lib/web_componets/sfc-html/_.mjs'  ; // preload sfc-html web component
 import  {sfc_urls  } from '/_lib/web_componets/sfc-urls/_.mjs'  ; // preload sfc-urls web component
@@ -20,7 +18,11 @@ constructor() {  // appClass - client side
 
 async main() { // appClass - client side
 	// should just be called once for when a new spa (single page app) is load
-	this.pages       = {}  // contians pointers to page classes as they are loaded
+	this.pages   = {}  // contians pointers to page classes as they are loaded
+	app.lib      = new URL(import.meta.url).origin + "/"; 
+	const {sfc_dialog} = await import(`${app.lib}_lib/web_componets/sfc-dialog/_.mjs`);  // preload sfc-dialog 
+	const {sfc_login } = await import(`${app.lib}_lib/web_componets/sfc-login/_.mjs` );  // preload sfc-login
+
 	this.sfc_dialog  = document.querySelector("sfc-dialog"); // assume only one
 	this.sfc_login   = document.querySelector("sfc-login" ); // assume only one
 
@@ -94,7 +96,7 @@ async page_load(   // appClass - client side
 	if        (app.page_json.module === undefined) {
 		// used base class of page_
 		const page_module = new page_(this.page_name, url_dir);
-		await page_module.init(app.page_json);
+		await page_module.init(app.page_json,url_dir);
 		return page_module;
 	} else if (app.page_json.module === true) {
 		// load custom page module from same directory as _.json

@@ -8,12 +8,11 @@ constructor() {  // sfc_dialog - client side
 	
 	if (this.innerHTML==="") {
 		// show defaul img
-		/*
 		this.shadow.innerHTML =  `
 		<div style="float:right;width:320px; height:200px;">
-		<img style="object-fit:contain; width:320px; height:200px;" src="${this.json["sfc-img"][this.key][0][0]}>
+		Image not specified
 		</div>
-		   `*/
+		   `
 	} else {
 		this.key  = this.innerHTML;  // used to access detailed info on pictures
 		const obj = app.page_json["sfc-img"][this.key];

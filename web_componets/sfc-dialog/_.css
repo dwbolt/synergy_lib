@@ -3,7 +3,7 @@
 	box-sizing: border-box;
   }
   
-  .popup {
+  dialog {
 	max-width: 500px;
 	border-radius: 10px;
 	z-index: 10;

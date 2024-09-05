@@ -60,7 +60,7 @@ constructor(   // sfc_table_class - client-side
   this.shadow = this.attachShadow({ mode: "closed" });  
   // add content to shadow dom
   this.shadow.innerHTML =  `
-<link href="/_lib/db/sfc-table/_.css" rel="stylesheet">
+<link href="${app.lib}_lib/db/sfc-table/_.css" rel="stylesheet">
 <br>
 
 <div id="views" style="display: none;" >

@@ -9,7 +9,7 @@ constructor() {  // sfc_dialog - client side
 	this.shadow = this.attachShadow({ mode: "closed" });  
 	// add content to shadow dom
 	this.shadow.innerHTML =  `
-   <link href="/_lib/web_componets/sfc-dialog/_.css" rel="stylesheet">
+   <link href="${app.lib}_lib/web_componets/sfc-dialog/_.css" rel="stylesheet">
    <dialog id="dialog">
    <div id="title"></div><br>
    <hr>
@@ -76,7 +76,7 @@ async show_error(error_msg_client){
 		,"msg_client" : msg_client
 		}
 
-	const serverResp = await proxy.postJSON(JSON.stringify(msg));
+	const serverResp = await proxy.postJSON(JSON.stringify(msg));    // wait for server to log client error
 	if (!msg.ok) {
 		alert("save of error was not successfull")
 	}
