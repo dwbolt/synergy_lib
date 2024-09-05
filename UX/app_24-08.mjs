@@ -1,12 +1,14 @@
 import  {proxy      } from '/_lib/proxy/_.mjs' ;
-//import  {format     } from '/_lib/format/_.mjs';
+import  {format     } from '/_lib/format/_.mjs';
 import  {page_      } from '/_lib/UX/page_.mjs'; // 
 
 
 // web-components
-import  {sfc_dialog     }   from '/_lib/web_componets/sfc-dialog/_.mjs'; // preload sfc-login 
-import  {sfc_login      }   from '/_lib/web_componets/sfc-login/_.mjs' ; // preload sfc-login 
-
+import  {sfc_dialog} from '/_lib/web_componets/sfc-dialog/_.mjs'; // preload sfc-dialog 
+import  {sfc_login } from '/_lib/web_componets/sfc-login/_.mjs' ; // preload sfc-login 
+import  {sfc_img   } from '/_lib/web_componets/sfc-img/_.mjs'   ; // preload sfc-img web component
+import  {sfc_html  } from '/_lib/web_componets/sfc-html/_.mjs'  ; // preload sfc-html web component
+import  {sfc_urls  } from '/_lib/web_componets/sfc-urls/_.mjs'  ; // preload sfc-urls web component
 
 export class appClass { // synergy.SFCKnox.org web site
 
