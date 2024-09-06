@@ -209,4 +209,50 @@ value="${value}"
 }
 
 
+test_harness(){
+	this.test_window = window.open('','_blank');
+  
+	// Ensure the new window is created successfully
+	if (this.test_window) {
+		// Do something in the parent window
+		this.test_window.document.title = "Test Harness";
+		this.test_window.document.body.innerHTML = `
+<h1>Test Harness</h1>
+<input id="index" type="number" value="0">
+<button id="prev">Previous Page/Button</button> <button id="next">Next Page/Button</button>`;
+		let b = this.test_window.document.getElementById('prev');
+		    b.addEventListener( 'click', this.test_harness_next.bind(this,-1) );
+
+		    b = this.test_window.document.getElementById('next');
+		    b.addEventListener( 'click', this.test_harness_next.bind(this,+1) );
+	} else {
+		alert("window not created")
+	}
+  }
+
+  
+  test_harness_next(inc){
+	// get all the a tags from the nav menu
+	const a_tags = document.getElementById("menu_choices").querySelectorAll("a");
+	if(this.test_index === undefined){
+		this.test_index=0;
+	} else  {
+		// increment or decrement
+		this.test_index = this.test_index+inc;
+	}
+
+	// make sure this.test_index  is in bounds
+	if (this.test_index < 0) {
+		this.test_index = 0;
+	} 
+	if (a_tags.length <= this.test_index  ) {
+		this.test_index = a_tags.length -1;
+	}
+
+	this.test_window.document.getElementById("index").value = this.test_index
+
+	a_tags[this.test_index].onclick && a_tags[this.test_index].onclick();  // execute the onclick 
+  }
+
+
 } // end appClass
