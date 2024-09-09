@@ -1,4 +1,4 @@
-class menuClass {
+export class menuClass {
 
 /*
 this can be thought of as "colmn menu" simlar to selecting files in column view.  
@@ -39,5 +39,3 @@ deleteTo(  // menuClass- client side
 
 
 } // menuClass client-side  -end class
-
-export {menuClass} 

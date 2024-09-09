@@ -2,7 +2,7 @@ import  {format         } from '/_lib/format/_.mjs'  ;
 import  {table_class    } from '/_lib/db/table_module.js'       ;
 
 // web componets
-import  {calendar_edit_class } from '/_lib/web_componets/sfc-calendar/edit_module.js';
+import  {calendar_edit_class } from '/_lib/web_components/sfc-calendar/edit_module.js';
 
 
 import  {sfc_table_class  } from '/_lib/db/sfc-table/_.mjs'     ;
@@ -39,7 +39,7 @@ constructor( // calendar_class  client-side
   ) {
   super();  // will create this.shadow
 
-  this.css_add(`${app.lib}_lib/web_componets/sfc-calendar/_.css` );// load calendar css
+  this.css_add(`${app.lib}_lib/web_components/sfc-calendar/_.css` );// load calendar css
   this.year      = new Date().getFullYear();              // default to current year, can be overriden when main is called.
 
   this.table_events = new table_class();  // where mulit year calander and repeating events live will be used generate this.table

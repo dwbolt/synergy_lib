@@ -19,7 +19,7 @@ constructor( // sfc_select_order - client side
 	
 	this.shadow.innerHTML = `
 	<div class="box" style="display: inline-block;">
-	<link href="/_lib/web_componets/sfc-select-order/_.css" rel="stylesheet">
+	<link href="/_lib/web_components/sfc-select-order/_.css" rel="stylesheet">
 	<div id="title"></div>
 	<input id="narrow" type="text" placeholder="Narrow choices" hidden> 
 	<div  style="display:flex;" hidden>

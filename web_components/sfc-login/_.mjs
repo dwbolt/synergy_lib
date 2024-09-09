@@ -1,5 +1,5 @@
 import  {proxy     } from '/_lib/proxy/_.mjs'  ;
-import  {sfc_dialog} from '/_lib/web_componets/sfc-dialog/_.mjs'  ;
+import  {sfc_dialog} from '/_lib/web_components/sfc-dialog/_.mjs'  ;
 
 export class sfc_login extends sfc_dialog { // sfc_login - client side
 

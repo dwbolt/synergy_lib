@@ -4,9 +4,9 @@ import  {page_      } from '/_lib/UX/page_.mjs'; //
 
 
 // web-components
-import  {sfc_img   } from '/_lib/web_componets/sfc-img/_.mjs'   ; // preload sfc-img web component
-import  {sfc_html  } from '/_lib/web_componets/sfc-html/_.mjs'  ; // preload sfc-html web component
-import  {sfc_urls  } from '/_lib/web_componets/sfc-urls/_.mjs'  ; // preload sfc-urls web component
+import  {sfc_img   } from '/_lib/web_components/sfc-img/_.mjs'   ; // preload sfc-img web component
+import  {sfc_html  } from '/_lib/web_components/sfc-html/_.mjs'  ; // preload sfc-html web component
+import  {sfc_urls  } from '/_lib/web_components/sfc-urls/_.mjs'  ; // preload sfc-urls web component
 
 export class appClass { // synergy.SFCKnox.org web site
 
@@ -20,8 +20,8 @@ async main() { // appClass - client side
 	// should just be called once for when a new spa (single page app) is load
 	this.pages   = {}  // contians pointers to page classes as they are loaded
 	app.lib      = new URL(import.meta.url).origin + "/"; 
-	const {sfc_dialog} = await import(`${app.lib}_lib/web_componets/sfc-dialog/_.mjs`);  // preload sfc-dialog 
-	const {sfc_login } = await import(`${app.lib}_lib/web_componets/sfc-login/_.mjs` );  // preload sfc-login
+	const {sfc_dialog} = await import(`${app.lib}_lib/web_components/sfc-dialog/_.mjs`);  // preload sfc-dialog 
+	const {sfc_login } = await import(`${app.lib}_lib/web_components/sfc-login/_.mjs` );  // preload sfc-login
 
 	this.sfc_dialog  = document.querySelector("sfc-dialog"); // assume only one
 	this.sfc_login   = document.querySelector("sfc-login" ); // assume only one
