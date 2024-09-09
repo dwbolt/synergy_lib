@@ -9,6 +9,7 @@ constructor() {  // sfc_nav_tree - client side
 	// constructor is called when the element is displayed
 	super();
 	this.shadow = this.attachShadow({ mode: "closed" });  
+	this.init();
 }
 
 
@@ -18,17 +19,29 @@ connectedCallback() { // sfc_nav_tree - client side
 
 
 init(){  // sfc_nav_tree- client side
-	this.shadow.innerHTML = ""; // wipe out menu and start over
+	this.shadow.innerHTML = `<div style="display:flex"> </div>`
+	this.container        = this.shadow.querySelector("div");
   }
 
 
-add(  // sfc_nav_tree- client side
+html_add(  // sfc_nav_tree- client side
 	html    // html for menu
 	){
 	const newMenue     = document.createElement('div');
 	newMenue.innerHTML = html;
 	newMenue.style     = "border-style: solid; margin:5px 5px 5px 5px; padding:5px 5px 5px 5px;";
-	this.shadow.appendChild(newMenue);
+	this.container.appendChild(newMenue);
+  }
+
+
+  element_add(  // sfc_nav_tree- client side
+	element    // dom element contianing  menu
+	){
+	const newMenue     = document.createElement('div');
+	newMenue.style     = "border-style: solid; margin:5px 5px 5px 5px; padding:5px 5px 5px 5px;";
+	newMenue.appendChild(element);  // put menu element in box
+
+	this.container.appendChild(newMenue);  // add box to menu
   }
   
   
@@ -36,8 +49,8 @@ add(  // sfc_nav_tree- client side
 	index //
 	) {
   
-	while ( index < this.shadow.childElementCount ) {
-		this.shadow.removeChild(e.lastElementChild);
+	while ( index < this.container.childElementCount ) {
+		this.container.removeChild(e.lastElementChild);
 	}
   }
 

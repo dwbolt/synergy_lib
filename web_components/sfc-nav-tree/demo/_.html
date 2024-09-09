@@ -45,7 +45,7 @@ async main() {
 <option value="1">display value</option>
 <option value="2">sub menu</option>
 <option value="3">clear</option>
-</select>  `);
+</select></div>  `);
 }
 
 
@@ -61,8 +61,8 @@ show(element){
 <option value="5">go back one level</option>
 </select>  
     `); break;
-    case "3":  this.sfc_nav_tree,delete_to(0) ; break;
-    case "5":  this.sfc_nav_tree,delete_to(1) ; break;
+    case "3":  this.sfc_nav_tree.delete_to(0) ; break;
+    case "5":  this.sfc_nav_tree.delete_to(1) ; break;
   }
 
 }
