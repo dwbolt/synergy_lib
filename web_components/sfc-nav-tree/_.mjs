@@ -22,7 +22,7 @@ init(){  // sfc_nav_tree- client side
   }
 
 
-  add(  // sfc_nav_tree- client side
+add(  // sfc_nav_tree- client side
 	html    // html for menu
 	){
 	const newMenue     = document.createElement('div');
@@ -32,7 +32,7 @@ init(){  // sfc_nav_tree- client side
   }
   
   
-  deleteTo(  // menuClass- client side
+  delete_to(  // menuClass- client side
 	index //
 	) {
   

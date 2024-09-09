@@ -6,26 +6,71 @@
 </head>
 
 <body>
+
   <h1>sfc-nav-tree demo</h1>
   <p>replace UX/menu.mjs</p>
+  <sfc-nav-tree></sfc-nav-tree>
+  <div id="msg"></div>
+
 </body>
 </html>
 
 
 <script>
-let app; // only global variable
+let app // only global variable
 </script>
 
 <script type="module">
 
-app = document.getElementById("dialog");  // create popup object
-app.title_set(`<b>Title of box</b>`);
+class appClass {
 
-// not sure I want to support plain text. May take this out at some point
-app.text_set(`just
-plain 
-text`);
 
-//app.buttons_set(` <input type="button" value="close" onclick="app.close()">`);
- 
+constructor(){
+
+  this.tree = {
+ "0":[[1,"one"],[2,"two"],[3,"three"]]
+ ,"1":[[4,]] 
+  }
+}
+
+
+async main() {
+  this.lib             = new URL(import.meta.url).origin + "/";                             // remember domain where this module was pulled from
+  const {sfc_nav_tree} = await import(`${this.lib}_lib/web_components/sfc-nav-tree/_.mjs`);  // import code for <sfc-nav-tree>
+  this.sfc_nav_tree    = document.querySelector("sfc-nav-tree");                            // rember <sfc-nav-tree>
+
+  // add a menue
+  this.sfc_nav_tree.add(`
+<select size="10" onclick="app.show(this)">
+<option value="1">display value</option>
+<option value="2">sub menu</option>
+<option value="3">clear</option>
+</select>  `);
+}
+
+
+show(element){
+  switch (element.value) {
+    case "1":  
+    case "4":  
+    document.getElementById("msg").innerHTML = element.value;  break;
+  
+    case "2": this.sfc_nav_tree.add(`
+    <select size="10" onclick="app.show(this)">
+<option value="4">display value</option>
+<option value="5">go back one level</option>
+</select>  
+    `); break;
+    case "3":  this.sfc_nav_tree,delete_to(0) ; break;
+    case "5":  this.sfc_nav_tree,delete_to(1) ; break;
+  }
+
+}
+
+
+} // end of class
+
+app = new appClass();
+app.main();
+
 </script>
