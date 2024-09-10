@@ -7,15 +7,15 @@
 
 <h1>Browse User Data</h1>
 
-<sfc-disk>/users</sfc-disk>
+<sfc-disk>/_lib</sfc-disk>
     
 
 </body></html>
 <script>let app ={};</script>
 
 <script type="module">
-app.lib      = new URL(import.meta.url).origin + "/";   // assume running in synergy domain
-const {sfc_disk} = await import(`${app.lib}_lib/web_components/sfc-disk/_.mjs` );
-document.querySelector("sfc-disk").main();
+app.lib      = new URL(import.meta.url).origin + "/"                            ;  // assume running in synergy domain
+const {sfc_disk} = await import(`${app.lib}_lib/web_components/sfc-disk/_.mjs` );  // import <sfc-disk> code
+document.querySelector("sfc-disk").main()                                       ;  // show logged in user file directory
 
 </script>

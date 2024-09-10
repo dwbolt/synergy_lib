@@ -46,12 +46,22 @@ html_add(  // sfc_nav_tree- client side
   
   
   delete_to(  // menuClass- client side
-	index //
+	event //
 	) {
-  
-	while ( index < this.container.childElementCount ) {
-		this.container.removeChild(e.lastElementChild);
+	// keep goint up the element chain utile this.container is found
+	let element = event.target;                 // what the user clicked on <option>
+	let parent  = event.target.parentElement;   // parent of clicked on
+	while(parent != this.container) {
+		element = parent;
+		parent  = parent.parentElement;
 	}
+	
+	// delete everthing to the right of what was clicked on
+	const index  = Array.prototype.indexOf.call(parent.children, element);
+	while ( index + 1 < this.container.childElementCount ) {
+		this.container.removeChild(this.container.lastElementChild);
+	}
+	return index;
   }
 
 
