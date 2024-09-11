@@ -1,3 +1,6 @@
+import {proxy       } from '/_lib/proxy/_.mjs' ;
+import {format      } from '/_lib/format/_.mjs' ;
+
 export class calendar_edit_class {
 // works with calendarClass to add/edit/delete events
 
@@ -39,11 +42,11 @@ data  // "yyyy-m-d"
 
   // set start date to date clicked on
   this.shadow.getElementById("start_date").value = 
-    `${this.#year}-${app.format.padZero(this.#month,2)}-${app.format.padZero(this.#day,2)}`
+    `${this.#year}-${format.padZero(this.#month,2)}-${format.padZero(this.#day,2)}`
 
   // set start time to current time
   const currentdate = new Date();
-  this.shadow.getElementById("start_time").value = `${app.format.padZero(currentdate.getHours(),2)}:00`;
+  this.shadow.getElementById("start_time").value = `${format.padZero(currentdate.getHours(),2)}:00`;
 
   // set duration to 0 hours and 30 minues
   this.shadow.getElementById("duration_hours"  ).value = 0;
@@ -177,7 +180,7 @@ this.shadow.getElementById(`${DOMname}_date`).valueAsDate = new Date(date[0],dat
 if (this.shadow.getElementById(`${DOMname}_time`)) {
   // will not exist for DOMname "repeat_end"
   this.shadow.getElementById(`${DOMname}_time`).value = 
-  `${app.format.padZero(date[3],2)}:${app.format.padZero(date[4],2)}`;  
+  `${format.padZero(date[3],2)}:${format.padZero(date[4],2)}`;  
 }
 
 }
@@ -195,7 +198,7 @@ duration_changed( // calendar_edit_class  client-side
 
     // update end_date and end_time
     this.shadow.getElementById("end_date").valueAsDate = end; 
-    this.shadow.getElementById("end_time").value       = `${app.format.padZero(end.getHours(),2)}:${app.format.padZero(end.getMinutes(),2)}`;
+    this.shadow.getElementById("end_time").value       = `${format.padZero(end.getHours(),2)}:${format.padZero(end.getMinutes(),2)}`;
 
     // if repeat end is displayed, set time po
 }
@@ -228,11 +231,11 @@ pk
 
   let d = record.dateStart;
   this.shadow.getElementById("start_date").valueAsDate = new Date(d[0],d[1]-1,d[2]); 
-  this.shadow.getElementById("start_time").value       = `${app.format.padZero(d[3],2)}:${app.format.padZero(d[4],2)}`;
+  this.shadow.getElementById("start_time").value       = `${format.padZero(d[3],2)}:${format.padZero(d[4],2)}`;
   
   d = record.dateEnd;
   this.shadow.getElementById("end_date").valueAsDate = new Date(d[0],d[1]-1, d[2]);
-  this.shadow.getElementById("end_time").value       = `${app.format.padZero(d[3],2)}:${app.format.padZero(d[4],2)}`;
+  this.shadow.getElementById("end_time").value       = `${format.padZero(d[3],2)}:${format.padZero(d[4],2)}`;
 
   this.shadow.getElementById('timeZone').value       = record.timeZone;
  
@@ -283,7 +286,7 @@ data2form_repeat(   // calendar_edit_class  client-side
   // set repeat end data, use time from dateEnd
   let r=record.repeat_end_date;
   if (r) {
-    this.shadow.getElementById('repeat_end_date').value = `${r[0]}-${app.format.padZero(r[1],2)}-${app.format.padZero(r[2],2)}`
+    this.shadow.getElementById('repeat_end_date').value = `${r[0]}-${format.padZero(r[1],2)}-${format.padZero(r[2],2)}`
   }
 
 }
