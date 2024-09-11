@@ -35,8 +35,8 @@ constructor(){
 
 
 async main() {
-  this.lib             = new URL(import.meta.url).origin + "/";                             // remember domain where this module was pulled from
-  const {sfc_nav_tree} = await import(`${this.lib}_lib/web_components/sfc-nav-tree/_.mjs`);  // import code for <sfc-nav-tree>
+  this.lib             = new URL(import.meta.url).origin;                             // remember domain where this module was pulled from
+  const {sfc_nav_tree} = await import(`${this.lib}/_lib/web_components/sfc-nav-tree/_.mjs`);  // import code for <sfc-nav-tree>
   this.sfc_nav_tree    = document.querySelector("sfc-nav-tree");                            // rember <sfc-nav-tree>
 
   // add a menue

@@ -39,7 +39,7 @@ constructor( // calendar_class  client-side
   ) {
   super();  // will create this.shadow
 
-  this.css_add(`${app.lib}_lib/web_components/sfc-calendar/_.css` );// load calendar css
+  this.css_add(`${app.lib}/_lib/web_components/sfc-calendar/_.css` );// load calendar css
   this.year      = new Date().getFullYear();              // default to current year, can be overriden when main is called.
 
   this.table_events = new table_class();  // where mulit year calander and repeating events live will be used generate this.table

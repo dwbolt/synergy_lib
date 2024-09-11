@@ -83,7 +83,7 @@ click(
 		this.level++;
 		this.main();
 	} else {
-		// display information about file
+		// display information about file to the right
 		const stat = this.stat[this.level][i];
 		this.level++;
 		this.tree.delete_to(event);
@@ -93,13 +93,17 @@ click(
 			html += `${keys[i]}: ${stat[2][keys[i]]}<br>`
 		}
 		this.tree.html_add(html);
+
+		// update url
+		const url = `${app.lib}${this.path}/${stat[0]}`
+		this.div_url.innerHTML = `<a href="${url}" target="_blank">${url}</a>`;  // show path to selected file or folder
 	}
 }
 
 
 } // end sfc_disk
 
-const {sfc_nav_tree} = await import(`${app.lib}_lib/web_components/sfc-nav-tree/_.mjs` );
+const {sfc_nav_tree} = await import(`${app.lib}/_lib/web_components/sfc-nav-tree/_.mjs` );
 
 
 customElements.define("sfc-disk", sfc_disk); 
