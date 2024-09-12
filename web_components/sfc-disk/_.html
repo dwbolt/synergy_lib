@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Browse User Data</title>
+</head>
+<body>
+
+<h1>Browse User Data</h1>
+
+<sfc-disk></sfc-disk>
+
+</body></html>
+<script>let app ={};</script>
+
+<script type="module">
+app.lib          = new URL(import.meta.url).origin                               ;  // assume running in synergy domain
+const {sfc_disk} = await import(`${app.lib}/_lib/web_components/sfc-disk/_.mjs` );  // import <sfc-disk> code
+
+//  see if url is specifed with url param
+let url  = new URLSearchParams( window.location.search ).get("url");
+if (url === null) {
+    url = "/users"        // default: show logged in user file directory
+}
+document.querySelector("sfc-disk").main(url)                                       
+</script>

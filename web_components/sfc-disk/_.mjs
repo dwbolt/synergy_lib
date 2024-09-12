@@ -7,27 +7,43 @@ constructor() {  // sfc_disk - client side
 	// constructor is called when the element is displayed
 	super();
 	
-	this.url_root   = this.innerHTML; // constant, get starting directory
 	this.level      = 0             ; // start at root, increment as user navicates deeper 
 	this.stat       = []            ; // store directory info for each level
 	this.elements   = []            ; // place to store what the user has clicked on;
 
 	// add content to shadow dom
 	this.shadow = this.attachShadow({ mode: "closed" });  
-	this.shadow.innerHTML = `<div id="url"></div><sfc-nav-tree></sfc-nav-tree>`
-	this.tree             = this.shadow.querySelector("sfc-nav-tree");  // direct acess to sfc-nav-tree
-	this.div_url          = this.shadow.getElementById("url")        ;  // let user know the path that has been clicked on so far
+	this.shadow.innerHTML = `<div id="url"></div> <button>copy url to clipboard</button> <sfc-nav-tree></sfc-nav-tree> <textarea>xxx</textarea>` 
+	this.tree             = this.shadow.querySelector( "sfc-nav-tree");  // direct acess to sfc-nav-tree
+	this.div_url          = this.shadow.getElementById("url"         );  // let user know the path that has been clicked on so far
+	this.textarea         = this.shadow.querySelector( "textarea"    );  //      
+
+	const button         = this.shadow.querySelector( "button"    );
+	button.addEventListener('click',this.url2clipboard.bind(this));
+}
+
+
+async url2clipboard() {  // sfc_disk - client side
+	let url;
+	const a = this.div_url.querySelector("a");               // should only be one <a>
+	await navigator.clipboard.writeText(a.href);  // copy url to clipboard
 }
 
 
 async main(
+	url = null
 ){
 	// list root directory as given in the constructor
 
 	// add code to force login
 
 	// create file path
-	this.path = this.url_root;
+	if (url === null) {
+		this.path      = this.path_root ; // init this.path
+	} else {
+		this.path      = url            ; // init this.path
+		this.path_root = url            ; // remember root path
+	}
 
 	for (let i=0; i<this.tree.container.childElementCount; i++) {
 		this.path += `/${this.stat[i][this.elements[i].value][0]}`;
@@ -62,8 +78,8 @@ async main(
 	element.addEventListener('click', this.click.bind(this));        // add click eventlistener
 	this.tree.element_add(element);                                  // append element 
 
-	// update url
-	this.div_url.innerHTML = `${app.lib}${this.path}`;  // show path to selected file or folder
+	// show path to selected folder - url take you to new browser at that locaion
+	this.div_url.innerHTML = `<a href="/_lib/web_components/sfc-disk/_.html?url=${this.path}" target="_blank">${this.path}</a>`;
 	this.stat[this.level]  = status.files;              // remember disk info
 
 }
