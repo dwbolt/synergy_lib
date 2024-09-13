@@ -71,9 +71,9 @@ async css_add(path) { // calendar_class  client-side
 
 
 async year_change(  // calendar_class  client-side
-  dom
+  event
   ){  
-  await this.main(parseInt(dom.value),);
+  await this.main(parseInt(event.target.value),);
 }
 
 
@@ -379,7 +379,6 @@ findDayInWeek( // calendar_class  client-side
 
   // walk until we find first instance of day of week in the month
   while (d.getDay() != day) {
-    console.log('day ' + d.getDay());
     d.setDate(d.getDate() + 1);
   }
 
