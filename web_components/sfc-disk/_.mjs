@@ -13,7 +13,7 @@ constructor() {  // sfc_disk - client side
 
 	// add content to shadow dom
 	this.shadow = this.attachShadow({ mode: "closed" });  
-	this.shadow.innerHTML = `<div id="url"></div> <button>copy url to clipboard</button> <sfc-nav-tree></sfc-nav-tree> <textarea>xxx</textarea>` 
+	this.shadow.innerHTML = `<div id="root"></div><div id="url"></div> <button>copy url to clipboard</button> <sfc-nav-tree></sfc-nav-tree> <textarea>xxx</textarea>` 
 	this.tree             = this.shadow.querySelector( "sfc-nav-tree");  // direct acess to sfc-nav-tree
 	this.div_url          = this.shadow.getElementById("url"         );  // let user know the path that has been clicked on so far
 	this.textarea         = this.shadow.querySelector( "textarea"    );  //      
@@ -41,8 +41,9 @@ async main(
 	if (url === null) {
 		this.path      = this.path_root ; // init this.path
 	} else {
-		this.path      = url            ; // init this.path
-		this.path_root = url            ; // remember root path
+		this.path      = url                                              ; // init this.path
+		this.path_root = url                                              ; // remember root path
+		this.shadow.getElementById("root").innerHTML = `root url: ${url}` ; // show root to user
 	}
 
 	for (let i=0; i<this.tree.container.childElementCount; i++) {
@@ -50,14 +51,14 @@ async main(
 	}
 
 	// get list of users directory
-	const msg = `{
-"server" : "web"
-,"msg"   : "dir"
-,"url"   : "${this.path}"
-	}`
+	const msg = {
+		"server" : "web"
+		,"msg"   : "dir"
+		,"url"   : this.path
+	}
 
 	// process server responce
-	const status = await proxy.postJSON(msg);  // {msg: true, files:[[file_name, stat]]
+	const status = await proxy.postJSON(JSON.stringify(msg));  // {msg: true, files:[[file_name, stat]]
 	// stat.isDirectory, stat.isSymbolicLink()
 	if (!status.msg) {
 		alert("error");
@@ -66,8 +67,8 @@ async main(
 
 	// add directory details
 	let element  = document.createElement('select');
-	element.size  = "10";
-	element.style = "resize: both;"
+	element.size   = "10";
+
 	let html="";
 	for(let i=0; i<status.files.length; i++) {
 		html += `<option value="${i}">${status.files[i][0]}</option>`;
@@ -79,7 +80,7 @@ async main(
 	this.tree.element_add(element);                                  // append element 
 
 	// show path to selected folder - url take you to new browser at that locaion
-	this.div_url.innerHTML = `<a href="/_lib/web_components/sfc-disk/_.html?url=${this.path}" target="_blank">${this.path}</a>`;
+	this.div_url.innerHTML = `url: <a href="/_lib/web_components/sfc-disk/_.html?url=${this.path}" target="_blank">${this.path}</a>`;
 	this.stat[this.level]  = status.files;              // remember disk info
 
 }
@@ -111,15 +112,15 @@ click(
 		this.tree.html_add(html);
 
 		// update url
-		const url = `${app.lib}${this.path}/${stat[0]}`
-		this.div_url.innerHTML = `<a href="${url}" target="_blank">${url}</a>`;  // show path to selected file or folder
+		const url = `${new URL(import.meta.url).origin}${this.path}/${stat[0]}`
+		this.div_url.innerHTML = `url: <a href="${url}" target="_blank">${url}</a>`;  // show path to selected file or folder
 	}
 }
 
 
 } // end sfc_disk
 
-const {sfc_nav_tree} = await import(`${app.lib}/_lib/web_components/sfc-nav-tree/_.mjs` );
+const {sfc_nav_tree} = await import(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-nav-tree/_.mjs` );
 
 
 customElements.define("sfc-disk", sfc_disk); 

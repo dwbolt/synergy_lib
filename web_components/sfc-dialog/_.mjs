@@ -9,7 +9,7 @@ constructor() {  // sfc_dialog - client side
 	this.shadow = this.attachShadow({ mode: "closed" });  
 	// add content to shadow dom
 	this.shadow.innerHTML =  `
-   <link href="${app.lib}/_lib/web_components/sfc-dialog/_.css" rel="stylesheet">
+   <link href="${new URL(import.meta.url).origin}/_lib/web_components/sfc-dialog/_.css" rel="stylesheet">
    <dialog id="dialog">
    <div id="title"></div><br>
    <hr>

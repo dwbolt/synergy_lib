@@ -1,19 +1,7 @@
-/*
-
-<sfc-table> web compont
-
-viewer for a table
-
-supports display in a grid, paging, search,...
-
-assumes <sfc-dialog id='dialog'></sfc-dialog> is in dom
-
-*/
-
-import {groupByClass} from '/_lib/db/groupBy_module.js';
 import {table_class } from '/_lib/db/table_module.js'  ;
 import {format      } from '/_lib/format/_.mjs'        ;
-import {proxy       } from '/_lib/proxy/_.mjs'         ;
+//import {proxy       } from '/_lib/proxy/_.mjs'         ;
+//import {groupByClass} from '/_lib/db/groupBy_module.js';
 
 // helper class
 import {table_views     } from '/_lib/db/sfc-table/table_views.mjs'; // 
@@ -60,7 +48,7 @@ constructor(   // sfc_table_class - client-side
   this.shadow = this.attachShadow({ mode: "closed" });  
   // add content to shadow dom
   this.shadow.innerHTML =  `
-<link href="${app.lib}/_lib/db/sfc-table/_.css" rel="stylesheet">
+<link href="${new URL(import.meta.url).origin}/_lib/db/sfc-table/_.css" rel="stylesheet">
 <br>
 
 <div id="views" style="display: none;" >
@@ -85,7 +73,7 @@ constructor(   // sfc_table_class - client-side
     this.set_model(model,table_name)
   }
 
-  //this.table_views  = new table_views(this);
+  this.table_views  = new table_views(this);
 }
 
 
@@ -198,7 +186,7 @@ display_intersection(  // sfc_table_class - client-side
 }
 
 
-groupby(  // sfc_table_class - client-side  
+/*groupby(  // sfc_table_class - client-side  
 ){
   // user clicked group by button, so create a group by table and display it
 
@@ -241,8 +229,7 @@ groupby(  // sfc_table_class - client-side
   this.tableUxG.model     = t;               // attach table data to tableUX
   this.tableUxG.tableName = this.tableName+"-GroupBy";  //
   this.tableUxG.display();                   // show table to user
-  
-}
+} */
 
 
 change_page_size(  // sfc_table_class - client-side

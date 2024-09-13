@@ -10,16 +10,18 @@ constructor() {  // sfc_nav_tree - client side
 	super();
 	this.shadow = this.attachShadow({ mode: "closed" });  
 	this.init();
+
+	this.style_select = "border-style: solid;   border-radius: 6px;  margin:5px 5px 5px 5px; padding:5px 5px 5px 5px;resize: vertical";
 }
 
 
 connectedCallback() { // sfc_nav_tree - client side
 	// create a shadow dom                           
-}
+}	
 
 
 init(){  // sfc_nav_tree- client side
-	this.shadow.innerHTML = `<div style="display:flex"> </div>`
+	this.shadow.innerHTML = `<div style="display:flex; flex-direction: row;"> </div>`
 	this.container        = this.shadow.querySelector("div");
   }
 
@@ -29,7 +31,7 @@ html_add(  // sfc_nav_tree- client side
 	){
 	const newMenue     = document.createElement('div');
 	newMenue.innerHTML = html;
-	newMenue.style     = "border-style: solid; margin:5px 5px 5px 5px; padding:5px 5px 5px 5px;";
+	newMenue.style     = this.style_select
 	this.container.appendChild(newMenue);
   }
 
@@ -38,7 +40,7 @@ html_add(  // sfc_nav_tree- client side
 	element    // dom element contianing  menu
 	){
 	const newMenue     = document.createElement('div');
-	newMenue.style     = "border-style: solid; margin:5px 5px 5px 5px; padding:5px 5px 5px 5px;";
+	newMenue.style     = this.style_select
 	newMenue.appendChild(element);  // put menu element in box
 
 	this.container.appendChild(newMenue);  // add box to menu
