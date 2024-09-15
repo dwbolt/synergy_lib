@@ -1,6 +1,5 @@
 import {table_class } from '/_lib/db/table_module.js'  ;
 import {format      } from '/_lib/format/_.mjs'        ;
-//import {proxy       } from '/_lib/proxy/_.mjs'         ;
 //import {groupByClass} from '/_lib/db/groupBy_module.js';
 
 // helper class
@@ -8,8 +7,7 @@ import {table_views     } from '/_lib/db/sfc-table/table_views.mjs'; //
 
 
 // web componets
-import {sfc_record_class} from '/_lib/db/sfc-record/_.mjs'           ;  // <sfc-record>
-
+import {sfc_select_order} from '/_lib/web_components/sfc-select-order/_.mjs'           ;  // <sfc-select-order>
 
 export class sfc_table_class  extends HTMLElement { // sfc_table_class - client-side
   // web componet to display table
@@ -54,10 +52,10 @@ constructor(   // sfc_table_class - client-side
 <div id="views" style="display: none;" >
   <select size="5" style="margin-right: 2em;"></select>  
 
-  <div id="search_tab"                       ><sfc-select-order id="search"></sfc-select-order></div>
-  <div id="select_tab" style="display: none;"><sfc-select-order id="select"></sfc-select-order></div>
-  <div id="sort_tab" style="display: none;"  ><sfc-select-order id="sort">  </sfc-select-order></div>
-  <div id="group_tab" style="display: none;" ><sfc-select-order id="group"> </sfc-select-order></div>
+  <div id="search_tab"                       > <sfc-select-order id="search"></sfc-select-order> <div></div> </div>
+  <div id="select_tab" style="display: none;"> <sfc-select-order id="select"></sfc-select-order> <div></div> </div>
+  <div id="sort_tab"   style="display: none;"> <sfc-select-order id="sort"  ></sfc-select-order> <div></div> </div>
+  <div id="group_tab"  style="display: none;"> <sfc-select-order id="group" ></sfc-select-order> <div></div> </div>
 </div>
 
 <div id="status" style="text-align:left; margin-bottom:10px"></div>
@@ -72,8 +70,6 @@ constructor(   // sfc_table_class - client-side
     let model  = this.db.getTable(table_name);
     this.set_model(model,table_name)
   }
-
-  this.table_views  = new table_views(this);
 }
 
 
@@ -564,7 +560,10 @@ set_model( // let class know what data it will be displaying/using
   this.tableName  = name;   // string
   this.search_values = {} ; // remembers what user has typed in as search values
   this.search_clear();
+  
+  this.table_views  = new table_views(this);
 }
+
 
 search_clear(){
   this.model.meta_get("select").forEach((item, i) => {

@@ -193,11 +193,13 @@ button_disable(  // sfc_select_order - client side
 choices_click(event){  // sfc_select_order - client side
 	if (this.multi) {
 		// user click on a choice, move it to the selected
-		this.selected.insertBefore(event.target,this.selected.firstChild);
+		//this.selected.insertBefore(event.target,this.selected.firstChild);  // insert at top
+		this.selected.append(event.target); // insert at bottom
 	} else {
+		// only allow one selection, so process it
 		this.choices_click_custom(event); //
 	}
-	this.buttons_disable();
+	this.buttons_disable();  // disable buttons that should not be used
 }
 
 
@@ -207,6 +209,7 @@ choices_click_custom(event) {
 
 
 buttons_disable(){  // sfc_select_order - client side
+	// disable buttons that should not be used
 	let disable = "";
 	let select = (this.multi ? this.selected: this.choices );
 

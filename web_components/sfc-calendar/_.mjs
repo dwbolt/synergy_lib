@@ -462,8 +462,7 @@ edge//
 
 calendar_create(  // calendar_class  client-side
 ) {   // convert this.events to a table that can be displayed with tableUX
-  this.table         = new table_class();  // where calender will be stored
-  this.set_model( this.table, "weekCal");     
+  this.table         = new table_class();  // where calender will be stored 
   this.setSearchVisible(false);                 // hide search
   this.setLineNumberVisible(false);             // hide row line numbers
   this.setRowNumberVisible(false);              // hide row numbers
@@ -534,6 +533,8 @@ calendar_create(  // calendar_class  client-side
       start.setDate( start.getDate() + 1 ); // move to next day
     }
   }
+
+  this.set_model( this.table, "weekCal");    
 }
 
 

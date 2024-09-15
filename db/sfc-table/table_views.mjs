@@ -1,3 +1,4 @@
+export class table_views { // table_views - client-side
 /*
 
 allows user to define, name and save table views
@@ -6,10 +7,6 @@ filter(search),  select fileds and order to display, Sort, Group
 export csv and njs files
 
 */
-
-
-export class table_views { // table_views - client-side
-
 
 constructor(   // table_views - client-side
   // constructor is called when the element is displayed
@@ -52,11 +49,11 @@ load(   // table_views - client-side
   for(let i=0; i<fields.length; i++) {
     a.push([fields[i],"xxx"]);
   }
-
-
    
-  this[name].choices_add(a);
+  this[name].choices_add(a); //  display choices
+
 }
+
 
 
 show_tab( // table_views - client-side
