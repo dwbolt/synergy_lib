@@ -19,9 +19,9 @@ constructor() {  // appClass - client side
 async main() { // appClass - client side
 	// should just be called once for when a new spa (single page app) is load
 	this.pages   = {}  // contians pointers to page classes as they are loaded
-	const lib      = new URL(import.meta.url).origin; 
-	const {sfc_dialog} = await import(`${lib}/_lib/web_components/sfc-dialog/_.mjs`);  // preload sfc-dialog 
-	const {sfc_login } = await import(`${lib}/_lib/web_components/sfc-login/_.mjs` );  // preload sfc-login
+	this.lib      = new URL(import.meta.url).origin; 
+	const {sfc_dialog} = await import(`${this.lib}/_lib/web_components/sfc-dialog/_.mjs`);  // preload sfc-dialog 
+	const {sfc_login } = await import(`${this.lib}/_lib/web_components/sfc-login/_.mjs` );  // preload sfc-login
 
 	this.sfc_dialog  = document.querySelector("sfc-dialog"); // assume only one
 	this.sfc_login   = document.querySelector("sfc-login" ); // assume only one
