@@ -113,6 +113,7 @@ The login feature is in beta testing.  We hope to make it production by the end 
 }
 
 
+user_new
 async login_force( callback ) {   // sfc_login - client side
 	// prompt user to login if they are not logged in
 	if (await this.getStatus() ) {
