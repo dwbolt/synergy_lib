@@ -8,14 +8,6 @@ constructor() {  // sfc_login - client side
 	// constructor is called when the element is displayed
 	super();  // will create this.shadow
 	this.title_set("Login");
-	/*
-	if (this.innerHTML === "user_add") {
-		this.shadow.innerHTML = "user_add";
-	} if (this.innerHTML === "") {
-		this.buildForm();
-	} else {
-		this.shadow.innerHTML =`error, no code to support "${this.shadow.innerHTML}"  `;
-	}*/
 }
 
 
@@ -63,15 +55,27 @@ async login_status_update(       // sfc_login - client side
 	// get login State
 	if (await this.getStatus()) {
 	  // logged in
-	  logInOut   = "Log Out";
-	  loginState = `Logged in: ${this.displayUser()}`;
+	  logInOut                 = "Log Out";
+	  loginState               = `Logged in: ${this.displayUser()}`;
+	  this.e_pwd_change.hidden = false;
+	        this.e_new.hidden  = false;
 	} else {
 	  // not logged in
-	  logInOut   = "Log In";
-	  loginState = "Logged out";
+	  logInOut                 = "Log In";
+	  loginState               = "Logged out";
+	  this.e_pwd_change.hidden = true;
+	         this.e_new.hidden = true;
+
+	  e_form.innerHTML = `
+	  Username: <input id='user_name'> <br/>
+Password: <input id='password'  type='password'> enter or return key will attempt login<br/>
+`
+		this.input_user_name  = this.shadow.getElementById("user_name");
+		this.input_password   = this.shadow.getElementById("password" );
+		this.input_password.addEventListener('keydown', this.on_enter.bind(  this));
 	}
 	
-	this.button_login_out.innerHTML = logInOut  ;  // update button
+	this.e_login_out.innerHTML = logInOut  ;  // update button
 	this.title_set(loginState);  // update message
 
 	const login_status = document.getElementById("login_status");
@@ -84,21 +88,25 @@ async login_status_update(       // sfc_login - client side
 async show_login(     // sfc_login - client side
 ){
 	this.body_set(`
-Username: <input id='user_name'> <br/>
-Password: <input id='password'  type='password'> enter or return key will attempt login<br/>
+<p>
+The login feature is in beta testing.  We hope to make it production by the end of 2024.
+</p>
+
+<p id="form"></p>
 <p id='msg'></p>
+
 <button id="login_out"  class="button">Log Out</button>
 <button id="pwd_change" class="button">Change Password</button>
-`);
+<button id="new"        class="button">Create New Login</button>
+		`);
 
-	this.input_user_name  = this.shadow.getElementById("user_name");
-	this.input_password   = this.shadow.getElementById("password" );
-	this.button_login_out = this.shadow.getElementById("login_out");
-	this.p_msg            = this.shadow.getElementById("msg");
+	this.e_form       = this.shadow.getElementById("form");
+	this.e_msg        = this.shadow.getElementById("msg");
 
-	this.shadow.getElementById("login_out" ).addEventListener('click'  , this.login_out.bind( this));
-	this.shadow.getElementById("pwd_change").addEventListener('click'  , this.pwd_change.bind(this));
-	this.shadow.getElementById("password"  ).addEventListener('keydown', this.on_enter.bind(  this));
+	// add eventListners for buttons
+	this.e_login_out  = this.shadow.getElementById("login_out" );  this.e_login_out.addEventListener('click'  , this.login_out.bind( this));
+	this.e_pwd_change = this.shadow.getElementById("pwd_change"); this.e_pwd_change.addEventListener('click'  , this.pwd_change.bind(this));
+	this.e_new        = this.shadow.getElementById("new"       );        this.e_new.addEventListener('click'  , this.user_new.bind(  this));
 
 	await this.login_status_update();
 	this.show_modal();
@@ -121,12 +129,12 @@ async login_force( callback ) {   // sfc_login - client side
 async login_out(  // sfc_login - client side
   ) {
 	// get user credentials from web page
-	if        (this.button_login_out.innerHTML === "Log In") {
+	if        (this.e_login_out.innerHTML === "Log In") {
 	  await this.login();
-	} else if (this.button_login_out.innerHTML === "Log Out") {
+	} else if (this.e_login_out.innerHTML === "Log Out") {
 		await this.logout();
 	} else {
-		this.p_msg.innerHTML = `error this.button_login_out.innerHTML="${this.button_login_out.innerHTML}"`
+		this.e_msg.innerHTML = `error this.e_login_out.innerHTML="${this.e_login_out.innerHTML}"`
 	}
 
 	this.login_status_update();
