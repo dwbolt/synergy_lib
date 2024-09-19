@@ -11,7 +11,7 @@ constructor() {  // sfc_login - client side
 }
 
 
-displayUser(){  // sfc_login - client side
+user_display(){  // sfc_login - client side
 	return `${localStorage.user} - ${localStorage.nameLast }, ${localStorage.nameFirst} `
 }
 
@@ -56,7 +56,7 @@ async login_status_update(       // sfc_login - client side
 	if (await this.getStatus()) {
 	  // logged in
 	  logInOut                 = "Log Out";
-	  loginState               = `Logged in: ${this.displayUser()}`;
+	  loginState               = `Logged in: ${this.user_display()}`;
 	  this.e_pwd_change.hidden = false;
 	        this.e_new.hidden  = false;
 	} else {
@@ -66,7 +66,7 @@ async login_status_update(       // sfc_login - client side
 	  this.e_pwd_change.hidden = true;
 	         this.e_new.hidden = true;
 
-	  e_form.innerHTML = `
+	  this.e_form.innerHTML = `
 	  Username: <input id='user_name'> <br/>
 Password: <input id='password'  type='password'> enter or return key will attempt login<br/>
 `
@@ -80,7 +80,7 @@ Password: <input id='password'  type='password'> enter or return key will attemp
 
 	const login_status = document.getElementById("login_status");
 	if (login_status) {
-		login_status.innerHTML = this.displayUser();
+		login_status.innerHTML = this.user_display();
 	}
 }
 
@@ -104,16 +104,53 @@ The login feature is in beta testing.  We hope to make it production by the end 
 	this.e_msg        = this.shadow.getElementById("msg");
 
 	// add eventListners for buttons
-	this.e_login_out  = this.shadow.getElementById("login_out" );  this.e_login_out.addEventListener('click'  , this.login_out.bind( this));
-	this.e_pwd_change = this.shadow.getElementById("pwd_change"); this.e_pwd_change.addEventListener('click'  , this.pwd_change.bind(this));
-	this.e_new        = this.shadow.getElementById("new"       );        this.e_new.addEventListener('click'  , this.user_new.bind(  this));
+	this.e_login_out  = this.shadow.getElementById("login_out" );  this.e_login_out.addEventListener('click',     this.login_out.bind( this));
+	this.e_pwd_change = this.shadow.getElementById("pwd_change"); this.e_pwd_change.addEventListener('click',    this.pwd_change.bind( this));
+	this.e_new        = this.shadow.getElementById("new"       );        this.e_new.addEventListener('click', this.user_new_form.bind( this));
 
 	await this.login_status_update();
 	this.show_modal();
 }
 
 
-user_new
+user_new_form(){
+	this.e_form.innerHTML =  `
+Username:     <input id='user_name'  > <br/>
+First Name:   <input id='nameFirst'  > <br/>
+Last Name:    <input id='nameLast'   > <br/>
+Email:        <input id='email'      > <br/>
+Phone number: <input id='phone'      > <br/>
+Password New: <input id='password'   > <br/>
+<button id="user_add">Add User</button>
+<p id='msg'></p>`;
+
+this.shadow.getElementById("user_add").addEventListener('click', this.user_add.bind(this));
+}
+
+async user_add() {// loginClass - client side
+	// process server responce
+	const msg = {
+		"server"      : "web"
+		,"msg"        : "addUser"
+		,"user"       : this.shadow.getElementById("user_name" ).value
+		,"nameFirst"  : this.shadow.getElementById("nameFirst").value
+		,"nameLast"   : this.shadow.getElementById("nameLast" ).value
+		,"email"      : this.shadow.getElementById("email"    ).value
+		,"phone"      : this.shadow.getElementById("phone"    ).value
+		,"pwd"        : this.shadow.getElementById("password" ).value
+	}
+  
+	const serverResp = await proxy.postJSON(JSON.stringify(msg));
+	if (serverResp.msg) {
+	  // user added
+	  alert("User was sucessfully Added/changed");
+	} else {
+	  // user was not added
+	  alert(`User add Failed,${JSON.stringify(serverResp)}`);
+	}
+}
+
+
 async login_force( callback ) {   // sfc_login - client side
 	// prompt user to login if they are not logged in
 	if (await this.getStatus() ) {
