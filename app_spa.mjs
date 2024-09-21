@@ -8,20 +8,38 @@ import  {sfc_img   } from '/_lib/web_components/sfc-img/_.mjs'   ; // preload sf
 import  {sfc_html  } from '/_lib/web_components/sfc-html/_.mjs'  ; // preload sfc-html web component
 import  {sfc_urls  } from '/_lib/web_components/sfc-urls/_.mjs'  ; // preload sfc-urls web component
 
-export class appClass { // synergy.SFCKnox.org web site
+export class app_spa { // synergy.SFCKnox.org web site
 
 
 constructor() {  // appClass - client side
 	this.urlParams   = new URLSearchParams( window.location.search );
+
+	// add one dialog and login.  Not all applications need login, but most do and it is small
+	document.body.innerHTML += "<sfc-dialog></sfc-dialog> <sfc-login></sfc-login>";
+
+	// get local of _lib 
+	const host = window.location.hostname.split(".");
+	if      ( host[0].includes("local") ) { this.lib = `https://synergy_local.sfcknox.org/_lib`;} // use _lib on local      server
+	else if ( host[0].includes("beta" ) ) { this.lib =  `https://synergy_beta.sfcknox.org/_lib`;} // use _lib on beta       server
+	else                                   { this.lib =       `https://synergy.sfcknox.org/_lib`;} // use _lib on production server
+
+	this.sfc_dialog = document.querySelector("sfc-dialog");  //
+	this.sfc_login  = document.querySelector("sfc-login" );  //
+}
+
+
+async load(// app_light - client side
+	path // to module to load
+){
+	return await import(`${this.lib}/${path}`);  
 }
 
 
 async main() { // appClass - client side
 	// should just be called once for when a new spa (single page app) is load
 	this.pages   = {}  // contians pointers to page classes as they are loaded
-	this.lib      = new URL(import.meta.url).origin; 
-	const {sfc_dialog} = await import(`${this.lib}/_lib/web_components/sfc-dialog/_.mjs`);  // preload sfc-dialog 
-	const {sfc_login } = await import(`${this.lib}/_lib/web_components/sfc-login/_.mjs` );  // preload sfc-login
+	const {sfc_dialog} = await this.load("web_components/sfc-dialog/_.mjs");  // preload sfc-dialog 
+	const {sfc_login } = await this.load("web_components/sfc-login/_.mjs" );  // preload sfc-login
 
 	this.sfc_dialog  = document.querySelector("sfc-dialog"); // assume only one
 	this.sfc_login   = document.querySelector("sfc-login" ); // assume only one
@@ -255,4 +273,4 @@ test_harness(){
   }
 
 
-} // end appClass
+} // end app_spa

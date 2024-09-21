@@ -1,11 +1,8 @@
-import  {format         } from '/_lib/format/_.mjs'  ;
-import  {table_class    } from '/_lib/db/table_module.js'       ;
+const {sfc_table_class    } = await app.load("db/sfc-table/_.mjs"); //import  {sfc_table_class     } from '/_lib/db/sfc-table/_.mjs'     ;
+const {table_class        } = await app.load("db/table_module.js");
+const {format             } = await app.load("format/_.mjs");
 
-// web componets
-import  {calendar_edit_class } from '/_lib/web_components/sfc-calendar/edit_module.js';
-
-
-import  {sfc_table_class  } from '/_lib/db/sfc-table/_.mjs'     ;
+const {calendar_edit_class} = await app.load("web_components/sfc-calendar/edit_module.mjs");
 
 
 export class calendar_class extends sfc_table_class {  // calendar_class  client-side
@@ -38,11 +35,10 @@ event_add(
 constructor( // calendar_class  client-side
   ) {
   super();  // will create this.shadow
+  this.table_events = new table_class();  // where mulit year calander and repeating events live will be used generate this.table
 
   this.css_add(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-calendar/_.css` );// load calendar css
   this.year      = new Date().getFullYear();              // default to current year, can be overriden when main is called.
-
-  this.table_events = new table_class();  // where mulit year calander and repeating events live will be used generate this.table
 
   this.urlParams    = new URLSearchParams( window.location.search );  // read params send in the URL
 
@@ -55,11 +51,14 @@ constructor( // calendar_class  client-side
   this.event;         // undefined, where a two dim array first number in month, second number is day of month, hold one year's calendar
 }
 
-
-connectedCallback() { // calendar_class  client-side
-  //super.connectedCallback();
+/*
+async connectedCallback() { // calendar_class  client-side
+                await super.connectedCallback(     ); // 
+//{table_class} = await app.lib("db/table_module.mjs");
+const {table_class} = await app.load("db/table_module.js");
+this.table_events = new table_class();  // where mulit year calander and repeating events live will be used generate this.table
 }
-
+*/
 
 async css_add(path) { // calendar_class  client-side
   //<link rel="stylesheet" href="app.css" />

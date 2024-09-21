@@ -1,5 +1,4 @@
 import  {proxy          } from '/_lib/proxy/_.mjs'            ;
-//import  {format         } from '/_lib/format/_.mjs'           ;
 import  {widgetListClass} from '/_lib/UX/widgetList_module.js';
 
 

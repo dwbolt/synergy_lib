@@ -1,15 +1,6 @@
-import {table_class } from '/_lib/db/table_module.js'  ;
-import {format      } from '/_lib/format/_.mjs'        ;
-//import {groupByClass} from '/_lib/db/groupBy_module.js';
+const {table_views    } = await app.load("db/sfc-table/table_views.mjs"); 
 
-// helper class
-import {table_views     } from '/_lib/db/sfc-table/table_views.mjs'; // 
-
-
-// web componets
-import {sfc_select_order} from '/_lib/web_components/sfc-select-order/_.mjs'           ;  // <sfc-select-order>
-
-export class sfc_table_class  extends HTMLElement { // sfc_table_class - client-side
+export class sfc_table_class  extends HTMLElement { // sfc_table_class - client-side 
   // web componet to display table
 
 
@@ -89,6 +80,16 @@ record_show(  // sfc_table_class - client-side
       this.record_sfc.show(data);                           // get sfc-record accociated with table & dislay record clicked on
       if (this.record_show_custom) this.record_show_custom(event); 
   }
+}
+
+
+async connectedCallback() { // app_light  client-side
+	super.connectedCallback();
+
+	// load external dependencies
+	const {table_class   } = await import(`${this.lib}/_lib/db/table_module.js`          );  // model class
+	const {format        } = await import(`${this.lib}/_lib/format/_.mjs`                );  // helper class
+	const {table_views   } = await import(`${this.lib}/_lib/db/sfc-table/table_views.mjs`);  // web componet
 }
 
 

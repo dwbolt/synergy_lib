@@ -1,3 +1,5 @@
+import {sfc_select_order} from '/_lib/web_components/sfc-select-order/_.mjs'           ;  // <sfc-select-order>
+
 export class table_views { // table_views - client-side
 /*
 
