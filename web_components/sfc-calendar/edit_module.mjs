@@ -142,12 +142,12 @@ async processServerRefresh( // calendar_edit_class  client-side
     resp    = await this.table.save(record);
   }
 
-
   if (!resp.success) {
     alert(`Error resp="${JSON.stringify(resp)}"`);
+  } else {
+    this.windowActive = false;  // what does this do?
+    app.page_display_url( app.url_json_get() );  // redisplay data, so we can see changes made on calendar
   }
-  this.windowActive = false;
-  location.reload();               // will reload page, need to just reload data and refresh page
 }
   
 

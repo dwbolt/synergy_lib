@@ -45,12 +45,18 @@ async main() { // appClass - client side
 	this.sfc_login   = document.querySelector("sfc-login" ); // assume only one
 
 	this.css  = await proxy.getJSON("css.json");  // holds json info for styling 
-	let page_name = this.urlParams.get('p'); // page to load from url
-	if (page_name === null) {
-		page_name = "home";  // set page to home if one is not given
+	this.page_url_dir = this.urlParams.get('u'); // page to load from url
+	if (this.page_url_dir !== null) {
+		// url is known so display it
+		await this.page_display_url();
+	} else {
+		// no url, see if a page is known
+		let page = this.urlParams.get('p');
+		if (page === null) {
+			page = "home"  // set page to home if not specified;
+		}
+		await this.page_display(page);
 	}
-
-	await this.page_display(page_name);
 }
 
 
@@ -58,10 +64,9 @@ async url_copy(   // appClass - client side
 ){
 	// copy the url and page info so a user can get back do the page
 	this.sfc_dialog.title_set("<h1>Copied URL to clipboard</h1>");
-	const wl = window.location;
 
 	// set text of dialog
-	const url = `${wl.protocol}//${wl.hostname}${wl.pathname}?p=${this.page_name}`;
+	const url = this.url_get();
 	this.sfc_dialog.body_set(`<p>"${url}" <br><br>has been copied to your clip board. You may now paste it to an email or other document.</p> <p>Sustainable Future Center implements their web information as Single Page Apps (SPA).  This means faster reponse times and less network trafic between your browser and the server.  You will notice that as you change pages, the url does not change.  The url that has been copied to your clipboard allows you to get back quickly to page you are on.</p>`);
  
 	await navigator.clipboard.writeText(url);  // copy url to clipboard
@@ -69,37 +74,55 @@ async url_copy(   // appClass - client side
 }
 
 
+url_json_get(){
+	return this.page_url_dir; // url to json
+}
+
+
+url_get(   // appClass - client side
+){
+	// return url of current page being displayed,
+	// need to add suport for current button press
+	const wl = window.location;
+	return `${wl.protocol}//${wl.hostname}${wl.pathname}?u=${this.page_url_dir}`;
+}
+
+
 async page_display(  // appClass - client side
 	page_name
 ) {
-	const url_dir = `pages/${page_name}/`
-	await this.page_display_url(page_name, url_dir);
+	// load page from web site
+	this.page_url_dir = `pages/${page_name}/`
+	await this.page_display_url();
 }
 
 
 async page_display_my(  // appClass - client side
 	page_name
 ) {
+	// load page from users mages
 	if ( await app.sfc_login.login_force( this.page_display_my.bind(this,page_name) )) {
 		// user is logged in
-		const url_dir = `/users/my_synergy_pages/${page_name}/`
-		await this.page_display_url(page_name, url_dir);
+		//this.page_name    = page_name;  // remember the page we are displaying - 
+		this.page_url_dir = `/users/my_synergy_pages/${page_name}/`
+		await this.page_display_url();
   }
 }
 
 
 async page_display_url(  // appClass - client side
-	 page_name  // 
-	,url_dir    //  to _.json for page
+url = ""  // url to json file for page 
 ) {
-	this.page_name    = page_name;  // remember the page we are displaying - 
-	this.page_url_dir = url_dir; 
+	if (url!=="") {
+		this.page_url_dir  = url;  // remember the page we are displaying - 
+	}
 
 	// load page module code if not already loaded
-	if (this.pages[url_dir] === undefined) {
-		this.pages[url_dir] = await this.page_load(url_dir);
+	if (this.pages[this.page_url_dir] === undefined) {
+		this.pages[this.page_url_dir] = await this.page_load(this.page_url_dir);
 	} else {
-		app.pages[url_dir].display();
+		// page already loaded
+		app.pages[this.page_url_dir].display();
 	}
 }
 
@@ -127,6 +150,7 @@ async page_load(   // appClass - client side
 		alert("error, file='app_24-08' method='page_load'")
 	}
 }
+
 
 load_contact(element) {
 	element.innerHTML = "load contact html"
