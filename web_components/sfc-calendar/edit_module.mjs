@@ -25,11 +25,7 @@ async event_create(  // calendarClass  client-side
 data  // "yyyy-m-d"
 ) {
   // determine if we are on user calendar or
-  if (!await app.sfc_login.getStatus()) {
-    // not on user calendar
-    alert('login to view your calendar user');
-    return;
-  }
+	if ( await app.sfc_login.login_force( this.event_create.bind(this,data) )) {
 
   await this.form_load();
   this.renderEndDateSelector();  // turn on input files for type of repeat (never, weekly, monthly.....)
@@ -59,8 +55,8 @@ data  // "yyyy-m-d"
   let button = this.shadow.getElementById("addEventButton"   ); button.hidden = false; button.addEventListener("click", this.event_add.bind(this));
 
   app.sfc_dialog.show_modal();    // make popup vissible
+  }
 }
-
 
 async form_load(){  // calendarClass  client-side
   app.sfc_dialog.title_set("<b>Edit Calandar Event</b>");

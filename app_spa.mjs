@@ -57,6 +57,9 @@ async main() { // appClass - client side
 		}
 		await this.page_display(page);
 	}
+
+	// update longin status
+	this.sfc_login.login_status_update();  // let user know if they are already logined in
 }
 
 
@@ -71,6 +74,12 @@ async url_copy(   // appClass - client side
  
 	await navigator.clipboard.writeText(url);  // copy url to clipboard
 	this.sfc_dialog.show_modal();               // show dialog
+}
+
+
+async date_copy(   // appClass - client side
+){
+	await navigator.clipboard.writeText( format.getISO(new Date()) );  // copy YYYY-MM=DD to clipboard
 }
 
 

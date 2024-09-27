@@ -137,7 +137,8 @@ click(event){// calendar_class - client-side
 
 
 event_display(  // calendar_class - client-side
-  pk){
+  pk // user clicked on calendar event link, pk is for event
+){
 
   let event = this.table_events.get_object(pk);
   let link = "",description="";
@@ -149,9 +150,11 @@ event_display(  // calendar_class - client-side
     description = event.description;
   }
 
-  //const dialog = this.shadow.getElementById("dialog");
   app.sfc_dialog.title_set(`<b>${event.name}</b>`);
-  app.sfc_dialog.body_set( `${description}<br><br>${link}`);
+  app.sfc_dialog.body_set(`
+  <sfc-event-datetime>${pk}</sfc-event-datetime>
+  <br>${description}
+  <br><br>${link}`);
   app.sfc_dialog.show_modal();
 }
 

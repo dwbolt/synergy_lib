@@ -51,37 +51,35 @@ async pwd_change() { // sfc_login - client side
 async login_status_update(       // sfc_login - client side
 ) {
 	let logInOut,loginState;
-  
+	const login_status = document.getElementById("login_status");
+
 	// get login State
 	if (await this.getStatus()) {
 	  // logged in
-	  logInOut                 = "Log Out";
-	  loginState               = `Logged in: ${this.user_display()}`;
-	  this.e_pwd_change.hidden = false;
-	        this.e_new.hidden  = false;
+	  login_status.innerHTML = this.user_display();
+	  logInOut                  = "Log Out";
+	  loginState                = `Logged in: ${this.user_display()}`;
+	  if (this.e_pwd_change) {this.e_pwd_change.hidden = false;}            	// conside refactor, do not like all the testing before setting a value.
+	  if (this.e_new       ) {       this.e_new.hidden = false;}
 	} else {
-	  // not logged in
-	  logInOut                 = "Log In";
-	  loginState               = "Logged out";
-	  this.e_pwd_change.hidden = true;
-	         this.e_new.hidden = true;
+	  // logged out
+	  login_status.innerHTML    = "";
+	  logInOut                  = "Log In";
+	  loginState                = "Logged out";
+	  if (this.e_pwd_change) {this.e_pwd_change.hidden = true;}
+	  if (this.e_new       ) {       this.e_new.hidden = true;}
 
-	  this.e_form.innerHTML = `
-	  Username: <input id='user_name'> <br/>
+	  if (this.e_form) {this.e_form.innerHTML = `
+Username: <input id='user_name'> <br/>
 Password: <input id='password'  type='password'> enter or return key will attempt login<br/>
-`
+`;}
 		this.input_user_name  = this.shadow.getElementById("user_name");
 		this.input_password   = this.shadow.getElementById("password" );
-		this.input_password.addEventListener('keydown', this.on_enter.bind(  this));
+		if (this.input_password) {this.input_password.addEventListener('keydown', this.on_enter.bind(  this));}
 	}
 	
-	this.e_login_out.innerHTML = logInOut  ;  // update button
-	this.title_set(loginState);  // update message
-
-	const login_status = document.getElementById("login_status");
-	if (login_status) {
-		login_status.innerHTML = this.user_display();
-	}
+	if (this.e_login_out) {this.e_login_out.innerHTML = logInOut;}  // update button
+	this.title_set(loginState)           ;  // update message
 }
 
 
@@ -167,10 +165,8 @@ async login_force( callback ) {   // sfc_login - client side
 async login_out(  // sfc_login - client side
   ) {
 	// get user credentials from web page
-	if        (this.e_login_out.innerHTML === "Log In") {
-	  await this.login();
-	} else if (this.e_login_out.innerHTML === "Log Out") {
-		await this.logout();
+	if        (this.e_login_out.innerHTML === "Log In" ) {await this.login( );
+	} else if (this.e_login_out.innerHTML === "Log Out") {await this.logout();
 	} else {
 		this.e_msg.innerHTML = `error this.e_login_out.innerHTML="${this.e_login_out.innerHTML}"`
 	}
