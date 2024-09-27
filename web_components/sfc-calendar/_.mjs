@@ -2,6 +2,7 @@ const {sfc_table_class    } = await app.load("db/sfc-table/_.mjs"); //import  {s
 const {table_class        } = await app.load("db/table_module.js");
 const {format             } = await app.load("format/_.mjs");
 
+const {sfc_event_datetime } = await app.load("web_components/sfc-calendar/sfc-event-datetime/_.mjs");  // preload <sfc-event-datetime>
 const {calendar_edit_class} = await app.load("web_components/sfc-calendar/edit_module.mjs");
 
 
@@ -152,7 +153,7 @@ event_display(  // calendar_class - client-side
 
   app.sfc_dialog.title_set(`<b>${event.name}</b>`);
   app.sfc_dialog.body_set(`
-  <sfc-event-datetime>${pk}</sfc-event-datetime>
+  <sfc-event-datetime data-pk="${pk}"></sfc-event-datetime>
   <br>${description}
   <br><br>${link}`);
   app.sfc_dialog.show_modal();
