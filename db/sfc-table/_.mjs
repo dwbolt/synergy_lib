@@ -389,6 +389,7 @@ displayData(){   // sfc_table_class - client-side
     // display subset of rows in tag
     this.paging.rowMax = this.tags[this.tag].length;
   }
+  this.shadow.getElementById("rowMax").innerHTML = this.paging.rowMax;
 
   // enable/disable the prev and next button - should be a better way todo this
   if (this.paging.row  ===  0 ) {
@@ -448,7 +449,7 @@ statusLine(   // sfc_table_class - client-side
         html += `<b>Table: ${this.tableName}</b>`
         break;
       case "rows":
-        html += `Rows: ${this.paging.rowMax}`
+        html += `Rows: <span id="rowMax"></span>`
         break;
       case "tags":
         html += `tags: ${this.genTags()}`  // allow user to chose groups of records to display
