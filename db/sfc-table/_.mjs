@@ -389,7 +389,13 @@ displayData(){   // sfc_table_class - client-side
     // display subset of rows in tag
     this.paging.rowMax = this.tags[this.tag].length;
   }
-  this.shadow.getElementById("rowMax").innerHTML = this.paging.rowMax;
+
+  const rowMax =  this.shadow.getElementById("rowMax");
+  if (rowMax !== null) {
+    // update rowMax if there
+    rowMax.innerHTML = this.paging.rowMax;
+  }
+
 
   // enable/disable the prev and next button - should be a better way todo this
   if (this.paging.row  ===  0 ) {
