@@ -2,33 +2,17 @@ const {sfc_table_class    } = await app.load("db/sfc-table/_.mjs"); //import  {s
 const {table_class        } = await app.load("db/table_module.js");
 const {format             } = await app.load("format/_.mjs");
 
-const {sfc_event_datetime } = await app.load("web_components/sfc-calendar/sfc-event-datetime/_.mjs");  // preload <sfc-event-datetime>
+//const {sfc_event_datetime } = await app.load("web_components/sfc-calendar/sfc-event-datetime/_.mjs");  // preload <sfc-event-datetime>
 const {calendar_edit_class} = await app.load("web_components/sfc-calendar/edit_module.mjs");
 
 
 export class calendar_class extends sfc_table_class {  // calendar_class  client-side
   /*
-   Calendar data is stored in a database.
-  
-  High level methods are:
-  
-  //////////////////////////////// display methods
-  constructor( // calendar_class  client-side
-createDate
-event_add( 
+  open issues -------
+test what happends if user is logged in but viewing sfc calender in sfcknox.org
 
   -----------
-  main() is the starting point
-  calendar_create() converts data from this.events[mm][dd] to table for display in the weekly fromat
-
-  displayRow()    converts node to html for displayed
-
-  
-  createDate(    // crates starting or endingdate for an event event
-  updatePictures(list)    // walk through each row and display the next picture
-  HTMLforNode(  //
-   A users will see the events in their timezone.
-   This may not only change the time but also the day, month or year for the viewer of the events
+   Calendar data is stored in a database.
   
   */
   
@@ -153,10 +137,26 @@ event_display(  // calendar_class - client-side
 
   app.sfc_dialog.title_set(`<b>${event.name}</b>`);
   app.sfc_dialog.body_set(`
-  <sfc-event-datetime data-pk="${pk}"></sfc-event-datetime>
+  ${this.repeat_display(event)}
   <br>${description}
   <br><br>${link}`);
   app.sfc_dialog.show_modal();
+}
+
+
+repeat_display(  // calendar_class - client-side
+  event // object
+){
+  let html = `Time:  ${this.edit.time2string(event.dateStart)} - ${this.edit.time2string(event.dateEnd)} duration: ${event.timeDuration}<br>`;
+  switch(event.repeat) {
+  case "never"  :  break;
+  case "weekly" : 
+  case "monthly": 
+  case "yearly" : html += `Repeats: ${event.repeat}<br>`; break;
+  default       : html += `in calendar_class.repeat_display: repeat=${event.repeat}  pk=${event.pk}<br>`;
+  }
+
+  return html;
 }
 
 
@@ -502,7 +502,7 @@ calendar_create(  // calendar_class  client-side
 
       let add="";
       if ( this.login_status) {
-        // user calendar
+        // user calendar, so allow adding new event
         add =`<a data-create="${start.getFullYear()}-${m}-${d}" class="pointer">+</a><br>`
       }
       style = this.style_get(start, firstDate, today);  // set style of day depending on not part of current year, past, today, future,

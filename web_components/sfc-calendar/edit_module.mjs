@@ -226,12 +226,12 @@ pk
   this.shadow.getElementById("description").value = (record.description ? record.description : "")
 
   let d = record.dateStart;
-  this.shadow.getElementById("start_date").valueAsDate = new Date(d[0],d[1]-1,d[2]); 
-  this.shadow.getElementById("start_time").value       = `${format.padZero(d[3],2)}:${format.padZero(d[4],2)}`;
+  this.shadow.getElementById("start_date").valueAsDate = this.array2date(d);
+  this.shadow.getElementById("start_time").value       = this.time2string(d);
   
   d = record.dateEnd;
-  this.shadow.getElementById("end_date").valueAsDate = new Date(d[0],d[1]-1, d[2]);
-  this.shadow.getElementById("end_time").value       = `${format.padZero(d[3],2)}:${format.padZero(d[4],2)}`;
+  this.shadow.getElementById("end_date").valueAsDate = this.array2date(d);
+  this.shadow.getElementById("end_time").value       =  this.time2string(d);
 
   this.shadow.getElementById('timeZone').value       = record.timeZone;
  
@@ -246,6 +246,20 @@ pk
 
   // fill in what days the event repeats on
   this.data2form_repeat(record);
+}
+
+
+time2string( // calendar_edit_class  client-side
+  d // date array [yyyy,mmm,dd, hh,mm]
+){
+  return  `${format.padZero(d[3],2)}:${format.padZero(d[4],2)}`;
+}
+
+
+array2date( // calendar_edit_class  client-side
+  d // date array [yyyy,mmm,dd,hh,mm]
+){
+  return new Date(d[0],d[1]-1,d[2]);
 }
 
 

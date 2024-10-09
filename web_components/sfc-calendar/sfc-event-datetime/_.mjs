@@ -1,4 +1,4 @@
-import  {proxy     }   from '/_lib/proxy/_.mjs'  ;
+const {table_class        } = await app.load("db/table_module.js");
 
 export class sfc_event_datetime extends HTMLElement { // sfc_html - client side
 /*
@@ -13,13 +13,17 @@ constructor() {  // sfc-event-datetime - client side
 	super();
 	this.shadow = this.attachShadow({ mode: "closed" });  
 	this.pk = this.getAttribute("data-pk"); // event we are display
+
+	this.table_events = new table_class(); 
+
 	this.shadow.innerHTML = this.pk;  
 }
 
-/*
+
 async connectedCallback() { // 
+	await this.table_events.load(this.table_urls[0]);   // for now just support one calendar
 }
-*/
+
 
 } // end sfc-event-datetime
 
