@@ -46,7 +46,7 @@ errow, nember should be of type number
 static getDayOfWeek( // formatClass - client-side
   numberDay   // 0->Sunday
 ){
-  return( days[numberDay] );
+  return( format.days[numberDay] );
 }
 
 // formatClass - client-side
@@ -162,7 +162,7 @@ static getDaysOfWeek(
   let str = "";
   // walk array and add day strings
    for (let i=0; i< dayOffsets.length; i++) {
-     str +=   ", " + days[dayOffsets[i]];
+     str +=   ", " + format.days[dayOffsets[i]];
    }
 
   return str.slice(2);  // trim leading ", "

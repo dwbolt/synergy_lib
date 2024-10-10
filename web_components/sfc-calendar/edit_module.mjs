@@ -474,7 +474,8 @@ addNewRepeatMonthy(  // calendar_edit_class  client-side
   if (3 < this.openMonthDates) return;    // Make sure we are not at maximum amount of dates
   this.openMonthDates++;
   // We need to expand how large the total pop up is to fit the new items
-  const dialog = this.shadow.getElementById("dialog"); dialog.style.height = `${dialog.clientHeight + 35}px`;
+  //const dialog = this.shadow.getElementById("dialog"); 
+  //dialog.style.height = `${dialog.clientHeight + 35}px`;
   this.shadow.getElementById("monthly_repeat").innerHTML += 
   `<div>
   <select id = "monthlyWeekSelect-${this.openMonthDates}">

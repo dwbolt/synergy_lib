@@ -147,16 +147,20 @@ event_display(  // calendar_class - client-side
 repeat_display(  // calendar_class - client-side
   event // object
 ){
-  let html = `Time:  ${this.edit.time2string(event.dateStart)} - ${this.edit.time2string(event.dateEnd)} duration: ${event.timeDuration}<br>`;
+  let html = `<b>Time:</b>  ${this.edit.time2string(event.dateStart)} - ${this.edit.time2string(event.dateEnd)} <b>Duration:</b> ${event.timeDuration}<br><b>Repeats:</b> ${event.repeat}<br>`;
   switch(event.repeat) {
-  case "never"  :  break;
-  case "weekly" : 
+  case "yearly" : 
+  case "never"  : break;
+  case "weekly" : html += `${format.getDaysOfWeek(event.repeat_details)}<br>`; break;
   case "monthly": 
-  case "yearly" : html += `Repeats: ${event.repeat}<br>`; break;
+    for (let i = 0; i < event.repeat_details.length; i++) {
+      html += `${event.repeat_details[i][1]} ${format.getDayOfWeek(event.repeat_details[i][0])}<br>`;
+    }
+    break;
   default       : html += `in calendar_class.repeat_display: repeat=${event.repeat}  pk=${event.pk}<br>`;
   }
 
-  return html;
+  return html + "<br>";  // add blank line between repeat info and description
 }
 
 
@@ -202,6 +206,7 @@ calendar_display(// calendar_class - client-side
     this.today_display();   // only need to do this is we are displaying the clander
   }
 }
+
 
 statusLine() {
   super.statusLine();  // display and addEventLisenter
