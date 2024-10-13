@@ -145,8 +145,8 @@ async page_load(   // appClass - client side
 
 	if        (app.page_json.module === undefined) {
 		// used base class of page_
-		const page_module = new page_(this.page_name, url_dir);
-		await page_module.init(app.page_json,url_dir);
+		const page_module = new page_(url_dir);
+		await page_module.init(app.page_json);
 		return page_module;
 	} else if (app.page_json.module === true) {
 		// load custom page module from same directory as _.json

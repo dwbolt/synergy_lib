@@ -5,18 +5,16 @@ import {proxy} from '/_lib/proxy/_.mjs' ;
 export class page_ { // sfcknox2/pages/home
 
 constructor(  // class page_ - client side
-	name
+	url
 ){ 
-	this.name = name; // name of page
+	this.dir_url = url; // name of page
 }
 
 
 async init(         // class page_ - client side
 	json  // page difintion
-	,dir_url
 ) {
 	this.json    = json   ; // define page resources
-	this.dir_url = dir_url; // url to get to the json file, may need to load custom page_module
 	await this.display();
 }
 
