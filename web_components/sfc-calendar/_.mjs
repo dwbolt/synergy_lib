@@ -433,20 +433,21 @@ weekly_add( // calendar_class  client-side
 
 
 monthly_add (  // calendar_class  client-side
-edge // is this really and event record?
+event // event record from calendar table
 ) {
   // walk the days, first entry should be 0;
-  const start = this.GMT[edge.pk].start;
+  const start = this.GMT[event.pk].start;
   let monthOffset = 0;
   // walk to monthes to the end of the year
   for (let month = new Date(this.year, start.getMonth()               , 1,1,1) ;
-       month < this.GMT[edge.pk].repeat_end && month.getFullYear() === this.year;  
+       month < this.GMT[event.pk].repeat_end && month.getFullYear() === this.year;  
        // add an hour and 1 minute for the case month starts in daylight savings and the date is after daylight savings ends.
         month = new Date(this.year, start.getMonth()+ ++monthOffset, 1,1,1)) {
     
     // walk weeks in month
     // repeat_details [[].[]] document
-    edge.repeat_details.forEach((day, ii) => {  // day=[day number, week number] day number 0 -> sunday     :  [1,2] -> second monday of month
+    event.repeat_details.forEach((day, ii) => {  
+      // day=[day number, week number] day number 0 -> sunday     :  [1,2] -> second monday of month
       // find first target day of week in the the month
       let offset = day[0] - month.getDay(); // day[0] is the target day of week
       if (offset<0) {offset += 7;}          // target day of week in in the next week
@@ -461,8 +462,8 @@ edge // is this really and event record?
         offset += 7*(n[1]-1);                                  // calculate offset
       }
       let eventDate = new Date(month.getTime() + offset*1000*60*60*24);
-      if ( this.GMT[edge.pk].start < eventDate && eventDate < this.GMT[edge.pk].repeat_end) {
-        this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(edge.pk);  // push key to edge associated with edge
+      if ( this.GMT[event.pk].start < eventDate && eventDate < this.GMT[event.pk].repeat_end) {
+        this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(event.pk);  // push key to event associated with event
       }
     });
   }

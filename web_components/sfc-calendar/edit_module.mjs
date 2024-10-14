@@ -404,8 +404,16 @@ form2data_repeat(g){  // calendar_edit_class  client-side
     g.repeat_details = [];
     // read input from the drop down boxes
     for (let i = 1; i <= this.openMonthDates; i++) {
-        g.repeat_details.push([parseInt(this.shadow.getElementById(`monthlyDaySelect-${i}` ).value),
-                               parseInt(this.shadow.getElementById(`monthly_week_select-${i}`).value)]);
+      let sign;
+      if (this.shadow.getElementById(`direction-${i}`).value === "end" ) {
+        sign = -1;
+      } else {
+        sign = 1;
+      }
+      g.repeat_details.push([
+                parseInt(this.shadow.getElementById(`monthlyDaySelect-${i}`   ).value)
+        ,sign * parseInt(this.shadow.getElementById(`monthly_week_select-${i}`).value)
+      ]);
     }
     break;
 
