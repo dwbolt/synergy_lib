@@ -181,20 +181,6 @@
 	transition: 200ms;
 }
 
-.removeMonthlySelectorButton {
-	/* display: inline-block;
-	color: #ffffff;
-	text-align: center;
-	font-size: 25px;
-	background-color: #808080;
-	height: 20px;
-	width: 20px;
-	border-radius: 30%;
-	transition: 200ms; */
-	cursor: pointer;
-	font-size: 25px;
-	color: #515050;
-}
 
 #todayButton {
 	transition: 200ms;

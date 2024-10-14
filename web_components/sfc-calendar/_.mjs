@@ -137,6 +137,7 @@ event_display(  // calendar_class - client-side
 
   app.sfc_dialog.title_set(`<b>${event.name}</b>`);
   app.sfc_dialog.body_set(`
+  <b>Event ID:</b> ${pk}<br>
   ${this.repeat_display(event)}
   <br>${description}
   <br><br>${link}`);
@@ -432,7 +433,7 @@ weekly_add( // calendar_class  client-side
 
 
 monthly_add (  // calendar_class  client-side
-edge// 
+edge // is this really and event record?
 ) {
   // walk the days, first entry should be 0;
   const start = this.GMT[edge.pk].start;

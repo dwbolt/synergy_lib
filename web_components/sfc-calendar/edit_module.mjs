@@ -281,7 +281,7 @@ data2form_repeat(   // calendar_edit_class  client-side
       this.addNewRepeatMonthy();  // create place
     }
     for (let i = 0; i < record.repeat_details.length; i++) {
-      this.shadow.getElementById(`monthlyWeekSelect-${i+1}`).value = record.repeat_details[i][1];
+      this.shadow.getElementById(`monthly_week_select-${i+1}`).value = record.repeat_details[i][1];
       this.shadow.getElementById(`monthlyDaySelect-${i+1}` ).value = record.repeat_details[i][0];
     }
     break;
@@ -405,7 +405,7 @@ form2data_repeat(g){  // calendar_edit_class  client-side
     // read input from the drop down boxes
     for (let i = 1; i <= this.openMonthDates; i++) {
         g.repeat_details.push([parseInt(this.shadow.getElementById(`monthlyDaySelect-${i}` ).value),
-                               parseInt(this.shadow.getElementById(`monthlyWeekSelect-${i}`).value)]);
+                               parseInt(this.shadow.getElementById(`monthly_week_select-${i}`).value)]);
     }
     break;
 
@@ -477,14 +477,8 @@ addNewRepeatMonthy(  // calendar_edit_class  client-side
   //const dialog = this.shadow.getElementById("dialog"); 
   //dialog.style.height = `${dialog.clientHeight + 35}px`;
   this.shadow.getElementById("monthly_repeat").innerHTML += 
-  `<div>
-  <select id = "monthlyWeekSelect-${this.openMonthDates}">
-    <option value="1" selected>1st</option>
-    <option value="2">2nd</option>
-    <option value="3">3rd</option>
-    <option value="4">4th</option>
-    <option value="5">Last</option>
-  </select>
+  `<div><details>
+  <summary>
   <select id = "monthlyDaySelect-${this.openMonthDates}">
     <option value="0" selected> Sunday   </option>
     <option value="1">          Monday   </option>
@@ -493,10 +487,49 @@ addNewRepeatMonthy(  // calendar_edit_class  client-side
     <option value="4">          Thursday </option>
     <option value="5">          Friday   </option>
     <option value="6">          Saturday </option>
+    <option value="31">         On Day</option>
   </select>
-  <a onclick="app.edit.removeMonthlySelector(this)" class="removeMonthlySelectorButton">-</a>
-</div>
+
+  <select id = "monthly_week_select-${this.openMonthDates}">
+    <option value="1" selected>1st</option>
+    <option value="2">2nd</option>
+    <option value="3">3rd</option>
+    <option value="4">4th</option>
+    <option value="5">Last</option>
+  </select>
+
+  <select id = "monthly_day_select-${this.openMonthDates}" style="display: none">
+  </select>
+  Starting From 
+   <select id = "direction-${this.openMonthDates}">
+      <option value="begining" selected>begining</option>
+      <option value="end"           >End</option>
+   </details></select>
+
+
+  <button id="delete">delete</button>
+</summary>
+
+<p><b>If want to repeat on the 2nd Tuesday of each month.</b><br>
+Select 'Tuesday' in the first box, '2nd' in the sencod box, and 'Begining' in the third box.</p>
+
+<p><b>If want to repeat on the next to last Tuesday of each month.</b><br>
+Do the same as above but select 'End' in the third box.  
+
+<p><b>If want to repeat on 5th day of each month.</b><br>
+Select 'On Day' in the first box, select '5' in the second box, select 'Begining' in the third box.
+</p>
+
+<p><b>If want to repeat on 5 days before the end of each month.</b><br>
+Do the same as above but select 'End' in the third box.</p>
+
+<p><b>multiple repeats for the month</b><br>
+Set the first repeat as descripted above.  Set the second by pressing the '+' next to the 'Repeats'</p>
+</details></div>
 `
+
+this.shadow.getElementById("delete"                                 ).addEventListener( 'click' , this.removeMonthlySelector.bind(this) );
+this.shadow.getElementById(`monthlyDaySelect-${this.openMonthDates}`).addEventListener( 'change', this.monthly_day_select_change.bind(this) );
 }
 
 
@@ -506,8 +539,34 @@ removeMonthlySelector(  // calendar_edit_class  client-side
   element
 ) {
   element.parentElement.remove();
-  this.shadow.getElementById("popUpForm").style.height = `${this.shadow.getElementById("popUpForm").clientHeight - 35}px`;
   this.openMonthDates--;
+}
+
+monthly_day_select_change(
+  event  // 
+){
+const element    = event.target;
+const parse_name = element.id.split("-");  // parse_name[1] can be used to get 
+
+if (element.value === "31") {
+  //monthly selected
+
+  // hide monthly_week_select
+  this.shadow.getElementById(`monthly_week_select-${parse_name[1]}`).style.display = "none"  ;  // hide
+  this.shadow.getElementById(`monthly_day_select-${parse_name[1]}` ).style.display = "inline";  // show
+
+  // populate with days of month
+  let html = "";
+  for (let i=1; i<31; i++) {
+    html += `<option>${i}</option>`;
+  }
+  this.shadow.getElementById(`monthly_day_select-${parse_name[1]}`).innerHTML = html;  // add all days of month;
+} else {
+  // day of week selected
+  this.shadow.getElementById(`monthly_week_select-${parse_name[1]}`).style.display = "inline";  // show
+  this.shadow.getElementById(`monthly_day_select-${parse_name[1]}` ).style.display = "none"  ;  // hide
+}
+
 }
 
 } // calendar_edit_class client-side  -end class
