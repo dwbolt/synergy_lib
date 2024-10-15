@@ -513,7 +513,6 @@ addNewRepeatMonthy(  // calendar_edit_class  client-side
     <option value="2">2nd</option>
     <option value="3">3rd</option>
     <option value="4">4th</option>
-    <option value="5">Last</option>
   </select>
 
   <select id = "monthly_day_select-${this.openMonthDates}" style="display: none">
