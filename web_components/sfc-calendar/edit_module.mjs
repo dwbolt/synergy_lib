@@ -281,8 +281,18 @@ data2form_repeat(   // calendar_edit_class  client-side
       this.addNewRepeatMonthy();  // create place
     }
     for (let i = 0; i < record.repeat_details.length; i++) {
-      this.shadow.getElementById(`monthly_week_select-${i+1}`).value = record.repeat_details[i][1];
       this.shadow.getElementById(`monthlyDaySelect-${i+1}` ).value = record.repeat_details[i][0];
+
+      if (0<record.repeat_details[i][1]) {
+        // start at begining of month
+        this.shadow.getElementById(`monthly_week_select-${i+1}`).value               =  record.repeat_details[i][1];
+        this.shadow.getElementById(`direction-${this.openMonthDates}`).selectedIndex = 0;
+      } else {
+        // start at end of month
+        this.shadow.getElementById(`monthly_week_select-${i+1}`).value               = -record.repeat_details[i][1];
+        this.shadow.getElementById(`direction-${this.openMonthDates}`).selectedIndex = 1;
+      }
+   
     }
     break;
 
@@ -406,9 +416,9 @@ form2data_repeat(g){  // calendar_edit_class  client-side
     for (let i = 1; i <= this.openMonthDates; i++) {
       let sign;
       if (this.shadow.getElementById(`direction-${i}`).value === "end" ) {
-        sign = -1;
+        sign = -1; // move back from last day
       } else {
-        sign = 1;
+        sign = 1;  // 
       }
       g.repeat_details.push([
                 parseInt(this.shadow.getElementById(`monthlyDaySelect-${i}`   ).value)
