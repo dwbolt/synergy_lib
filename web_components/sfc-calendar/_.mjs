@@ -168,7 +168,7 @@ repeat_display(  // calendar_class - client-side
 calendar_display(// calendar_class - client-side
 ) {
   // display calenda
-  this.calendar_create();  // convert this.events to a table that can be displayed with tableUX
+  this.calendar_create();  // convert this.events to a table that can be displayed with web component sfc_table
 
   this.setStatusLineData( [
     `<button id="todayButton">Today</button>`
@@ -320,7 +320,7 @@ createDate(  // calendar_class  client-side
 async event_init( // calendar_class  client-side
 ) {
   // init events
-  this.events =[]                  // this.events[1][12] for january 12 a list of event nodes for that day - expanded from graph
+  this.events =[]                  // this.events[1][12] for january 12 a list of event nodes for that day 
   for (let m=1; m<=12; m++) {
     this.events[m]=[]
     for (let d=1; d<=31; d++) {
@@ -328,7 +328,7 @@ async event_init( // calendar_class  client-side
     }
   }
 
-  // each event will generate at least one element in and event list
+  // each event will generate at least one element in event list
   let pks =  this.table_events.get_PK()
   for (let i=0; i<pks.length; i++ ) {
     // generate GMT
@@ -440,30 +440,55 @@ event // event record from calendar table
   let monthOffset = 0;
   // walk to monthes to the end of the year
   for (let month = new Date(this.year, start.getMonth()               , 1,1,1) ;
-       month < this.GMT[event.pk].repeat_end && month.getFullYear() === this.year;  
+           month < this.GMT[event.pk].repeat_end && month.getFullYear() === this.year;  
        // add an hour and 1 minute for the case month starts in daylight savings and the date is after daylight savings ends.
-        month = new Date(this.year, start.getMonth()+ ++monthOffset, 1,1,1)) {
+      month = new Date(this.year, start.getMonth()+ ++monthOffset, 1,1,1)) {
     
-    // walk weeks in month
-    // repeat_details [[].[]] document
+    /* walk weeks in month
+    repeat_details [[0 throught 6 -> day number  31->on day, offset],[]...]
+    [0,2] -> second Sunday of month
+    [1,3] -> third Monday of month
+    [1,-1] -> last Monday of month
+    [1,-2] -> Next to last monday of month
+    [31,1] -> 1st of the month
+    [31,-1] -> last day of month
+    [31,-10] -> 10 days before the end of the month
+    */
+
     event.repeat_details.forEach((day, ii) => {  
-      // day=[day number, week number] day number 0 -> sunday     :  [1,2] -> second monday of month
-      // find first target day of week in the the month
-      let offset = day[0] - month.getDay(); // day[0] is the target day of week
-      if (offset<0) {offset += 7;}          // target day of week in in the next week
-      if (day[1] != 5) {
-        offset += 7*(day[1]-1);               // move to correct on ie 1st, 2st, 3rd... day of week of the month
+      // day=[day number, week number] a positive week number measn 
+        // day number 0 -> sunday & 6-> Saturday & 31 -> on day     : 
+        //  [1,2] -> second monday of month
+      if (day[0] === 31) {
+        // repeat on a day
+        if (0<day[1]) {
+          // start at beggining of month
+          this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(event.pk);  // push key to event associated with event
+        } else {
+          // start at end of month
+        }
+      } else  if ( -1 < day[0] && day[0] < 7 ) {
+        //repeat on a week
+        // find first target day of week in the the month
+        let offset = day[0] - month.getDay(); // day[0] is the target day of week
+        if (offset<0) {offset += 7;}          // target day of week in in the next week
+        if (day[1] != 5) {
+          offset += 7*(day[1]-1);               // move to correct on ie 1st, 2st, 3rd... day of week of the month
+        } else {
+          // day repeats on last day of the month
+          // day is either on the 4th or 5th day for each month
+          let d = this.findDayInWeek(month.getMonth()+1,day[0]); // find the first day of the week of the next month
+          d.setDate(d.getDate() - 7);                            // subtract a week to get last day of week of this month
+          let n = this.findDayInMonth(d);                        // find if it is the 4th of 5th instance of day of the week in the month
+          offset += 7*(n[1]-1);                                  // calculate offset
+        }
+        let eventDate = new Date(month.getTime() + offset*1000*60*60*24);
+        if ( this.GMT[event.pk].start < eventDate && eventDate < this.GMT[event.pk].repeat_end) {
+          this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(event.pk);  // push key to event associated with event
+        }
       } else {
-        // day repeats on last day of the month
-        // day is either on the 4th or 5th day for each month
-        let d = this.findDayInWeek(month.getMonth()+1,day[0]); // find the first day of the week of the next month
-        d.setDate(d.getDate() - 7);                            // subtract a week to get last day of week of this month
-        let n = this.findDayInMonth(d);                        // find if it is the 4th of 5th instance of day of the week in the month
-        offset += 7*(n[1]-1);                                  // calculate offset
-      }
-      let eventDate = new Date(month.getTime() + offset*1000*60*60*24);
-      if ( this.GMT[event.pk].start < eventDate && eventDate < this.GMT[event.pk].repeat_end) {
-        this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(event.pk);  // push key to event associated with event
+        // error
+        alert("error");
       }
     });
   }
@@ -473,10 +498,10 @@ event // event record from calendar table
 calendar_create(  // calendar_class  client-side
 ) {   // convert this.events to a table that can be displayed with tableUX
   this.table         = new table_class();  // where calender will be stored 
-  this.setSearchVisible(false);                 // hide search
-  this.setLineNumberVisible(false);             // hide row line numbers
-  this.setRowNumberVisible(false);              // hide row numbers
-  this.paging.lines = 3;    // should use a method to do this
+  this.setSearchVisible(false);            // hide search
+  this.setLineNumberVisible(false);        // hide row line numbers
+  this.setRowNumberVisible(false);         // hide row numbers
+  this.paging.lines = 3;                   // should use a method to do this
 
   const t      = this.table;  // t -> table we will put event data in to display
   // init metadata for table
@@ -512,7 +537,7 @@ calendar_create(  // calendar_class  client-side
         // user calendar, so allow adding new event
         add =`<a data-create="${start.getFullYear()}-${m}-${d}" class="pointer">+</a><br>`
       }
-      style = this.style_get(start, firstDate, today);  // set style of day depending on not part of current year, past, today, future,
+      style    = this.style_get(start, firstDate, today);  // set style of day depending on not part of current year, past, today, future,
       let html = `<div class="${style}"><b>${m}-${d} ${add}</b><br>`;
 
       // loop for all events for day [m][d]
