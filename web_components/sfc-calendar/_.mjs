@@ -279,10 +279,8 @@ month_chosen(  // calendar_class  client-side
   // set rows/page so that the full month is displayed
   const row_start     = this.events[start.getMonth()+1][start.getDate()].row ;     // row of month start
   const row_end       = this.events[  end.getMonth()+1][  end.getDate()].row ;     // row of month end
-  //this.shadow.getElementById(`rows_per_page`).value = row_end-row_start;           // number of rows contained in month
-  this.rows_displayed(row_end-row_start);                                    // show all the weeks in the month
+  this.rows_displayed(row_end - row_start + 1);                                    // show all the weeks in the month
 }
-
 
 
 createDate(  // calendar_class  client-side
@@ -466,6 +464,8 @@ event // event record from calendar table
           this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(event.pk);  // push key to event associated with event
         } else {
           // start at end of month
+          debugger
+          this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(event.pk);  // push key to event associated with event
         }
       } else  if ( -1 < day[0] && day[0] < 7 ) {
         //repeat on a week
@@ -531,7 +531,6 @@ calendar_create(  // calendar_class  client-side
       let m = start.getMonth()+1;
       let d = start.getDate();
       this.events[m][d].row = x;   // remember what row a date is on so we can quickly move to that date
-
       let add="";
       if ( this.login_status) {
         // user calendar, so allow adding new event
