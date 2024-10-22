@@ -453,6 +453,7 @@ event // event record from calendar table
     [31,-10] -> 10 days before the end of the month
     */
 
+    let eventDate;
     event.repeat_details.forEach((day, ii) => {  
       // day=[day number, week number] a positive week number measn 
         // day number 0 -> sunday & 6-> Saturday & 31 -> on day     : 
@@ -461,10 +462,13 @@ event // event record from calendar table
         // repeat on a day
         if (0<day[1]) {
           // start at beggining of month
+          debugger;
+          eventDate = new Date(month.getTime() + offset*1000*60*60*24);
           this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(event.pk);  // push key to event associated with event
         } else {
           // start at end of month
           debugger
+          eventDate = new Date(this.year, start.getMonth()+monthOffset+1, day[1] ,1,1)        // goto next month and backup one day
           this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(event.pk);  // push key to event associated with event
         }
       } else  if ( -1 < day[0] && day[0] < 7 ) {
@@ -482,7 +486,7 @@ event // event record from calendar table
           let n = this.findDayInMonth(d);                        // find if it is the 4th of 5th instance of day of the week in the month
           offset += 7*(n[1]-1);                                  // calculate offset
         }
-        let eventDate = new Date(month.getTime() + offset*1000*60*60*24);
+        eventDate = new Date(month.getTime() + offset*1000*60*60*24);
         if ( this.GMT[event.pk].start < eventDate && eventDate < this.GMT[event.pk].repeat_end) {
           this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(event.pk);  // push key to event associated with event
         }
