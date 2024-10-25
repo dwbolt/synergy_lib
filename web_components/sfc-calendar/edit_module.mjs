@@ -278,18 +278,22 @@ data2form_repeat(   // calendar_edit_class  client-side
 
   case "monthly":
     while ( this.openMonthDates < record.repeat_details.length){
+      // create places to display data
       this.addNewRepeatMonthy();  // create place
     }
+
+    let select_list;
     for (let i = 0; i < record.repeat_details.length; i++) {
       this.shadow.getElementById(`monthlyDaySelect-${i+1}` ).value = record.repeat_details[i][0];
 
+      select_list = this.list_show_hide(record.repeat_details[i][0].toString(), i+1);
       if (0<record.repeat_details[i][1]) {
         // start at begining of month
-        this.shadow.getElementById(`monthly_week_select-${i+1}`).value               =  record.repeat_details[i][1];
+        select_list.value                                                            =  record.repeat_details[i][1];
         this.shadow.getElementById(`direction-${this.openMonthDates}`).selectedIndex = 0;
       } else {
         // start at end of month
-        this.shadow.getElementById(`monthly_week_select-${i+1}`).value               = -record.repeat_details[i][1];
+        select_list.value                                                            = -record.repeat_details[i][1];
         this.shadow.getElementById(`direction-${this.openMonthDates}`).selectedIndex = 1;
       }
    
@@ -414,15 +418,27 @@ form2data_repeat(g){  // calendar_edit_class  client-side
     g.repeat_details = [];
     // read input from the drop down boxes
     for (let i = 1; i <= this.openMonthDates; i++) {
+      // are starting at end of month or the first
       let sign;
       if (this.shadow.getElementById(`direction-${i}`).value === "end" ) {
         sign = -1; // move back from last day
       } else {
         sign = 1;  // 
       }
+
+      // are we reading week or a day
+      let day_week;
+      if ( this.shadow.getElementById(`monthlyDaySelect-${i}`).value === "31") {
+        // day
+        day_week = this.shadow.getElementById(`monthly_day_select-${i}`).value;
+      } else {
+        // week 
+        day_week = this.shadow.getElementById(`monthly_week_select-${i}`).value;
+      }
+
       g.repeat_details.push([
                 parseInt(this.shadow.getElementById(`monthlyDaySelect-${i}`   ).value)
-        ,sign * parseInt(this.shadow.getElementById(`monthly_week_select-${i}`).value)
+        ,sign * parseInt(day_week)
       ]);
     }
     break;
@@ -442,6 +458,25 @@ repeat="${g.repeat}"`);
   }
 }
 
+list_show_hide( // calendar_edit_class  client-side
+  day // 
+  ,i  // index into repeat_details
+){
+
+  let select_list;
+  if ( day==="31" ) {
+    // use day list
+    select_list =  this.shadow.getElementById(`monthly_day_select-${i}`);
+    this.shadow.getElementById(`monthly_week_select-${i}`).style.display = "none" // hide list not in use
+  } else if ( -1 < day && day < 7 ) {
+    // use week list
+    select_list =  this.shadow.getElementById(`monthly_week_select-${i}`);
+    this.shadow.getElementById(`monthly_day_select-${i}`).style.display = "none" // hide list not in use
+  } 
+
+  select_list.style.display="inline";  // show list we are using
+  return select_list;
+}
 
 renderEndDateSelector(  // calendar_edit_class  client-side
   // renders the end date selector based on chosen selected value from the repeat selector in pop up form
@@ -518,10 +553,10 @@ addNewRepeatMonthy(  // calendar_edit_class  client-side
   <select id = "monthly_day_select-${this.openMonthDates}" style="display: none">
   </select>
   Starting From 
-   <select id = "direction-${this.openMonthDates}">
-      <option value="begining" selected>begining</option>
-      <option value="end"           >End</option>
-   </details></select>
+  <select id = "direction-${this.openMonthDates}">
+    <option value="begining" selected>begining</option>
+    <option value="end"           >End</option>
+  </details></select>
 
 
   <button id="delete">delete</button>
@@ -547,6 +582,13 @@ Set the first repeat as descripted above.  Set the second by pressing the '+' ne
 
 this.shadow.getElementById("delete"                                 ).addEventListener( 'click' , this.removeMonthlySelector.bind(this) );
 this.shadow.getElementById(`monthlyDaySelect-${this.openMonthDates}`).addEventListener( 'change', this.monthly_day_select_change.bind(this) );
+
+// fill month with options
+let html="";
+for(let i=1; i<31; i++) {
+  html += `<option>${i}</option>`;
+}
+this.shadow.getElementById(`monthly_day_select-${this.openMonthDates}`).innerHTML = html;
 }
 
 
@@ -559,12 +601,15 @@ removeMonthlySelector(  // calendar_edit_class  client-side
   this.openMonthDates--;
 }
 
+
 monthly_day_select_change(
   event  // 
 ){
 const element    = event.target;
 const parse_name = element.id.split("-");  // parse_name[1] can be used to get 
 
+this.list_show_hide(element.value,parse_name[1]);
+/*
 if (element.value === "31") {
   //monthly selected
 
@@ -573,7 +618,7 @@ if (element.value === "31") {
   this.shadow.getElementById(`monthly_day_select-${parse_name[1]}` ).style.display = "inline";  // show
 
   // populate with days of month
-  let html = "";
+  /*let html = "";
   for (let i=1; i<31; i++) {
     html += `<option>${i}</option>`;
   }
@@ -583,6 +628,7 @@ if (element.value === "31") {
   this.shadow.getElementById(`monthly_week_select-${parse_name[1]}`).style.display = "inline";  // show
   this.shadow.getElementById(`monthly_day_select-${parse_name[1]}` ).style.display = "none"  ;  // hide
 }
+*/
 
 }
 

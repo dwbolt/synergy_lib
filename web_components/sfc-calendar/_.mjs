@@ -462,13 +462,11 @@ event // event record from calendar table
         // repeat on a day
         if (0<day[1]) {
           // start at beggining of month
-          debugger;
-          eventDate = new Date(month.getTime() + offset*1000*60*60*24);
+          eventDate = new Date(this.year, start.getMonth()+monthOffset, day[1] ,1,1)   
           this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(event.pk);  // push key to event associated with event
         } else {
           // start at end of month
-          debugger
-          eventDate = new Date(this.year, start.getMonth()+monthOffset+1, day[1] ,1,1)        // goto next month and backup one day
+          eventDate = new Date(this.year, start.getMonth()+monthOffset+1, day[1]+1 ,1,1)        // goto next month and backup one day
           this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(event.pk);  // push key to event associated with event
         }
       } else  if ( -1 < day[0] && day[0] < 7 ) {
