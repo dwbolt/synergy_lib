@@ -820,6 +820,8 @@ search( // sfc_table_class - client-side
   //,index = 2 // skip first two columns, there is not search values there
   event
 ) {
+  event.stopPropagation();  // only want the event to be processed in DOM object that event occured in
+  
   let i;
   const field_name   = event.target.id;
   const search_value = event.target.value;
