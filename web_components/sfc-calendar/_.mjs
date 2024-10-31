@@ -68,8 +68,18 @@ calendar_add(url) {// calendar_class  client-side
   
 
 async init() {  // calendar_class  client-side
-  await this.table_events.load(this.table_urls[0]);   // for now just support one calendar
-  this.edit         = new calendar_edit_class(this);  // class uses popup in table web component
+  // load calendar table
+  const msg = await this.table_events.load(this.table_urls[0],[404]); // for now just support one calendar
+  if (msg.status === 200) {
+    // calender events loaded
+    this.edit = new calendar_edit_class(this)                   ; // class uses popup in table web component
+  } else if (msg.status === 404) {
+    // user calendar database not found, give user the option to creat it
+    alert("do you want to create table")
+
+  } else {
+    // error not handled, load method should have done alert
+  }
 }
 
 
@@ -78,7 +88,7 @@ year //
 ) {
   if (year) {
     this.year = year;  // year of calendar to display - default is current year
-  }
+  }ß
 
   // decide which calendar to load, users or main
   this.event_init(); // will fill out this.events - array for each day of the year 

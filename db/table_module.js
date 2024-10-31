@@ -342,6 +342,7 @@ url_set(  // table_class - client-side
 
 async load(  // table_class - client-side
   dir        // location of table to load
+  ,status_array // 
   ) {
   this.url_set(dir);
   this.readonly = false;
@@ -350,7 +351,11 @@ async load(  // table_class - client-side
   let msg = await proxy.getJSONwithError(this.url_meta);
   if (msg.status === 200){
     this.meta = msg.json;
-  } else {
+  } if (0<= status_array.find(msg.status)) {
+    // calling function will handle error
+    return msg;
+  }else {
+    // calling funtions is not handleing error,
     this.meta = {}
     alert(`
 file="table_module.js"
@@ -358,7 +363,7 @@ method="load"
 url="${this.url_meta}"
 msg=${JSON.stringify(msg)}`);
     this.readonly = true;
-    //return;
+    //return;  not sure what code should do, need to test  
   }
 
   // load columns
