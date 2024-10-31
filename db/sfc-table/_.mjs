@@ -353,9 +353,11 @@ displayData(){   // sfc_table_class - client-side
   table_data.innerHTML = html;   // display data
 
   // add event for search
+  const search_hander =  this.search.bind(this);  // 
   if  (this.searchVisible) {
     this.model.meta_get("select").forEach((item, i) => {
-      this.shadow.getElementById(item).addEventListener('keyup', this.search.bind(this) );
+      const element = this.shadow.getElementById(`input#${item}`); // hack to fix duplicatate id, brittle code *****
+      element?.addEventListener('keyup', search_hander );
     });
   }
 
@@ -491,7 +493,7 @@ statusLine(   // sfc_table_class - client-side
   // add addEventListener for each UI element in the status div
   for(let i=0; i<e_l.length; i++) {
     const el = e_l[i];
-    this.shadow.getElementById(el[0]).addEventListener(el[1], el[2].bind(this));
+    this.shadow.getElementById(el[0]).addEventListener(el[1], el[2].bind(this), {"capture":false} );
   }
 }
 
