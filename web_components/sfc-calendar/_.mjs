@@ -88,7 +88,7 @@ year //
 ) {
   if (year) {
     this.year = year;  // year of calendar to display - default is current year
-  }ß
+  }
 
   // decide which calendar to load, users or main
   this.event_init(); // will fill out this.events - array for each day of the year 

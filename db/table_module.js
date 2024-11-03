@@ -342,19 +342,20 @@ url_set(  // table_class - client-side
 
 async load(  // table_class - client-side
   dir        // location of table to load
-  ,status_array // 
+  ,status_array = []// 
   ) {
   this.url_set(dir);
   this.readonly = false;
 
   // load table meta data
-  let msg = await proxy.getJSONwithError(this.url_meta);
+  const msg = await proxy.getJSONwithError(this.url_meta);
   if (msg.status === 200){
     this.meta = msg.json;
-  } if (0<= status_array.find(msg.status)) {
+  } else if (0<= status_array.find( 
+    (element) => element === msg.status )) {
     // calling function will handle error
     return msg;
-  }else {
+  } else {
     // calling funtions is not handleing error,
     this.meta = {}
     alert(`
@@ -370,8 +371,8 @@ msg=${JSON.stringify(msg)}`);
   if (this.readonly) {
       this.json = {};
     } else {
-    msg = await proxy.getJSONwithError(this.url_columns);
-    if (msg.status === 200){
+    const msg_col = await proxy.getJSONwithError(this.url_columns);
+    if (msg_col.status === 200){
       this.columns = msg.json;
     } else {
       alert(`
@@ -380,13 +381,15 @@ msg=${JSON.stringify(msg)}`);
   url="${this.url_columns}"
   msg=${JSON.stringify(msg)}`);
       this.readonly = true;
-      //return;
+      return msg_col;
     }
   }
 
   // load and apply change log
   await this.apply_changes();
   this.header_set();
+
+  return msg;
 }
 
 
