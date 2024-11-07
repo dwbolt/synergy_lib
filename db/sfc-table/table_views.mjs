@@ -49,7 +49,8 @@ load(   // table_views - client-side
   const fields = this.sfc_table.model.fields_get(); // array of all field names
   const a =[];
   for(let i=0; i<fields.length; i++) {
-    a.push([fields[i],"xxx"]);
+   // a.push([fields[i],"xxx"]);
+    a.push([fields[i],  this.sfc_table.model.get_field(fields[i],"header")]);
   }
    
   this[name].choices_add(a); //  display choices

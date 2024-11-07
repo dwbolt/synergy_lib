@@ -51,12 +51,15 @@ set_value(  // table_class - client-side
 
   const meta_field = this.meta.fields[field];
   if (meta_field === undefined) {
-    alert(`
-file="table_module.js"
-method="set_value"
-field="${field}"
-this.meta.fields[field] === undefined
-`); 
+
+alert(`
+  table = ${this.name}
+  pk    = ${pk}
+  field = ${field}
+  value = ${value}
+
+  call stack=${Error().stack}
+  `);
     return;
   }
   switch(meta_field.location) {
@@ -373,7 +376,7 @@ msg=${JSON.stringify(msg)}`);
     } else {
     const msg_col = await proxy.getJSONwithError(this.url_columns);
     if (msg_col.status === 200){
-      this.columns = msg.json;
+      this.columns = msg_col.json;
     } else {
       alert(`
   file="table_module.js"
@@ -438,7 +441,7 @@ JSON.parse(str) failed
         break;    
 
       case "f":  // field  names
-        this.field_names = obj;  // 
+        this.field_names = obj.splice(2);  // remove date and "f'", so only field names remain 
         break;    
 
       default:
@@ -505,7 +508,7 @@ append(  // table_class - client-side
   const pk = this.meta.PK_max;
   this.set_value(pk,"pk",pk);                    // add the pk
   for(let i=2; i<record.length; i++) {  // s
-    let field_name = (this.field_names ? this.field_names[i]: (i-2).toString())
+    let field_name = (this.field_names ? this.field_names[i-2]: (i-2).toString())
     this.set_value(pk, field_name, record[i]);  // add remainder of record
   }
 }
@@ -765,10 +768,24 @@ msg=${msg.message}`);}
 
 
 get_field( // table_class - client-side
-  i  // index into select array
+  i  // index # ->into select array  --- index is string
   ,attribute  // header or type or location..
   ){
-  const field_name = this.meta.select[i];
+  let field_name;
+  if        (typeof(i) === "number") {
+    field_name = this.meta.select[i];
+  } else if (typeof(i) === "string") {
+    field_name  = i;
+  } else {
+    //error
+    alert(`
+      type(i) === =${type(i)}
+      
+      call stack=${Error().stack}
+      `);
+    return null;
+  }
+  
   const value = this.meta.fields[field_name][attribute];
   if (typeof(value) === "string") {
     return value.toLowerCase(); // convert strings to lowercase for easy compare
