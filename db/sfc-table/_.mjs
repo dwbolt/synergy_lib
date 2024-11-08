@@ -43,24 +43,25 @@ constructor(   // sfc_table_class - client-side
 <div id="views" style="display: none;" >
   <select size="5" style="margin-right: 2em;"></select>  
 
-  <div id="search_tab"                       > <sfc-select-order id="search"></sfc-select-order> <div></div> </div>
-  <div id="select_tab" style="display: none;"> <sfc-select-order id="select"></sfc-select-order> <div></div> </div>
-  <div id="sort_tab"   style="display: none;"> <sfc-select-order id="sort"  ></sfc-select-order> <div></div> </div>
-  <div id="group_tab"  style="display: none;"> <sfc-select-order id="group" ></sfc-select-order> <div></div> </div>
+  <div id="search_tab"                       > <sfc-select-order id="search"></sfc-select-order> 
+     <button id="search_create">Create</button> <div id="serch_detail" ></div> </div>
+  <div id="select_tab" style="display: none;"> <sfc-select-order id="select"></sfc-select-order> <div id="select_detail"></div> </div>
+  <div id="sort_tab"   style="display: none;"> <sfc-select-order id="sort"  ></sfc-select-order> <div id="sort_detail"  ></div> </div>
+  <div id="group_tab"  style="display: none;"> <sfc-select-order id="group" ></sfc-select-order> <div id="group_detail" ></div> </div>
 </div>
 
 <div id="status" style="text-align:left; margin-bottom:10px"></div>
 <div id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
 <br>
 `
+}
 
-  this.shadow.getElementById('table').addEventListener('click', this.record_show.bind(this));
-  this.views        = this.shadow.getElementById('views');
-  if (this.db) {
-    // do not like this, refactor
-    let model  = this.db.getTable(table_name);
-    this.set_model(model,table_name)
-  }
+
+init(  // sfc_table_class - client-side
+){
+  this.views  = this.shadow.getElementById('views');
+  this.shadow.getElementById('table'        ).addEventListener('click', this.record_show.bind(this)                             );
+  this.shadow.getElementById("search_create").addEventListener("click", this.table_views.search_create.bind( this.table_views ) );
 }
 
 

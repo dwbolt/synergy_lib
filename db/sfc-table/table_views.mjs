@@ -35,14 +35,27 @@ constructor(   // table_views - client-side
 connectedCallback() { // table_views - client-side
 }
 
+search_create(){
+  // user has selected field they want to search on, so create UI so they can search
+  let msg = "in search_create";
+  /*
+	const sel = this.select_order.selected_return();
+	for(let i=0; i<sel.length; i++) {
+		msg += JSON.stringify(this.choices[sel[i]])+"<br>";
+	};
+  */
+	this.msg.innerHTML = msg;
+}
+
 
 load(   // table_views - client-side
   name // name of tab
 ){
-  const s                     = ( name === this.tab ? " selected" : ""); // set select option
-  this.main_select.innerHTML += `<option${s}>${name}</option>`         ; // add option to select
-  this[name]                  = this.shadow.getElementById(name       ); // remember the <sfc-select-order> web componets
-  this[name+"_tab"]           = this.shadow.getElementById(name+"_tab"); // remember the tabs
+  const s                     = ( name === this.tab ? " selected" : ""   ); // set select option
+  this.main_select.innerHTML += `<option${s}>${name}</option>`            ; // add option to select
+  this[name]                  = this.shadow.getElementById(name          ); // remember the <sfc-select-order> web componets
+  this[name+"_tab"]           = this.shadow.getElementById(name+"_tab"   ); // remember the tabs
+  this[name+"_detail"]        = this.shadow.getElementById(name+"_detail"); // remember the detail 
 
   // load up choices with fields names
   this[name].title_set(`<h3>${name}</h3>`)
@@ -65,7 +78,7 @@ show_tab( // table_views - client-side
   this[`${this.tab}_tab`].style.display = "none";
 
   // show tab clicked on
-  this.tab = this.main_select.value;
+  this.tab                              = this.main_select.value;
   this[`${this.tab}_tab`].style.display = "block";
 }
 

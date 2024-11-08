@@ -25,13 +25,14 @@ db_set(  // sfc_db_tables_class - client side
         html += `<sfc-table  id="${table_name}" hidden></sfc-table>` // create a place to display each table in database
     });
     this.shadow.innerHTML = html;  // add to shadowdom
-/*
 
-    //  <sfc-table> attach model for
+    //  <sfc-table> attach model and init()
     Object.keys(this.db.tables).forEach((table_name, i) => {
         let model  = this.db.getTable(table_name);
-        this.shadow.getElementById(table_name).set_model(model,table_name) // let <sfc-table> know the model it is a viewer for
-    }); */
+        const sfc_table =  this.shadow.getElementById(table_name);
+        sfc_table.set_model(model,table_name) // let <sfc-table> know the model it is a viewer for
+        sfc_table.init();
+    }); 
 }
 
 
