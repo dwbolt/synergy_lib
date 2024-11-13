@@ -39,7 +39,7 @@ constructor( // calendar_class  client-side
 /*
 async connectedCallback() { // calendar_class  client-side
                 await super.connectedCallback(     ); // 
-//{table_class} = await app.lib("db/table_module.mjs");
+//{table_class} = await app.lib("db/table_module.js");
 const {table_class} = await app.load("db/table_module.js");
 this.table_events = new table_class();  // where mulit year calander and repeating events live will be used generate this.table
 }

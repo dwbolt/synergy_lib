@@ -198,6 +198,7 @@ form_write(  // client side sfc_record_class - for a page
         case "text"     :
         case "json"     :
         case "html"     :
+        case "money"    :
         case "textarea" : this.shadow.getElementById(field_name).value       =  value                                 ; break;
         case "boolean"  : this.shadow.getElementById(field_name).checked     =  value                                 ; break;
         case "date"     : this.shadow.getElementById(field_name).valueAsDate =  new Date(value[0],value[1]-1,value[2]); break;

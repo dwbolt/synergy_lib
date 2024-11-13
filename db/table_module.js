@@ -101,6 +101,7 @@ get_value(  // table_class - client-side
     // pk is null or un
     return undefined;
   }
+  
   const meta_field = this.meta.fields[field];
   if (meta_field === undefined) {
     // assume data is stored in column, // not tested well, put in to support csv import

@@ -17,9 +17,10 @@ let app; // only global variable
 </script>
 
 <script type="module">
-import {table_sfc_class} from '/_lib/db/sfc-table/_.mjs';
-import {table_class    } from '/_lib/db/table_module.js';
-app = {};
+import {app_light} from "https://synergy_local.sfcknox.org/_lib/app_light.mjs"; // import form production when tested
+app                     = new app_light(                        ); // create instance of app_light module
+const {table_sfc_class} = await app.load(`db/sfc-table/_.mjs`   ); // get web-componet sfc-calendar
+const {table_class}     = await app.load(`db/table_module.js`); // get web-componet sfc-calendar
 
 // create some data to view
 app.model = new table_class();   // create model
@@ -32,12 +33,11 @@ app.model.apply_changes(
 ["2024-06-30T14:19:12.325Z","a","Betty","Bolt"]
 ["2024-06-30T14:19:12.325Z","a","Mike","Bolt"]
 ["2024-06-30T14:19:12.325Z","a","Chuck","Bolt"]
-`); //,"2024-06-30T14:19:12.325Z","1958-10-16T14:19:12.325Z"]`);
+`); 
 
 // now view data
 app.view  = document.getElementById("table");  // globle object points to web component
-//app.view.set_model(app.model,"people");
-//app.view.display();
-
+app.view.set_model(app.model,"people");
+app.view.display();
  
 </script>

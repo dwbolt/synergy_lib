@@ -69,9 +69,13 @@ static money(   // formatClass - client-side
   // i_money is in penneys
 // returns a string in dollars with $ , , and decmal point
 //  123   ->  $1.23
+  let s_money;
+  if         (typeof(i_money === "number")) {
+    s_money = Math.abs(i_money).toString();
+  }  else if (typeof(i_money) === "string") {
+    s_money =i_money;
+  }
 
-
-  let s_money = Math.abs(i_money).toString();
   let f_money = "";  // formated string to return
 
   if (i_money ===  0) return "";

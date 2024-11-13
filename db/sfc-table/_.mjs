@@ -54,6 +54,7 @@ constructor(   // sfc_table_class - client-side
 <div id="table"  style="display: grid; grid-gap: 5px; border-style: solid; "></div>
 <br>
 `
+import(`${app.lib}/format/_.mjs`).then(({ format }) => {this.format = format;})
 }
 
 
@@ -84,13 +85,12 @@ record_show(  // sfc_table_class - client-side
 }
 
 
-async connectedCallback() { // app_light  client-side
-	super.connectedCallback();
-
+connectedCallback() { // app_light  client-side
 	// load external dependencies
-	const {table_class   } = await import(`${this.lib}/_lib/db/table_module.js`          );  // model class
-	const {format        } = await import(`${this.lib}/_lib/format/_.mjs`                );  // helper class
-	const {table_views   } = await import(`${this.lib}/_lib/db/sfc-table/table_views.mjs`);  // web componet
+
+
+  //const {table_class   } = await import(`${this.lib}/_lib/db/table_module.js`          );  // model class
+	//const {table_views   } = await import(`${this.lib}/_lib/db/sfc-table/table_views.mjs`);  // web componet
 }
 
 
@@ -98,10 +98,6 @@ record_show_custom(event) {
    if (this.relations) {
       this.relations.show(this.record_sfc);
    }
-}
-
-
-connectedCallback() { // sfc_table_class - client-side
 }
 
 
@@ -630,13 +626,17 @@ appendHTMLrow(  // sfc_table_class - client-side
   const select = this.model.meta_get("select");
   for(let i=0; i<select.length; i++) {
     // create display form of field
-    let value = this.model.get_value_relation(PK,select[i]);
+    //let value = this.model.get_value_relation(PK,select[i]);
+    let value = this.model.get_value(PK,select[i]);
 
     if (value===null || value === undefined) {
-      value=""; // display null values as blank
+      html += "<div></div>"; // display null values as blank
+    } else {
+      // convert to human readable form
+      html += this.formatTransform(value, i);
     }
 
-    html += this.formatTransform(value, i);
+ 
   };
   return html;
 }
@@ -649,32 +649,15 @@ formatTransform( // sfc_table_class - client-side
   let html = "";
 
   switch (this.model.get_field(i,"type") ) {
-    case "html" :  html = value                                                   ; break;
-    case "money":  html = `<div align="right">${format.money(value)}</div>`  ; break;
-    default     :  html = `<div>${value}</div>`                                   ; break;
+  case "html" :  html = value                                                   ; break;
+  case "money":  html = `<div align="right">${this.format.money(value)}</div>`  ; break;
+  case "date" :  
+    const d = new Date(value[0],value[1]-1, value[2]);
+    html = `<div align="right">${this.format.getISO(d)}</div>`  ; break;
+  default     :  html = `<div>${value}</div>`                                   ; break;
   }
 
   return html;
-  /*
-  if (this.columnTransform[i]) {
-    show = this.columnTransform[i](value); //  convert pennys to dollars for example
-  } else {
-    show = value;
-  }
-
-  const format = this.getColumnFormat(i);
-  if ( this.model.get_field(i,"type") === "html" ) { // display number right justified
-    html += show;  // add no formating to type html
-  } else  if (typeof(value) === "string" && (value.startsWith("https://")  || value.startsWith("http://")) ) {
-    // display URL
-    html += `<div ${format}><a href="${show}" target="_blank">URL</a></div>`;
-  } else if (!format && typeof(value) === "number" ) { // display number right justified
-    html += `<div align='right'>${show}</div>`;
-  } else {
-    html += `<div ${format}>${show}</div>`;   // display raw data
-  }
-*/
-
 }
 
 
