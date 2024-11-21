@@ -33,74 +33,7 @@ db_set( // sfc_record_relations_class - client side
 	for(let i=0; i<tables.length; i++){
 		tables[i].searchVisible  = false;
 	}
-  
-	this.index = {};
-	/*this.index = {
-    "table1":{
-      "pk1":{table1:{pk1: "pk_edge", pk2":"pk_edge"}
-            ...
-             {pk1: "pk_edge", pk2":"pk_edge"}
-      ...
-      "pkN":{table1:{pk1: "pk_edge", pk2":"pk_edge"}
-     }
-    ,"tableN":{...}
-  }
-*/
-
-
-	this.relations = app.page.db.getTable("relations");
-	if (this.relations === undefined) {
-		return // this database does not have a relation table.
-	}
-	const pks       = this.relations.get_PK();    // array of PK keys for entire table;
-	for(let i=0; i< pks.length; i++) {
-		this.pk_index(pks[i]);
-	}
 }
-
-
-pk_index(  // sfc_record_relations_class - client side
-	pk  // of relation to index
-  ) {
-	let relation = this.relations.get_object(pk);  // row as a json object
-	this.init(pk, relation.table_1, relation.pk_1, relation.table_2, relation.pk_2);
-	this.init(pk, relation.table_2, relation.pk_2, relation.table_1, relation.pk_1);
-}
-
-
-init(  // sfc_record_relations_class - client side
-	pk                // relation pk
-   ,table_name1       // 
-   ,table_name_pk1    // 
-   ,table_name2       // 
-   ,table_name_pk2    // primary key of table
- ){
-   if (this.index[table_name1] === undefined) {
-	 this.index[table_name1] = {};                                             // create empty object
-   }
- 
-   if (this.index[table_name1][table_name_pk1] === undefined) {
-	 this.index[table_name1][table_name_pk1] = {};                              // create empty object
-   }
- 
-   if (this.index[table_name1][table_name_pk1][table_name2] === undefined) {
-	 this.index[table_name1][table_name_pk1][table_name2] = {};                 // create empty object
-   }
- 
-   const pk_relation = this.index[table_name1][table_name_pk1][table_name2][table_name_pk2];
-   if ( pk_relation === undefined) {
-	 this.index[table_name1][table_name_pk1][table_name2][table_name_pk2]  = pk;  // pk for relation
-   } else {
-	 // it is an error for value to be defined
-	 alert(`file="relation_module"
- method="init"
- table_name1   = "${table_name1}"
- table_name_pk1= "${table_name_pk1}"
- table_name2   = "${table_name2}"
- table_name_pk2= "${table_name_pk2}"
- pk_relation   = "${pk_relation}"`)
-   }
- }
 
 
  edit( // sfc_record_relations_class - client side
@@ -145,39 +78,31 @@ show(   // sfc_record_relations_class - client side
 		this.shadow.getElementById(table_names[i]).style.display = "none";
 	}
 	
-	if (this.index[record.table.name] === undefined) {
+	const pk         = record.get_pk();
+	const _relations = record.table.get_value(pk,"_relations")?.tables;
+	if (_relations === undefined) {
 		return; // not relations, nothing to show;
 	}
 
-	// show relations
-	const table_relation = this.index[record.table.name][record.get_pk()]; // all relations attached to table
-	if (table_relation != undefined) {
-		//relation = table_relation[this.#primary_key_value];  // all the relations connenting displayed object to other objects
-	}
+	// show tables that have relations
+	table_names = Object.keys(_relations);  // array of tables that object is related to
+	// walk the tables
+	for(let i=0; i<table_names.length; i++) {
+		const table_name = table_names[i];               
+		const ux = this.shadow.getElementById(table_name);  // ux for table
+		ux.style.display = "block";                         // show table
 
-
-	if (table_relation !== undefined) {
-		// show tables that have relations
-		table_names = Object.keys(table_relation);  // array of tables that object is related to
-		// walk the tables
-		for(let i=0; i<table_names.length; i++) {
-			let table_name = table_names[i];               
-			let relations  = table_relation[table_name];
-			let pks_table  = Object.keys(relations);
-			
-			// walk the relations in the table, add to array to display
-			let ux = this.shadow.getElementById(table_name);  // ux for table
-			ux.style.display = "block";  // show table
-			let pks = [];
-			for (let ii=0; ii<pks_table.length; ii++) {              
-				pks.push(pks_table[ii]);  // pk of the relation
-			}
-			ux.display(pks);  // display table
+		// walk the relations in the table, add to array to display
+		let pks = [];
+		let relations  = Object.keys(_relations[table_name]);
+		for (let ii=0; ii<relations.length; ii++) {              
+			pks.push(relations[ii]);  // pk of the relation
 		}
+		ux.display(pks);  // display table
 	}
 }
 
 
 } // end sfc_db_tables_class
 
-customElements.define("sfc-record-relations", sfc_record_relations_class); 
+customElements.define("sfc-record-relations", sfc_record_relations_class); // tie class to custom web component

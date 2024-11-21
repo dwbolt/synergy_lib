@@ -52,4 +52,4 @@ connectedCallback() { // sfc_dialog - client side
 } // end sfc_img
 
 
-customElements.define("sfc-img", sfc_img); 
+customElements.define("sfc-img", sfc_img); // tie class to custom web component

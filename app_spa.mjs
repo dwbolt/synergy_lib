@@ -7,7 +7,8 @@ import  {page_      } from '/_lib/UX/page_.mjs'; //
 import  {sfc_img   } from '/_lib/web_components/sfc-img/_.mjs'   ; // preload sfc-img web component
 import  {sfc_html  } from '/_lib/web_components/sfc-html/_.mjs'  ; // preload sfc-html web component
 import  {sfc_urls  } from '/_lib/web_components/sfc-urls/_.mjs'  ; // preload sfc-urls web component
-
+const {sfc_dialog    } = await import(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-dialog/_.mjs` );  
+const {sfc_login     } = await import(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-login/_.mjs`  );  
 export class app_spa { // synergy.SFCKnox.org web site
 
 
@@ -22,9 +23,6 @@ constructor() {  // appClass - client side
 	if      ( host[0].includes("local") ) { this.lib = `https://synergy_local.sfcknox.org/_lib`;} // use _lib on local      server
 	else if ( host[0].includes("beta" ) ) { this.lib =  `https://synergy_beta.sfcknox.org/_lib`;} // use _lib on beta       server
 	else                                  { this.lib =       `https://synergy.sfcknox.org/_lib`;} // use _lib on production server
-
-	this.sfc_dialog = document.querySelector("sfc-dialog");  //
-	this.sfc_login  = document.querySelector("sfc-login" );  //
 }
 
 
@@ -38,8 +36,6 @@ async load(// app_light - client side
 async main() { // appClass - client side
 	// should just be called once for when a new spa (single page app) is load
 	this.pages   = {}  // contians pointers to page classes as they are loaded
-	const {sfc_dialog} = await this.load("web_components/sfc-dialog/_.mjs");  // preload sfc-dialog 
-	const {sfc_login } = await this.load("web_components/sfc-login/_.mjs" );  // preload sfc-login
 
 	this.sfc_dialog  = document.querySelector("sfc-dialog"); // assume only one
 	this.sfc_login   = document.querySelector("sfc-login" ); // assume only one
@@ -66,11 +62,11 @@ async main() { // appClass - client side
 async url_copy(   // appClass - client side
 ){
 	// copy the url and page info so a user can get back do the page
-	this.sfc_dialog.title_set("<h1>Copied URL to clipboard</h1>");
+	this.sfc_dialog.set("title","<h1>Copied URL to clipboard</h1>");
 
 	// set text of dialog
 	const url = this.url_get();
-	this.sfc_dialog.body_set(`<p>"${url}" <br><br>has been copied to your clip board. You may now paste it to an email or other document.</p> <p>Sustainable Future Center implements their web information as Single Page Apps (SPA).  This means faster reponse times and less network trafic between your browser and the server.  You will notice that as you change pages, the url does not change.  The url that has been copied to your clipboard allows you to get back quickly to page you are on.</p>`);
+	this.sfc_dialog.set("body",`<p>"${url}" <br><br>has been copied to your clip board. You may now paste it to an email or other document.</p> <p>Sustainable Future Center implements their web information as Single Page Apps (SPA).  This means faster reponse times and less network trafic between your browser and the server.  You will notice that as you change pages, the url does not change.  The url that has been copied to your clipboard allows you to get back quickly to page you are on.</p>`);
  
 	await navigator.clipboard.writeText(url);  // copy url to clipboard
 	this.sfc_dialog.show_modal();               // show dialog

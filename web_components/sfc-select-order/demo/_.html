@@ -54,7 +54,7 @@ constructor() {  // client side app_class
 
 init(){
 	this.select_order.choices_add(this.choices);
-	this.select_order.title_set("<h2>In select order web component</h2>")
+	this.select_order.set("title","<h2>In select order web component</h2>")
 
 	// overite custom click
 	this.select_order.choices_click_custom = this.choices_click_custom.bind(this);

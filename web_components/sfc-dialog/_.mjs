@@ -15,12 +15,11 @@ constructor() {  // sfc_dialog - client side
    <hr>
    <div id="body"></div>
    <hr>
-   <div id="buttons"><button id="close">Close</button></div>
+   <div id="buttons"> <button id="close">Close</button></button> </div>
    </dialog>            
    `
-
-    this.shadow.getElementById('close').addEventListener('click', this.close.bind(this));
 	this.dialog = this.shadow.getElementById('dialog');
+	this.shadow.getElementById('close').addEventListener('click', this.close.bind(this));
 }
 
 
@@ -29,13 +28,33 @@ connectedCallback() { // sfc_dialog - client side
 }
 
 
-title_set( html){ // sfc_dialog- client side
-	this.shadow.getElementById("title").innerHTML = html;
+set(id,html){
+	if (id==="buttons") {
+		this.shadow.getElementById("buttons").innerHTML = html + ` <button id="close">Close</button>`;
+		this.shadow.getElementById('close').addEventListener('click', this.close.bind(this));
+	} else {
+		const element = this.shadow.getElementById(id);
+		if (element === null) {
+			this.show_error();
+		} else {
+			element.innerHTML = html;
+		}
+
+	}
 }
 
 
-body_set(html){    // sfc_dialog- client side
-	this.shadow.getElementById("body").innerHTML = html;
+addEventListener(// sfc_dialog- client side
+	 id        // dom id
+	,event     // event name we want to capture, 'click'  or 'keyup' etc
+	,fun       // funtion to execute 
+){
+	const element = this.shadow.getElementById(id);
+	if (element === null) {
+		this.show_error(`this.shadow.getElementById(${id}) is null`);
+	} else {
+		this.shadow.getElementById(id).addEventListener(event, fun);
+	}
 }
 
 
@@ -65,8 +84,8 @@ async show_error(error_msg_client){
 	`;	
 
 	// show user error message
-	this.title_set("<h2>Client Side Error</h2>");
-	this.body_set(`Will try to save the following error message on the server<br>${msg_client}`);
+	this.set("title","<h2>Client Side Error</h2>");
+	this.set("body",`Will try to save the following error message on the server<br>${msg_client}`);
 	this.show_modal();
 
 	// save client error on server
@@ -85,4 +104,4 @@ async show_error(error_msg_client){
 } // end sfc_dialog
 
 
-customElements.define("sfc-dialog", sfc_dialog); 
+customElements.define("sfc-dialog", sfc_dialog); // tie class to custom web component

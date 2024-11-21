@@ -7,7 +7,7 @@ export class sfc_login extends sfc_dialog { // sfc_login - client side
 constructor() {  // sfc_login - client side
 	// constructor is called when the element is displayed
 	super();  // will create this.shadow
-	this.title_set("Login");
+	this.set("title","Login");
 }
 
 
@@ -79,24 +79,25 @@ Password: <input id='password'  type='password'> enter or return key will attemp
 	}
 	
 	if (this.e_login_out) {this.e_login_out.innerHTML = logInOut;}  // update button
-	this.title_set(loginState)           ;  // update message
+	this.set("title",loginState)           ;  // update message
 }
 
 
 async show_login(     // sfc_login - client side
 ){
-	this.body_set(`
+	this.set("body",`
 <p>
 The login feature is in beta testing.  We hope to make it production by the end of 2024.
 </p>
 
 <p id="form"></p>
 <p id='msg'></p>
-
-<button id="login_out"  class="button">Log Out</button>
-<button id="pwd_change" class="button">Change Password</button>
-<button id="new"        class="button">Create New Login</button>
 		`);
+
+	this.set("buttons",`
+		<button id="login_out"  class="button">Log Out</button>
+<button id="pwd_change" class="button">Change Password</button>
+<button id="new"        class="button">Create New Login</button>`);
 
 	this.e_form       = this.shadow.getElementById("form");
 	this.e_msg        = this.shadow.getElementById("msg");
@@ -268,4 +269,4 @@ on_enter( // sfc_login - client side
 } // end sfc_login
 
 
-customElements.define("sfc-login", sfc_login); 
+customElements.define("sfc-login", sfc_login); // tie class to custom web component

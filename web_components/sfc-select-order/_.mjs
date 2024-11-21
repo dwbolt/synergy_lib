@@ -320,4 +320,4 @@ choices_move(event) {  // sfc_select_order - client side
 
 } // sfc_select_order
 
-customElements.define("sfc-select-order", sfc_select_order);   // attach class to  web-component
+customElements.define("sfc-select-order", sfc_select_order);   // tie class to custom web component

@@ -1,7 +1,12 @@
 import {proxy     } from '/_lib/proxy/_.mjs'  ;
 
-export class sfc_disk extends HTMLElement { // sfc_login - client side
+export class sfc_disk extends HTMLElement { // sfc_disk - client side
 
+/*
+
+Browser user data as default
+ 
+ */
 
 constructor() {  // sfc_disk - client side
 	// constructor is called when the element is displayed
@@ -13,13 +18,36 @@ constructor() {  // sfc_disk - client side
 
 	// add content to shadow dom
 	this.shadow = this.attachShadow({ mode: "closed" });  
-	this.shadow.innerHTML = `<div id="root"></div><div id="url"></div> <button>copy url to clipboard</button> <sfc-nav-tree></sfc-nav-tree> <textarea>xxx</textarea>` 
+	this.shadow.innerHTML = `
+	<div id="root"></div>
+	<div id="url"></div>
+	<button>copy url to clipboard</button>
+	<sfc-nav-tree></sfc-nav-tree>
+	<input id="file_name" type=“text” size="25">
+		<button onclick="app.page.folder_new()">New Folder</button>
+		<button>Save</button>
+		<button>Cancel</button><br>
+	<textarea id="display-edit"></textarea><br>
+	
+	` 
 	this.tree             = this.shadow.querySelector( "sfc-nav-tree");  // direct acess to sfc-nav-tree
 	this.div_url          = this.shadow.getElementById("url"         );  // let user know the path that has been clicked on so far
 	this.textarea         = this.shadow.querySelector( "textarea"    );  //      
 
 	const button         = this.shadow.querySelector( "button"    );
 	button.addEventListener('click',this.url2clipboard.bind(this));
+}
+
+
+async folder_new(){// sfc_disk - client side
+	const folder_name = this.shadow.getElementById("file_name").value.trim();  // get ride of leading and trailing white space
+	if (folder_name==="") {
+		alert("Input folder name to create");
+		return;
+	}
+
+	// create folder
+	
 }
 
 
@@ -86,7 +114,7 @@ async main(
 }
 
 
-click(
+async click(
 	//user clicked on file or folder
 	event  
 ){
@@ -109,11 +137,27 @@ click(
 		for (let i=0; i<keys.length; i++){
 			html += `${keys[i]}: ${stat[2][keys[i]]}<br>`
 		}
-		this.tree.html_add(html);
+		this.tree.html_add(html); // show detail of item clicked on
 
 		// update url
 		const url = `${new URL(import.meta.url).origin}${this.path}/${stat[0]}`
 		this.div_url.innerHTML = `url: <a href="${url}" target="_blank">${url}</a>`;  // show path to selected file or folder
+
+		// if ascii, display it
+		const file_name = stat[0].split(".")            
+		const file_ext = file_name[file_name.length-1];
+		if (" txt json nsj html ".includes(file_ext)) {
+			// display & allow edit ascii files - of txt, json, nsj, 
+			const msg = await proxy.RESTget(url);
+			if (msg.ok) {
+				// file was fetched, so display it
+				this.shadow.getElementById("file_name"   ).value     = stat[0];
+				this.shadow.getElementById("display-edit").innerHTML = msg.value;
+			}
+		}
+
+
+		//document.getElementById("edit").addEventListener('click',this.edit);
 	}
 }
 
@@ -123,4 +167,4 @@ click(
 const {sfc_nav_tree} = await import(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-nav-tree/_.mjs` );
 
 
-customElements.define("sfc-disk", sfc_disk); 
+customElements.define("sfc-disk", sfc_disk); // tie class to custom web component

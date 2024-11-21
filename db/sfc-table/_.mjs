@@ -320,13 +320,21 @@ displayColumnTitles( // sfc_table_class - client-side
   this.skip_columns = 0;
   let html=""; 
   if (this.lineNumberVisible) {
-    html += "<div><b>line</b></div>"; this.skip_columns++;
+    html += `<div align="right"><b>line</b></div>`; this.skip_columns++;
   }
   
   const select = this.model.meta_get("select");
   const fields = this.model.meta_get("fields");
   for(var i=0; i<select.length; i++){
-    html += `<div><b>${fields[select[i]].header}</b></div>`;
+    let align="";
+    switch (fields[select[i]].type) {
+      case "money"  :
+      case "integer":
+      case "float"  :
+        align=` align="right"`;  break;
+      default: break;
+    }
+    html += `<div${align}><b>${fields[select[i]].header}</b></div>`;
   };
 
   // set style
@@ -615,7 +623,7 @@ appendHTMLrow(  // sfc_table_class - client-side
   // create html for each column in the row
   let lineNum=""; 
   if (this.lineNumberVisible ) {
-    lineNum = `<div data-pk="${PK}" class="link"> ${i} </div>`;
+    lineNum = `<div align="right" data-pk="${PK}" class="link"> ${i} </div>`;
   }
 
   let selected = "";
@@ -653,8 +661,14 @@ formatTransform( // sfc_table_class - client-side
   case "money":  html = `<div align="right">${this.format.money(value)}</div>`  ; break;
   case "date" :  
     const d = new Date(value[0],value[1]-1, value[2]);
-    html = `<div align="right">${this.format.getISO(d)}</div>`  ; break;
-  default     :  html = `<div>${value}</div>`                                   ; break;
+    html = `<div>${this.format.getISO(d)}</div>`                                ; break;
+
+  case "integer"   :
+  case "float"     :
+  case "pk"        :
+                      html = `<div align="right">${value}</div>`                ; break;
+
+  default          :  html = `<div>${value}</div>`                              ; break;
   }
 
   return html;
@@ -898,4 +912,4 @@ last( /// sfc_table_class - client-side
 }
 
 
-customElements.define("sfc-table", sfc_table_class); 
+customElements.define("sfc-table", sfc_table_class); // tie class to custom web component

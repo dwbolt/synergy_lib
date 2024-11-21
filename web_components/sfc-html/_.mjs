@@ -40,4 +40,4 @@ async connectedCallback() { // sfc_html - client side
 } // end sfc_html
 
 
-customElements.define("sfc-html", sfc_html); 
+customElements.define("sfc-html", sfc_html); // tie class to custom web component

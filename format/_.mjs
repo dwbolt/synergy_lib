@@ -51,8 +51,11 @@ static getDayOfWeek( // formatClass - client-side
 
 // formatClass - client-side
 static getISO(  // return YYYY-MM-DD
-  date  // Date object
+  date  // Date object or array [year,month,day]
 ){
+  if (Array.isArray(date)) {
+    date = new Date(date[0],date[1]-1,date[2]);
+  }
   let day = date.getDate().toString()  //1-31
   if (day.length === 1){day = "0"+day;} // and leading 0
 

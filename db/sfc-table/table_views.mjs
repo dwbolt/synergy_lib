@@ -58,7 +58,7 @@ load(   // table_views - client-side
   this[name+"_detail"]        = this.shadow.getElementById(name+"_detail"); // remember the detail 
 
   // load up choices with fields names
-  this[name].title_set(`<h3>${name}</h3>`)
+  this[name].title_set(`<h3>${name}</h3>`);
   const fields = this.sfc_table.model.fields_get(); // array of all field names
   const a =[];
   for(let i=0; i<fields.length; i++) {

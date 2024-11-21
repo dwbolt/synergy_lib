@@ -49,4 +49,4 @@ show(table_name) {  // sfc_db_tables_class - client side
 
 } // end sfc_db_tables_class
 
-customElements.define("sfc-db-tables", sfc_db_tables_class); 
+customElements.define("sfc-db-tables", sfc_db_tables_class); // tie class to custom web component

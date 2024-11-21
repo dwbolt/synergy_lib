@@ -50,19 +50,8 @@ set_value(  // table_class - client-side
   this.check_pk(pk);
 
   const meta_field = this.meta.fields[field];
-  if (meta_field === undefined) {
-
-alert(`
-  table = ${this.name}
-  pk    = ${pk}
-  field = ${field}
-  value = ${value}
-
-  call stack=${Error().stack}
-  `);
-    return;
-  }
-  switch(meta_field.location) {
+  switch(meta_field?.location) {
+    case undefined:
     case "column":
       if (this.columns[field] === undefined) {
         this.columns[field] = {}; // init
@@ -92,6 +81,21 @@ fields_get(){
 
 }
 
+search_equal(   // table_class - client-side
+  // return array of pk that meet criteria
+  field_name
+  ,value
+){
+const pk_a=[]
+const pks = Object.keys(this.columns.pk);
+for(let i=0; i<pks.length; i++){
+  const pk = pks[i];
+  if (this.columns[field_name][pk] === value) {
+    pk_a.push(pk);
+  }
+}
+return pk_a;
+}
 
 get_value(  // table_class - client-side
   pk        // table primary key
@@ -105,7 +109,7 @@ get_value(  // table_class - client-side
   const meta_field = this.meta.fields[field];
   if (meta_field === undefined) {
     // assume data is stored in column, // not tested well, put in to support csv import
-    return this.columns[field][pk];
+    return this.columns[field]?.[pk];
   }
 
   switch(meta_field.location) {
@@ -588,6 +592,8 @@ field_name="${field_name}"`);
     }
   }
 
+  object._relations = this.columns["_relations"]?.[id];
+
   return object;  // json version of row in table
 }
 
@@ -673,8 +679,8 @@ async save( // table_class - client-side
       if (csv_value === "") {
         csv_value = undefined;  // convert empty fields to undifined
       }
-      change = [record.pk, field, csv_value, date.toISOString()]
-      csv += `${JSON.stringify(change)}\n`;                          // add /n to make it easier to view in statndard editor
+
+      csv += this.change_log_add( record.pk, field, csv_value);
 
       // update memery row
       if (edited_value===""){
@@ -685,13 +691,27 @@ async save( // table_class - client-side
     }
   }
 
+  return await this.change_log_patch(csv);
+}
+
+
+change_log_add(
+  pk, field, value
+) {
+  return `${JSON.stringify( [pk, field, value, new Date().toISOString()] )}\n`;     
+}
+
+
+async change_log_patch(  // table_class - client-side
+  nsj  // string to append
+){
   // append to change file
-  const msg  = await proxy.RESTpatch( csv, this.url_changes);
+  const msg  = await proxy.RESTpatch( nsj, this.url_changes);
   if (!msg.success) {
     // save did not work
     alert(`
 file="table_module.js"
-method="save_changes"
+method="change_log_patch"
 url="${this.url_changes}"
 msg=${msg.message}`);
   };

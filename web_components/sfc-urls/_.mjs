@@ -35,4 +35,4 @@ connectedCallback() { // sfc_dialog - client side
 } // end sfc_urls
 
 
-customElements.define("sfc-urls", sfc_urls); 
+customElements.define("sfc-urls", sfc_urls); // tie class to custom web component

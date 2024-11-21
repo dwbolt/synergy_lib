@@ -59,9 +59,9 @@ data  // "yyyy-m-d"
 }
 
 async form_load(){  // calendarClass  client-side
-  app.sfc_dialog.title_set(`<b>Edit Calandar Event# ${this.pk}</b>`);
+  app.sfc_dialog.set("title",`<b>Edit Calandar Event# ${this.pk}</b>`);
   const html = await proxy.getText("/_lib/web_components/sfc-calendar/editForm.html");
-  app.sfc_dialog.body_set(html);
+  app.sfc_dialog.set("body",html);
   this.shadow = app.sfc_dialog.shadow;
 }
 

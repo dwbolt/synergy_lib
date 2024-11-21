@@ -37,9 +37,12 @@ constructor( // sfc_record_class - client-side
 }
 
 
-table_viewer_set(viewer){
+table_viewer_set(  // sfc_record_class - client-side
+  viewer
+){
   this.table_viewer = viewer;
 }
+
 
 table_set(  // sfc_record_class - client-side
   model // table class where data lives
@@ -290,37 +293,40 @@ form_value( // client side sfc_record_class
 ){
   let date,time,value;
   const field = fields_meta[fields_name];
+  value = this.shadow.getElementById(`${dom}`).value;
+  if (value === "" ) {
+    return undefined;
+  }
+
   switch (field.type) {
-  case "pk": case "float": case "integer" : case "text"    : case "html" :
-  case "textarea": value = this.shadow.getElementById(dom).value; break;
-  case "money"   : value = this.shadow.getElementById(dom).value; break;
+  case "pk": case "text" : case "html" :
+  case "textarea": break;
+
+  case "integer" : 
+  case "money"   : value = Number.parseInt(  value); break;
+  case "float"   : value = Number.parseFloat(value); break;
 
   case "date"    : 
-      date = this.shadow.getElementById(`${dom}`).value.split("-");
+      date = value.split("-");
       if (date[0] === "" && date.length === 1) {
-          value = "";
+        return undefined;
       } else {
-          value = [parseInt(date[0]), parseInt(date[1]), parseInt(date[2]) ];
+        value = [parseInt(date[0]), parseInt(date[1]), parseInt(date[2]) ];
       }
       break;
 
   case "date-time"    : 
-      date = this.shadow.getElementById(`${dom}`).value.split("-");
+      date = value.split("-");
       time = this.shadow.getElementById(`${dom}_time`).value.split(":");
       if (date[0] === "" && date.length === 1 && time[0] === "" && time.length === 1) {
-          value = "";
+        return undefined;;
       } else {
-          value = [ parseInt(date[0]), parseInt(date[1]), parseInt(date[2]), parseInt(time[0]), parseInt(time[1])];
+        value = [ parseInt(date[0]), parseInt(date[1]), parseInt(date[2]), parseInt(time[0]), parseInt(time[1])];
       }
       break;
-  case "json"    : 
-    value = this.shadow.getElementById(`${dom}`).value;
-    if ( !(value === "") ) {
-      value = JSON.parse(value);
-    }
-     break;
+
+  case "json"    : value = JSON.parse(value);break;
   case "boolean" : value = document.getElementById(`${dom}`).checked          ; break;
-  case "relation" : value = ""; break;
 
   default        : alert(`file="db/sfc-record/_.mjs"
 methed="form_value"
@@ -329,11 +335,7 @@ fields_name="${fields_name}"
 case not handled`);
   }
 
-  if (value === "" ) {
-    return undefined;
-  } else {
-    return value;
-  }
+  return value;
 }
 
 
@@ -384,4 +386,4 @@ delete(){// client side sfc_record_class - for a page
 
 } // sfc_record_class - client-side //  end
 
-customElements.define("sfc-record", sfc_record_class); 
+customElements.define("sfc-record", sfc_record_class);  // tie class to custom web component

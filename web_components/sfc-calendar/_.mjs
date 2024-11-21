@@ -145,8 +145,8 @@ event_display(  // calendar_class - client-side
     description = event.description;
   }
 
-  app.sfc_dialog.title_set(`<b>${event.name}</b>`);
-  app.sfc_dialog.body_set(`
+  app.sfc_dialog.set("title",`<b>${event.name}</b>`);
+  app.sfc_dialog.set("body",`
   <b>Event ID:</b> ${pk}<br>
   ${this.repeat_display(event)}
   <br>${description}
@@ -406,8 +406,11 @@ findDayInWeek( // calendar_class  client-side
 one_add(  // calendar_class  client-side
   e  //
 ){
-  const date =  this.GMT[e.pk].start;  //e.start
-  this.events[date.getMonth()+1][date.getDate()].pks.push(e.pk);  // push key to edge associated with edge
+  if (this.year === e.dateStart[0]) {
+    // make sure event is this year
+    const date =  this.GMT[e.pk].start;  //e.start
+    this.events[date.getMonth()+1][date.getDate()].pks.push(e.pk);  // push key to edge associated with edge
+  }
 }
 
 
@@ -663,4 +666,4 @@ today_display( // calendar_class  client-side
 
 
 
-customElements.define("sfc-calendar", calendar_class);
+customElements.define("sfc-calendar", calendar_class); // tie class to custom web component
