@@ -295,26 +295,32 @@ month_chosen(  // calendar_class  client-side
 
 createDate(  // calendar_class  client-side
   // returns a starting or ending date for an event event
-    edge  //
+   event //
   ,type  //  "start" -> start date, "end" -> end time, "repeat" -> end of repeat 
   ,offsets = [0,0,0] // offset from start [yy,mm,dd]
 ) {
-  let offset = this.timezones[edge.timeZone] + new Date(0).getTimezoneOffset();  // get offset from event timezone vs user timezone
-  let timeDuration = edge.timeDuration.split(":");                         // timeDuration[0] is hours  timeDuration[1] is minutes
+  let offset = this.timezones[event.timeZone] + new Date(0).getTimezoneOffset();  // get offset from event timezone vs user timezone
+  let timeDuration = event.timeDuration.split(":");                         // timeDuration[0] is hours  timeDuration[1] is minutes
   switch (type) {
   case "start":
-    return new Date(edge.dateStart[0] +offsets[0] ,edge.dateStart[1]-1 +offsets[1], edge.dateStart[2] +offsets[2], edge.dateStart[3], edge.dateStart[4] - offset);
+    return new Date(event.dateStart[0] +offsets[0] ,event.dateStart[1]-1 +offsets[1], event.dateStart[2] +offsets[2], event.dateStart[3], event.dateStart[4] - offset);
     break;
 
   case "end":
-    return new Date(edge.dateEnd[0]   ,edge.dateEnd[1]-1  , edge.dateEnd[2]  , edge.dateStart[3]+ parseInt(timeDuration[0]) , edge.dateStart[4] - offset + parseInt(timeDuration[1]) );
+    return new Date(event.dateEnd[0]   ,event.dateEnd[1]-1  , event.dateEnd[2]  , event.dateStart[3]+ parseInt(timeDuration[0]) , event.dateStart[4] - offset + parseInt(timeDuration[1]) );
     break;
 
   case "repeat":
-    if (edge.repeat_end === undefined) {
+    if (event.repeat_end_date === undefined) {
       return undefined;
     } else {
-      return new Date(edge.repeat_end[0]   ,edge.repeat_end[1]-1  , edge.repeat_end[2]  , edge.repeat_end[3]+ parseInt(timeDuration[0]) , edge.repeat_end[4] - offset + parseInt(timeDuration[1]) );
+      let year = event.repeat_end_date[0];
+      if (year === null){
+    // for some reason JSON.strigify([,1])  -> "[null,1]"
+        year = this.year;
+      }
+      return new Date(year   ,event.repeat_end_date[1]-1  , event.repeat_end_date[2]  , event.repeat_end_date[3]+ parseInt(timeDuration[0]) 
+      , event.repeat_end_date[4] - offset + parseInt(timeDuration[1]) );
     }
     break;
 
@@ -341,6 +347,9 @@ async event_init( // calendar_class  client-side
   for (let i=0; i<pks.length; i++ ) {
     // generate GMT
     let pk = pks[i];
+    if (pk === "155") {
+      debugger
+    }
     let event = this.table_events.get_object(pk);
     this.GMT[pk]={};
     this.GMT[pk].start      = this.createDate(event,"start");  // start date time  
@@ -363,12 +372,8 @@ event
   if (a === undefined || a === null) {   
     // year not set, so set to end of current year
     a    = [this.year,12,31];
-  } else if (a[0]=== null){
-    // for some reason JSON.strigify([,1])  -> "[null,1]"
-    a[0] = this.year;
-  }
-  //this.GMT[pk].repeat_end = this.createDate(event,"repeat" )
-  this.GMT[event.pk].repeat_end = new Date(a[0],a[1]-1,a[2],this.GMT[event.pk].end.getHours(), this.GMT[event.pk].end.getMinutes()); 
+  } 
+  this.GMT[event.pk].repeat_end = this.createDate(event,"repeat" );
 
   switch(event.repeat) {
   case "weekly":
