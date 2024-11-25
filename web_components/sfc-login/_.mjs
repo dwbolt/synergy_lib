@@ -53,6 +53,11 @@ async login_status_update(       // sfc_login - client side
 	let logInOut,loginState;
 	const login_status = document.getElementById("login_status");
 
+	if (login_status === null || login_status === undefined) {
+		// need to  find bug, this should not happen, for now just prevent error
+		return;
+	}
+
 	// get login State
 	if (await this.getStatus()) {
 	  // logged in

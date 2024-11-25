@@ -6,19 +6,41 @@ constructor() {  // sfc_html - client side
 	// constructor is called when the element is displayed
 	super();
 	//this.id   = this.getAttribute("id"); // we will load
-	this.href = this.getAttribute("href")
+	this.href = this.getAttribute("href");
+
+	/*
+	if (! (this.href === null) )  {
+		msg = await proxy.RESTget(this.href)
+	} else {
+		// error
+		this.innerHTML = `error - sfc_htm  href="${this.href}"  `
+		return;
+	}
+*/
+	if (!(this.href === null)) {
+		proxy.RESTget(this.href)
+	  .then((msg) => {
+		if (msg.ok) {
+			this.innerHTML = msg.value;
+		} else {
+			this.innerHTML = `error, load faild - sfc_htm -  href="${this.href}"`;
+		}          
+	  })
+	  .catch((error) => {
+		console.error("Error fetching data:", error);
+	  });
+  } else {
+	// error
+	this.innerHTML = `error - sfc_htm  href="${this.href}"`;
+	return;
+  }
 }
 
-
+/*
 async connectedCallback() { // sfc_html - client side
 	// create a shadow dom   
 	let msg;
-/*
-	if        ( ! (this.id === "null")) {
-		// id is first priorgyt
-		msg = await proxy.RESTget(`${this.id}.html`)
-	} else 
-*/
+
 	if (! (this.href === null) )  {
 		msg = await proxy.RESTget(this.href)
 	} else {
@@ -35,7 +57,7 @@ async connectedCallback() { // sfc_html - client side
 		this.innerHTML = `error, load faild - sfc_htm -  href="${this.href}"`;
 	}                       
 }
-
+*/
 
 } // end sfc_html
 

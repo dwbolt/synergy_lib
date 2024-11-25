@@ -19,8 +19,8 @@ creates a <sfc-table> for each table in database to be used to display relations
 constructor() {  // sfc_record_relations_class - client side
 	// constructor is called when the element is displayed
 	super();
-	this.element = document.getElementById("relation_record");  // 
-	this.stack   = document.getElementById("stack_record"   );  //
+	this.element = document.getElementById("relation_record");  // in main DOM
+	this.stack   = document.getElementById("stack_record"   );  // in main DOM
 }
 
 db_set( // sfc_record_relations_class - client side

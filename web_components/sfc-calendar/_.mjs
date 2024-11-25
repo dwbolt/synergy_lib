@@ -347,9 +347,6 @@ async event_init( // calendar_class  client-side
   for (let i=0; i<pks.length; i++ ) {
     // generate GMT
     let pk = pks[i];
-    if (pk === "155") {
-      debugger
-    }
     let event = this.table_events.get_object(pk);
     this.GMT[pk]={};
     this.GMT[pk].start      = this.createDate(event,"start");  // start date time  
@@ -380,7 +377,7 @@ event
     this.weekly_add(event)
     break;
   case "monthly":
-    this.monthly_add (event)
+    this.monthly_add(event)
     break;
   case "yearly":
     this.one_add(event);
@@ -452,6 +449,9 @@ monthly_add (  // calendar_class  client-side
 event // event record from calendar table
 ) {
   // walk the days, first entry should be 0;
+  if (event.pk === "113" || event.pk === "54") {
+    debugger
+  }
   const start = this.GMT[event.pk].start;
   let monthOffset = 0;
   // walk to monthes to the end of the year
