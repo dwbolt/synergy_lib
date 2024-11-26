@@ -54,14 +54,16 @@ constructor() {  // client side app_class
 
 init(){
 	this.select_order.choices_add(this.choices);
-	this.select_order.set("title","<h2>In select order web component</h2>")
+	this.select_order.title_set("<h2>In select order web component</h2>");
 
 	// overite custom click
 	this.select_order.choices_click_custom = this.choices_click_custom.bind(this);
 }
 
 
-choices_click_custom(event){ // client side app_class
+choices_click_custom(  // client side app_class
+	event
+){ 
 	const choice = event.target.parentElement.value;
 	this.msg.innerHTML = `event.type=${event.type} <br>this.clicked on = ${JSON.stringify(this.choices[choice])}`
 }
@@ -73,12 +75,12 @@ toggle(id) { // client side app_class
 
 
 selected_show() {// client side app_class 
-	let msg = ""
+	let html = ""
 	const sel = this.select_order.selected_return();
 	for(let i=0; i<sel.length; i++) {
-		msg += JSON.stringify(this.choices[sel[i]])+"<br>";
+		html += JSON.stringify(this.select_order.get(sel[i]))+"<br>";
 	};
-	this.msg.innerHTML = msg;
+	this.msg.innerHTML = html;
 }
 
 } // end client side app_class

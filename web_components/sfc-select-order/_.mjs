@@ -2,7 +2,8 @@ export class sfc_select_order  extends HTMLElement {
 
 /*
 input -  [
-	[display, object]   value is array index
+	[display, object]   display is what displayed in list box to click on 
+					    object is 
 	....
 ]
 
@@ -50,11 +51,8 @@ constructor( // sfc_select_order - client side
 	this.buttons   = this.shadow.getElementById("button_box");  this.buttons.addEventListener('click', this.button_click.bind(   this));
 	this.narrow    = this.shadow.getElementById("narrow"    );   this.narrow.addEventListener('keyup', this.choices_html.bind(   this));
 
-	this.multi = true;  // default is display multi value
-}
-
-
-connectedCallback() { // sfc_select_order - client side
+	this.multi           = true;  // default is display multi value
+	// this.selected_custom 
 }
 
 
@@ -68,7 +66,9 @@ display(){  // sfc_select_order - client side
 }
 
 
-toggle(id) {
+toggle(  // sfc_select_order - client side
+	id
+) {
 	let element;
 	switch (id) {
 	case "multi" : this.multi = !this.multi; this.multi_display()   ; return;
@@ -80,13 +80,16 @@ toggle(id) {
 }
 
 
-multi_set(value){
+multi_set(   // sfc_select_order - client side
+	value
+){   
 	this.multi = value;
 	this.shadow.getElementById("selected_box").hidden = !value;  // hide or show 
 }
 
 
-multi_display(){// sfc_select_order - client side
+multi_display(   // sfc_select_order - client side
+){  
 	this.shadow.getElementById("selected_box").hidden = !this.multi;
 }
 
@@ -104,20 +107,25 @@ choices_add(  // sfc_select_order - client side
 }
 
 
-choices_html(){
-	// array has changed - rebuild choices html
+get(   // sfc_select_order - client side
+	index
+){
+	return this.choices_array[index];
+}
+
+
+choices_html(  	
+
+){
+// array has changed - rebuild choices html
 	let html = "";
 	const selected     = this.selected_return(); // will be [] if multi = false
-// all referecs to app.page need to be moved to methed in /apps/database/pages/database/_.mjs
-//	const record_table = (app.page.stack_record.table ? app.page.stack_record.table.name : "");  // name of table
-//	const record_pk    = app.page.stack_record.get_pk();    // pk
-
+	let value_lower   =		this.narrow.value.toLowerCase();
 	for(let i=0; i<this.choices_array.length; i++) {
 		if ( !selected.includes(i.toString()) ) {   // only add things not already selected
-		    let display = this.choices_array[i][0]; // what users sees in list box
-			if (display.includes(this.narrow.value) ) { // only add things that meet narrow search criteria  
-				// select if record is displayed in stack
-//				let sel = ( (record_table === this.choices_array[i][1] && record_pk === this.choices_array[i][2] ) ?  "selected": "")                 
+			let display       = this.choices_array[i][0]; // what users sees in list box
+		    let display_lower = display.toLowerCase(   ); // convert to lower case for compare
+			if (display_lower.includes(value_lower) ) {   // only add things that meet narrow search criteria                
 				let sel = "" // 
 				html += `<option value="${i}" ${sel}>${display}</option>`; // store choice in object
 			}
@@ -226,6 +234,8 @@ buttons_disable(){  // sfc_select_order - client side
 	if (select.selectedIndex === -1 ) {
 		disable += " remove remove_all "
 	}
+
+	this.selected_custom?.();
 
 	this.button_disable(disable); // disable buttons that should not be used
 }

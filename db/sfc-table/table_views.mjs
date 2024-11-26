@@ -32,19 +32,30 @@ constructor(   // table_views - client-side
 }
 
 
-connectedCallback() { // table_views - client-side
-}
-
 search_create(){
   // user has selected field they want to search on, so create UI so they can search
-  let msg = "in search_create";
-  /*
-	const sel = this.select_order.selected_return();
-	for(let i=0; i<sel.length; i++) {
-		msg += JSON.stringify(this.choices[sel[i]])+"<br>";
+  let html = "Will Search after each key strock<b>";
+  const select_order = this.sfc_table.shadow.getElementById("search");  // points to instance of <sfc_select_order>
+  const index_array  = select_order.selected_return(                );  // get selected and order fields from  
+	for(let i=0; i<index_array.length; i++) {
+    const obj = select_order.get(index_array[i]);
+		html += `${obj[1]} <input type="text" id="${obj[0]}"><br>`;
 	};
-  */
-	this.msg.innerHTML = msg;
+  
+  const detail     = this.sfc_table.shadow.getElementById("serch_detail")
+  detail.innerHTML = html;
+  detail.addEventListener("keyup", this.search.bind(this));
+}
+
+
+search(
+  // user entered a key in search area
+  event  // 
+) {
+  debugger
+  let x=0;
+  //event.target
+  // keyup
 }
 
 
@@ -62,12 +73,10 @@ load(   // table_views - client-side
   const fields = this.sfc_table.model.fields_get(); // array of all field names
   const a =[];
   for(let i=0; i<fields.length; i++) {
-   // a.push([fields[i],"xxx"]);
     a.push([fields[i],  this.sfc_table.model.get_field(fields[i],"header")]);
   }
    
   this[name].choices_add(a); //  display choices
-
 }
 
 
