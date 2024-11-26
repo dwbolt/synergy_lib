@@ -122,9 +122,13 @@ get_value(  // table_class - client-side
       
     default:
       // code block
-      alert(`file="table_module.js"
-method="get_value"
-meta_field.location=${meta_field.location}`);
+      debugger
+      alert(`
+field = ${field}
+meta_field.location = ${meta_field.location}
+
+stack = ${new Error().stack}
+`);
   }
 }
 

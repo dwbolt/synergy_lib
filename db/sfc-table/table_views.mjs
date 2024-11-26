@@ -34,12 +34,12 @@ constructor(   // table_views - client-side
 
 search_create(){
   // user has selected field they want to search on, so create UI so they can search
-  let html = "Will Search after each key strock<b>";
+  let html = "Will Search after each key strock<br>";
   const select_order = this.sfc_table.shadow.getElementById("search");  // points to instance of <sfc_select_order>
   const index_array  = select_order.selected_return(                );  // get selected and order fields from  
 	for(let i=0; i<index_array.length; i++) {
     const obj = select_order.get(index_array[i]);
-		html += `${obj[1]} <input type="text" id="${obj[0]}"><br>`;
+		html += `${obj[0]} <input type="text" id="fn-${obj[1]}"><br>`;
 	};
   
   const detail     = this.sfc_table.shadow.getElementById("serch_detail")
@@ -72,8 +72,9 @@ load(   // table_views - client-side
   this[name].title_set(`<h3>${name}</h3>`);
   const fields = this.sfc_table.model.fields_get(); // array of all field names
   const a =[];
+
   for(let i=0; i<fields.length; i++) {
-    a.push([fields[i],  this.sfc_table.model.get_field(fields[i],"header")]);
+    a.push([this.sfc_table.model.get_field(fields[i],"header"), fields[i]]);
   }
    
   this[name].choices_add(a); //  display choices

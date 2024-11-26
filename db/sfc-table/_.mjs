@@ -62,7 +62,7 @@ import(`${app.lib}/format/_.mjs`).then(({ format }) => {this.format = format;})
 init(  // sfc_table_class - client-side
 ){
   this.views  = this.shadow.getElementById('views');
-  this.shadow.getElementById('table'        ).addEventListener('click', this.record_show.bind(this)                             );
+  this.shadow.getElementById('table').addEventListener('click', this.record_show.bind(this) );
 }
 
 
@@ -180,52 +180,6 @@ display_intersection(  // sfc_table_class - client-side
 }
 
 
-/*groupby(  // sfc_table_class - client-side  
-){
-  // user clicked group by button, so create a group by table and display it
-
-  // create groupby instance   
-  const groupby_fields = this.groupby_fields.selected();     // user selected
-  const g              = new groupByClass();      
-  const list = g.groupBy(this.model, groupby_fields); // create groups
-
-  // convert info in groupByClass to table
-  const table  = new table_class();           // create blank table to put data in
-  const fields = table.meta_get("fields");
-  groupby_fields.forEach((field, index) => {
-    fields[field]          = {};
-    fields[field].header   = index;
-    fields[field].location = "column";
-    fields[field].type     = "string";
-  });
-  fields.count            = {};
-  fields.count.header     = "Count";
-  fields.count.location   = "column";
-  fields.count.type       = "number";
-
-  fields.pk_list          = {};
-  fields.pk_list.header   = "pk_list";
-  fields.pk_list.location = "column";
-  fields.pk_list.type     = "array";
-
-  const keys = Object.keys(list);  // keys an array of
-
-  // add data to table
-  keys.forEach((key, index) => {
-    //t.appendRow([key,g.groups[key].rowIndex.length])
-    table.add_column_value(key,"0"      ,key             );
-    table.add_column_value(key,"count"  ,list[key].length);
-    table.add_column_value(key,"array"  ,list[key]       );
-  });
-
-
-  // display table
-  this.tableUxG.model     = t;               // attach table data to tableUX
-  this.tableUxG.tableName = this.tableName+"-GroupBy";  //
-  this.tableUxG.display();                   // show table to user
-} */
-
-
 change_page_size(  // sfc_table_class - client-side
   e  // event
   ) {
@@ -307,7 +261,7 @@ search_display(){ // sfc_table_class - client-side
   // add search input for each row column
   let  size   = 10;  // number of characters allowed in search
   this.model.meta_get("select").forEach((item, i) => {
-    html += `<div><input id="${item}" type="text" value="${this.search_values[item]}" size="${size}"/></div>`;
+    html += `<div><input id="fn-${item}" type="text" value="${this.search_values[item]}" size="${size}"/></div>`;
   });
 
   return html;
@@ -361,7 +315,7 @@ displayData(){   // sfc_table_class - client-side
   const search_hander =  this.search.bind(this);  // 
   if  (this.searchVisible) {
     this.model.meta_get("select").forEach((item, i) => {
-      const element = this.shadow.getElementById(`input#${item}`); // hack to fix duplicatate id, brittle code *****
+      const element = this.shadow.getElementById(`fn-${item}`); 
       element?.addEventListener('keyup', search_hander );
     });
   }
@@ -824,8 +778,8 @@ search( // sfc_table_class - client-side
   event.stopPropagation();  // only want the event to be processed in DOM object that event occured in
   
   let i;
-  const field_name   = event.target.id;
-  const search_value = event.target.value;
+  const field_name   = event.target.id.slice(3);  // remove fn- to get field name
+  const search_value = event.target.value.toLowerCase();
   this.search_values[field_name] = search_value;
   let searched = false;
   // look at search field, if something is not empty search for all
@@ -914,3 +868,53 @@ last( /// sfc_table_class - client-side
 
 
 customElements.define("sfc-table", sfc_table_class); // tie class to custom web component
+
+
+
+
+
+/*groupby(  // sfc_table_class - client-side  
+){
+  // user clicked group by button, so create a group by table and display it
+
+  // create groupby instance   
+  const groupby_fields = this.groupby_fields.selected();     // user selected
+  const g              = new groupByClass();      
+  const list = g.groupBy(this.model, groupby_fields); // create groups
+
+  // convert info in groupByClass to table
+  const table  = new table_class();           // create blank table to put data in
+  const fields = table.meta_get("fields");
+  groupby_fields.forEach((field, index) => {
+    fields[field]          = {};
+    fields[field].header   = index;
+    fields[field].location = "column";
+    fields[field].type     = "string";
+  });
+  fields.count            = {};
+  fields.count.header     = "Count";
+  fields.count.location   = "column";
+  fields.count.type       = "number";
+
+  fields.pk_list          = {};
+  fields.pk_list.header   = "pk_list";
+  fields.pk_list.location = "column";
+  fields.pk_list.type     = "array";
+
+  const keys = Object.keys(list);  // keys an array of
+
+  // add data to table
+  keys.forEach((key, index) => {
+    //t.appendRow([key,g.groups[key].rowIndex.length])
+    table.add_column_value(key,"0"      ,key             );
+    table.add_column_value(key,"count"  ,list[key].length);
+    table.add_column_value(key,"array"  ,list[key]       );
+  });
+
+
+  // display table
+  this.tableUxG.model     = t;               // attach table data to tableUX
+  this.tableUxG.tableName = this.tableName+"-GroupBy";  //
+  this.tableUxG.display();                   // show table to user
+} */
+
