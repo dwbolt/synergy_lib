@@ -1,7 +1,15 @@
 const {table_views    } = await app.load("db/sfc-table/table_views.mjs"); 
 
 export class sfc_table_class  extends HTMLElement { // sfc_table_class - client-side 
-  // web componet to display table
+
+/*
+
+
+<sfc-table><sfc-table> 
+web componet to display table
+
+*/
+
 
 
 constructor(   // sfc_table_class - client-side
@@ -769,50 +777,26 @@ field(  // sfc_table_class - client-side
 
 
 search( // sfc_table_class - client-side
-  // user made change in search criteria
-// use recursion
-   //eDom      // element where search and display is done.
-  //,index = 2 // skip first two columns, there is not search values there
-  event
+  event  // should be keyup event
 ) {
   event.stopPropagation();  // only want the event to be processed in DOM object that event occured in
   
   let i;
-  const field_name   = event.target.id.slice(3);  // remove fn- to get field name
-  const search_value = event.target.value.toLowerCase();
-  this.search_values[field_name] = search_value;
-  let searched = false;
-  // look at search field, if something is not empty search for all
-/*
-  for (i=this.skip_columns; i<c.length; i++) {
-    this.search_value = c[i].firstChild.value.toLowerCase();  // get value of text search box
-    if ( 0 < this.search_value.length) {
-      // found search string
-      searched = true;
-      this.tags.search = []
-      const pks = this.getModel().get_PK();
-      const field = this.model.meta_get("select")[i-this.skip_columns];
-      // search for string in data
-      for(let ii=0; ii<pks.length; ii++) {
-        let value = this.model.get_value(pks[ii],field); 
-        if (typeof(str) ==="number" ){str = str.toString();}
-        if (str && str.toLowerCase().includes(this.searchValue)) {
-          this.tags.search.push(pks[ii]);  // push the primary key
-        }
-      }
-      i=c.length;  // end loop
-    }
-  } */
+  const field_name               = event.target.id.slice(3);         // remove fn- to get field name
+  const search_value             = event.target.value.toLowerCase(); // convert to lower case for campair
+  this.search_values[field_name] = search_value;                     // review, not sure how this is used
 
+  let searched = false;
   if (0 < search_value.length) {
     searched         = true;
     this.tags.search = [];
     const pks        = this.getModel().get_PK();
     for(let ii=0; ii<pks.length; ii++) {
+      // all the values of the column
       let field_value = this.model.get_value(pks[ii],field_name); 
       if (typeof(field_value) ==="number" ){field_value = field_value.toString();}
       if (field_value && field_value.toLowerCase().includes(search_value)) {
-        this.tags.search.push(pks[ii]);  // push the primary key
+        this.tags.search.push(pks[ii]);  // found a match, push the primary key
       }
     }
   }

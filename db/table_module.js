@@ -1,3 +1,4 @@
+//import {csvClass  } from '/_lib/db/csv_module.js'     ;
 import {csvClass  } from '/_lib/db/csv_module.js'     ;
 import {proxy     } from '/_lib/proxy/_.mjs'  ;
 
@@ -888,6 +889,7 @@ genCSVrow( // table_class - client-side
 }
 
 
+/*
 getColumnFormat(i) { // table_class - client-side
   alert(`file="table_module.js
 method="getColumnFormat"
@@ -897,7 +899,7 @@ return false;
   if (f === undefined) return "";
   return f;
 }
-
+*/
 
 //getField()       {return this.meta.field         ;} // table_class - client-side
 
