@@ -82,6 +82,7 @@ fields_get(){
 
 }
 
+
 search_equal(   // table_class - client-side
   // return array of pk that meet criteria
   field_name
@@ -97,6 +98,51 @@ for(let i=0; i<pks.length; i++){
 }
 return pk_a;
 }
+
+
+search_start(   // table_class - client-side
+  // return array of pk that meet criteria
+  field_name
+  ,value
+){
+const pk_a=[]
+const pks = Object.keys(this.columns.pk);
+for(let i=0; i<pks.length; i++){
+  const pk = pks[i];
+  if (this.columns[field_name][pk] === value) {
+    pk_a.push(pk);
+  }
+}
+return pk_a;
+}
+
+
+search( // sfc_table_class - client-side
+  critera  // [[field_name, value_min,searh_type_min, search_type_max optional, value_max optional],...]  
+) {
+  const s_pks = [];  // return array of pks that match search critera
+
+  if (0 < critera.length) {
+    for(let i=0; i<pks.length; i++) {
+      // get search criteria
+      const cr           = critera[i];
+      const field_name   = cr[0];
+      const search_value = cr[1];
+      const pks          = this.get_PK();
+      // all the values of the column
+      for(let ii=0; ii<pks.length; ii++){
+        const field_value  = this.get_value(pks[ii],field_name); 
+        if (typeof(field_value) ==="number" ){field_value = field_value.toString();}
+        if (field_value && field_value.toLowerCase().includes(search_value)) {
+          s_pks.push(pks[ii]);  // found a match, push the primary key
+        }
+      }
+    }
+  }
+  
+  return s_pks;
+}
+
 
 get_value(  // table_class - client-side
   pk        // table primary key

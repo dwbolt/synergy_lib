@@ -59,20 +59,18 @@ searchf(
 ) {
   event.stopPropagation();  
 
-  const detail = this.sfc_table.shadow.getElementById("search_detail")
+  const detail = this.sfc_table.shadow.getElementById("search_detail");
   const inputs = detail.querySelectorAll("input") ;
 
   const search = []; // search critera  [[fname1,value1, searchtype1],[fname2,value2,searchtype2]... ]
   for(let i=0; i<inputs.length; i++) {
     const element     = inputs[i];           // element user made change to
     const field_name  = element.id.slice(3); // get rid of leading "fn-""
-    const field_value = element.value;
-    if (field_value !== "") {
-      search.push([field_name, field_value, "begin"]);  // for now only supporting string searches from beginning
+    const search_value = element.value;
+    if (search_value !== "") {
+      search.push([field_name, search_value, "begin"]);  // for now only supporting string searches from beginning
     }
   }
-  debugger
-
 
   let pks; ;
   if (0 < search.length) {
@@ -86,46 +84,6 @@ searchf(
 }
 
 
-/*
-search( // sfc_table_class - client-side
-  event  // should be keyup event
-) {
-  event.stopPropagation();  // only want the event to be processed in DOM object that event occured in
-  
-  let i;
-  const field_name               = event.target.id.slice(3);         // remove fn- to get field name
-  const search_value             = event.target.value.toLowerCase(); // convert to lower case for campair
-  this.search_values[field_name] = search_value;                     // review, not sure how this is used
-
-  let searched = false;
-  if (0 < search_value.length) {
-    searched         = true;
-    this.tags.search = [];
-    const pks        = this.getModel().get_PK();
-    for(let ii=0; ii<pks.length; ii++) {
-      // all the values of the column
-      let field_value = this.model.get_value(pks[ii],field_name); 
-      if (typeof(field_value) ==="number" ){field_value = field_value.toString();}
-      if (field_value && field_value.toLowerCase().includes(search_value)) {
-        this.tags.search.push(pks[ii]);  // found a match, push the primary key
-      }
-    }
-  }
-  
-  if (searched) {
-    // display found records
-    this.displayTag("search");
-  } else {
-    // search cleared, so display all
-    this.tag           = null;  
-    //this.paging.rowMax = this.getModel().getRows().length;
-    this.paging.row    = 0;
-   // this.statusLine ();
-    this.displayData();
-  }
-}
-
-*/
 
 load(   // table_views - client-side
   name // name of tab

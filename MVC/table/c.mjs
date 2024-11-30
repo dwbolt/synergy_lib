@@ -1,4 +1,4 @@
-const {table_views    } = await app.load("MVC/table/table_views.mjs"); 
+const {table_views    } = await app.load("MVC/table/c_views.mjs"); 
 
 export class sfc_table_class  extends HTMLElement { // sfc_table_class - client-side 
 
