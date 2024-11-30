@@ -9,6 +9,8 @@ import  {sfc_html  } from '/_lib/web_components/sfc-html/_.mjs'  ; // preload sf
 import  {sfc_urls  } from '/_lib/web_components/sfc-urls/_.mjs'  ; // preload sfc-urls web component
 const {sfc_dialog    } = await import(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-dialog/_.mjs` );  
 const {sfc_login     } = await import(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-login/_.mjs`  );  
+
+
 export class app_spa { // synergy.SFCKnox.org web site
 
 
@@ -17,6 +19,9 @@ constructor() {  // appClass - client side
 
 	// add one dialog and login.  Not all applications need login, but most do and it is small
 	document.body.innerHTML += "<sfc-dialog></sfc-dialog> <sfc-login></sfc-login>";
+	this.sfc_dialog  = document.querySelector("sfc-dialog"); // assume only one
+	this.sfc_login   = document.querySelector("sfc-login" ); // assume only one
+
 
 	// get local of _lib 
 	const host = window.location.hostname.split(".");
@@ -26,19 +31,9 @@ constructor() {  // appClass - client side
 }
 
 
-async load(// app_light - client side
-	path // to module to load
-){
-	return await import(`${this.lib}/${path}`);  
-}
-
-
 async main() { // appClass - client side
-	// should just be called once for when a new spa (single page app) is load
-	this.pages   = {}  // contians pointers to page classes as they are loaded
-
-	this.sfc_dialog  = document.querySelector("sfc-dialog"); // assume only one
-	this.sfc_login   = document.querySelector("sfc-login" ); // assume only one
+	// should just be called once when a new spa (single page app) is load
+	this.pages   = {}  // contians pointers to page class as they are loaded
 
 	this.css  = await proxy.getJSON("css.json");  // holds json info for styling 
 	this.page_url_dir = this.urlParams.get('u'); // page to load from url
@@ -56,6 +51,13 @@ async main() { // appClass - client side
 
 	// update longin status
 	this.sfc_login.login_status_update();  // let user know if they are already logined in
+}
+
+
+async load(// app_light - client side
+	path // to module to load
+){
+	return await import(`${this.lib}/${path}`);  
 }
 
 

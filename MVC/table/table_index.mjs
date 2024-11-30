@@ -5,6 +5,9 @@ export class table_index {  // table_index - client-side
 
 /*
 
+helper class for table.msj 
+
+
 The inital plan is to dynamical generate indexes as searching happends.  At some point we will save and maintain indexes
 
 support begins with index first

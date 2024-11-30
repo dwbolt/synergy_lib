@@ -1,4 +1,4 @@
-import {table_class } from '/_lib/db/table_module.js'  ; 
+import {table_class } from '/_lib/MVC/table/m.mjs'  ; 
 import {proxy       } from '/_lib/proxy/_.mjs'         ;
 
 

@@ -209,7 +209,7 @@ form_write(  // client side sfc_record_class - for a page
                           this.shadow.getElementById(`${field_name}_time`).value  =  
                                                `${app.format.padZero(value[3],2)}:${app.format.padZero(value[4],2)}`; break;
         default        : alert(`
-file="db/sfc-record/_.mjs"
+file="/db/table/c_record.mjs"
 method="form_write"
 field_name=${field_name}
 type="${type}"
@@ -261,7 +261,7 @@ async save( // client side sfc_record_class - for a page
     this.show();          // display record with new data
     } else {
       // error
-      alert(`file="db/sfc-record/_.mjs"
+      alert(`file="/db/table/c_record.mjs"
 method="save"
 msg.message="${msg.message}"`);
     }
@@ -328,7 +328,7 @@ form_value( // client side sfc_record_class
   case "json"    : value = JSON.parse(value);break;
   case "boolean" : value = document.getElementById(`${dom}`).checked          ; break;
 
-  default        : alert(`file="db/sfc-record/_.mjs"
+  default        : alert(`file="/db/table/c_record.mjs"
 methed="form_value"
 field.type="${field.type}"
 fields_name="${fields_name}"

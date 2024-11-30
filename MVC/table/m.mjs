@@ -1,5 +1,5 @@
-//import {csvClass  } from '/_lib/db/csv_module.js'     ;
-import {csvClass  } from '/_lib/db/csv_module.js'     ;
+//import {csvClass  } from '/_lib/MVC/table/csv.mjs'     ;
+import {csvClass  } from '/_lib/MVC/table/csv.mjs'     ;
 import {proxy     } from '/_lib/proxy/_.mjs'  ;
 
 export class table_class {  // table_class - client-side

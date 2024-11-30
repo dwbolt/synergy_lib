@@ -19,8 +19,8 @@ let app; // only global variable
 <script type="module">
 import {app_light} from "https://synergy_local.sfcknox.org/_lib/app_light.mjs"; // import form production when tested
 app                     = new app_light(                        ); // create instance of app_light module
-const {table_sfc_class} = await app.load(`db/sfc-table/_.mjs`   ); // get web-componet sfc-calendar
-const {table_class}     = await app.load(`db/table_module.js`); // get web-componet sfc-calendar
+const {table_sfc_class} = await app.load(`MVC/table/c.mjs`   ); // get web-componet sfc-calendar
+const {table_class}     = await app.load(`MVC/table/c.mjs`      ); // get web-componet sfc-table
 
 // create some data to view
 app.model = new table_class();   // create model

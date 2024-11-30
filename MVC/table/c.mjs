@@ -1,15 +1,12 @@
-const {table_views    } = await app.load("db/sfc-table/table_views.mjs"); 
+const {table_views    } = await app.load("MVC/table/table_views.mjs"); 
 
 export class sfc_table_class  extends HTMLElement { // sfc_table_class - client-side 
 
 /*
+<sfc-table><sfc-table>  - table viewer web component
 
-
-<sfc-table><sfc-table> 
-web componet to display table
 
 */
-
 
 
 constructor(   // sfc_table_class - client-side
@@ -45,13 +42,13 @@ constructor(   // sfc_table_class - client-side
   this.shadow = this.attachShadow({ mode: "closed" });  
   // add content to shadow dom
   this.shadow.innerHTML =  `
-<link href="${new URL(import.meta.url).origin}/_lib/db/sfc-table/_.css" rel="stylesheet">
+<link href="${new URL(import.meta.url).origin}/_lib/MVC/table/_.css" rel="stylesheet">
 <br>
 
 <div id="views" style="display: none;" >
   <select size="5" style="margin-right: 2em;"></select>  
 
-  <div id="search_tab" class="select_order"> <sfc-select-order id="search"></sfc-select-order> <div id="serch_detail" ></div> </div>
+  <div id="search_tab" class="select_order"> <sfc-select-order id="search"></sfc-select-order> <div id="search_detail"></div> </div>
   <div id="select_tab" class="select_order"> <sfc-select-order id="select"></sfc-select-order> <div id="select_detail"></div> </div>
   <div id="sort_tab"   class="select_order"> <sfc-select-order id="sort"  ></sfc-select-order> <div id="sort_detail"  ></div> </div>
   <div id="group_tab"  class="select_order"> <sfc-select-order id="group" ></sfc-select-order> <div id="group_detail" ></div> </div>
@@ -90,15 +87,6 @@ record_show(  // sfc_table_class - client-side
       this.record_sfc.show(data);                           // get sfc-record accociated with table & dislay record clicked on
       if (this.record_show_custom) this.record_show_custom(event); 
   }
-}
-
-
-connectedCallback() { // app_light  client-side
-	// load external dependencies
-
-
-  //const {table_class   } = await import(`${this.lib}/_lib/db/table_module.js`          );  // model class
-	//const {table_views   } = await import(`${this.lib}/_lib/db/sfc-table/table_views.mjs`);  // web componet
 }
 
 
@@ -320,7 +308,7 @@ displayData(){   // sfc_table_class - client-side
   table_data.innerHTML = html;   // display data
 
   // add event for search
-  const search_hander =  this.search.bind(this);  // 
+  const search_hander =  this.search?.bind(this);  // fix bug, this.search should be defined
   if  (this.searchVisible) {
     this.model.meta_get("select").forEach((item, i) => {
       const element = this.shadow.getElementById(`fn-${item}`); 
@@ -776,43 +764,7 @@ field(  // sfc_table_class - client-side
 }
 
 
-search( // sfc_table_class - client-side
-  event  // should be keyup event
-) {
-  event.stopPropagation();  // only want the event to be processed in DOM object that event occured in
-  
-  let i;
-  const field_name               = event.target.id.slice(3);         // remove fn- to get field name
-  const search_value             = event.target.value.toLowerCase(); // convert to lower case for campair
-  this.search_values[field_name] = search_value;                     // review, not sure how this is used
 
-  let searched = false;
-  if (0 < search_value.length) {
-    searched         = true;
-    this.tags.search = [];
-    const pks        = this.getModel().get_PK();
-    for(let ii=0; ii<pks.length; ii++) {
-      // all the values of the column
-      let field_value = this.model.get_value(pks[ii],field_name); 
-      if (typeof(field_value) ==="number" ){field_value = field_value.toString();}
-      if (field_value && field_value.toLowerCase().includes(search_value)) {
-        this.tags.search.push(pks[ii]);  // found a match, push the primary key
-      }
-    }
-  }
-  
-  if (searched) {
-    // display found records
-    this.displayTag("search");
-  } else {
-    // search cleared, so display all
-    this.tag           = null;  
-    //this.paging.rowMax = this.getModel().getRows().length;
-    this.paging.row    = 0;
-   // this.statusLine ();
-    this.displayData();
-  }
-}
 
 
 next( // sfc_table_class - client-side

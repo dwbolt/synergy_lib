@@ -1,5 +1,5 @@
-const {sfc_table_class    } = await app.load("db/sfc-table/_.mjs"); //import  {sfc_table_class     } from '/_lib/db/sfc-table/_.mjs'     ;
-const {table_class        } = await app.load("db/table_module.js");
+const {sfc_table_class    } = await app.load(""); //import  {sfc_table_class     } from '/_lib/MVC/table/c.mjs'     ;
+const {table_class        } = await app.load("MVC/table/c.mjs");
 const {format             } = await app.load("format/_.mjs");
 
 //const {sfc_event_datetime } = await app.load("web_components/sfc-calendar/sfc-event-datetime/_.mjs");  // preload <sfc-event-datetime>
@@ -36,14 +36,6 @@ constructor( // calendar_class  client-side
   this.event;         // undefined, where a two dim array first number in month, second number is day of month, hold one year's calendar
 }
 
-/*
-async connectedCallback() { // calendar_class  client-side
-                await super.connectedCallback(     ); // 
-//{table_class} = await app.lib("db/table_module.js");
-const {table_class} = await app.load("db/table_module.js");
-this.table_events = new table_class();  // where mulit year calander and repeating events live will be used generate this.table
-}
-*/
 
 async css_add(path) { // calendar_class  client-side
   //<link rel="stylesheet" href="app.css" />
@@ -449,9 +441,6 @@ monthly_add (  // calendar_class  client-side
 event // event record from calendar table
 ) {
   // walk the days, first entry should be 0;
-  if (event.pk === "113" || event.pk === "54") {
-    debugger
-  }
   const start = this.GMT[event.pk].start;
   let monthOffset = 0;
   // walk to monthes to the end of the year

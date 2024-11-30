@@ -9,7 +9,7 @@ hide tables that are not part of relation
 
 */
 
-import {sfc_db_tables_class}  from '/_lib/db/sfc-db-tables/_.mjs'              ;  // <sfc-db-tables>
+import {sfc_db_tables_class}  from '/_lib/MVC/db/c.mjs'              ;  // <sfc-db-tables>
 
 export class sfc_record_relations_class extends sfc_db_tables_class { 
 /*

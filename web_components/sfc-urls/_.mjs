@@ -26,12 +26,6 @@ constructor() {  // sfc_urls - client side
 }
 
 
-connectedCallback() { // sfc_dialog - client side
-	// create a shadow dom                           
-}
-
-
-
 } // end sfc_urls
 
 

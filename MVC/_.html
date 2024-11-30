@@ -1,0 +1,35 @@
+
+<title>MVC</title>
+
+<h1>Relations of Model</h1>
+
+<ol>
+  <li>  <b>cluster</b> - collection of servers that communicate and work together for sync and redundancy</li>
+  <li>  <b>server</b> - a URL/machine that contains one or more databases</li>
+  <li>  <b>database</b> - collection of tables</li>
+  <li>  <b>table</b> - collection of rows/columns</li>
+  <li>  <b>record</b> - a row/collection of field/attributes</li>
+  <li>  <b>field</b>  - data of type:<br>
+    float<br>
+    intiger<br>
+    money<br>
+    string<br>
+    html<br>
+    json</li>
+</ol>
+
+<h1>Directory Structure</h1>
+
+<p>The MVC code lives in the _lib git repository in a directory MVC.  Each model has it's own directory with at files a:<br>
+  m.mjs - contains model code<br>
+  m?.mjs - Some modules will be broken up into helper modues.  The main model code will create instances of m?<br>
+  v.mjs - contains  view code - simple display if model only, no direct user input. Implemented as a web component<br>
+  v?.mjs - multiple views may be supported<br>
+  c.mjs - control code that has user input and sends messages to model and view.
+  c?msj - multiple controlers maybe supported  Implemented as a web component
+  _.cs  - default style sheet for views and controls
+  
+  Demo - directory contains html files that demonstrate using MVC code for the given model
+</p>
+
+
