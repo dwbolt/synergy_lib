@@ -1,29 +1,39 @@
-export class sfc_nav_tree extends HTMLElement { // <sfc-nav-tree>  web component
+export class graph { // web component
 
 /*
-similar to a column view of a file system
+tree structure - implement with graph
+
+{
+meta: {
+node_root: 1
+}
+
+edges:{
+id1: [n1,direction,n2,relation_name,data]        direction ->     <,>,=
+,id2: []
+}
+
+,nodes: {
+id1: {
+"name": ""
+"data" : ""
+}
+
+,id2: {
+}
+
+}
+
+}
 */
 
 
 constructor() {  // sfc_nav_tree - client side
 	// constructor is called when the element is displayed
-	super();
-	this.shadow = this.attachShadow({ mode: "closed" });  
-	this.init();
-
-	this.style_select = "border-style: solid;   border-radius: 6px;  margin:5px 5px 5px 5px; padding:5px 5px 5px 5px;resize: vertical";
 }
 
 
-connectedCallback() { // sfc_nav_tree - client side
-	// create a shadow dom                           
-}	
 
-
-init(){  // sfc_nav_tree- client side
-	this.shadow.innerHTML = `<div style="display:flex; flex-direction: row;"> </div>`
-	this.container        = this.shadow.querySelector("div");
-  }
 
 
 html_add(  // sfc_nav_tree- client side

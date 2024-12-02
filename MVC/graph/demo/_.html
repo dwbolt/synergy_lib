@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>sfc-nav-tree</title>
+  <title>graph</title>
 </head>
 
 <body>
 
-  <h1>sfc-nav-tree demo</h1>
+  <h1>graph demo</h1>
   <p>replace UX/menu.mjs</p>
   <sfc-nav-tree></sfc-nav-tree>
   <div id="msg"></div>
@@ -21,13 +21,18 @@ let app // only global variable
 </script>
 
 <script type="module">
+// controler for graph model and view
+import {model_graph } from '/_lib/MVC/graph/m.mjs'  ; 
+import {viewer_graph} from '/_lib/MVC/graph/v.mjs'  ; 
 
 class appClass {
 
 
 constructor(){
+  this.viewer = new viewer_graph();
+  this.model  = new model_graph(this.viewer);
 
-  this.tree = {
+  this.model_node_add() = {
  "0":[[1,"one"],[2,"two"],[3,"three"]]
  ,"1":[[4,]] 
   }
@@ -35,8 +40,8 @@ constructor(){
 
 
 async main() {
-  this.lib             = new URL(import.meta.url).origin;                             // remember domain where this module was pulled from
-  const {sfc_nav_tree} = await import(`${this.lib}/_lib/web_components/sfc-nav-tree/_.mjs`);  // import code for <sfc-nav-tree>
+
+  const {sfc_nav_tree} = await import(`${this.lib}/_lib/MVC/tree/v.mjs`);  // import code for <sfc-nav-tree>
   this.sfc_nav_tree    = document.querySelector("sfc-nav-tree");                            // rember <sfc-nav-tree>
 
   // add a menue

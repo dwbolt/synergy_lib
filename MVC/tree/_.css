@@ -1,0 +1,14 @@
+/*
+  *, *::after, *::before {
+	box-sizing: border-box;
+  }
+  */
+
+div {
+  border: solid;
+  background-color: white;
+  border-radius: 6px;
+  padding: 10px 10px 10px 10px;
+  margin: 10px 10px 10px 10px;
+}
+}
