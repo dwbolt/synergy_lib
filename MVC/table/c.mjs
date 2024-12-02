@@ -199,36 +199,7 @@ setRowNumberVisible( value) {this.rowNumberVisible  = value;}
 setFooter(           value) {
   this.footer   = value;
 }
-setSelected(         array) {this.selected          = array;}
-export( // sfc_table_class - client-side
-){ // as CSV file
-  const table = this.getModel();    // get access to class holding the table data
-  const pks  = table.get_PK();    // get access to array of rows
-  let csv = table.genCSV_header();;
 
-  if(this.tag) {
-    // export just records that are in the tag
-    const index = this.tags[this.tag];
-    for(var i=0; i<index.length; i++) {
-      csv += table.genCSVrow(index[i]);
-    };
-  } else {
-    // export entire table
-    for(var i=0; i<rows.length; i++) {
-      csv += table.genCSVrow(rows[i]);
-    };
-  }
-
-
-  const data = new Blob([csv], {type: 'text/plain'});
-
-  // set data and download name for hyperlink
-  const e=document.getElementById('download_link')
-  const url = window.URL.createObjectURL(data);
-  e.href = url;
-  e.download = `${this.tableName}.csv`
-  e.click(); // now click the link  start the download/export
-}
 
 
 displayTagSelected( // sfc_table_class - client-side
@@ -585,7 +556,6 @@ appendHTMLrow(  // sfc_table_class - client-side
   const select = this.model.meta_get("select");
   for(let i=0; i<select.length; i++) {
     // create display form of field
-    //let value = this.model.get_value_relation(PK,select[i]);
     let value = this.model.get_value(PK,select[i]);
 
     if (value===null || value === undefined) {
@@ -854,3 +824,37 @@ customElements.define("sfc-table", sfc_table_class); // tie class to custom web 
   this.tableUxG.display();                   // show table to user
 } */
 
+
+/*
+  setSelected(         array) {
+    this.selected          = array;
+  
+    // as CSV file
+    const table = this.getModel();    // get access to class holding the table data
+    const pks  = table.get_PK();    // get access to array of rows
+    let csv = table.genCSV_header();;
+  
+    if(this.tag) {
+      // export just records that are in the tag
+      const index = this.tags[this.tag];
+      for(var i=0; i<index.length; i++) {
+        csv += table.genCSVrow(index[i]);
+      };
+    } else {
+      // export entire table
+      for(var i=0; i<rows.length; i++) {
+        csv += table.genCSVrow(rows[i]);
+      };
+    }
+  
+  
+    const data = new Blob([csv], {type: 'text/plain'});
+  
+    // set data and download name for hyperlink
+    const e=document.getElementById('download_link')
+    const url = window.URL.createObjectURL(data);
+    e.href = url;
+    e.download = `${this.tableName}.csv`
+    e.click(); // now click the link  start the download/export
+  }
+    */

@@ -76,10 +76,10 @@ searchf(
   if (0 < search.length) {
     // get pks that match search 
     pks = this.model.search(search); // model retruns array of pks that match search criteria
-    this.sfc_table.pks_display(pks); // this.displayTag("search");
+    this.sfc_table.display(pks); // this.displayTag("search");
   } else {
     // display entire database
-    this.sfc_table.displayData();
+    this.sfc_table.display();
   }
 }
 

@@ -1,4 +1,3 @@
-//import {csvClass  } from '/_lib/MVC/table/csv.mjs'     ;
 import {csvClass  } from '/_lib/MVC/table/csv.mjs'     ;
 import {proxy     } from '/_lib/proxy/_.mjs'  ;
 
@@ -20,7 +19,7 @@ these features are used in the following appsthis.meta.PK_max
 constructor( // table_class - client-side
 url          // directory where table _meta.json, changes.csv, columns.json live
 ) {
-  if (url != undefined) {
+  if (url !== undefined) {
     this.url_set(url);
   }
   this.db      = undefined; 
@@ -123,7 +122,7 @@ search( // sfc_table_class - client-side
   const s_pks = [];  // return array of pks that match search critera
 
   if (0 < critera.length) {
-    for(let i=0; i<pks.length; i++) {
+    for(let i=0; i<critera.length; i++) {
       // get search criteria
       const cr           = critera[i];
       const field_name   = cr[0];
@@ -180,43 +179,6 @@ stack = ${new Error().stack}
 }
 
 
-get_value_relation(  // table_class - client-side
-// returns display value for both relation fields and non-relation fields
-pk
-,field
-) {
-  let value = this.get_value(pk,field);
-  if (this.meta_get("fields")[field].location === "relation") {        // 2024-07-30  not sure this is still used dwb
-    // value is an array of PK, convert to human readable
-    let r_value="";
-    for(var i=0; i<value.length; i++){
-      let pkr=value[i]; // relation pk
-      let relation = this.db.getTable("relations").get_object(pkr);  // get relation object 
-      if        (relation.table_1 === this.name && relation.pk_1 === pk) {
-        // related to table 2
-        r_value += this.format_values(2, relation);
-      } else if (relation.table_2 === this.name && relation.pk_2 === pk) {
-        // related to table 1
-        r_value += this.format_values(1, relation);
-      } else {
-        // error
-        alert(`
-error file="table_module.js" 
-method="get_value_relation" 
-pk="${pk}" 
-this.name="${this.name}" 
-relationn=${JSON.stringify(relation)}
-`);
-      }
-    }
-    value = r_value;
-  } else {
-    value = this.value2string(value);
-  }
-
-  return value;
-}
-
 
 value2string(  // table_class - client-side
   value
@@ -234,7 +196,7 @@ value2string(  // table_class - client-side
       break; // no chages need
     default: 
       alert(`file="table_module.js"
-method="get_value_relation"
+method="value2string"
 type="${type}"
 value="${value}"`);
   }
@@ -242,20 +204,7 @@ value="${value}"`);
 }
 
 
-format_values( // table_class - client-side
-   table_number  // 
-  ,relation
-  ){
-  let html = "";
-  const fields=["label","display","comment"];
-  for(var i=0; i<fields.length; i++) {
-    let table_name = relation[`table_${table_number}`];
-    let pk         = relation[`pk_${table_number}`];
-    let table      = this.db.getTable(table_name);
-    html += table.get_value(pk,fields[i]) +" - "; 
-  }
-  return html+"<br>";
-}
+
 
 
 get_unique_values(// table_class - client-side
@@ -721,10 +670,11 @@ async save( // table_class - client-side
   for(var i=0; i< fields.length; i++) {
     let field = fields[i];
     let edited_value   = record[field];                    // from edit form
-    let current_value  = this.get_value_relation(record.pk,field);  // from table memory - convert to string for compare 
-    
+    //let current_value  = this.get_value_relation(record.pk,field);  // from table memory - convert to string for compare 
+    let current_value  = this.get_value(record.pk,field);  // from table memory - convert to string for compare 
+
     // update change log
-    if (this.value2string(edited_value) !== current_value ) {
+    if (this.value2string(edited_value) !== this.value2string(current_value) ) {
       // append to  change log
       let csv_value = edited_value;      // convert new line -> /n and quotes -> /""
       if (csv_value === "") {
@@ -1098,5 +1048,60 @@ filter(  // table_class - client-side
 }
 */
 
+/*
+get_value_relation(  // table_class - client-side
+// returns display value for both relation fields and non-relation fields
+pk
+,field
+) {
+  let value = this.get_value(pk,field);
+  if (this.meta_get("fields")[field].location === "relation") {        // 2024-07-30  not sure this is still used dwb
+    // value is an array of PK, convert to human readable
+    let r_value="";
+    for(var i=0; i<value.length; i++){
+      let pkr=value[i]; // relation pk
+      let relation = this.db.getTable("relations").get_object(pkr);  // get relation object 
+      if        (relation.table_1 === this.name && relation.pk_1 === pk) {
+        // related to table 2
+        r_value += this.format_values(2, relation);
+      } else if (relation.table_2 === this.name && relation.pk_2 === pk) {
+        // related to table 1
+        r_value += this.format_values(1, relation);
+      } else {
+        // error
+        alert(`
+error file="table_module.js" 
+method="get_value_relation" 
+pk="${pk}" 
+this.name="${this.name}" 
+relationn=${JSON.stringify(relation)}
+`);
+      }
+    }
+    value = r_value;
+  } else {
+    value = this.value2string(value);
+  }
 
+  return value;
+}
+*/
+
+/*
+format_values( // table_class - client-side
+  table_number  // 
+ ,relation
+ ){
+ let html = "";
+ const fields=["label","display","comment"];
+ for(var i=0; i<fields.length; i++) {
+   let table_name = relation[`table_${table_number}`];
+   let pk         = relation[`pk_${table_number}`];
+   let table      = this.db.getTable(table_name);
+   html += table.get_value(pk,fields[i]) +" - "; 
+ }
+ return html+"<br>";
+}
+
+*/
 } //  end  of // table_class - client-side

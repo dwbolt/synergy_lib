@@ -40,7 +40,7 @@ async main() {
   this.sfc_nav_tree    = document.querySelector("sfc-nav-tree");                            // rember <sfc-nav-tree>
 
   // add a menue
-  this.sfc_nav_tree.add(`
+  this.sfc_nav_tree.html_add(`
 <select size="10" onclick="app.show(this)">
 <option value="1">display value</option>
 <option value="2">sub menu</option>
@@ -55,7 +55,7 @@ show(element){
     case "4":  
     document.getElementById("msg").innerHTML = element.value;  break;
   
-    case "2": this.sfc_nav_tree.add(`
+    case "2": this.sfc_nav_tree.html_add(`
     <select size="10" onclick="app.show(this)">
 <option value="4">display value</option>
 <option value="5">go back one level</option>

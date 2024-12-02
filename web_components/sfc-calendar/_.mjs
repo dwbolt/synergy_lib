@@ -1,5 +1,5 @@
-const {sfc_table_class    } = await app.load(""); //import  {sfc_table_class     } from '/_lib/MVC/table/c.mjs'     ;
-const {table_class        } = await app.load("MVC/table/c.mjs");
+const {sfc_table_class    } = await app.load("MVC/table/c.mjs"); //import  {sfc_table_class     } from '/_lib/MVC/table/c.mjs'     ;
+const {table_class        } = await app.load("MVC/table/m.mjs");
 const {format             } = await app.load("format/_.mjs");
 
 //const {sfc_event_datetime } = await app.load("web_components/sfc-calendar/sfc-event-datetime/_.mjs");  // preload <sfc-event-datetime>
