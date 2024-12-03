@@ -27,10 +27,16 @@ constructor(viewer) {  // MVC model graph - client side
 
 
 init() { // MVC model graph - client side
-	this.node_id = 0;
-	this.edge_id =0;
+	this.node_id     = 0;
+	this.edge_id     = 0; 
+	this.edge_index  = {};
+	/*
+{
+"relation": {edge_ids:[], bi_directional: boolean}   // asssume uni_directional unless bi_directional = true
+}
+	 */
 
-	this.graph = {
+	this.graph           = {
 	 "meta"  : {}
 	,"edges" : {}
 	,"nodes" : {}}
@@ -44,14 +50,15 @@ viewer_add(  // MVC model graph - client side
 }
 
 
+
 node_add(  // MVC model graph - client side
 	node // [label, node_data]
 ){
 	this.graph.nodes[++this.node_id] = {
 		"label"    : node[0]
 		,"data"    : node[1]
-		,"souces"  : []          // array of edges where this node is the source  
-		,"target"  : []          // array of eges where this node is a target
+		,"source"  : []          // array of edge id where node is source
+		,"target"  : []          // array of edge id where node is target
 		,"date"    : new Date()  // date time node was create, can be used for cashe and refresh
 	}
 
@@ -59,27 +66,40 @@ node_add(  // MVC model graph - client side
 }
 
 
-node_chidren(node_id) {
-	return this.graph.node[node_id].children;
+node_source(node_id) {  // MVC model graph - client side
+	return this.graph.node[node_id].source;
 }
 
 
-node_parents(node_id) {
-	return this.graph.node[node_id].parents;
+node_target(node_id) {  // MVC model graph - client side
+	return this.graph.node[node_id].target;
 }
 
 
 edge_add(  // MVC model graph - client side
-	edge //  [node_parent, relation ,direction, node_child, label, {data}]
+	edge //  [node_source, relation, node_target, {data}]
 ) {
+	const node_source = edge[0];
+	const relation    = edge[1];
+	const node_target = edge[2];
+
+	// create new edge
 	this.graph.edges[++this.edge_id] = {
-		 "node_source": edge[0]
-		,"relation"   : edge[1]
-		,"direction"  : edge[2]  // >  directional, eg parent child   |  = not directional eg partner
-		,"node_targe" : edge[3]
-		,"label"      : edge[4]
-		,"data"       : edge[5]
+		 "node_source" : node_source  // node_id
+		,"relation"    : relation     //
+		,"node_target" : node_target  // node_id
+		,"data"        : edge[3]  // place to store data for edge
 	}
+
+	// update edge index
+	if (this.edge_index[relation] === undefined) {
+		this.edge_index[relation] = {"edge_ids": []}
+	} 
+	this.edge_index[relation].edge_ids.push(this.edge_id);
+
+	// update node source and target arrays
+	this.graph.nodes[node_source].source.push(this.edge_id);
+	this.graph.nodes[node_source].target.push(this.edge_id);
 
 	return this.edge_id;
 }

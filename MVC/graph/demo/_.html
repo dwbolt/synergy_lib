@@ -8,8 +8,8 @@
 <body>
 
   <h1>graph demo</h1>
-  <p>replace UX/menu.mjs</p>
-  <sfc-nav-tree></sfc-nav-tree>
+  <p></p>
+  <sfc-tree-v></sfc-tree-v>
   <div id="msg"></div>
 
 </body>
@@ -29,13 +29,19 @@ class appClass {
 
 
 constructor(){
-  this.viewer = new viewer_graph();
+  this.viewer = new 
   this.model  = new model_graph(this.viewer);
 
-  this.model_node_add() = {
- "0":[[1,"one"],[2,"two"],[3,"three"]]
- ,"1":[[4,]] 
-  }
+  const david_id   = this.model_node_add(["David"  , {} ])
+  const barbara_id = this.model_node_add(["Barbara", {}  ]);
+  const matthew_id = this.model_node_add(["Matthew", {}   ]);
+  const lisa_id    = this.model_node_add(["Lisa"   , {}]);
+
+  this.model_edge_add(  [david_id  , "parent", matthew_id, {}]);
+  this.model_edge_add(  [barbara_id, "parent", matthew_id, {}]);
+
+  this.model_edge_add(  [david_id  , "parent", lisa_id, {}]);
+  this.model_edge_add(  [barbara_id, "parent", lisa_id, {}]);
 }
 
 

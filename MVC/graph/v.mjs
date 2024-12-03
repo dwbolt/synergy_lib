@@ -65,4 +65,4 @@ html_add(  // sfc_nav_tree- client side
 } // end sfc_nav_tree
 
 
-customElements.define("sfc-nav-tree", sfc_nav_tree); // tie class to custom web component
+customElements.define("sfc-graph-v", viewer_graph); // tie class to custom web component
