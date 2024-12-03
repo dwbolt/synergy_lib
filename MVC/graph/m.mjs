@@ -57,8 +57,8 @@ node_add(  // MVC model graph - client side
 	this.graph.nodes[++this.node_id] = {
 		"label"    : node[0]
 		,"data"    : node[1]
-		,"source"  : []          // array of edge id where node is source
 		,"target"  : []          // array of edge id where node is target
+		,"source"  : []          // array of edge id where node is source 
 		,"date"    : new Date()  // date time node was create, can be used for cashe and refresh
 	}
 

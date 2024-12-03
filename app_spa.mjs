@@ -1,27 +1,13 @@
-import  {proxy      } from '/_lib/proxy/_.mjs' ;
-import  {format     } from '/_lib/format/_.mjs';
-import  {page_      } from '/_lib/UX/page_.mjs'; // 
-
-
-// web-components
-import  {sfc_img   } from '/_lib/web_components/sfc-img/_.mjs'   ; // preload sfc-img web component
-import  {sfc_html  } from '/_lib/web_components/sfc-html/_.mjs'  ; // preload sfc-html web component
-import  {sfc_urls  } from '/_lib/web_components/sfc-urls/_.mjs'  ; // preload sfc-urls web component
-const {sfc_dialog    } = await import(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-dialog/_.mjs` );  
-const {sfc_login     } = await import(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-login/_.mjs`  );  
-
+import  {proxy          } from '/_lib/proxy/_.mjs'        ; // static class that makes async webcalls
+import  {format         } from '/_lib/format/_.mjs'       ; // static class that formats data
+import  {page_          } from '/_lib/UX/page_.mjs'       ; // 
+import  {web_components } from '/_lib/web_components.mjs' ; // class that allows dynamic loading of web_components
 
 export class app_spa { // synergy.SFCKnox.org web site
 
 
 constructor() {  // appClass - client side
 	this.urlParams   = new URLSearchParams( window.location.search );
-
-	// add one dialog and login.  Not all applications need login, but most do and it is small
-	document.body.innerHTML += "<sfc-dialog></sfc-dialog> <sfc-login></sfc-login>";
-	this.sfc_dialog  = document.querySelector("sfc-dialog"); // assume only one
-	this.sfc_login   = document.querySelector("sfc-login" ); // assume only one
-
 
 	// get local of _lib 
 	const host = window.location.hostname.split(".");
@@ -32,6 +18,19 @@ constructor() {  // appClass - client side
 
 
 async main() { // appClass - client side
+	// enable dynamic load ot sfc web componts
+	      this.web_components = new web_components(     );  // create map
+	await this.web_components.check(document.body       );  // load any unload web components in body
+	await this.web_components.observer_create(          );  // create observer
+	await this.web_components.observer_add(document.body);  // observe changes in the body tab
+
+	// add one dialog and login.  Not all applications need login, but most do and it is small
+	document.body.innerHTML += "<sfc-dialog></sfc-dialog> <sfc-login></sfc-login>"; // body has changed load should fire
+
+
+	this.sfc_dialog  = document.querySelector("sfc-dialog"); // assume only one
+	this.sfc_login   = document.querySelector("sfc-login" ); // assume only one
+
 	// should just be called once when a new spa (single page app) is load
 	this.pages   = {}  // contians pointers to page class as they are loaded
 
@@ -305,3 +304,37 @@ test_harness(){
 
 
 } // end app_spa
+
+
+/*
+
+code from chatgpt to dynically load web components
+https://chatgpt.com/c/674f1bef-b588-800b-ab8b-2c1a42c863e2
+
+// define mapping from tag name to location
+const componentMap = {
+  'my-unknown-component': '/path/to/my-unknown-component.js',
+  // Add other mappings here
+};
+
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    mutation.addedNodes.forEach((node) => {
+      if (
+        node.nodeType === Node.ELEMENT_NODE &&
+        node.tagName.includes('-') &&
+        !customElements.get(node.tagName.toLowerCase())
+      ) {
+        //console.log(`Unloaded component detected: ${node.tagName}`);
+		// load componet
+	  import(componentMap[tagName]).catch((err) =>
+      console.error(`Failed to load component ${tagName}`, err)
+    );
+      }
+    });
+  });
+});
+
+observer.observe(document.body, { childList: true, subtree: true });
+
+*/

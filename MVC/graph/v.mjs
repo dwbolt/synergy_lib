@@ -1,7 +1,9 @@
 export class viewer_graph extends HTMLElement { // <sfc-graph>  web component
 
 /*
-similar to a column view of a file system
+[all nodes]
+
+[selected source node] [source relations] [selected node]
 */
 
 
@@ -18,8 +20,6 @@ constructor() {  // sfc_graph - client side
 init(){  // sfc_nav_tree- client side
 	this.shadow.innerHTML = `<div style="display:flex; flex-direction: row;"> </div>`
 	this.container        = this.shadow.querySelector("div");
-  }
-
 
 html_add(  // sfc_nav_tree- client side
 	html    // html for menu

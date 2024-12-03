@@ -23,33 +23,37 @@ let app // only global variable
 <script type="module">
 // controler for graph model and view
 import {model_graph } from '/_lib/MVC/graph/m.mjs'  ; 
-import {viewer_graph} from '/_lib/MVC/graph/v.mjs'  ; 
+import {viewer_graph} from '/_lib/MVC/graph/v.mjs'  ; // <sfc-tree-v>
 
-class appClass {
+class appClass {  // graph controller - client side
 
 
-constructor(){
-  this.viewer = new 
-  this.model  = new model_graph(this.viewer);
+constructor(){   // graph controller - client side
+  this.viewer = document.querySelector("sfc-tree-v");  // get viewer from DOM
+  this.model  = new model_graph(this.viewer        );  // create empty graph
 
-  const david_id   = this.model_node_add(["David"  , {} ])
-  const barbara_id = this.model_node_add(["Barbara", {}  ]);
-  const matthew_id = this.model_node_add(["Matthew", {}   ]);
-  const lisa_id    = this.model_node_add(["Lisa"   , {}]);
+  // create some nodes
+  const john_id    = this.model.node_add(["John"   , {}]);
+  const betty_id   = this.model.node_add(["Betty"  , {}]);
+  const david_id   = this.model.node_add(["David"  , {}]);
+  const barbara_id = this.model.node_add(["Barbara", {}]);
+  const matthew_id = this.model.node_add(["Matthew", {}]);
+  const lisa_id    = this.model.node_add(["Lisa"   , {}]);
 
-  this.model_edge_add(  [david_id  , "parent", matthew_id, {}]);
-  this.model_edge_add(  [barbara_id, "parent", matthew_id, {}]);
+  // create some edges between nodes
+  this.model.edge_add(  [   john_id, "parent", david_id,   {}]);
+  this.model.edge_add(  [  betty_id, "parent", david_id,   {}]);
 
-  this.model_edge_add(  [david_id  , "parent", lisa_id, {}]);
-  this.model_edge_add(  [barbara_id, "parent", lisa_id, {}]);
+  this.model.edge_add(  [  david_id, "parent", matthew_id, {}]);
+  this.model.edge_add(  [barbara_id, "parent", matthew_id, {}]);
+
+  this.model.edge_add(  [  david_id, "parent", lisa_id,    {}]);
+  this.model.edge_add(  [barbara_id, "parent", lisa_id,    {}]);
 }
 
 
-async main() {
-
-  const {sfc_nav_tree} = await import(`${this.lib}/_lib/MVC/tree/v.mjs`);  // import code for <sfc-nav-tree>
-  this.sfc_nav_tree    = document.querySelector("sfc-nav-tree");                            // rember <sfc-nav-tree>
-
+async main(  // graph controller - client side
+){
   // add a menue
   this.sfc_nav_tree.html_add(`
 <select size="10" onclick="app.show(this)">
