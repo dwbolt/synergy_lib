@@ -1,0 +1,99 @@
+export class web_components { 
+
+/*
+
+Used to dynamical load web components
+
+code inspired from chatgpt to dynically load web components
+https://chatgpt.com/c/674f1bef-b588-800b-ab8b-2c1a42c863e2
+
+*/
+
+constructor() {  // appClass - client side
+	// get local of _lib 
+	const host = window.location.hostname.split(".");
+	if      ( host[0].includes("local") ) { this.lib = `https://synergy_local.sfcknox.org/_lib`;} // use _lib on local      server
+	else if ( host[0].includes("beta" ) ) { this.lib =  `https://synergy_beta.sfcknox.org/_lib`;} // use _lib on beta       server
+	else                                  { this.lib =       `https://synergy.sfcknox.org/_lib`;} // use _lib on production server
+
+	this.map = {
+		"sfc-html"          : `${this.lib}/web_components/sfc-html/_.mjs`
+		,"sfc-img"          : `${this.lib}/web_components/sfc-img/_.mjs`  
+		,"sfc-urls"         : `${this.lib}/web_components/sfc-urls/_.mjs` 
+		,"sfc-dialog"       : `${this.lib}/web_components/sfc-dialog/_.mjs` 
+		,"sfc-login"        : `${this.lib}/web_components/sfc-login/_.mjs`
+		,"sfc-not-mapped"   : `${this.lib}/web_components/sfc-not-mapped/_.mjs`
+		
+		,"sfc-graph-v"      : `${this.lib}/MVC/graph/v.mjs`
+		,"sfc-graph-node-v" : `${this.lib}/MVC/graph/node/v.mjs`
+	}
+}
+
+
+async observer_create(){
+	this.observer = new MutationObserver( await this.observe.bind(this)     ); // create Mutaion Observer
+}
+
+
+async observer_add(dom){
+	this.observer.observe(dom, { childList: true, subtree: true } ); // check anytime body changes
+}
+
+
+async observe(mutaions) {
+	// dom changed, see if there are any unload web componets
+	for(let i=0; i<mutaions.length; i++) {
+		const nodes = mutaions[i].addedNodes;
+		for(let ii=0; ii<nodes.length; ii++) {
+			// custom component not loaded
+			const node = nodes[ii];
+			await this.load(node);
+		}
+	}
+}
+	
+	
+async check(
+	dom // check for any unload web componets is dom section
+){
+	const elements = dom.querySelectorAll('*');
+	for(let i=0; i<elements.length; i++) {
+		const node      = elements[i];
+		await this.load(node);
+	}
+}
+	
+	
+async load(
+	node // web componet to load
+) {
+
+	if (node.nodeType !== Node.ELEMENT_NODE) {return;} // assume only nodes can be web-componets
+
+	const tag_name = node.tagName.toLowerCase()     ;  // get html tagname and convert to lower case for compare
+	if (!tag_name.includes('-')            ) {return;} // node does not have "-" in it's name, not a web component
+	if (customElements.get(tag_name)       ) {return;} // component already loaded, nothing todo
+
+	let path = ""
+	if ( this.map[tag_name]) {
+		// there is path in this.map
+		path = this.map[tag_name];
+	} else {
+		// componet is not in map, so map it <sfc_not_mapped> so message in html that it was not loaded
+		path = this.map["sfc-not-mapped" ];
+		const {sfc_not_mapped} = await import(path); // make sure sfc_not_mapped is defined
+		customElements.define(tag_name, sfc_not_mapped); // tie class to custom web component
+		return
+	}
+
+	try {
+		// try to import web component
+		await import(path);
+	} catch(err){
+		alert(`error importing ${tag_name}  error=${err}`);
+	}
+}
+	
+	
+} // end web_components
+	

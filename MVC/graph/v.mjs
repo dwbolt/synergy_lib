@@ -1,4 +1,4 @@
-export class viewer_graph extends HTMLElement { // <sfc-graph>  web component
+export class viewer_graph extends HTMLElement { // <sfc-graph-v>  web component
 
 /*
 [all nodes]
@@ -12,14 +12,25 @@ constructor() {  // sfc_graph - client side
 	super();
 	this.shadow = this.attachShadow({ mode: "closed" });  
 	this.init();
-
-	this.style_select = "border-style: solid;   border-radius: 6px;  margin:5px 5px 5px 5px; padding:5px 5px 5px 5px;resize: vertical";
 }
 
 
-init(){  // sfc_nav_tree- client side
-	this.shadow.innerHTML = `<div style="display:flex; flex-direction: row;"> </div>`
+async init(){  // sfc_nav_tree- client side
+	this.shadow.innerHTML = `
+<sfc-graph-nodes-v>list nodes to click on</sfc-graph-nodes-v>
+<div style="display:flex; flex-direction: row;">
+
+<sfc-graph-node-v id="left"  > left   </sfc-graph-node-v>
+<sfc-graph-node-v id="center"> center </sfc-graph-node-v>
+<sfc-graph-node-v id="right" > right  </sfc-graph-node-v>
+
+</div>
+`
 	this.container        = this.shadow.querySelector("div");
+	// made sure 
+	await  app.web_components.check(this.shadow);
+}
+
 
 html_add(  // sfc_nav_tree- client side
 	html    // html for menu
@@ -28,10 +39,10 @@ html_add(  // sfc_nav_tree- client side
 	newMenue.innerHTML = html;
 	newMenue.style     = this.style_select
 	this.container.appendChild(newMenue);
-  }
+}
 
 
-  element_add(  // sfc_nav_tree- client side
+element_add(  // sfc_nav_tree- client side
 	element    // dom element contianing  menu
 	){
 	const newMenue     = document.createElement('div');
@@ -39,10 +50,10 @@ html_add(  // sfc_nav_tree- client side
 	newMenue.appendChild(element);  // put menu element in box
 
 	this.container.appendChild(newMenue);  // add box to menu
-  }
+}
   
   
-  delete_to(  // menuClass- client side
+delete_to(  // menuClass- client side
 	event //
 	) {
 	// keep goint up the element chain utile this.container is found
@@ -59,7 +70,7 @@ html_add(  // sfc_nav_tree- client side
 		this.container.removeChild(this.container.lastElementChild);
 	}
 	return index;
-  }
+}
 
 
 } // end sfc_nav_tree

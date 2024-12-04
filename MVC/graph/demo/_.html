@@ -9,7 +9,7 @@
 
   <h1>graph demo</h1>
   <p></p>
-  <sfc-tree-v></sfc-tree-v>
+  <sfc-graph-v></sfc-graph-v>
   <div id="msg"></div>
 
 </body>
@@ -22,8 +22,9 @@ let app // only global variable
 
 <script type="module">
 // controler for graph model and view
-import {model_graph } from '/_lib/MVC/graph/m.mjs'  ; 
-import {viewer_graph} from '/_lib/MVC/graph/v.mjs'  ; // <sfc-tree-v>
+import {model_graph }    from '/_lib/MVC/graph/m.mjs'  ; 
+import {web_components } from '/_lib/web_components/web_components.mjs' ; // class that allows dynamic loading of web_components
+
 
 class appClass {  // graph controller - client side
 
@@ -54,13 +55,12 @@ constructor(){   // graph controller - client side
 
 async main(  // graph controller - client side
 ){
+  this.web_components = new web_components(     );  // create map
+	await this.web_components.check(document.body       );  // load any unload web components in body
+	await this.web_components.observer_create(          );  // create observer
+	await this.web_components.observer_add(document.body);  // observe changes in the body tab
+
   // add a menue
-  this.sfc_nav_tree.html_add(`
-<select size="10" onclick="app.show(this)">
-<option value="1">display value</option>
-<option value="2">sub menu</option>
-<option value="3">clear</option>
-</select></div>  `);
 }
 
 
