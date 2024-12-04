@@ -1,7 +1,7 @@
 import  {proxy          } from '/_lib/proxy/_.mjs'        ; // static class that makes async webcalls
 import  {format         } from '/_lib/format/_.mjs'       ; // static class that formats data
 import  {page_          } from '/_lib/UX/page_.mjs'       ; // 
-import  {web_components } from '/_lib/web_components.mjs' ; // class that allows dynamic loading of web_components
+import  {web_components } from '/_lib/web_components/web_components.mjs' ; // class that allows dynamic loading of web_components
 
 export class app_spa { // synergy.SFCKnox.org web site
 

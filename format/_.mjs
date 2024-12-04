@@ -53,6 +53,10 @@ static getDayOfWeek( // formatClass - client-side
 static getISO(  // return YYYY-MM-DD
   date  // Date object or array [year,month,day]
 ){
+  if (date === undefined) {
+    return "";
+  }
+
   if (Array.isArray(date)) {
     date = new Date(date[0],date[1]-1,date[2]);
   }

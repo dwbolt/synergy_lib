@@ -66,7 +66,7 @@ searchf(
   for(let i=0; i<inputs.length; i++) {
     const element     = inputs[i];           // element user made change to
     const field_name  = element.id.slice(3); // get rid of leading "fn-""
-    const search_value = element.value;
+    const search_value = element.value.toLowerCase();
     if (search_value !== "") {
       search.push([field_name, search_value, "begin"]);  // for now only supporting string searches from beginning
     }

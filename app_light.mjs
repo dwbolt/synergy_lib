@@ -1,4 +1,5 @@
 // load external modules
+import {web_components } from '/_lib/web_components/web_components.mjs' ; // class that allows dynamic loading of web_components
 const {sfc_dialog    } = await import(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-dialog/_.mjs` );  
 const {sfc_login     } = await import(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-login/_.mjs`  );  
 
