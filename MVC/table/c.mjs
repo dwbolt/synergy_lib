@@ -86,7 +86,7 @@ record_show(  // sfc_table_class - client-side
       this.record_sfc.table_set(this.model);  
       this.record_sfc.show(data);                           // get sfc-record accociated with table & dislay record clicked on
       if (this.record_show_custom) this.record_show_custom(event); 
-  }
+  } 
 }
 
 
@@ -117,33 +117,18 @@ display(        // sfc_table_class - client-side
   rowArray=null // optional rowarray, display if passed
 ) {
   this.tags = {}  // remove any previous tags
+  this.tag = "filtered";
 
   if (Array.isArray(rowArray)) {
     // create tag with rowArray and display
-    this.tag = "filtered";
     this.tags.filtered = rowArray;
-  //  this.paging.rowMax = rowArray.length;
   } else {
     // display full table
-    this.tag = "filtered";
     this.tags.filtered = this.getModel().get_PK();
   }
+  this.paging.rowMax = this.tags.filtered.length;
+  this.paging.row    = 0;
 
-  /* add fields to group by
-  this.groupby_fields = new sfc_select_order(`${this.DOMid}__group_by_fields`,`${this.globalName}.groupby_fields`);
-  this.groupby_fields.set_template(
-    `<input type="button" value="Search"   onclick="${this.globalName}.display_intersection()"><br>
-     <input type="button" value="group by" onclick="${this.globalName}.groupby()">
-    `
-  );
-  */
- /*
-  const fields = this.model.meta_get("fields");
-  this.model.meta_get("select").forEach((field, i) => {
-    this.groupby_fields.add_choice(field,{"text": fields[field].header});
-  });
-  this.groupby_fields.add_choices();
-*/
   // fill in empty table
   this.statusLine();
   this.displayData()        ;  
@@ -272,6 +257,7 @@ displayData(){   // sfc_table_class - client-side
   let html="";  // init html
   html += this.search_display();
   html += this.displayColumnTitles();
+
   // build one row at a time
   for (let i = 0; i < this.paging.lines; i++) {
     html += this.appendHTMLrow(i+1, i+this.paging.row);
@@ -287,27 +273,6 @@ displayData(){   // sfc_table_class - client-side
     });
   }
 
-  // format data just appended
-  // allow first child of each <td> tag to set attribute of <td> tag, the calenderClass was the first to use this
-  // walk tr, then td to change class for td
-  /*for(let i=0; i<table_data.children.length; i++) {
-    let div = table_data.children[i];
-    // if we are displaying html, all first element to set parent class
-    if (0 < div.children.length) {
-      // html is being displayed, see if the first child is seting class
-      try {
-        let attribute = div.firstChild.getAttribute("data-parentAttribute");
-        if (attribute) {
-          let array = eval(attribute ) ;
-          if ( Array.isArray(array)) {
-            div.setAttribute(array[0],array[1]);
-          }
-        }
-      } catch (error) {
-        // just ignor error 
-      }
-    }
-  }*/
 
   // figure out maxrow
  if (this.tag === "null"  || this.tag === null) {
@@ -528,35 +493,29 @@ appendHTMLrow(  // sfc_table_class - client-side
   ,arrayIndex  // row data to be displayed
 ) {
 
-  // decide if raw data or a tag list is being displayed
-  let PK;
-  if (this.tag === "null"  || this.tag === null) {
-    // display all data
-    PK = arrayIndex;
-  } else {
-    // display subset of rows in tag
-    if (arrayIndex < this.tags[this.tag].length) {
-      PK = this.tags[this.tag][arrayIndex];
-    } else {
-      return ""; // no more data
-    }
+  if ( this.tags[this.tag].length <= arrayIndex) {
+    return ""; // no more data
   }
 
+  const pk = this.tags[this.tag][arrayIndex];
   // create html for each column in the row
   let lineNum=""; 
   if (this.lineNumberVisible ) {
-    lineNum = `<div align="right" data-pk="${PK}" class="link"> ${i} </div>`;
+    // diaplay line number
+    lineNum = `<div align="right" data-pk="${pk}" class="link"> ${i} </div>`;
   }
 
   let selected = "";
-  if (this.selected.find(
-    val => val === PK) )
-     {selected="class='selected'";}
+  if (this.selected.find( val => val === pk) ) {
+    // show row as selected
+    selected="class='selected'";
+  }
+
   let html   = lineNum;
   const select = this.model.meta_get("select");
   for(let i=0; i<select.length; i++) {
     // create display form of field
-    let value = this.model.get_value(PK,select[i]);
+    let value = this.model.get_value(pk, select[i]);
 
     if (value===null || value === undefined) {
       html += "<div></div>"; // display null values as blank
@@ -567,6 +526,7 @@ appendHTMLrow(  // sfc_table_class - client-side
 
  
   };
+  
   return html;
 }
 

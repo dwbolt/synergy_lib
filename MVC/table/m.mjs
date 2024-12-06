@@ -130,10 +130,20 @@ search( // sfc_table_class - client-side
       const pks          = this.get_PK();
       // all the values of the column
       for(let ii=0; ii<pks.length; ii++){
-        const field_value  = this.get_value(pks[ii],field_name); 
-        if (typeof(field_value) ==="number" ){field_value = field_value.toString();}
-        if (field_value && field_value.toLowerCase().includes(search_value)) {
-          s_pks.push(pks[ii]);  // found a match, push the primary key
+        let field_value  = this.get_value(pks[ii],field_name); 
+        if (field_value) {
+          // field_value is defined, so see if it matches search criteria
+          let push=false;
+          if (typeof(field_value) ==="number" ){field_value = field_value.toString();}  // this is not right, numbers need special processing
+          field_value = field_value.toLowerCase();
+          switch (cr[2]) {
+            case "begin"   : if (search_value  === field_value.substring(0,search_value.length)) {push = true} break;
+            case "contains": if (field_value.includes(search_value))                             {push = true} break;
+            default: break;
+          }
+          if (push) {
+            s_pks.push(pks[ii]);  // found a match, push the primary key
+          } 
         }
       }
     }
