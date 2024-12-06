@@ -119,7 +119,8 @@ return pk_a;
 search( // sfc_table_class - client-side
   critera  // [[field_name, value_min,searh_type_min, search_type_max optional, value_max optional],...]  
 ) {
-  const s_pks = [];  // return array of pks that match search critera
+  let s_pks =[];  // return array of pks that match search critera
+  let pks;        // array of pks to search
 
   if (0 < critera.length) {
     for(let i=0; i<critera.length; i++) {
@@ -127,7 +128,15 @@ search( // sfc_table_class - client-side
       const cr           = critera[i];
       const field_name   = cr[0];
       const search_value = cr[1];
-      const pks          = this.get_PK();
+      if (i===0) {
+        // first filter, start with the entire database
+        pks = this.get_PK();
+      } else {
+        // narrow sections with preview selections
+        pks = s_pks.slice();  // make a copy of
+        s_pks =[];
+      }
+
       // all the values of the column
       for(let ii=0; ii<pks.length; ii++){
         let field_value  = this.get_value(pks[ii],field_name); 
@@ -147,7 +156,7 @@ search( // sfc_table_class - client-side
         }
       }
     }
-  }
+  }   // do I need an else here?
   
   return s_pks;
 }

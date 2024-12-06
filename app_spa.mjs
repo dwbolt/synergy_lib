@@ -18,16 +18,16 @@ constructor() {  // appClass - client side
 
 
 async main() { // appClass - client side
-	// enable dynamic load ot sfc web componts
-	      this.web_components = new web_components(     );  // create map
-	await this.web_components.check(document.body       );  // load any unload web components in body
-	await this.web_components.observer_create(          );  // create observer
-	await this.web_components.observer_add(document.body);  // observe changes in the body tab
-
 	// add one dialog and login.  Not all applications need login, but most do and it is small
 	document.body.innerHTML += "<sfc-dialog></sfc-dialog> <sfc-login></sfc-login>"; // body has changed load should fire
 
-
+	// enable dynamic load ot sfc web componts
+	this.web_components = new web_components(     );  // create map
+	await this.web_components.check(document.body       );  // load any unload web components in body
+	await this.web_components.observer_create(          );  // create observer
+	await this.web_components.observer_add(document.body);  // observe changes in the body tab
+	
+	// remember to app dialog and login
 	this.sfc_dialog  = document.querySelector("sfc-dialog"); // assume only one
 	this.sfc_login   = document.querySelector("sfc-login" ); // assume only one
 
@@ -63,14 +63,23 @@ async load(// app_light - client side
 async url_copy(   // appClass - client side
 ){
 	// copy the url and page info so a user can get back do the page
-	this.sfc_dialog.set("title","<h1>Copied URL to clipboard</h1>");
+//	this.sfc_dialog.set("title","<h1>Copied URL to clipboard</h1>");
 
 	// set text of dialog
 	const url = this.url_get();
-	this.sfc_dialog.set("body",`<p>"${url}" <br><br>has been copied to your clip board. You may now paste it to an email or other document.</p> <p>Sustainable Future Center implements their web information as Single Page Apps (SPA).  This means faster reponse times and less network trafic between your browser and the server.  You will notice that as you change pages, the url does not change.  The url that has been copied to your clipboard allows you to get back quickly to page you are on.</p>`);
- 
+	/*
+	this.sfc_dialog.set("body",`
+<p>"${url}" <br><br>has been copied to your clip board. You may now paste it to an email or other document.</p> 
+<p>Sustainable Future Center implements their web information as Single Page Apps (SPA).  
+This means faster reponse times and less network trafic between your browser and the server.  
+You will notice that as you change pages, the url does not change.  The url that has been copied to your clipboard allows you to get back quickly to page you are on.</p>
+
+<p>After close the dialog, your brwoser will <p>`);
+ */
 	await navigator.clipboard.writeText(url);  // copy url to clipboard
-	this.sfc_dialog.show_modal();               // show dialog
+	//this.sfc_dialog.show_modal();              // show dialog
+
+	window.location.href =  url;               // go to url
 }
 
 

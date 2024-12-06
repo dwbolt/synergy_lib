@@ -97,7 +97,7 @@ show(  // client side sfc_record_class - for a page
   let rowValue;
   let html = ""
   for(var i=0; i<select.length; i++) {
-    rowValue = this.table.get_value_relation(this.#primary_key_value, select[i]);
+    rowValue = this.table.get_value(this.#primary_key_value, select[i]);
     if (fields[select[i]].type === "textarea") {
       //rowValue = `<textarea rows="5" cols="40" readonly>${rowValue}</textarea>`
       rowValue = `<textarea rows="5" readonly>${rowValue}</textarea>`
