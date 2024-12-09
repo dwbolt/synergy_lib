@@ -369,7 +369,13 @@ event
     this.weekly_add(event)
     break;
   case "monthly":
-    this.monthly_add(event)
+    try {
+      this.monthly_add(event)
+    } catch (error) {
+      debugger;
+      alert(error + new Error().stack);
+    }
+
     break;
   case "yearly":
     this.one_add(event);
@@ -439,16 +445,21 @@ weekly_add( // calendar_class  client-side
 
 monthly_add (  // calendar_class  client-side
 event // event record from calendar table
-) {
-  // walk the days, first entry should be 0;
-  const start = this.GMT[event.pk].start;
-  let monthOffset = 0;
-  // walk to monthes to the end of the year
-  for (let month = new Date(this.year, start.getMonth()               , 1,1,1) ;
-           month < this.GMT[event.pk].repeat_end && month.getFullYear() === this.year;  
-       // add an hour and 1 minute for the case month starts in daylight savings and the date is after daylight savings ends.
-      month = new Date(this.year, start.getMonth()+ ++monthOffset, 1,1,1)) {
-    
+) {            // year, month, day, hour, minue, seconds, millisec
+  const year_start = new Date(this.year, 0, 1, 0, 0 ,0 ,0);  // start of year we are creating calendar for
+  const year_end   = new Date(new Date(this.year+1,0)-1  );  // end of the year of the callander we are displaying
+  if (this.GMT[event.pk].end < year_start    ) {return    ;} // event ended before start of year, event not part of this.year calendar
+  if (year_end < this.GMT[event.pk].row_start) {return    ;} // event starts after this year    , event not part of this.year calendar     
+
+  // event has some days in this year
+  const event_start = this.GMT[event.pk].start;
+  // walk to months to the end of the year
+  for ( let months = 0; months<12; months++) {
+    const month_start =          new Date(this.year, months  , 1)    ; // start of month
+    const month_end   = new Date(new Date(this.year, months+1, 1) -1); // end   of month
+    if (month_end                     < event_start) {continue ;}      // no events in this month, so skip to next
+    if (this.GMT[event.pk].repeat_end < month_start) {return   ;}      // no more events in this year, now more work
+
     /* walk weeks in month
     repeat_details [[0 throught 6 -> day number  31->on day, offset],[]...]
     [0,2] -> second Sunday of month
@@ -460,46 +471,41 @@ event // event record from calendar table
     [31,-10] -> 10 days before the end of the month
     */
 
-    let eventDate;
-    event.repeat_details.forEach((day, ii) => {  
-      // day=[day number, week number] a positive week number measn 
-        // day number 0 -> sunday & 6-> Saturday & 31 -> on day     : 
-        //  [1,2] -> second monday of month
+    // event may be 1st and 3rd wedsday of month, walk each repeat of month
+    for(let i=0; i<event.repeat_details.length; i++){
+      let event_day;
+      const day = event.repeat_details[i];
       if (day[0] === 31) {
         // repeat on a day
         if (0<day[1]) {
           // start at beggining of month
-          eventDate = new Date(this.year, start.getMonth()+monthOffset, day[1] ,1,1)   
-          this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(event.pk);  // push key to event associated with event
+          event_day = day[1];
         } else {
-          // start at end of month
-          eventDate = new Date(this.year, start.getMonth()+monthOffset+1, day[1]+1 ,1,1)        // goto next month and backup one day
-          this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(event.pk);  // push key to event associated with event
+          // day[1] is a negative number, start at end of month
+          let d = new Date(this.year, months+1, day[1]+1)        // goto next month and backup day[1] days
+          event_day = d.getDate();
         }
       } else  if ( -1 < day[0] && day[0] < 7 ) {
-        //repeat on a week
+        // repeat on a week
         // find first target day of week in the the month
-        let offset = day[0] - month.getDay(); // day[0] is the target day of week
-        if (offset<0) {offset += 7;}          // target day of week in in the next week
-        if (day[1] != 5) {
-          offset += 7*(day[1]-1);               // move to correct on ie 1st, 2st, 3rd... day of week of the month
+        if        (     0 < day[1]) {
+          // counting from start of month
+          let offset = day[0] - month_start.getDay(); // day[0] is the target day of week - day of the week month starts on
+          if (offset<0) {offset += 7;}                // target day of week in the prior week, so add 7 days
+          offset += 7*(day[1]-1);                     // and number weeks foward
+          event_day = 1 + offset;
+        } else if (day[1] < 0     ) {
+          // counting from start of next month, backward
+          offset = month_end.getDay(); // day[0] is the target day of week - day of the week month starts on
+          if (offset<0) {offset -= 7;}          // target day of week in in the next week, so add 7 days
+          offset += 7*(day[1]-1);     
+          event_day = month_end.getDate() + offset // convert offset in days to milli seconds and to first day of month
         } else {
-          // day repeats on last day of the month
-          // day is either on the 4th or 5th day for each month
-          let d = this.findDayInWeek(month.getMonth()+1,day[0]); // find the first day of the week of the next month
-          d.setDate(d.getDate() - 7);                            // subtract a week to get last day of week of this month
-          let n = this.findDayInMonth(d);                        // find if it is the 4th of 5th instance of day of the week in the month
-          offset += 7*(n[1]-1);                                  // calculate offset
+          // error day[1] = 0;  default to end of month or first of month
         }
-        eventDate = new Date(month.getTime() + offset*1000*60*60*24);
-        if ( this.GMT[event.pk].start < eventDate && eventDate < this.GMT[event.pk].repeat_end) {
-          this.events[eventDate.getMonth()+1][eventDate.getDate()].pks.push(event.pk);  // push key to event associated with event
-        }
-      } else {
-        // error
-        alert("error");
-      }
-    });
+       } 
+      this.events[months+1][event_day].pks.push(event.pk);  // push key to event associated with event
+    }
   }
 }
 

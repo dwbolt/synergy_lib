@@ -11,11 +11,6 @@
     ,"comment"     : {"header" : "Comment"    ,  "type" : "textarea", "location" : "column"}
 }
 
-,"fields-future" : {
- "phones"      : {"header" : "Phones"     ,  "type" : "relation", "location" : "column"}
-,"relations"   : {"header" : "Relations"  ,  "type" : "relation", "location" : "column"}
-}
-
 ,"select" : ["pk","name_first","name_last","name_maiden","comment"]
 ,"PK_max" : "0"
 }

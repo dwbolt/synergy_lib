@@ -3,7 +3,7 @@ const {table_views    } = await app.load("MVC/table/c_views.mjs");
 export class sfc_table_class  extends HTMLElement { // sfc_table_class - client-side 
 
 /*
-<sfc-table><sfc-table>  - table viewer web component
+<sfc-table><sfc-table>  - table viewer web component - has aspects of controler
 
 
 */
@@ -114,7 +114,7 @@ set_hidden(  // sfc_table_class - client-side
 
 display(        // sfc_table_class - client-side
   // display table - for first time
-  rowArray=null // optional rowarray, display if passed
+  rowArray // optional rowarray, display if passed
 ) {
   this.tags = {}  // remove any previous tags
   this.tag = "filtered";
@@ -310,6 +310,15 @@ displayData(){   // sfc_table_class - client-side
     if ( document.getElementById("next" ) ) {document.getElementById("next").disabled = false;}
     if ( document.getElementById("last" ) ) {document.getElementById("last").disabled = false;}
   }
+}
+
+
+display_structure() { 
+  // build empty <div></div> tags for grid to display table.  will be field with data later
+  // needs to be called any time size of grid changes, number of rows changes, or number of columns changes
+  let html=""
+  
+  table_data.innerHTML = html;
 }
 
 
