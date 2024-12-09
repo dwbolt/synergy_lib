@@ -9,7 +9,7 @@ https://chatgpt.com/c/674f1bef-b588-800b-ab8b-2c1a42c863e2
 
 */
 
-constructor() {  // appClass - client side
+constructor() {  // web_components - client side
 	// get local of _lib 
 	const host = window.location.hostname.split(".");
 	if      ( host[0].includes("local") ) { this.lib = `https://synergy_local.sfcknox.org/_lib`;} // use _lib on local      server
@@ -22,25 +22,37 @@ constructor() {  // appClass - client side
 		,"sfc-urls"         : `${this.lib}/web_components/sfc-urls/_.mjs` 
 		,"sfc-dialog"       : `${this.lib}/web_components/sfc-dialog/_.mjs` 
 		,"sfc-login"        : `${this.lib}/web_components/sfc-login/_.mjs`
-		,"sfc-not-mapped"   : `${this.lib}/web_components/sfc-not-mapped/_.mjs`
 		
 		,"sfc-graph-v"      : `${this.lib}/MVC/graph/v.mjs`
 		,"sfc-graph-node-v" : `${this.lib}/MVC/graph/node/v.mjs`
+
+		,"sfc-not-mapped"   : `${this.lib}/web_components/sfc-not-mapped/_.mjs`
 	}
 }
 
 
-async observer_create(){
+async check(  // web_components - client side
+	dom // check for any unload web componets is dom section
+){
+	const elements = dom.querySelectorAll('*');
+	for(let i=0; i<elements.length; i++) {
+		const node      = elements[i];
+		await this.load(node);
+	}
+}
+
+
+async observer_create(){  // web_components - client side
 	this.observer = new MutationObserver( await this.observe.bind(this)     ); // create Mutaion Observer
 }
 
 
-async observer_add(dom){
+async observer_add(dom){  // web_components - client side
 	this.observer.observe(dom, { childList: true, subtree: true } ); // check anytime body changes
 }
 
 
-async observe(mutaions) {
+async observe(mutaions) {  // web_components - client side
 	// dom changed, see if there are any unload web componets
 	for(let i=0; i<mutaions.length; i++) {
 		const nodes = mutaions[i].addedNodes;
@@ -51,23 +63,11 @@ async observe(mutaions) {
 		}
 	}
 }
-	
-	
-async check(
-	dom // check for any unload web componets is dom section
-){
-	const elements = dom.querySelectorAll('*');
-	for(let i=0; i<elements.length; i++) {
-		const node      = elements[i];
-		await this.load(node);
-	}
-}
-	
-	
-async load(
+
+
+async load(  // web_components - client side
 	node // web componet to load
 ) {
-
 	if (node.nodeType !== Node.ELEMENT_NODE) {return;} // assume only nodes can be web-componets
 
 	const tag_name = node.tagName.toLowerCase()     ;  // get html tagname and convert to lower case for compare
