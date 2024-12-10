@@ -15,6 +15,8 @@ these features are used in the following appsthis.meta.PK_max
   server log
 */
 
+// https://chatgpt.com/c/675866ce-60a8-800b-8426-0a63feb74ac8   make properites readonluy
+
 
 constructor( // table_class - client-side
 url          // directory where table _meta.json, changes.csv, columns.json live
@@ -187,7 +189,6 @@ get_value(  // table_class - client-side
       
     default:
       // code block
-      debugger
       alert(`
 field = ${field}
 meta_field.location = ${meta_field.location}

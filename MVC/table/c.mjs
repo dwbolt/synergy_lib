@@ -3,44 +3,50 @@ const {table_views    } = await app.load("MVC/table/c_views.mjs");
 export class sfc_table_class  extends HTMLElement { // sfc_table_class - client-side 
 
 /*
-<sfc-table><sfc-table>  - table viewer web component - has aspects of controler
-
-
+<sfc-table><sfc-table>  - table viewer web component - has aspects of controler & viewer, looking at splitting and refactor
 */
 
 
 constructor(   // sfc_table_class - client-side
   // constructor is called when the element is displayed
 ) {
-	super();  // call parent constructor 
+	super();  // call parent constructor HTMLElement
 
-  // data
+  // specify what data is displayed
+  this.select = [];  // array of fileds to display
+  this.pks    = [];  // array pks that point to data to be disaplay
+
+  this.elements_grid    = {  // is rebuilt, everytime grid size changed - where table data is displayed
+    // pointers to <div></div> elements in the grid
+     "search" : []  // this.elements_grid.serch[column_number].textContent = to set value
+    , "header": []  // this.elements_header[column_number].
+    , "data"  : []  // this.elements_grid.data[row_number][column_number].text or innerHTML
+  };
+  this.search_values     = {}; // this.search_values[field_Name] = [value_of_search, search_type]
+                               // place to save search values so they can be restored if grid size changes
+
   this.searchVisible     = true; // display boxes to put search criteria in
   this.statusLineData    = ["tableName","nextPrev","rows","firstLast","rows/page","views"]; 
   this.lineNumberVisible = true;
-  this.rowNumberVisible  = true
-  this.columnFormat      = [];  // array of td attributes, one for each column
+  //this.columnFormat      = [];  // array of td attributes, one for each column
   this.columnTransform   = [];  // array of fucntions, one for each column
   this.footer            = [];  //
 
   this.tag         = null;  // name of tag to display if null, display entire table
   this.tags        = {}     // each attribute contains a list of indexes into this.model.json.rows these are a subset of the table rows
 
-  this.selected    = [];    // list of rows the user has selected for, (delete, copy, edit, make list)
+  this.selected    = [];    // not sure this is still used, list of rows the user has selected for, (delete, copy, edit, make list)
 
   this.paging        = {}     // store paging states
   this.paging.lines  = 10;    // number of lines per page
   this.paging.row    =  0;    // row number of first line, start with 0
-  this.paging.rowMax = null    // max row of table or rowArray
+  this.paging.rowMax = null;  // max row of table or rowArray
 
-  this.selectedFields = [3]; // used by groupby, sort hardcode to test
+  //does not seemed to be used -this.selectedFields = [3]; // used by groupby, sort hardcode to test
+  //does not seemed to be used - this.dom       = {};       // saves attributes like onclick that will be added when html is rendered
 
-  this.dom       = {};       // saves attributes like onclick that will be added when html is rendered
-
-
-  // create a shadow dom                           
-  this.shadow = this.attachShadow({ mode: "closed" });  
   // add content to shadow dom
+  this.shadow = this.attachShadow({ mode: "closed" });   // create a shadow dom   
   this.shadow.innerHTML =  `
 <link href="${new URL(import.meta.url).origin}/_lib/MVC/table/_.css" rel="stylesheet">
 <br>
@@ -59,6 +65,7 @@ constructor(   // sfc_table_class - client-side
 <br>
 `
 
+this.table = this.shadow.getElementById("table");
 this.shadow.getElementById("search_tab").style.display    = "flex";  // show search
 import(`${app.lib}/format/_.mjs`).then(({ format }) => {this.format = format;})
 }
@@ -77,7 +84,7 @@ record_show(  // sfc_table_class - client-side
   const data = event.target.getAttribute("data-pk");   // get pk of record to dislplay
   if (data) {
       // user clicked on pk to view record deta
-      const collection = this.shadow.getElementById("table").getElementsByClassName("link selected");
+      const collection = this.table.getElementsByClassName("link selected");
       for(let i=0; i<collection.length; i++) {
         collection[i].setAttribute("class","link")   // un-select any previous selection
       }
@@ -131,7 +138,9 @@ display(        // sfc_table_class - client-side
 
   // fill in empty table
   this.statusLine();
-  this.displayData()        ;  
+  this.search_display();
+  this.displayColumnTitles();
+  this.displayData();  
  // this.displayFooter()      ;
 }
 
@@ -180,7 +189,6 @@ rows_displayed(int){
 setStatusLineData(   value) {this.statusLineData    = value;}
 setSearchVisible(    value) {this.searchVisible     = value;}
 setLineNumberVisible(value) {this.lineNumberVisible = value;}
-setRowNumberVisible( value) {this.rowNumberVisible  = value;}
 setFooter(           value) {
   this.footer   = value;
 }
@@ -206,73 +214,101 @@ displayTag(
 
 
 search_display(){ // sfc_table_class - client-side
-  if (!this.searchVisible) return ""; // not displaying search
+  if (this.elements_grid.search[0].innerHTML === "Search") {return;} // search is already there, do nothing
 
-  let html = `${( this.lineNumberVisible ? "<div>Search</div>": "") }`
+  this.elements_grid.search[0].innerHTML = "Search";  // inside div tag
 
   // add search input for each row column
   let  size   = 10;  // number of characters allowed in search
-  this.model.meta_get("select").forEach((item, i) => {
-    html += `<div><input id="fn-${item}" type="text" value="${this.search_values[item]}" size="${size}"/></div>`;
+  this.select.forEach((item, i) => {
+    let div = this.elements_grid.search[i+1];
+    div.innerHTML = `<input id="fn-${item}" type="text" value="${this.search_values[item]}" size="${size}"/>`;
+    let input     = div.querySelector("input");
+    input.addEventListener("keyup",this.searchf.bind(this) );
   });
 
-  return html;
+  if (!this.searchVisible) {
+    debugger;
+    // add code to hide search row
+  }
 }
+
+
+// copyed from c_views and modified
+searchf(
+  // user entered a key in search area
+  event  // 
+) {
+  event.stopPropagation();  
+  let element = event.target;  // element that user typed into
+  const inputs = this.table.querySelectorAll("input")                  ;
+
+  const search = []; // search critera  [[fname1,value1, searchtype1],[fname2,value2,searchtype2]... ]
+  for(let i=0; i<inputs.length; i++) {
+    const element     = inputs[i];           // element user made change to
+    const field_name  = element.id.slice(3); // get rid of leading "fn-""
+    const search_value = element.value.toLowerCase();
+    if (search_value !== "") {
+      search.push([field_name, search_value, "begin"]);  // for now only supporting string searches from beginning
+    }
+  }
+
+  let pks; ;
+  if (0 < search.length) {
+    // get pks that match search 
+    pks = this.model.search(search); // model retruns array of pks that match search criteria
+    this.display(pks); // this.displayTag("search");
+  } else {
+    // display entire database
+    this.display();
+  }
+}
+
 
 
 displayColumnTitles( // sfc_table_class - client-side
 ){
   // add header    //  this.json[table].DOMid = domID; // remember where table was displayed
   this.skip_columns = 0;
-  let html=""; 
   if (this.lineNumberVisible) {
-    html += `<div align="right"><b>line</b></div>`; this.skip_columns++;
+    this.elements_grid.header[0].innerHTML = `<b>line</b>`;
+    // add align right
+    this.skip_columns++;
   }
   
-  const select = this.model.meta_get("select");
   const fields = this.model.meta_get("fields");
-  for(var i=0; i<select.length; i++){
+  for(var i=0; i<this.select.length; i++){
     let align="";
-    switch (fields[select[i]].type) {
+    switch (fields[this.select[i]].type) {
       case "money"  :
       case "integer":
       case "float"  :
         align=` align="right"`;  break;
       default: break;
     }
-    html += `<div${align}><b>${fields[select[i]].header}</b></div>`;
+    this.elements_grid.header[1+i].innerHTML = `<b>${fields[this.select[i]].header}</b>`;
+    // add code to align
   };
 
   // set style
-  this.shadow.getElementById("table").style.setProperty("grid-template-columns",`repeat(${select.length + this.skip_columns},auto)`); 
-
- // add to html to DOM
- return html;
+  this.table.style.setProperty("grid-template-columns",`repeat(${this.select.length + this.skip_columns},auto)`);   // not sure about this
 }
 
 
 displayData(){   // sfc_table_class - client-side
-  const table_data =  this.shadow.getElementById("table");
-
-  let html="";  // init html
-  html += this.search_display();
-  html += this.displayColumnTitles();
-
   // build one row at a time
   for (let i = 0; i < this.paging.lines; i++) {
-    html += this.appendHTMLrow(i+1, i+this.paging.row);
+    this.appendHTMLrow(i, i+this.paging.row);
   }
-  table_data.innerHTML = html;   // display data
 
   // add event for search
   const search_hander =  this.search?.bind(this);  // fix bug, this.search should be defined
   if  (this.searchVisible) {
-    this.model.meta_get("select").forEach((item, i) => {
+    this.select.forEach((item, i) => {
       const element = this.shadow.getElementById(`fn-${item}`); 
       element?.addEventListener('keyup', search_hander );
     });
   }
-
 
   // figure out maxrow
  if (this.tag === "null"  || this.tag === null) {
@@ -412,7 +448,6 @@ displayFooter(){  // sfc_table_class - client-side
   // add empty columns for lineNum and rowNum if they are being displayed
   let html    = "";
   let lineNum = ""; if (this.lineNumberVisible ) {lineNum = `<td></td>`;}
-  let rowNum  = ""; if (this.rowNumberVisible  ) {rowNum  = `<td></td>`;}
 
   const obj = this;  // give access to "this" in the forEach
   this.footer.forEach((item, i) => {
@@ -459,6 +494,7 @@ setModel( // let class know what data it will be displaying/using
 ) {
   this.tableName  = name;           // string
   this.model      = db.getTable(name);  // is of class table_class
+  this.grid_create();
 }
 
 
@@ -473,11 +509,56 @@ set_model( // let class know what data it will be displaying/using
   
   this.table_views  = new table_views(this);
   this.shadow.getElementById("search").selected_custom = this.table_views.search_create.bind( this.table_views );
+  this.grid_create();
+}
+
+
+grid_create(){
+  // create empty <div></div> to put search, heater, and data in display grid
+  // call each time grid changes size
+  this.table.innerHTML = ""; // empty grid
+
+// make copy of default select fields so changes can not be made
+  if (this.select.length === 0) {
+    // init to table default select
+    this.select = this.model.meta_get("select").slice(0);  // modify protection should be in model class
+  }
+
+  this.search_clear();
+
+  let element;  // pushing one extra div for line number column
+  // create search div
+  this.elements_grid.search     = [];  // start over
+  for(let i=0; i<=this.select.length; i++) {
+    element = document.createElement("div"); // create a new div tag
+    this.elements_grid.search.push(element); // add to search
+    this.table.appendChild(        element); // add to table grid
+  };
+
+  // create header div
+  this.elements_grid.header     = [];
+  for(let i=0; i<=this.select.length; i++) {
+    element = document.createElement("div"); // create a new div tag
+    this.elements_grid.header.push(element); // add header
+    this.table.appendChild(        element); // add to table grid
+  };
+
+  // create data div
+  this.elements_grid.data     = [];
+  for(let r=0; r < this.paging.lines; r++) {
+    // add one row
+    this.elements_grid.data[r]=[];
+    for(let i=0; i<=this.select.length; i++) {
+      element = document.createElement("div"); // create a new div tag
+      this.elements_grid.data[r].push(  element); // add to data
+      this.table.appendChild(           element); // add to table grid
+    };
+  }
 }
 
 
 search_clear(){
-  this.model.meta_get("select").forEach((item, i) => {
+  this.select.forEach((item, i) => {
     this.search_values[item] = "";  // init to blank
   })
 }
@@ -498,70 +579,72 @@ call stack=${Error().stack}
 
 appendHTMLrow(  // sfc_table_class - client-side
   // append row from table or tag list
-   i           // is line the row is being displayed on
+   i           // index of data row array, is line the row is being displayed on
   ,arrayIndex  // row data to be displayed
 ) {
 
   if ( this.tags[this.tag].length <= arrayIndex) {
-    return ""; // no more data
+    // clear out any old data
+    for(let ii=0; ii<=this.select.length; ii++) {
+      // create display form of field
+      const element         = this.elements_grid.data[i][ii]; // get a <div> tage in the row
+      element.innerHTML     = ""                            ; // clear it out
+    }
+    return // no more data
   }
 
   const pk = this.tags[this.tag][arrayIndex];
+  let element = this.elements_grid.data[i][0];
   // create html for each column in the row
-  let lineNum=""; 
   if (this.lineNumberVisible ) {
     // diaplay line number
-    lineNum = `<div align="right" data-pk="${pk}" class="link"> ${i} </div>`;
+    element.innerHTML    =     i+1;  // line number, array starts at 0 so add one
+    element.setAttribute("style"  , "align:right;"); // align number to rigth
+    element.setAttribute("class"  , "link"        ); // show blue underline like a url to click on
+    element.setAttribute("data-pk",  pk           ); // 
   }
 
   let selected = "";
   if (this.selected.find( val => val === pk) ) {
     // show row as selected
-    selected="class='selected'";
+    element.class        += " selected" ;  // not sure this will work
   }
 
-  let html   = lineNum;
-  const select = this.model.meta_get("select");
-  for(let i=0; i<select.length; i++) {
+  for(let ii=0; ii<this.select.length; ii++) {
     // create display form of field
-    let value = this.model.get_value(pk, select[i]);
-
-    if (value===null || value === undefined) {
-      html += "<div></div>"; // display null values as blank
-    } else {
-      // convert to human readable form
-      html += this.formatTransform(value, i);
-    }
-
- 
+    this.display_format(this.elements_grid.data[i][ii+1], pk, this.select[ii]);
   };
-  
-  return html;
 }
 
 
-formatTransform( // sfc_table_class - client-side
-  value   // orig field value
-  , i     // column number
+display_format( // sfc_table_class - client-side
+   element  // div tag data will be displayed in
+  ,pk   // orig field value
+  ,field_name     // column number
 ){
-  let html = "";
+  let html  = ""                                      ; // default value is blank
+  let align;                                          ; // default is align left
+  let value = this.model.get_value(pk,field_name ); // get value from table
+  if (value !== undefined && value !== null) {
+    // there is some data, so format by type
+    switch (this.model.get_field(field_name,"type") ) { 
+    case "html" :  html = value                                           ; break;
 
-  switch (this.model.get_field(i,"type") ) {
-  case "html" :  html = value                                                   ; break;
-  case "money":  html = `<div align="right">${this.format.money(value)}</div>`  ; break;
-  case "date" :  
-    const d = new Date(value[0],value[1]-1, value[2]);
-    html = `<div>${this.format.getISO(d)}</div>`                                ; break;
+    case "date" :  
+      const d = new Date(value[0],value[1]-1, value[2]);
+      html = `${this.format.getISO(d)}`                                   ; break;
+  
+    case "integer"   :
+    case "float"     :
+    case "pk"        : html = value;                         align="right"; break;
 
-  case "integer"   :
-  case "float"     :
-  case "pk"        :
-                      html = `<div align="right">${value}</div>`                ; break;
+    case "money"     : html = `${this.format.money(value)}`; align="right"; break;
 
-  default          :  html = `<div>${value}</div>`                              ; break;
+    default          : html = value                           ; break;
+    }
   }
-
-  return html;
+  element.innerHTML   = html ;  // display transfored value
+  element.style.align = align;  // asssume set to "right" or undefined -> left
 }
 
 
@@ -588,7 +671,7 @@ genRows( // sfc_table_class - client-side
   return " "+ txt.substr(1)  // replace leading comma wiht a space
 }
 
-
+/*
 getColumnFormat( // sfc_table_class - client-side
   i
   ) { // return <td> attributes to be added
@@ -599,8 +682,8 @@ getColumnFormat( // sfc_table_class - client-side
     return f;
   }
 }
-
-
+*/
+/*
 setColumnFormat( // sfc_table_class - client-side
   i       //
   ,value  //
@@ -608,18 +691,17 @@ setColumnFormat( // sfc_table_class - client-side
   this.columnFormat[i] = value;
 }
 clearColumnFormat(){ this.columnFormat =[];}
+*/
 
-
+/*
 setColumnTransform( // sfc_table_class - client-side
   i
   ,value
   ) { // set function to be called before value is displayed
   this.columnTransform[i] = value;
 }
-
-
 clearColumnTransform(){ this.columnTransform = [];}
-
+*/
 
 total( // sfc_table_class - client-side
   // add error checking for non-numbers

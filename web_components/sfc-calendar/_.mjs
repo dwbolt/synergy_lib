@@ -372,7 +372,6 @@ event
     try {
       this.monthly_add(event)
     } catch (error) {
-      debugger;
       alert(error + new Error().stack);
     }
 

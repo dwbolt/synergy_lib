@@ -16,7 +16,7 @@ constructor( // sfc_record_class - client-side
   this.shadow.innerHTML =  `
   <p id="title"></p>
 
-  <div id="body" style="display: grid; grid-template-columns: 20px 100px 300px;"></div>
+  <div id="body" style="display: grid; grid-template-columns: auto auto 300px;"></div>
   
   <div id='buttons'> 
   <button>New</button>
@@ -56,7 +56,7 @@ click(  // sfc_record_class - client-side
 ){
   // user clicked on a button,  lower case of button name is method to execute
   const method = event.target.innerHTML.toLowerCase();
-  if (" new duplicate edit delte save clear cancel ".includes(method) ) {
+  if (" new duplicate edit delete save clear cancel ".includes(method) ) {
     this[method]();
   } else if (method==="add") {
     this.save(); // add and save use the same code, the value pk=undefined for add
@@ -90,22 +90,32 @@ show(  // client side sfc_record_class - for a page
     // adding a new record
   }
 
-  // recordShow Fields
-  this.shadow.getElementById("title").innerHTML = `<div><b>Table:</b>  ${this.table.name} <b>PK:</b> ${this.#primary_key_value}</div>`;
-  const  select = this.table.meta_get("select");
-  const  fields = this.table.meta_get("fields");
-  let rowValue;
-  let html = ""
-  for(var i=0; i<select.length; i++) {
-    rowValue = this.table.get_value(this.#primary_key_value, select[i]);
-    if (fields[select[i]].type === "textarea") {
-      //rowValue = `<textarea rows="5" cols="40" readonly>${rowValue}</textarea>`
-      rowValue = `<textarea rows="5" readonly>${rowValue}</textarea>`
+  // create shell
+  const  select = this.table_viewer.select;  // get list of field name to display
+  const body   = this.shadow.getElementById("body");
+  const fields = this.table.meta_get("fields");
+  if (body.innerHTML.length === 0) {
+    this.value = [];
+    const  select = this.table_viewer.select;  // get list of field name to display
+    for (let i=0; i<select.length; i++) {
+      let d;
+      // dispaly line number
+      d = document.createElement("div"); body.appendChild(d);  d.innerHTML   = i+1;
+      d.setAttribute("style"  , "text-align:right; margin-right:10px;");
+
+      // display header name
+      d = document.createElement("div"); body.appendChild(d);  d.innerHTML   = fields[select[i]].header;
+
+      // create space for and rember location of value
+      d = document.createElement("div"); body.appendChild(d);  this.value[i] = d;
     }
-    html += `<div>${i+1}</div> <div>${fields[select[i]].header}</div> <div>${rowValue}</div>`
   }
 
-  this.shadow.getElementById("body").innerHTML = html;
+  // recordShow Fields
+  this.shadow.getElementById("title").innerHTML = `<div><b>Table:</b>  ${this.table.name} <b>PK:</b> ${this.#primary_key_value}</div>`;
+  for(var i=0; i<select.length; i++) {
+    this.table_viewer.display_format(this.value[i], this.#primary_key_value, select[i]);
+  }
 
   if (this.show_custom) {
     this.show_custom(this);
@@ -379,7 +389,7 @@ recordDuplicate(){// client side sfc_record_class - for a page
 
 delete(){// client side sfc_record_class - for a page
   this.table.delete({"pk": this.#primary_key_value});  // delete row from data
-  thist.table_viewer.display();                              // redisplay data
+  this.table_viewer.display();                              // redisplay data
   this.clear();                                        // hide record form since it record is delted
 }
 
