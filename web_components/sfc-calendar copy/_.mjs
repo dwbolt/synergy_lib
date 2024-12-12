@@ -1,29 +1,32 @@
+const {sfc_table_class    } = await app.load("MVC/table/c.mjs"); //import  {sfc_table_class     } from '/_lib/MVC/table/c.mjs'     ;
 const {table_class        } = await app.load("MVC/table/m.mjs");
 const {format             } = await app.load("format/_.mjs");
+
+//const {sfc_event_datetime } = await app.load("web_components/sfc-calendar/sfc-event-datetime/_.mjs");  // preload <sfc-event-datetime>
 const {calendar_edit_class} = await app.load("web_components/sfc-calendar/edit_module.mjs");
 
 
-export class calendar_class extends HTMLElement {  // calendar_class  client-side
-
+export class calendar_class extends sfc_table_class {  // calendar_class  client-side
   /*
-
-open issues -------
+  open issues -------
 test what happends if user is logged in but viewing sfc calender in sfcknox.org
 
-*/
+  -----------
+   Calendar data is stored in a database.
+  
+  */
   
 
 constructor( // calendar_class  client-side
   ) {
-  super();  // HTMLElement constructor
-  this.shadow = this.attachShadow({ mode: "closed" });   // create a shadow dom   
-  this.shadow.innerHTML =  `<sfc-table></sfc-table>`;    // display calendar
- 
-  // load web components
-  this.table_view   = this.shadow.querySelector("sfc-table");
+  super();  // will create this.shadow
   this.table_events = new table_class();  // where mulit year calander and repeating events live will be used generate this.table
 
+  this.css_add(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-calendar/_.css` );// load calendar css
   this.year      = new Date().getFullYear();              // default to current year, can be overriden when main is called.
+
+  this.urlParams    = new URLSearchParams( window.location.search );  // read params send in the URL
+
   this.timezones = {"ET":-300, "CT":-360, "MT":-420, "PT":-480};  // value is in minutes
   this.GMT           = {}                 // place to store GMT start and end of events
 
@@ -34,6 +37,15 @@ constructor( // calendar_class  client-side
 }
 
 
+async css_add(path) { // calendar_class  client-side
+  //<link rel="stylesheet" href="app.css" />
+  const element = document.createElement('link');
+  element.href = path;
+  element.rel = "stylesheet";
+  this.shadow.appendChild(element);
+}
+
+
 async year_change(  // calendar_class  client-side
   event
   ){  
@@ -41,10 +53,11 @@ async year_change(  // calendar_class  client-side
 }
 
 
+
 calendar_add(url) {// calendar_class  client-side
   this.table_urls.push(url);  // list of calenders to display at one time, will need to add color code, just support one calender for now
 }
-
+  
 
 async init() {  // calendar_class  client-side
   // load calendar table
@@ -59,20 +72,16 @@ async init() {  // calendar_class  client-side
   } else {
     // error not handled, load method should have done alert
   }
-  await  app.web_components.check(this.shadow);
 }
 
 
 async main( // calendar_class  client-side
-year // to display calander for
+year // 
 ) {
-  await this.table_view.css_add(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-calendar/_.css` );// load calendar css
-
   if (year) {
     this.year = year;  // year of calendar to display - default is current year
   }
 
-  await  app.web_components.check(this.shadow);
   // decide which calendar to load, users or main
   this.event_init(); // will fill out this.events - array for each day of the year 
 
@@ -89,7 +98,7 @@ year // to display calander for
   }
 
   // add capther click events in the table div
-  this.table_view.shadow.getElementById("table").addEventListener("click" , this.click.bind(this));
+  this.shadow.getElementById("table").addEventListener("click" , this.click.bind(this));
 }
 
 
@@ -109,6 +118,8 @@ click(event){// calendar_class - client-side
       }
     } 
   }
+
+  //this.event_display(event.target.dataset.event_id);
 }
 
 
@@ -161,7 +172,7 @@ calendar_display(// calendar_class - client-side
   // display calenda
   this.calendar_create();  // convert this.events to a table that can be displayed with web component sfc_table
 
-  this.table_view.setStatusLineData( [
+  this.setStatusLineData( [
     `<button id="todayButton">Today</button>`
     ,`<select id="months" name="months"  ">
     <option value="weeks" selected>Viewing Weeks</option>
@@ -185,15 +196,13 @@ calendar_display(// calendar_class - client-side
   ]);  
 
   // add new status line to dom
-  this.table_view.display();  // going too deep in, do not like this, refactor
+  this.statusLine();
 
-  // connect dom element to class method
-  this.table_view.shadow.getElementById("todayButton").addEventListener("click" , this.today_display.bind(this));
-  this.table_view.shadow.getElementById("months"     ).addEventListener("change", this.month_chosen.bind(this));
-  this.table_view.shadow.getElementById("prev"       ).addEventListener("click" , this.prev.bind(this));
-  this.table_view.shadow.getElementById("next"       ).addEventListener("click" , this.next.bind(this));
-  this.table_view.shadow.getElementById("year"       ).addEventListener("change", this.year_change.bind(this));
+  for(let i=0; i<7; i++) {
+    this.setColumnFormat(i,`class="day"`);  // set class of each day
+  }
 
+  this.display();
   let now = new Date();
   if ( this.year === now.getFullYear() ) {
     // if we are displaying current year, jump to today's date
@@ -202,14 +211,25 @@ calendar_display(// calendar_class - client-side
 }
 
 
+statusLine() {
+  super.statusLine();  // display and addEventLisenter
+
+    // connect dom element to class method
+    this.shadow.getElementById("todayButton").addEventListener("click" , this.today_display.bind(this));
+    this.shadow.getElementById("months"     ).addEventListener("change", this.month_chosen.bind(this));
+    this.shadow.getElementById("prev"       ).addEventListener("click" , this.prev.bind(this));
+    this.shadow.getElementById("next"       ).addEventListener("click" , this.next.bind(this));
+    this.shadow.getElementById("year"       ).addEventListener("change", this.year_change.bind(this));
+}
+
 next( // calendar_class - client-side
 ) { //next page
   // next (day, weeks, month, year)
-  const selected  = this.table_view.shadow.getElementById("months");  // where the user selects day, weeks, year, a month
+  const selected  = this.shadow.getElementById("months");  // where the user selects day, weeks, year, a month
   const time_unit = selected.value;
   switch (time_unit) {
     case "weeks":
-      this.table_view.next();
+      super.next();
       break;
   
     default:
@@ -223,11 +243,11 @@ next( // calendar_class - client-side
 prev( // calendar_class - client-side
 ) { //next page
   // next (day, weeks, month, year)
-  const selected  = this.table_view.shadow.getElementById("months");  // where the user selects day, weeks, year, a month
+  const selected  = this.shadow.getElementById("months");  // where the user selects day, weeks, year, a month
   const time_unit = selected.value;
   switch (time_unit) {
     case "weeks":
-      this.table_view.prev();
+      super.prev();
       break;
   
     default:
@@ -242,7 +262,7 @@ month_chosen(  // calendar_class  client-side
   // Goes to page that has first day of chosen month
   change = 0 // maybe an int or an event
 ) {
-  const selected          = this.table_view.shadow.getElementById("months");  // where the user selects day, weeks, year, a month
+  const selected          = this.shadow.getElementById("months");  // where the user selects day, weeks, year, a month
   if (selected.value === "weeks") {
     // do nothing but change mode for next / prev
     return;
@@ -261,7 +281,7 @@ month_chosen(  // calendar_class  client-side
   // set rows/page so that the full month is displayed
   const row_start     = this.events[start.getMonth()+1][start.getDate()].row ;     // row of month start
   const row_end       = this.events[  end.getMonth()+1][  end.getDate()].row ;     // row of month end
-  this.table_view.rows_displayed(row_end - row_start + 1);                                    // show all the weeks in the month
+  this.rows_displayed(row_end - row_start + 1);                                    // show all the weeks in the month
 }
 
 
@@ -492,10 +512,10 @@ event // event record from calendar table
 calendar_create(  // calendar_class  client-side
 ) {   // convert this.events to a table that can be displayed with tableUX
   this.table         = new table_class();  // where calender will be stored 
-  this.table_view.setSearchVisible(false);            // hide search
-  this.table_view.setLineNumberVisible(false);        // hide row line numbers
-  this.table_view.setRowNumberVisible(false);         // hide row numbers
-  this.table_view.paging.lines = 6;                   // should use a method to do this
+  this.setSearchVisible(false);            // hide search
+  this.setLineNumberVisible(false);        // hide row line numbers
+  //this.setRowNumberVisible(false);         // hide row numbers
+  this.paging.lines = 3;                   // should use a method to do this
 
   const t      = this.table;  // t -> table we will put event data in to display
   // init metadata for table
@@ -530,8 +550,8 @@ calendar_create(  // calendar_class  client-side
         // user calendar, so allow adding new event
         add =`<a data-create="${start.getFullYear()}-${m}-${d}" class="pointer">+</a><br>`
       }
-      //style    = this.style_get(start, firstDate, today);  // set style of day depending on not part of current year, past, today, future,
-      let html = `<b>${m}-${d} ${add}</b><br>`;
+      style    = this.style_get(start, firstDate, today);  // set style of day depending on not part of current year, past, today, future,
+      let html = `<div class="${style}"><b>${m}-${d} ${add}</b><br>`;
 
       // loop for all events for day [m][d]
       let eventList = this.events[m][d].pks.sort(this.sort.bind(this));   // list of pks
@@ -541,6 +561,7 @@ calendar_create(  // calendar_class  client-side
         let editButton = format.timeFormat(this.GMT[event.pk].start);
         if (this.login_status) {
           // we are on a user calendar
+          //user = "&u=" + this.urlParams.get('u');
           editButton = `<a data-edit="${pk}" class="pointer">${editButton}</a> `;
         }
         
@@ -554,14 +575,14 @@ calendar_create(  // calendar_class  client-side
 
   
       // only add events for current year
-      t.add_column_value(x.toString(),y.toString(), html);
+      t.add_column_value(x.toString(),y.toString(), html + "</div>")
       }
       
       start.setDate( start.getDate() + 1 ); // move to next day
     }
   }
 
-  this.table_view.set_model( this.table, "weekCal");    
+  this.set_model( this.table, "weekCal");    
 }
 
 
@@ -619,8 +640,8 @@ async moveToDate( // calendar_class  client-side
     await this.main(year);
   }
   // change paging row
-  this.table_view.paging.row = this.events[newDate.getMonth()+1][newDate.getDate()].row ;
-  this.table_view.displayData();
+  this.paging.row = this.events[newDate.getMonth()+1][newDate.getDate()].row ;
+  this.displayData();
 }
   
   
@@ -641,6 +662,7 @@ today_display( // calendar_class  client-side
   
 
 } // calendar_class  client-side  -end class
+
 
 
 customElements.define("sfc-calendar", calendar_class); // tie class to custom web component

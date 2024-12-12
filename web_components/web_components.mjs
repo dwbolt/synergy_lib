@@ -22,7 +22,10 @@ constructor() {  // web_components - client side
 		,"sfc-urls"         : `${this.lib}/web_components/sfc-urls/_.mjs` 
 		,"sfc-dialog"       : `${this.lib}/web_components/sfc-dialog/_.mjs` 
 		,"sfc-login"        : `${this.lib}/web_components/sfc-login/_.mjs`
-		
+
+		,"sfc-table"        : `${this.lib}/MVC/table/c.mjs`
+		,"sfc-record"       : `${this.lib}/MVC/table/c_record.mjs`
+
 		,"sfc-graph-v"      : `${this.lib}/MVC/graph/v.mjs`
 		,"sfc-graph-node-v" : `${this.lib}/MVC/graph/node/v.mjs`
 

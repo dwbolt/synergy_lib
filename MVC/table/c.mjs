@@ -78,6 +78,15 @@ init(  // sfc_table_class - client-side
 }
 
 
+async css_add(path) { // calendar_class  client-side
+  //<link rel="stylesheet" href="app.css" />
+  const element = document.createElement('link');
+  element.href = path;
+  element.rel = "stylesheet";
+  this.shadow.appendChild(element);
+}
+
+
 record_show(  // sfc_table_class - client-side
   event
 ){
@@ -178,10 +187,12 @@ change_page_size(  // sfc_table_class - client-side
 }
 
 
-rows_displayed(int){
-  var element = this.shadow.getElementById("rows_per_page");
+rows_displayed(
+  int  // new number of rows to display
+){
+  var element   = this.shadow.getElementById("rows_per_page");  // getting number of rows to display
   element.value = int;
-  element.dispatchEvent(new Event('change'));
+  element.dispatchEvent(new Event('change'));                  // fire event to display new number of rows
 }
 
 
@@ -189,10 +200,8 @@ rows_displayed(int){
 setStatusLineData(   value) {this.statusLineData    = value;}
 setSearchVisible(    value) {this.searchVisible     = value;}
 setLineNumberVisible(value) {this.lineNumberVisible = value;}
-setFooter(           value) {
-  this.footer   = value;
-}
-
+setRowNumberVisible( value) {this.rowNumberVisible  = value;}
+setFooter(           value) {this.footer            = value;}
 
 
 displayTagSelected( // sfc_table_class - client-side
@@ -228,8 +237,10 @@ search_display(){ // sfc_table_class - client-side
   });
 
   if (!this.searchVisible) {
-    debugger;
-    // add code to hide search row
+    const search = this.elements_grid.search;
+    for(let i=0; i<search.length; i++){
+      search[i].style.display = "none" //hide search row
+    }
   }
 }
 
@@ -263,7 +274,6 @@ searchf(
     this.display();
   }
 }
-
 
 
 displayColumnTitles( // sfc_table_class - client-side
@@ -434,7 +444,7 @@ statusLine(   // sfc_table_class - client-side
 }
 
 
-views_toggle(){  // sfc_table_class - client-side
+views_toggle() {  // sfc_table_class - client-side
   if (this.views.style.display === "none") {
     this.views.style.display  = "flex";
   } else { 
@@ -528,7 +538,8 @@ grid_create(){
 
   let element;  // pushing one extra div for line number column
   // create search div
-  this.elements_grid.search     = [];  // start over
+  this.elements_grid.search     = []             ; // start over
+  
   for(let i=0; i<=this.select.length; i++) {
     element = document.createElement("div"); // create a new div tag
     this.elements_grid.search.push(element); // add to search
@@ -543,18 +554,40 @@ grid_create(){
     this.table.appendChild(        element); // add to table grid
   };
 
-  // create data div
+  // create array to div for data
   this.elements_grid.data     = [];
-  for(let r=0; r < this.paging.lines; r++) {
-    // add one row
-    this.elements_grid.data[r]=[];
-    for(let i=0; i<=this.select.length; i++) {
-      element = document.createElement("div"); // create a new div tag
-      this.elements_grid.data[r].push(  element); // add to data
-      this.table.appendChild(           element); // add to table grid
-    };
+  for (let i=0; i<this.paging.lines; i++){
+    this.data_add_row();
   }
+
+  this.line_show_hide();
 }
+
+
+data_add_row() {
+  // add row of <div> to put data in
+  // create data div
+
+  // add one row
+  const row = this.elements_grid.data[this.elements_grid.data.length] = [];
+  for(let i=0; i<=this.select.length; i++) {
+    const element = document.createElement("div"); // create a new div tag
+    this.table.appendChild(              element); // add to table grid
+    row.push(                            element); // remember div in array so we can get to it quickly
+  };
+}
+
+
+ line_show_hide() {
+  // first column with line number
+  let value = (this.rowNumberVisible? "block":"none");
+  this.elements_grid.search[0].style.display = value;  // search
+  this.elements_grid.header[0].style.display = value;  // header
+
+  for (let r=0; r<this.paging.lines; r++) {
+    this.elements_grid.data[r][0].style.display = value; // data
+  }
+ }
 
 
 search_clear(){
@@ -594,6 +627,10 @@ appendHTMLrow(  // sfc_table_class - client-side
   }
 
   const pk = this.tags[this.tag][arrayIndex];
+  while (this.elements_grid.data.length<=i) {
+    // make sure there is a place to put data
+    this.data_add_row();
+  }
   let element = this.elements_grid.data[i][0];
   // create html for each column in the row
   if (this.lineNumberVisible ) {
@@ -671,37 +708,6 @@ genRows( // sfc_table_class - client-side
   return " "+ txt.substr(1)  // replace leading comma wiht a space
 }
 
-/*
-getColumnFormat( // sfc_table_class - client-side
-  i
-  ) { // return <td> attributes to be added
-  let f = this.columnFormat[i];
-  if (f === undefined) {
-    return "";
-  } else {
-    return f;
-  }
-}
-*/
-/*
-setColumnFormat( // sfc_table_class - client-side
-  i       //
-  ,value  //
-  ) {  // set <td> attributes to be added
-  this.columnFormat[i] = value;
-}
-clearColumnFormat(){ this.columnFormat =[];}
-*/
-
-/*
-setColumnTransform( // sfc_table_class - client-side
-  i
-  ,value
-  ) { // set function to be called before value is displayed
-  this.columnTransform[i] = value;
-}
-clearColumnTransform(){ this.columnTransform = [];}
-*/
 
 total( // sfc_table_class - client-side
   // add error checking for non-numbers
@@ -785,9 +791,6 @@ field(  // sfc_table_class - client-side
 }
 
 
-
-
-
 next( // sfc_table_class - client-side
 ) { //next page
   this.paging.row = this.paging.row + this.paging.lines;
@@ -821,91 +824,8 @@ last( /// sfc_table_class - client-side
 
 } // sfc_table_class - client-side //  end
 
-}
+
+} // end class
 
 
 customElements.define("sfc-table", sfc_table_class); // tie class to custom web component
-
-
-
-
-
-/*groupby(  // sfc_table_class - client-side  
-){
-  // user clicked group by button, so create a group by table and display it
-
-  // create groupby instance   
-  const groupby_fields = this.groupby_fields.selected();     // user selected
-  const g              = new groupByClass();      
-  const list = g.groupBy(this.model, groupby_fields); // create groups
-
-  // convert info in groupByClass to table
-  const table  = new table_class();           // create blank table to put data in
-  const fields = table.meta_get("fields");
-  groupby_fields.forEach((field, index) => {
-    fields[field]          = {};
-    fields[field].header   = index;
-    fields[field].location = "column";
-    fields[field].type     = "string";
-  });
-  fields.count            = {};
-  fields.count.header     = "Count";
-  fields.count.location   = "column";
-  fields.count.type       = "number";
-
-  fields.pk_list          = {};
-  fields.pk_list.header   = "pk_list";
-  fields.pk_list.location = "column";
-  fields.pk_list.type     = "array";
-
-  const keys = Object.keys(list);  // keys an array of
-
-  // add data to table
-  keys.forEach((key, index) => {
-    //t.appendRow([key,g.groups[key].rowIndex.length])
-    table.add_column_value(key,"0"      ,key             );
-    table.add_column_value(key,"count"  ,list[key].length);
-    table.add_column_value(key,"array"  ,list[key]       );
-  });
-
-
-  // display table
-  this.tableUxG.model     = t;               // attach table data to tableUX
-  this.tableUxG.tableName = this.tableName+"-GroupBy";  //
-  this.tableUxG.display();                   // show table to user
-} */
-
-
-/*
-  setSelected(         array) {
-    this.selected          = array;
-  
-    // as CSV file
-    const table = this.getModel();    // get access to class holding the table data
-    const pks  = table.get_PK();    // get access to array of rows
-    let csv = table.genCSV_header();;
-  
-    if(this.tag) {
-      // export just records that are in the tag
-      const index = this.tags[this.tag];
-      for(var i=0; i<index.length; i++) {
-        csv += table.genCSVrow(index[i]);
-      };
-    } else {
-      // export entire table
-      for(var i=0; i<rows.length; i++) {
-        csv += table.genCSVrow(rows[i]);
-      };
-    }
-  
-  
-    const data = new Blob([csv], {type: 'text/plain'});
-  
-    // set data and download name for hyperlink
-    const e=document.getElementById('download_link')
-    const url = window.URL.createObjectURL(data);
-    e.href = url;
-    e.download = `${this.tableName}.csv`
-    e.click(); // now click the link  start the download/export
-  }
-    */

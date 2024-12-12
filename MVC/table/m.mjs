@@ -37,6 +37,8 @@ url          // directory where table _meta.json, changes.csv, columns.json live
   }
 
   this.columns = {"pk":{}};
+
+  this.viewers =[] ;  //keep track of viewers that need to told of model changes;
 }
 
 
@@ -533,8 +535,8 @@ append(  // table_class - client-side
   const pk = this.meta.PK_max;
   this.set_value(pk,"pk",pk);                    // add the pk
   for(let i=2; i<record.length; i++) {  // s
-    let field_name = (this.field_names ? this.field_names[i-2]: (i-2).toString())
-    this.set_value(pk, field_name, record[i]);  // add remainder of record
+    let field_name = (this.field_names ? this.field_names[i-2]: (i-2).toString());
+    this.set_value(pk, field_name, record[i]);  // add remainder of reco;
   }
 }
 
@@ -772,14 +774,21 @@ RESTpost failed`);
   };
 
   // save meta data 
-  msg  = await proxy.RESTpost(JSON.stringify(this.meta), this.url_meta);
+  msg  = await this.meta_save();
+
+  return msg;
+}
+
+
+async meta_save(){
+  // save meta data 
+  let msg  = await proxy.RESTpost(JSON.stringify(this.meta), this.url_meta);
   if(!msg.success) {
     alert(`file="table_module.js"
       method="merge"
       this.url_changes="${this.url_meta}"
       RESTpost failed`);
   }
-
   return msg;
 }
 
@@ -867,8 +876,36 @@ msg="select field does not exist in field meta data"`)
     } else {
       this.meta.header.push(field.header); 
     }
-    
   }
+}
+
+
+async header_make(
+  pk  // of row that holds header, so copy it
+) {
+  debugger
+  const fields           = this.meta.fields;  // point to field meta data
+  const select           = this.meta.select;  // array of field names to be displayed
+  for(let i=0; i<select.length; i++) {
+    const field_name = select[i];
+    let field = fields[field_name];
+    if (field === undefined) {
+      alert(`file="table_module.js"
+method="header_make"
+select[i] = "${select[i]}"
+this.dir="${this.dir}"
+msg="select field does not exist in field meta data"`)
+    } else {
+      const value = this.get_value(pk, field_name);
+      if (field.header !== "PK") {
+        field.header = value; 
+      }
+
+    }
+  }
+  this.header_set();   // move data from meta to active header
+  await this.meta_save();  // save header
+  // update view
 }
 
 

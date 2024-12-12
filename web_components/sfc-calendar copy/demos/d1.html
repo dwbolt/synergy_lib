@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title id="headTitle"></title>
+		<meta name="description" content="Calendar" />
+		<link rel="stylesheet" href="/_lib/web_components/sfc-calendar/_.css" />
+	</head>
+
+	<body class="page">
+	<sfc-calendar id="calendar" class="content"></sfc-calendar>
+	</body>
+</html>
+
+<script>
+var app; // only globle variable
+</script>
+
+<script type="module">
+/*
+display user_mlc public calendar
+*/
+import  {calendar_class}    from '/_lib/web_components/sfc-calendar/_.mjs'; // suport <sfc-calendar> web component
+app  = document.getElementById("calendar");  // get web-componet
+
+app.calendar_add("/user/user_mlc/calendar");            //  pulic readonly link to mlc user calender
+await app.init();                                       // load calenders and create html place holders
+await app.main();                                       // create and display calendar
+      app.change_page_size({value: 5});                 // default to display 5 weeks at a tiem
+
+</script>
