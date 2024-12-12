@@ -5,7 +5,7 @@ const {calendar_edit_class} = await app.load("web_components/sfc-calendar/edit_m
 
 export class calendar_class extends HTMLElement {  // calendar_class  client-side
 
-  /*
+/*
 
 open issues -------
 test what happends if user is logged in but viewing sfc calender in sfcknox.org
@@ -19,7 +19,6 @@ constructor( // calendar_class  client-side
   this.shadow = this.attachShadow({ mode: "closed" });   // create a shadow dom   
   this.shadow.innerHTML =  `<sfc-table></sfc-table>`;    // display calendar
  
-  // load web components
   this.table_view   = this.shadow.querySelector("sfc-table");
   this.table_events = new table_class();  // where mulit year calander and repeating events live will be used generate this.table
 
@@ -59,7 +58,8 @@ async init() {  // calendar_class  client-side
   } else {
     // error not handled, load method should have done alert
   }
-  await  app.web_components.check(this.shadow);
+  await  app.web_components.check(this.shadow);  // add web componengs
+  this.table_view.callback_add("displayData","end", this.class_apply.bind(this) );   // set class of each day after display
 }
 
 
@@ -160,6 +160,7 @@ calendar_display(// calendar_class - client-side
 ) {
   // display calenda
   this.calendar_create();  // convert this.events to a table that can be displayed with web component sfc_table
+  this.table_view.change_number_lines(6);             // should use a method to do this
 
   this.table_view.setStatusLineData( [
     `<button id="todayButton">Today</button>`
@@ -495,7 +496,6 @@ calendar_create(  // calendar_class  client-side
   this.table_view.setSearchVisible(false);            // hide search
   this.table_view.setLineNumberVisible(false);        // hide row line numbers
   this.table_view.setRowNumberVisible(false);         // hide row numbers
-  this.table_view.paging.lines = 6;                   // should use a method to do this
 
   const t      = this.table;  // t -> table we will put event data in to display
   // init metadata for table
@@ -530,7 +530,6 @@ calendar_create(  // calendar_class  client-side
         // user calendar, so allow adding new event
         add =`<a data-create="${start.getFullYear()}-${m}-${d}" class="pointer">+</a><br>`
       }
-      //style    = this.style_get(start, firstDate, today);  // set style of day depending on not part of current year, past, today, future,
       let html = `<b>${m}-${d} ${add}</b><br>`;
 
       // loop for all events for day [m][d]
@@ -583,17 +582,39 @@ sort(// calendar_class  client-side
 }
   
 
-style_get(start, firstDate, today) {  // calendar_class  client-side
-  if (start<firstDate || start.getFullYear()>this.year) {
-    // day is before january 1st of this year  or     // day is after last day of year
-    return "notYear"
-  } else if (start.getMonth() == today.getMonth() && start.getDate() == today.getDate() && start.getFullYear() == today.getFullYear()) {
-    return "today"  // tableUxClass will put class='past' in the TD tag
-  } else if (start<today) {
-    return "past"  // tableUxClass will put class='past' in the TD tag
-  } else {
-    return "future" 
+class_apply(
+   div_data  // div_data[0][1] is first day of week row one
+  ) {
+  for(let r=0; r<div_data.length; r++) {
+   const row = div_data[r];
+   for (let c=1; c<row.length; c++) {
+    const div  = row[c];
+    const a    = div.querySelector("a");
+    const date = a.getAttribute("data-create");  // <a data-create="2024-10-27" class="pointer">+</a>
+    this.class_set(div, date);
+   }
   }
+}
+
+
+class_set(div,date) {  // calendar_class  client-side
+  const date_a = date.split("-");  //  "yyyy-mm-dd"
+  const now = app.format.getISO( new Date() );
+  year = now.slice(0,4)
+  let className ;
+  if (this.year !== date_a[0]) {
+    // day is not in year of calander being displayed
+    className = "notYear"  // will scrink font to 0 so the day does not show up
+  } else if (date === now) {
+    className =  "today"  // 
+  } else if (start<today) {
+    className = "past"  // 
+  } else {
+    retclassName = "future" 
+  }
+
+  div.className = className;
+
 }
 
 

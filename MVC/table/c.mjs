@@ -12,6 +12,24 @@ constructor(   // sfc_table_class - client-side
 ) {
 	super();  // call parent constructor HTMLElement
 
+  this.callback = {
+/* 
+{
+"method_name1": {
+    "when_name_1" : [callback1, callback...]
+  ,"when_name_2" : [callback?,...]
+  }
+
+,"method_name_2":{
+    "when_name?" : [callback?]
+  }
+      
+}
+*/
+  }  
+
+
+
   // specify what data is displayed
   this.select = [];  // array of fileds to display
   this.pks    = [];  // array pks that point to data to be disaplay
@@ -75,6 +93,44 @@ init(  // sfc_table_class - client-side
 ){
   this.views  = this.shadow.getElementById('views');
   this.shadow.getElementById('table').addEventListener('click', this.record_show.bind(this) );
+}
+
+
+callback_add(
+  method
+  ,when
+  ,func 
+){
+  if (this[method] === undefined) {
+    // error method does not exist in class
+    app.sfc_dialog.show_error( `this[${method}] === undefined` );
+    return;
+  }
+
+  if (this.callback[method] === undefined)      {this.callback[method]      = {} }  // make sure method exisits
+  // method is in class, so add "when"
+  if (this.callback[method][when] === undefined) {this.callback[method][when] = [] }  // make sure method exisits
+
+  if ( !this.callback[method][when].includes( func )) {
+    // callback is not in list, so add it 
+    this.callback[method][when].push(func)
+  }
+}
+
+
+callback_remove(
+  method
+  ,when
+  ,func 
+){
+  const index = this.callback[method]?.[when]?.findIndex(val => val === func);  // find idex of func
+  if (index) {
+    // found callback to delete
+    this.callback[method][when].splice(index,1);   // remove call back
+  } else {
+    // did not find callback to deleted
+    app.sfc_dialog.show_error( `fucntion could not be found to remove from this.callback[${method}].[${when}]` );
+  }
 }
 
 
@@ -182,8 +238,27 @@ display_intersection(  // sfc_table_class - client-side
 change_page_size(  // sfc_table_class - client-side
   e  // event
   ) {
-  this.paging.lines = parseInt(e.target.value); // convert string to number;
+  this.change_number_lines(e.target.value );
   this.displayData();
+}
+
+
+change_number_lines(
+  number // lines to diplay in table - assume a number or string version comes in
+){
+
+  if (typeof(number) === "string") {
+    try {
+      number = parseInt(number);
+    } catch (error) {
+      app.sfc_dialog.error_client(`converstion of string to number failed <br>${error}`);
+      return;
+    }
+  }
+
+  this.paging.lines = number;
+  this.grid_create();
+
 }
 
 
@@ -356,6 +431,8 @@ displayData(){   // sfc_table_class - client-side
     if ( document.getElementById("next" ) ) {document.getElementById("next").disabled = false;}
     if ( document.getElementById("last" ) ) {document.getElementById("last").disabled = false;}
   }
+
+  this.callback?.displayData?.end.forEach( f => f( this.elements_grid.data ) ); // call each function in list.
 }
 
 

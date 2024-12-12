@@ -85,7 +85,7 @@ You will notice that as you change pages, the url does not change.  The url that
 
 async date_copy(   // appClass - client side
 ){
-	await navigator.clipboard.writeText( format.getISO(new Date()) );  // copy YYYY-MM=DD to clipboard
+	await navigator.clipboard.writeText( format.getISO(new Date()) );  // copy YYYY-MM-DD to clipboard
 }
 
 

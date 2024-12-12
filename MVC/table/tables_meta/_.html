@@ -3,7 +3,75 @@
 
 <h1>Tables Meta</h1>
 
+
 <p>conatains meta for default table structures
+ 
 </p>
+
+<a href="https://chatgpt.com/c/675b1a49-edc8-800b-9ec7-6327243a6f6a" target="_blank">ChatGPT</a> Common data types in other databases 
+
+<h1>Elemental User Types</h1>
+<p>Currently useing javascript to implement. Custom validation can be used for each type</p>
+<ol>
+    <li><b>Numbers</b><br>
+        number - validation, for range, allows integer & float<br>
+        integer - validation for range, does not allow decmal<br>
+        money - stored as integer penny - assume USA dollar, multi currency not supported yet.><br><br>
+        rational - stored as three whole numbers, not implemented <br><br>
+    </li>
+
+    <li><b>Text Types</b> <br>
+        string  -  one line, validate length<br>
+        text_area - multi line<br>
+        json -- base elements only, uses JSON.strigify and JSON.parse.  Not sure where this goes<br>
+        html - need editor, need secuity<br><br>
+    </li>
+
+    <li><b>Dates</b><br>
+        date - can beformeted  YYYY-MM-DD or MM/DD/YY or MM/DD/YYYY by app or user<br>
+    date-time - <br>
+    <p>stored as array of the format [yyyy,mm,dd,hour,minute,second, milli second] - address time zones, in the calendar a few timezones ET, CT, MT, PT</p>
+    </li>
+
+    <li><b>Boolean</b> - true, false <br><br></li>
+</ol>
+
+<h1>Meta data Types</h1>
+<p>Meta data is maintained by the sytem and is readonly.  all Meta data field names start with _</p>
+
+<ol>
+    <li><b>Primary Key</b><br>
+        <p><b>_pk</b> Is an integer and auto incrementate as new records are added.  Current name is pk,</p>
+    </li>
+
+    <li><b>_date_created</b> <br>
+        <p>Date record was created, the data is in the change log, but no code written to access it</p>
+    </li>
+
+    <li><b>_date_modified</b> <br>
+        <p>Date record was modified, the data is in the change log, but no code written to access it</p>
+    </li>
+
+    <li><b>_date_deleted</b> <br>
+        <p>Date record was deleted, the data is in the change log, but no code written to access it</p>
+    </li>
+</ol>
+
+
+<h1>Higher level Types</h1>
+
+<ol>
+    <li>arrays one dim-- should this be under json</li>
+    <li>table- 2 dim array</li>
+    <li>edge</li>
+    <li>node</li>
+    <li>graph</li>
+
+</ol>
+
+
+
+
+
 
 

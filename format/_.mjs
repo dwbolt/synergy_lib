@@ -61,10 +61,11 @@ static getISO(  // return YYYY-MM-DD
     date = new Date(date[0],date[1]-1,date[2]);
   }
   let day = date.getDate().toString()  //1-31
-  if (day.length === 1){day = "0"+day;} // and leading 0
+  if (day.length === 1){day = "0"+day;} // add leading 0
 
   let month = (date.getMonth()+1).toString();
-  if (month.length===1) {month = "0"+month}
+  if (month.length===1) {month = "0"+month} // add leading 0
+  
   return `${date.getFullYear()}-${month}-${day}`
 }
 
