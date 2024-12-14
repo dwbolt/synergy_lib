@@ -12,41 +12,16 @@ constructor(   // sfc_table_class - client-side
 ) {
 	super();  // call parent constructor HTMLElement
 
-  this.callback = {
-/* 
-{
-"method_name1": {
-    "when_name_1" : [callback1, callback...]
-  ,"when_name_2" : [callback?,...]
-  }
-
-,"method_name_2":{
-    "when_name?" : [callback?]
-  }
-      
-}
-*/
-  }  
-
-
-
   // specify what data is displayed
   this.select = [];  // array of fileds to display
   this.pks    = [];  // array pks that point to data to be disaplay
 
-  this.elements_grid    = {  // is rebuilt, everytime grid size changed - where table data is displayed
-    // pointers to <div></div> elements in the grid
-     "search" : []  // this.elements_grid.serch[column_number].textContent = to set value
-    , "header": []  // this.elements_header[column_number].
-    , "data"  : []  // this.elements_grid.data[row_number][column_number].text or innerHTML
-  };
-  this.search_values     = {}; // this.search_values[field_Name] = [value_of_search, search_type]
-                               // place to save search values so they can be restored if grid size changes
-
   this.searchVisible     = true; // display boxes to put search criteria in
+  this.line_number_visible = true;
+  this.header_visible    = true;
+
   this.statusLineData    = ["tableName","nextPrev","rows","firstLast","rows/page","views"]; 
-  this.lineNumberVisible = true;
-  //this.columnFormat      = [];  // array of td attributes, one for each column
+
   this.columnTransform   = [];  // array of fucntions, one for each column
   this.footer            = [];  //
 
@@ -89,7 +64,7 @@ import(`${app.lib}/format/_.mjs`).then(({ format }) => {this.format = format;})
 }
 
 
-init(  // sfc_table_class - client-side
+init(  // sfc_table_class - client-sid
 ){
   this.views  = this.shadow.getElementById('views');
   this.shadow.getElementById('table').addEventListener('click', this.record_show.bind(this) );
@@ -97,10 +72,25 @@ init(  // sfc_table_class - client-side
 
 
 callback_add(
-  method
-  ,when
-  ,func 
+  method  // this calls method to add call back to
+  ,when   // there maybe multiply places in a method that call backs are allow
+  ,func   // function to add to callback list
 ){
+
+  if (this.callback === undefined) {this.callback = {};}
+    /* 
+    this.callback ={
+    "method_name1": {
+        "when_name_1" : [callback1, callback...]
+      ,"when_name_2" : [callback?,...]
+      }
+    
+    ,"method_name_2":{
+        "when_name?" : [callback?]
+      }
+    }
+      */
+
   if (this[method] === undefined) {
     // error method does not exist in class
     app.sfc_dialog.show_error( `this[${method}] === undefined` );
@@ -109,11 +99,11 @@ callback_add(
 
   if (this.callback[method] === undefined)      {this.callback[method]      = {} }  // make sure method exisits
   // method is in class, so add "when"
-  if (this.callback[method][when] === undefined) {this.callback[method][when] = [] }  // make sure method exisits
+  if (this.callback[method][when] === undefined) {this.callback[method][when] = [] } // make sure call list exisits
 
   if ( !this.callback[method][when].includes( func )) {
     // callback is not in list, so add it 
-    this.callback[method][when].push(func)
+    this.callback[method][when].push(func);
   }
 }
 
@@ -203,8 +193,6 @@ display(        // sfc_table_class - client-side
 
   // fill in empty table
   this.statusLine();
-  this.search_display();
-  this.displayColumnTitles();
   this.displayData();  
  // this.displayFooter()      ;
 }
@@ -258,7 +246,6 @@ change_number_lines(
 
   this.paging.lines = number;
   this.grid_create();
-
 }
 
 
@@ -274,7 +261,7 @@ rows_displayed(
 // sfc_table_class - client-side
 setStatusLineData(   value) {this.statusLineData    = value;}
 setSearchVisible(    value) {this.searchVisible     = value;}
-setLineNumberVisible(value) {this.lineNumberVisible = value;}
+setLineNumberVisible(value) {this.line_number_visible = value;}
 setRowNumberVisible( value) {this.rowNumberVisible  = value;}
 setFooter(           value) {this.footer            = value;}
 
@@ -294,29 +281,6 @@ displayTag(
   this.tag = name;
   this.paging.row = 0;
   this.displayData();
-}
-
-
-search_display(){ // sfc_table_class - client-side
-  if (this.elements_grid.search[0].innerHTML === "Search") {return;} // search is already there, do nothing
-
-  this.elements_grid.search[0].innerHTML = "Search";  // inside div tag
-
-  // add search input for each row column
-  let  size   = 10;  // number of characters allowed in search
-  this.select.forEach((item, i) => {
-    let div = this.elements_grid.search[i+1];
-    div.innerHTML = `<input id="fn-${item}" type="text" value="${this.search_values[item]}" size="${size}"/>`;
-    let input     = div.querySelector("input");
-    input.addEventListener("keyup",this.searchf.bind(this) );
-  });
-
-  if (!this.searchVisible) {
-    const search = this.elements_grid.search;
-    for(let i=0; i<search.length; i++){
-      search[i].style.display = "none" //hide search row
-    }
-  }
 }
 
 
@@ -351,49 +315,33 @@ searchf(
 }
 
 
-displayColumnTitles( // sfc_table_class - client-side
-){
-  // add header    //  this.json[table].DOMid = domID; // remember where table was displayed
-  this.skip_columns = 0;
-  if (this.lineNumberVisible) {
-    this.elements_grid.header[0].innerHTML = `<b>line</b>`;
-    // add align right
-    this.skip_columns++;
-  }
-  
-  const fields = this.model.meta_get("fields");
-  for(var i=0; i<this.select.length; i++){
-    let align="";
-    switch (fields[this.select[i]].type) {
-      case "money"  :
-      case "integer":
-      case "float"  :
-        align=` align="right"`;  break;
-      default: break;
-    }
-    this.elements_grid.header[1+i].innerHTML = `<b>${fields[this.select[i]].header}</b>`;
-    // add code to align
-  };
-
-  // set style
-  this.table.style.setProperty("grid-template-columns",`repeat(${this.select.length + this.skip_columns},auto)`);   // not sure about this
-}
-
-
 displayData(){   // sfc_table_class - client-side
-  // build one row at a time
+  // assume grid is already built, just fill it with data
+  /*
   for (let i = 0; i < this.paging.lines; i++) {
     this.appendHTMLrow(i, i+this.paging.row);
   }
+*/
 
-  // add event for search
-  const search_hander =  this.search?.bind(this);  // fix bug, this.search should be defined
-  if  (this.searchVisible) {
-    this.select.forEach((item, i) => {
-      const element = this.shadow.getElementById(`fn-${item}`); 
-      element?.addEventListener('keyup', search_hander );
-    });
+// fill grid with data from model
+for(let r=0; r<this.paging.lines; r++) {       // walk rows
+  const index = r+this.paging.row;             // index into array of pks to display
+  let pk;                                      // pk is undefined
+  if (index<this.tags[this.tag].length) {
+    // is data for next row, 
+    pk = this.tags[this.tag][index];     // pk points to data we want to display
   }
+
+  for(let c=0; c<this.select.length; c++) {    // walk columns in row
+    const field_name = this.select[c];         // get field_name
+    const div =this.elements_grid[field_name].data[r];
+    this.display_format(r,div, pk, field_name);
+  }
+}
+
+this.callback?.displayData?.end.forEach( f => f( this.elements_grid ) ); // call each function in list.
+
+return // review rest of code
 
   // figure out maxrow
  if (this.tag === "null"  || this.tag === null) {
@@ -432,16 +380,44 @@ displayData(){   // sfc_table_class - client-side
     if ( document.getElementById("last" ) ) {document.getElementById("last").disabled = false;}
   }
 
-  this.callback?.displayData?.end.forEach( f => f( this.elements_grid.data ) ); // call each function in list.
+
 }
 
 
-display_structure() { 
-  // build empty <div></div> tags for grid to display table.  will be field with data later
-  // needs to be called any time size of grid changes, number of rows changes, or number of columns changes
-  let html=""
-  
-  table_data.innerHTML = html;
+display_format( // sfc_table_class - client-side
+  row       // starts with 0
+  ,element  // div tag data will be displayed in
+  ,pk   // orig field value
+  ,field_name     // column number
+){
+  let html  = ""                                      ; // default value is blank
+  let align,value;                                    ; // default is align left
+  switch (field_name) {
+  case "_line_number": html = `${row+1}`; align="right"
+    element.setAttribute("class"  , "link"        ); // show blue underline like a url to click on
+    element.setAttribute("data-pk",  pk           ); // 
+    break;
+  default:   value = this.model.get_value(pk,field_name ); break; // get value from table 
+  }
+
+  if (value !== undefined && value !== null && field_name !==" _line_number") {
+    // there is some data, so format by type
+    switch (this.model.get_field(field_name,"type") ) { 
+    case "html" :  html = value                                           ; break;
+
+    case "date" :  
+      const d = new Date(value[0],value[1]-1, value[2]);
+      html = `${this.format.getISO(d)}`                                   ; break;
+
+    case "integer": case "float": case "pk": html = value; align="right"; break;
+
+    case "money"     : html = `${this.format.money(value)}`; align="right"; break;
+
+    default          : html = value                           ; break;
+    }
+  }
+  element.innerHTML   = html ;  // display transfored value
+  element.style["text-align"] = align;  // asssume set to "right" or undefined -> left
 }
 
 
@@ -530,50 +506,6 @@ views_toggle() {  // sfc_table_class - client-side
 }
 
 
-displayFooter(){  // sfc_table_class - client-side
-  // put agg functions here
-  // add empty columns for lineNum and rowNum if they are being displayed
-  let html    = "";
-  let lineNum = ""; if (this.lineNumberVisible ) {lineNum = `<td></td>`;}
-
-  const obj = this;  // give access to "this" in the forEach
-  this.footer.forEach((item, i) => {
-    html += `<tr>${lineNum}${rowNum}`;  // start a new row
-    item.forEach((field,ii) => {
-      let value;
-      if (field==="${total()}") {
-        value = obj.total(ii);   // calculate total
-      } else {
-        value = field;
-      }
-
-      html += this.formatTransform(value,ii);   // put value in for column
-
-    });
-    html += "</tr>"  // end row
-  });
-
-  // add footer to table
-  this.getTableDom().children[3].innerHTML = html;
-}
-
-
-groupBy_toggle(// sfc_table_class - client-side
-){
-  // toggle group_by_div
-  const div = document.getElementById("group_by");
-  div.hidden  = !div.hidden;
-}
-
-
-getTableDom(// sfc_table_class - client-side
-){
-  const e=document.getElementById(this.DOMid);     // dom element where table is displayed
-  const table =     e.children[0]; // should be table - brittle code
-  return table;
-}
-
-
 // sfc_table_class - client-side  --- deprecate
 setModel( // let class know what data it will be displaying/using
   db      // database object that table is in
@@ -581,7 +513,7 @@ setModel( // let class know what data it will be displaying/using
 ) {
   this.tableName  = name;           // string
   this.model      = db.getTable(name);  // is of class table_class
-  this.grid_create();
+  this.grid_create(true);
 }
 
 
@@ -591,86 +523,116 @@ set_model( // let class know what data it will be displaying/using
 ) {
   this.model      = table;  // is of class table_class
   this.tableName  = name;   // string
-  this.search_values = {} ; // remembers what user has typed in as search values
-  this.search_clear();
   
   this.table_views  = new table_views(this);
   this.shadow.getElementById("search").selected_custom = this.table_views.search_create.bind( this.table_views );
-  this.grid_create();
+  this.grid_create(true);
 }
 
 
-grid_create(){
-  // create empty <div></div> to put search, heater, and data in display grid
-  // call each time grid changes size
-  this.table.innerHTML = ""; // empty grid
-
-// make copy of default select fields so changes can not be made
-  if (this.select.length === 0) {
-    // init to table default select
-    this.select = this.model.meta_get("select").slice(0);  // modify protection should be in model class
+/*
+this.elements_grid    = {  // is rebuilt when web component is attached to new model
+  "field_name_?" : {
+        "search" : {}  // points to a div tag that will hold user input for search
+      , "header" : []  // points to a div tag that will hold display header for column
+      , "data"   : []  // each array item points to div tag that hold data for that row 
+    }
+  ,"field_name_?"
+*/
+grid_create(
+  start_over = false
+){
+  // create div tags to build grid from  
+  // call each time add new columns to display or # of rows do display
+  if (start_over) {
+    this.elements_grid   = {};  // 
+    if (this.line_number_visible) {
+      // add columne for line number
+      this.select = ["_line_number"]; // line number will be first column in table
+    } else {
+      this.select = [];  
+    }
+    this.select = this.select.concat( this.model.meta_get("select") ); // add all the default field of the table to view
+    this.table.style.setProperty("grid-template-columns",`repeat(${this.select.length},auto)`);   // defines number of columns to display
   }
 
-  this.search_clear();
-
-  let element;  // pushing one extra div for line number column
-  // create search div
-  this.elements_grid.search     = []             ; // start over
-  
-  for(let i=0; i<=this.select.length; i++) {
-    element = document.createElement("div"); // create a new div tag
-    this.elements_grid.search.push(element); // add to search
-    this.table.appendChild(        element); // add to table grid
-  };
-
-  // create header div
-  this.elements_grid.header     = [];
-  for(let i=0; i<=this.select.length; i++) {
-    element = document.createElement("div"); // create a new div tag
-    this.elements_grid.header.push(element); // add header
-    this.table.appendChild(        element); // add to table grid
-  };
-
-  // create array to div for data
-  this.elements_grid.data     = [];
-  for (let i=0; i<this.paging.lines; i++){
-    this.data_add_row();
+  let c,field_name;
+  for(c=0; c<this.select.length; c++){
+    // walk all the field_names to be displayed
+    field_name = this.select[c];
+    this.column_add(field_name); 
   }
+  this.column_add("_line_number");   // place to display line number so user can click to get more detail about a record in the table
 
-  this.line_show_hide();
+  this.table.innerHTML = "" // get rid of any old div
+
+  // attach div's in this.elements_grid to this.table so they can be displayed
+  this.table.innerHTML = "";  // get ride of all divs in grid display
+
+
+  if (this.searchVisible ) {
+    // add search row
+    for (c=0; c<this.select.length; c++) {
+      field_name = this.select[c];
+      this.table.appendChild( this.elements_grid[field_name].search );
+    }
+  } 
+
+  if (this.header_visible) {
+    // add header row 
+    for (c=0; c<this.select.length; c++) {
+      field_name = this.select[c];
+      this.table.appendChild( this.elements_grid[field_name].header );
+    }
+  } 
+
+  // add elements from this.elements_grid to DOM
+  for(let r=0; r<this.paging.lines; r++){
+    for (c=0; c<this.select.length; c++) {
+      field_name = this.select[c];
+      const div =this.elements_grid[field_name].data[r];
+      this.table.appendChild(div )
+    }
+  }
 }
 
 
-data_add_row() {
-  // add row of <div> to put data in
-  // create data div
-
-  // add one row
-  const row = this.elements_grid.data[this.elements_grid.data.length] = [];
-  for(let i=0; i<=this.select.length; i++) {
-    const element = document.createElement("div"); // create a new div tag
-    this.table.appendChild(              element); // add to table grid
-    row.push(                            element); // remember div in array so we can get to it quickly
-  };
-}
-
-
- line_show_hide() {
-  // first column with line number
-  let value = (this.rowNumberVisible? "block":"none");
-  this.elements_grid.search[0].style.display = value;  // search
-  this.elements_grid.header[0].style.display = value;  // header
-
-  for (let r=0; r<this.paging.lines; r++) {
-    this.elements_grid.data[r][0].style.display = value; // data
+column_add(field_name) {
+  if (this.elements_grid[field_name] === undefined) {
+    this.elements_grid[field_name] = {};    // init column to empty object
   }
- }
+  let col = this.elements_grid[field_name]
 
+  // add column search 
+  if (col.search === undefined) {
+    col.search = document.createElement("div"   ); // add empty div for search
+    col.search.innerHTML = `<input id="fn-${field_name}" type="text"/>`;
+    let input     = col.search.querySelector("input");
+    input.addEventListener("keyup",this.searchf.bind(this) );
+  }
 
-search_clear(){
-  this.select.forEach((item, i) => {
-    this.search_values[item] = "";  // init to blank
-  })
+  // add column header
+  if (col.header === undefined) {
+    col.header           = document.createElement("div"   ); // add empty div for header of column
+    let value;
+    switch (field_name) {
+    case "_line_number":  value ="Line"                       ; break;  // meta field header
+    default: value = this.model.meta_get("fields")[field_name].header; break; // regular field
+    }
+    col.header.innerHTML = `<b>${value}</b>`;
+  }
+
+  // add column data
+  if (col.data === undefined) {
+    col.data   =                               []; // create empty array to pub each row for data to be displayed
+  }
+  for(let ii=0; ii<this.paging.lines; ii++) { 
+    // can grow if rows is increased
+    if (col.data[ii]=== undefined) {
+      const div = document.createElement("div");
+      col.data.push(div); 
+    }
+  }
 }
 
 
@@ -687,89 +649,6 @@ call stack=${Error().stack}
 }  
 
 
-appendHTMLrow(  // sfc_table_class - client-side
-  // append row from table or tag list
-   i           // index of data row array, is line the row is being displayed on
-  ,arrayIndex  // row data to be displayed
-) {
-
-  if ( this.tags[this.tag].length <= arrayIndex) {
-    // clear out any old data
-    for(let ii=0; ii<=this.select.length; ii++) {
-      // create display form of field
-      const element         = this.elements_grid.data[i][ii]; // get a <div> tage in the row
-      element.innerHTML     = ""                            ; // clear it out
-    }
-    return // no more data
-  }
-
-  const pk = this.tags[this.tag][arrayIndex];
-  while (this.elements_grid.data.length<=i) {
-    // make sure there is a place to put data
-    this.data_add_row();
-  }
-  let element = this.elements_grid.data[i][0];
-  // create html for each column in the row
-  if (this.lineNumberVisible ) {
-    // diaplay line number
-    element.innerHTML    =     i+1;  // line number, array starts at 0 so add one
-    element.setAttribute("style"  , "align:right;"); // align number to rigth
-    element.setAttribute("class"  , "link"        ); // show blue underline like a url to click on
-    element.setAttribute("data-pk",  pk           ); // 
-  }
-
-  let selected = "";
-  if (this.selected.find( val => val === pk) ) {
-    // show row as selected
-    element.class        += " selected" ;  // not sure this will work
-  }
-
-  for(let ii=0; ii<this.select.length; ii++) {
-    // create display form of field
-    this.display_format(this.elements_grid.data[i][ii+1], pk, this.select[ii]);
-  };
-}
-
-
-display_format( // sfc_table_class - client-side
-   element  // div tag data will be displayed in
-  ,pk   // orig field value
-  ,field_name     // column number
-){
-  let html  = ""                                      ; // default value is blank
-  let align;                                          ; // default is align left
-  let value = this.model.get_value(pk,field_name ); // get value from table
-  if (value !== undefined && value !== null) {
-    // there is some data, so format by type
-    switch (this.model.get_field(field_name,"type") ) { 
-    case "html" :  html = value                                           ; break;
-
-    case "date" :  
-      const d = new Date(value[0],value[1]-1, value[2]);
-      html = `${this.format.getISO(d)}`                                   ; break;
-  
-    case "integer"   :
-    case "float"     :
-    case "pk"        : html = value;                         align="right"; break;
-
-    case "money"     : html = `${this.format.money(value)}`; align="right"; break;
-
-    default          : html = value                           ; break;
-    }
-  }
-  element.innerHTML   = html ;  // display transfored value
-  element.style.align = align;  // asssume set to "right" or undefined -> left
-}
-
-
-setDom( // sfc_table_class - client-side
-  // this is used in the display() method
-  element //  2022-04-16 need more doc, not sure this is still used
-  ,value  //
-) {
-  this.dom[element] = value;
-}
-
 
 genRows( // sfc_table_class - client-side
 // creating text file to save
@@ -783,73 +662,6 @@ genRows( // sfc_table_class - client-side
   })
 
   return " "+ txt.substr(1)  // replace leading comma wiht a space
-}
-
-
-total( // sfc_table_class - client-side
-  // add error checking for non-numbers
-  col  // column to total
-) {
-  let total = 0;
-  let f;
-
-  // decide if column number or name was passed
-  if        (typeof(col) === "number") {
-    f = col;
-  } else if (typeof(col) === "string") {
-    f = this.model.json.field[col];
-  } else {
-    alert(`error in: sfc_table_class.total(), col=${col}`);
-  }
-
-  // decide if entire table will be totaled or list of rows
-  if (this.tag === "null"  || this.tag === null) {
-    // total all rows in table for column
-    this.model.json.rows.forEach((row, i) => {
-      total += row[f];
-    });
-  } else {
-    // total subset of rows in tag for column
-    this.tags[this.tag].forEach((rowIndex, i) => {
-      total += this.model.json.rows[rowIndex][f];
-    });
-  }
-
-  return total;
-}
-
-
-unique( // sfc_table_class - client-side
-  // return all the unique values in a table for the given field
-  s_field
-  ) {
-  const a=[];
-  const f=this.json.field;
-  this.json.rows.forEach((r) => {
-    let v = r[f[s_field]];
-    if (!a.includes(v)) {
-      a.push(v);
-    }
-  });
-
-  return a;
-}
-
-
-setJSON(  // sfc_table_class - client-side
-  j
-  ) {
-  // replace place holder of new table with data from loaded file
-  Object.entries(j).forEach((item, i) => {
-    this.json[item[0]] = item[1];  // replace default value with loaded value
-  });
-}
-
-
-f(  // sfc_table_class - client-side
-  fieldName
-  ) {
-  return this.model.json.field[fieldName];
 }
 
 
@@ -906,3 +718,210 @@ last( /// sfc_table_class - client-side
 
 
 customElements.define("sfc-table", sfc_table_class); // tie class to custom web component
+
+
+
+/*
+appendHTMLrow(  // sfc_table_class - client-side
+  // append row from table or tag list
+   i           // index of data row array, is line the row is being displayed on
+  ,arrayIndex  // row data to be displayed
+) {
+
+  if ( this.tags[this.tag].length <= arrayIndex) {
+    // clear out any old data
+    for(let ii=0; ii<=this.select.length; ii++) {
+      // create display form of field
+      const element         = this.elements_grid.data[i][ii]; // get a <div> tage in the row
+      element.innerHTML     = ""                            ; // clear it out
+    }
+    return // no more data
+  }
+
+  const pk = this.tags[this.tag][arrayIndex];
+  while (this.elements_grid.data.length<=i) {
+    // make sure there is a place to put data
+    this.data_add_row();
+  }
+  let element = this.elements_grid.data[i][0];
+  // create html for each column in the row
+  if (this.line_number_visible ) {
+    // diaplay line number
+    element.innerHTML    =     i+1;  // line number, array starts at 0 so add one
+    element.setAttribute("style"  , "align:right;"); // align number to rigth
+    element.setAttribute("class"  , "link"        ); // show blue underline like a url to click on
+    element.setAttribute("data-pk",  pk           ); // 
+  }
+
+  let selected = "";
+  if (this.selected.find( val => val === pk) ) {
+    // show row as selected
+    element.class        += " selected" ;  // not sure this will work
+  }
+
+  for(let ii=0; ii<this.select.length; ii++) {
+    // create display form of field
+    this.display_format(this.elements_grid.data[i][ii+1], pk, this.select[ii]);
+  };
+}
+// */
+
+
+/*  do not think this is used
+setJSON(  // sfc_table_class - client-side
+  j
+  ) {
+  // replace place holder of new table with data from loaded file
+  Object.entries(j).forEach((item, i) => {
+    this.json[item[0]] = item[1];  // replace default value with loaded value
+  });
+}
+*/
+
+/*
+displayColumnTitles( // sfc_table_class - client-side
+){
+  const fields = this.model.meta_get("fields");
+  for(var i=0; i<this.select.length; i++){
+    // walk all the selected fields to display in table
+
+    // 
+    let align;
+    const field_name = this.select[i];
+    switch (fields[field_name].type) {
+    case "money"  : case "integer": case "float"  :
+      align=` align="right"`;  break;
+    default: // align is left
+    }
+
+    const div = this.elements_grid[field_name].header;      // get div 
+    div.innerHTML = `<b>${fields[field_name].header}</b>`;  // display header
+
+    // align header
+    if (align) {
+      // align number field to right
+      div.style.align = align;
+    }
+
+    // add to grid
+    this.table.append(div);
+  };
+}
+*/
+
+/*
+setDom( // sfc_table_class - client-side
+  // this is used in the display() method
+  element //  2022-04-16 need more doc, not sure this is still used
+  ,value  //
+) {
+  this.dom[element] = value;
+}
+*/
+
+/*
+unique( // sfc_table_class - client-side
+  // return all the unique values in a table for the given field
+  s_field
+  ) {
+  const a=[];
+  const f=this.json.field;
+  this.json.rows.forEach((r) => {
+    let v = r[f[s_field]];
+    if (!a.includes(v)) {
+      a.push(v);
+    }
+  });
+
+  return a;
+}
+  */
+
+/*
+total( // sfc_table_class - client-side
+  // add error checking for non-numbers
+  col  // column to total
+) {
+  let total = 0;
+  let f;
+
+  // decide if column number or name was passed
+  if        (typeof(col) === "number") {
+    f = col;
+  } else if (typeof(col) === "string") {
+    f = this.model.json.field[col];
+  } else {
+    alert(`error in: sfc_table_class.total(), col=${col}`);
+  }
+
+  // decide if entire table will be totaled or list of rows
+  if (this.tag === "null"  || this.tag === null) {
+    // total all rows in table for column
+    this.model.json.rows.forEach((row, i) => {
+      total += row[f];
+    });
+  } else {
+    // total subset of rows in tag for column
+    this.tags[this.tag].forEach((rowIndex, i) => {
+      total += this.model.json.rows[rowIndex][f];
+    });
+  }
+
+  return total;
+}
+
+
+f(  // sfc_table_class - client-side
+  fieldName
+  ) {
+  return this.model.json.field[fieldName];
+}
+
+*/
+
+/*
+
+displayFooter(){  // sfc_table_class - client-side
+  // put agg functions here
+  // add empty columns for lineNum and rowNum if they are being displayed
+  let html    = "";
+  let lineNum = ""; if (this.line_number_visible ) {lineNum = `<td></td>`;}
+
+  const obj = this;  // give access to "this" in the forEach
+  this.footer.forEach((item, i) => {
+    html += `<tr>${lineNum}${rowNum}`;  // start a new row
+    item.forEach((field,ii) => {
+      let value;
+      if (field==="${total()}") {
+        value = obj.total(ii);   // calculate total
+      } else {
+        value = field;
+      }
+
+      html += this.formatTransform(value,ii);   // put value in for column
+
+    });
+    html += "</tr>"  // end row
+  });
+
+  // add footer to table
+  this.getTableDom().children[3].innerHTML = html;
+}
+
+
+groupBy_toggle(// sfc_table_class - client-side
+){
+  // toggle group_by_div
+  const div = document.getElementById("group_by");
+  div.hidden  = !div.hidden;
+}
+
+
+getTableDom(// sfc_table_class - client-side
+){
+  const e=document.getElementById(this.DOMid);     // dom element where table is displayed
+  const table =     e.children[0]; // should be table - brittle code
+  return table;
+}
+
+*/

@@ -66,13 +66,16 @@ async init() {  // calendar_class  client-side
 async main( // calendar_class  client-side
 year // to display calander for
 ) {
-  await this.table_view.css_add(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-calendar/_.css` );// load calendar css
+  // load calendar css
+  await this.table_view.css_add(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-calendar/_.css` );
 
   if (year) {
     this.year = year;  // year of calendar to display - default is current year
   }
 
+  // load web_componets
   await  app.web_components.check(this.shadow);
+
   // decide which calendar to load, users or main
   this.event_init(); // will fill out this.events - array for each day of the year 
 
@@ -528,7 +531,7 @@ calendar_create(  // calendar_class  client-side
       let add="";
       if ( this.login_status) {
         // user calendar, so allow adding new event
-        add =`<a data-create="${start.getFullYear()}-${m}-${d}" class="pointer">+</a><br>`
+        add =`<a data-create="${app.format.getISO(start)}" class="pointer">+</a><br>`
       }
       let html = `<b>${m}-${d} ${add}</b><br>`;
 
@@ -585,11 +588,13 @@ sort(// calendar_class  client-side
 class_apply(
    div_data  // div_data[0][1] is first day of week row one
   ) {
-  for(let r=0; r<div_data.length; r++) {
-   const row = div_data[r];
-   for (let c=1; c<row.length; c++) {
-    const div  = row[c];
+  const rows = this.table_view.paging.lines // weeks to display
+
+  for(let r=0; r<rows; r++) {
+   for (let c=0; c<7; c++) {   // columns are 0 to 7 where 0 is sunday
+    const div  = div_data[c].data[r];
     const a    = div.querySelector("a");
+    if (a===null) {return;} // did not find <a> tag, so return
     const date = a.getAttribute("data-create");  // <a data-create="2024-10-27" class="pointer">+</a>
     this.class_set(div, date);
    }
@@ -600,17 +605,17 @@ class_apply(
 class_set(div,date) {  // calendar_class  client-side
   const date_a = date.split("-");  //  "yyyy-mm-dd"
   const now = app.format.getISO( new Date() );
-  year = now.slice(0,4)
+  const year = now.slice(0,4);
   let className ;
-  if (this.year !== date_a[0]) {
+  if (this.year.toString() !== date_a[0]) {
     // day is not in year of calander being displayed
     className = "notYear"  // will scrink font to 0 so the day does not show up
   } else if (date === now) {
     className =  "today"  // 
-  } else if (start<today) {
+  } else if (date < now) {
     className = "past"  // 
   } else {
-    retclassName = "future" 
+    className = "future" 
   }
 
   div.className = className;

@@ -14,6 +14,8 @@ constructor() {  // appClass - client side
 	if      ( host[0].includes("local") ) { this.lib = `https://synergy_local.sfcknox.org/_lib`;} // use _lib on local      server
 	else if ( host[0].includes("beta" ) ) { this.lib =  `https://synergy_beta.sfcknox.org/_lib`;} // use _lib on beta       server
 	else                                  { this.lib =       `https://synergy.sfcknox.org/_lib`;} // use _lib on production server
+
+	this.format = format;  // give other modules access to format static class
 }
 
 
