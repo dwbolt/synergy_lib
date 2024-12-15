@@ -16,9 +16,9 @@ constructor(   // sfc_table_class - client-side
   this.select = [];  // array of fileds to display
   this.pks    = [];  // array pks that point to data to be disaplay
 
-  this.searchVisible     = true; // display boxes to put search criteria in
+  this.searchVisible       = true; // display boxes to put search criteria in
   this.line_number_visible = true;
-  this.header_visible    = true;
+  this.header_visible      = true;
 
   this.statusLineData    = ["tableName","nextPrev","rows","firstLast","rows/page","views"]; 
 
@@ -193,7 +193,7 @@ display(        // sfc_table_class - client-side
 
   // fill in empty table
   this.statusLine();
-  this.displayData();  
+  this.display_data();  
  // this.displayFooter()      ;
 }
 
@@ -227,7 +227,7 @@ change_page_size(  // sfc_table_class - client-side
   e  // event
   ) {
   this.change_number_lines(e.target.value );
-  this.displayData();
+  this.display_data();
 }
 
 
@@ -259,11 +259,11 @@ rows_displayed(
 
 
 // sfc_table_class - client-side
-setStatusLineData(   value) {this.statusLineData    = value;}
-setSearchVisible(    value) {this.searchVisible     = value;}
+setStatusLineData(   value) {this.statusLineData      = value;}
+setSearchVisible(    value) {this.searchVisible       = value;}
 setLineNumberVisible(value) {this.line_number_visible = value;}
-setRowNumberVisible( value) {this.rowNumberVisible  = value;}
-setFooter(           value) {this.footer            = value;}
+setRowNumberVisible( value) {this.rowNumberVisible    = value;}
+setFooter(           value) {this.footer              = value;}
 
 
 displayTagSelected( // sfc_table_class - client-side
@@ -280,7 +280,7 @@ displayTag(
 ) { // user selected a tags list to display
   this.tag = name;
   this.paging.row = 0;
-  this.displayData();
+  this.display_data();
 }
 
 
@@ -315,36 +315,40 @@ searchf(
 }
 
 
-displayData(){   // sfc_table_class - client-side
+display_data(){   // sfc_table_class - client-side
   // assume grid is already built, just fill it with data
-  /*
-  for (let i = 0; i < this.paging.lines; i++) {
-    this.appendHTMLrow(i, i+this.paging.row);
+
+  // fill grid with data from model
+  for(let r=0; r<this.paging.lines; r++) {       // walk rows
+    const index = r+this.paging.row;             // index into array of pks to display
+    let pk;                                      // pk is undefined
+    if (index<this.tags[this.tag].length) {
+      // is data for next row, 
+      pk = this.tags[this.tag][index];     // pk points to data we want to display
+    }
+
+    for(let c=0; c<this.select.length; c++) {    // walk columns in row
+      const field_name = this.select[c];         // get field_name
+      let   div =this.elements_grid[field_name].data[r];
+      this.display_format(div, pk, field_name);
+      if (this.line_number_visible) {
+        div =this.elements_grid["_line_number"].data[r];
+        if (pk === undefined) {
+          div.innerHTML = "";
+        } else {
+          div.innerHTML = `${r+1}`;
+          div.style["text-align"]  = "right" ; // asssume set to "right" or undefined -> left
+          div.setAttribute("class"  , "link"); // show blue underline like a url to click on
+          div.setAttribute("data-pk",  pk   ); // 
+        }
+      }
+    }
   }
-*/
 
-// fill grid with data from model
-for(let r=0; r<this.paging.lines; r++) {       // walk rows
-  const index = r+this.paging.row;             // index into array of pks to display
-  let pk;                                      // pk is undefined
-  if (index<this.tags[this.tag].length) {
-    // is data for next row, 
-    pk = this.tags[this.tag][index];     // pk points to data we want to display
-  }
-
-  for(let c=0; c<this.select.length; c++) {    // walk columns in row
-    const field_name = this.select[c];         // get field_name
-    const div =this.elements_grid[field_name].data[r];
-    this.display_format(r,div, pk, field_name);
-  }
-}
-
-this.callback?.displayData?.end.forEach( f => f( this.elements_grid ) ); // call each function in list.
-
-return // review rest of code
+  this.callback?.display_data?.end.forEach( f => f( this.elements_grid ) ); // call each function in list.
 
   // figure out maxrow
- if (this.tag === "null"  || this.tag === null) {
+  if (this.tag === "null"  || this.tag === null) {
     // display all data
     this.paging.rowMax = this.getModel().get_PK().length;
   } else {
@@ -379,28 +383,19 @@ return // review rest of code
     if ( document.getElementById("next" ) ) {document.getElementById("next").disabled = false;}
     if ( document.getElementById("last" ) ) {document.getElementById("last").disabled = false;}
   }
-
-
 }
 
 
 display_format( // sfc_table_class - client-side
-  row       // starts with 0
-  ,element  // div tag data will be displayed in
+   element  // div tag data will be displayed in
   ,pk   // orig field value
   ,field_name     // column number
 ){
-  let html  = ""                                      ; // default value is blank
-  let align,value;                                    ; // default is align left
-  switch (field_name) {
-  case "_line_number": html = `${row+1}`; align="right"
-    element.setAttribute("class"  , "link"        ); // show blue underline like a url to click on
-    element.setAttribute("data-pk",  pk           ); // 
-    break;
-  default:   value = this.model.get_value(pk,field_name ); break; // get value from table 
-  }
+  let html  = ""                              ; // default value is blank
+  let align,value;                            ; // default is align left
+  value = this.model.get_value(pk,field_name ); // get value from table 
 
-  if (value !== undefined && value !== null && field_name !==" _line_number") {
+  if (value !== undefined && value !== null) {
     // there is some data, so format by type
     switch (this.model.get_field(field_name,"type") ) { 
     case "html" :  html = value                                           ; break;
@@ -416,8 +411,8 @@ display_format( // sfc_table_class - client-side
     default          : html = value                           ; break;
     }
   }
-  element.innerHTML   = html ;  // display transfored value
-  element.style["text-align"] = align;  // asssume set to "right" or undefined -> left
+  element.innerHTML           = html ; // display transfored value
+  element.style["text-align"] = align; // asssume set to "right" or undefined -> left
 }
 
 
@@ -530,6 +525,9 @@ set_model( // let class know what data it will be displaying/using
 }
 
 
+grid_create(
+  start_over = false
+){
 /*
 this.elements_grid    = {  // is rebuilt when web component is attached to new model
   "field_name_?" : {
@@ -539,58 +537,85 @@ this.elements_grid    = {  // is rebuilt when web component is attached to new m
     }
   ,"field_name_?"
 */
-grid_create(
-  start_over = false
-){
   // create div tags to build grid from  
   // call each time add new columns to display or # of rows do display
+  let div;
+  const line = (this.line_number_visible ? 1 : 0 ); 
   if (start_over) {
-    this.elements_grid   = {};  // 
-    if (this.line_number_visible) {
-      // add columne for line number
-      this.select = ["_line_number"]; // line number will be first column in table
-    } else {
-      this.select = [];  
+    this.elements_grid   = {};  // wipe out existing grid
+    this.select = [];  
+    this.select = this.select.concat( this.model.meta_get("select") ); // protection of select array should happen in model
+    let width = "";
+    if  (this.line_number_visible) {
+      width += "50px "
     }
-    this.select = this.select.concat( this.model.meta_get("select") ); // add all the default field of the table to view
-    this.table.style.setProperty("grid-template-columns",`repeat(${this.select.length},auto)`);   // defines number of columns to display
+    for (let i=0; i<this.select.length; i++) {
+      const field_name = this.select[i];
+      let v = this.model.meta_get("fields")[field_name].width;
+      if (v === undefined) {
+        if (field_name === "pk") {
+          v = "50px"
+        } else {
+          v = "auto"
+        }
+      }
+      width +=  v + " ";
+    }
+    this.table.style.setProperty("grid-template-columns",width);   // defines number of columns to display and the width of each column
   }
 
+  // make sure div exists and are long enought to hold all the rows
   let c,field_name;
   for(c=0; c<this.select.length; c++){
     // walk all the field_names to be displayed
     field_name = this.select[c];
     this.column_add(field_name); 
   }
-  this.column_add("_line_number");   // place to display line number so user can click to get more detail about a record in the table
+  if (this.line_number_visible) {
+    this.column_add("_line_number");   // place to display line number so user can click to get more detail about a record in the table
+  }
 
-  this.table.innerHTML = "" // get rid of any old div
-
-  // attach div's in this.elements_grid to this.table so they can be displayed
   this.table.innerHTML = "";  // get ride of all divs in grid display
 
-
+  // attach div's in this.elements_grid to this.table so they can be displayed
   if (this.searchVisible ) {
+    if (this.line_number_visible) {
+      div = this.elements_grid["_line_number"].search;
+      div.innerHTML = "Search"; // is really a header for search, or we could make it blank
+      this.table.appendChild( div );
+    }
     // add search row
     for (c=0; c<this.select.length; c++) {
       field_name = this.select[c];
       this.table.appendChild( this.elements_grid[field_name].search );
     }
-  } 
+  }
 
   if (this.header_visible) {
+    if (this.line_number_visible) {
+      div = this.elements_grid["_line_number"].header;
+      div.style["text-align"]  = "right";
+      this.table.appendChild(div );  // is really a header for search, or we could make it blank
+    }
     // add header row 
     for (c=0; c<this.select.length; c++) {
       field_name = this.select[c];
-      this.table.appendChild( this.elements_grid[field_name].header );
+      div = this.elements_grid[field_name].header ;
+      if (field_name === "pk") {
+        div.style["text-align"]  = "right";
+      }
+      this.table.appendChild(div);
     }
   } 
 
   // add elements from this.elements_grid to DOM
   for(let r=0; r<this.paging.lines; r++){
+    if (this.line_number_visible) {
+      this.table.appendChild( this.elements_grid["_line_number"].data[r]);  // #line - # row
+    }
     for (c=0; c<this.select.length; c++) {
       field_name = this.select[c];
-      const div =this.elements_grid[field_name].data[r];
+      const div =this.elements_grid[field_name].data[r];  // data from model
       this.table.appendChild(div )
     }
   }
@@ -683,7 +708,7 @@ field(  // sfc_table_class - client-side
 next( // sfc_table_class - client-side
 ) { //next page
   this.paging.row = this.paging.row + this.paging.lines;
-  this.displayData();
+  this.display_data();
 }
 
 
@@ -694,77 +719,30 @@ prev( /// sfc_table_class - client-side
     // should not be less than 0;
     this.paging.row = 0;
   }
-  this.displayData();
+  this.display_data();
 }
 
 
 first( /// sfc_table_class - client-side
 ){  // first page
   this.paging.row = 0;
-  this.displayData();
+  this.display_data();
 }
 
 
 last( /// sfc_table_class - client-side
 ){  // last page
   this.paging.row = parseInt(this.paging.rowMax/this.paging.lines) * this.paging.lines;
-  this.displayData();
+  this.display_data();
 
 
-} // sfc_table_class - client-side //  end
+} // end sfc_table_class - client-side //  end
 
 
 } // end class
 
 
 customElements.define("sfc-table", sfc_table_class); // tie class to custom web component
-
-
-
-/*
-appendHTMLrow(  // sfc_table_class - client-side
-  // append row from table or tag list
-   i           // index of data row array, is line the row is being displayed on
-  ,arrayIndex  // row data to be displayed
-) {
-
-  if ( this.tags[this.tag].length <= arrayIndex) {
-    // clear out any old data
-    for(let ii=0; ii<=this.select.length; ii++) {
-      // create display form of field
-      const element         = this.elements_grid.data[i][ii]; // get a <div> tage in the row
-      element.innerHTML     = ""                            ; // clear it out
-    }
-    return // no more data
-  }
-
-  const pk = this.tags[this.tag][arrayIndex];
-  while (this.elements_grid.data.length<=i) {
-    // make sure there is a place to put data
-    this.data_add_row();
-  }
-  let element = this.elements_grid.data[i][0];
-  // create html for each column in the row
-  if (this.line_number_visible ) {
-    // diaplay line number
-    element.innerHTML    =     i+1;  // line number, array starts at 0 so add one
-    element.setAttribute("style"  , "align:right;"); // align number to rigth
-    element.setAttribute("class"  , "link"        ); // show blue underline like a url to click on
-    element.setAttribute("data-pk",  pk           ); // 
-  }
-
-  let selected = "";
-  if (this.selected.find( val => val === pk) ) {
-    // show row as selected
-    element.class        += " selected" ;  // not sure this will work
-  }
-
-  for(let ii=0; ii<this.select.length; ii++) {
-    // create display form of field
-    this.display_format(this.elements_grid.data[i][ii+1], pk, this.select[ii]);
-  };
-}
-// */
 
 
 /*  do not think this is used
@@ -778,36 +756,6 @@ setJSON(  // sfc_table_class - client-side
 }
 */
 
-/*
-displayColumnTitles( // sfc_table_class - client-side
-){
-  const fields = this.model.meta_get("fields");
-  for(var i=0; i<this.select.length; i++){
-    // walk all the selected fields to display in table
-
-    // 
-    let align;
-    const field_name = this.select[i];
-    switch (fields[field_name].type) {
-    case "money"  : case "integer": case "float"  :
-      align=` align="right"`;  break;
-    default: // align is left
-    }
-
-    const div = this.elements_grid[field_name].header;      // get div 
-    div.innerHTML = `<b>${fields[field_name].header}</b>`;  // display header
-
-    // align header
-    if (align) {
-      // align number field to right
-      div.style.align = align;
-    }
-
-    // add to grid
-    this.table.append(div);
-  };
-}
-*/
 
 /*
 setDom( // sfc_table_class - client-side

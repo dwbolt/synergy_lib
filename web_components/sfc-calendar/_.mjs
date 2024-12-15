@@ -59,7 +59,7 @@ async init() {  // calendar_class  client-side
     // error not handled, load method should have done alert
   }
   await  app.web_components.check(this.shadow);  // add web componengs
-  this.table_view.callback_add("displayData","end", this.class_apply.bind(this) );   // set class of each day after display
+  this.table_view.callback_add("display_data","end", this.class_apply.bind(this) );   // set class of each day after display
 }
 
 
@@ -646,7 +646,7 @@ async moveToDate( // calendar_class  client-side
   }
   // change paging row
   this.table_view.paging.row = this.events[newDate.getMonth()+1][newDate.getDate()].row ;
-  this.table_view.displayData();
+  this.table_view.display_data();
 }
   
   
