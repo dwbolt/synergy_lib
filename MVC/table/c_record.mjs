@@ -266,7 +266,7 @@ async save( // client side sfc_record_class - for a page
       }
     } else {
       // updated an existing record
-      this.table_viewer && this.table_viewer.displayData();
+      this.table_viewer && this.table_viewer.display_data();
     }
     this.show();          // display record with new data
     } else {
