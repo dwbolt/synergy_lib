@@ -325,7 +325,10 @@ display_data(){   // sfc_table_class - client-side
     if (index<this.tags[this.tag].length) {
       // is data for next row, 
       pk = this.tags[this.tag][index];     // pk points to data we want to display
+    } else {
+      return false;// past last row
     }
+  
 
     for(let c=0; c<this.select.length; c++) {    // walk columns in row
       const field_name = this.select[c];         // get field_name
@@ -383,6 +386,7 @@ display_data(){   // sfc_table_class - client-side
     if ( document.getElementById("next" ) ) {document.getElementById("next").disabled = false;}
     if ( document.getElementById("last" ) ) {document.getElementById("last").disabled = false;}
   }
+  return true; // 
 }
 
 
@@ -708,7 +712,7 @@ field(  // sfc_table_class - client-side
 next( // sfc_table_class - client-side
 ) { //next page
   this.paging.row = this.paging.row + this.paging.lines;
-  this.display_data();
+  return this.display_data();
 }
 
 

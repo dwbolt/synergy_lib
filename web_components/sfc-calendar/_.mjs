@@ -202,6 +202,8 @@ calendar_display(// calendar_class - client-side
   if ( this.year === now.getFullYear() ) {
     // if we are displaying current year, jump to today's date
     this.today_display();   // only need to do this is we are displaying the clander
+  } else {
+    this.moveToDate(new Date(this.year, 0,1));  // first of year
   }
 }
 
@@ -309,7 +311,7 @@ createDate(  // calendar_class  client-side
 
 async event_init( // calendar_class  client-side
 ) {
-  // init events
+  // init events array, will be used to create calendar table module 
   this.events =[]                  // this.events[1][12] for january 12 a list of event nodes for that day 
   for (let m=1; m<=12; m++) {
     this.events[m]=[]
