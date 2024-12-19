@@ -189,7 +189,7 @@ calendar_display(// calendar_class - client-side
   ]);  
 
   // add new status line to dom
-  this.table_view.display();  // going too deep in, do not like this, refactor
+  this.table_view.display();  // will display first of year
 
   // connect dom element to class method
   this.table_view.shadow.getElementById("todayButton").addEventListener("click" , this.today_display.bind(this));
@@ -215,7 +215,10 @@ next( // calendar_class - client-side
   const time_unit = selected.value;
   switch (time_unit) {
     case "weeks":
-      this.table_view.next();
+      if (this.table_view.next() === false) {
+        // at end of year, so goto next year
+        this.main(++this.year);
+      }
       break;
   
     default:
@@ -233,12 +236,17 @@ prev( // calendar_class - client-side
   const time_unit = selected.value;
   switch (time_unit) {
     case "weeks":
-      this.table_view.prev();
+      if (this.table_view.prev() === false) {
+        // at start of year, so goto prevous year
+        this.main(--this.year);
+      }
       break;
   
     default:
-      // assume month, move to next month
-      this.month_chosen(-1);
+      // assume month, move to previous  month
+      if (this.month_chosen(-1)=== false) {
+        this.main(--this.year);
+      }
       break;
   }
 }
@@ -251,7 +259,7 @@ month_chosen(  // calendar_class  client-side
   const selected          = this.table_view.shadow.getElementById("months");  // where the user selects day, weeks, year, a month
   if (selected.value === "weeks") {
     // do nothing but change mode for next / prev
-    return;
+    return true;
   }
 
   if (typeof(change) === "number") {
@@ -267,7 +275,7 @@ month_chosen(  // calendar_class  client-side
   // set rows/page so that the full month is displayed
   const row_start     = this.events[start.getMonth()+1][start.getDate()].row ;     // row of month start
   const row_end       = this.events[  end.getMonth()+1][  end.getDate()].row ;     // row of month end
-  this.table_view.rows_displayed(row_end - row_start + 1);                                    // show all the weeks in the month
+  return this.table_view.rows_displayed(row_end - row_start + 1);                                    // show all the weeks in the month
 }
 
 
@@ -321,6 +329,7 @@ async event_init( // calendar_class  client-side
   }
 
   // each event will generate at least one element in event list
+  // the event list is organized by month/day and will be used to generate a table model
   let pks =  this.table_events.get_PK()
   for (let i=0; i<pks.length; i++ ) {
     // generate GMT
@@ -596,9 +605,11 @@ class_apply(
    for (let c=0; c<7; c++) {   // columns are 0 to 7 where 0 is sunday
     const div  = div_data[c].data[r];
     const a    = div.querySelector("a");
-    if (a===null) {return;} // did not find <a> tag, so return
+    if (a) { 
+      // found <a> tag
     const date = a.getAttribute("data-create");  // <a data-create="2024-10-27" class="pointer">+</a>
     this.class_set(div, date);
+    }
    }
   }
 }

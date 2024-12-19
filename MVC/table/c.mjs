@@ -193,7 +193,7 @@ display(        // sfc_table_class - client-side
 
   // fill in empty table
   this.statusLine();
-  this.display_data();  
+  return this.display_data();  
  // this.displayFooter()      ;
 }
 
@@ -227,7 +227,7 @@ change_page_size(  // sfc_table_class - client-side
   e  // event
   ) {
   this.change_number_lines(e.target.value );
-  this.display_data();
+  return this.display_data();
 }
 
 
@@ -280,7 +280,7 @@ displayTag(
 ) { // user selected a tags list to display
   this.tag = name;
   this.paging.row = 0;
-  this.display_data();
+  return this.display_data();
 }
 
 
@@ -317,20 +317,29 @@ searchf(
 
 display_data(){   // sfc_table_class - client-side
   // assume grid is already built, just fill it with data
+  // return true  -> there was     data to display
+  // return false -> there was not data to display
+
+  if (this.paging.row < 0 || this.tags[this.tag].length <= this.paging.row) {
+    // we have gone outside bounds of data,  nothing to display
+    return false;
+  }
 
   // fill grid with data from model
   for(let r=0; r<this.paging.lines; r++) {       // walk rows
+    // get pk or row to display
     const index = r+this.paging.row;             // index into array of pks to display
     let pk;                                      // pk is undefined
-    if (index<this.tags[this.tag].length) {
+    if (0 <= index && index<this.tags[this.tag].length) {
       // is data for next row, 
       pk = this.tags[this.tag][index];     // pk points to data we want to display
-    } else {
-      return false;// past last row
-    }
+    } /*else {
+      return false;// past last row or before
+    }*/
   
 
     for(let c=0; c<this.select.length; c++) {    // walk columns in row
+      // display columns in row
       const field_name = this.select[c];         // get field_name
       let   div =this.elements_grid[field_name].data[r];
       this.display_format(div, pk, field_name);
@@ -348,7 +357,8 @@ display_data(){   // sfc_table_class - client-side
     }
   }
 
-  this.callback?.display_data?.end.forEach( f => f( this.elements_grid ) ); // call each function in list.
+  // execute call back functions, offten used to format data eg covert 10 to $0.10 etc.
+  this.callback?.display_data?.end.forEach( f => f( this.elements_grid ) ); 
 
   // figure out maxrow
   if (this.tag === "null"  || this.tag === null) {
@@ -386,14 +396,15 @@ display_data(){   // sfc_table_class - client-side
     if ( document.getElementById("next" ) ) {document.getElementById("next").disabled = false;}
     if ( document.getElementById("last" ) ) {document.getElementById("last").disabled = false;}
   }
-  return true; // 
+
+  return true; // we displayed something
 }
 
 
 display_format( // sfc_table_class - client-side
-   element  // div tag data will be displayed in
-  ,pk   // orig field value
-  ,field_name     // column number
+   element     // div tag data will be displayed in
+  ,pk          // orig field value
+  ,field_name  // column number
 ){
   let html  = ""                              ; // default value is blank
   let align,value;                            ; // default is align left
@@ -719,25 +730,26 @@ next( // sfc_table_class - client-side
 prev( /// sfc_table_class - client-side
 ) { // previous page
   this.paging.row = this.paging.row - this.paging.lines;
+  /*
   if (this.paging.row < 0) {
     // should not be less than 0;
     this.paging.row = 0;
-  }
-  this.display_data();
+  }*/
+  return this.display_data(); // true -> there was data to display
 }
 
 
 first( /// sfc_table_class - client-side
 ){  // first page
   this.paging.row = 0;
-  this.display_data();
+  return this.display_data();
 }
 
 
 last( /// sfc_table_class - client-side
 ){  // last page
   this.paging.row = parseInt(this.paging.rowMax/this.paging.lines) * this.paging.lines;
-  this.display_data();
+  return this.display_data();
 
 
 } // end sfc_table_class - client-side //  end

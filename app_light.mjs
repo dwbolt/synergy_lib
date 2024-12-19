@@ -1,5 +1,6 @@
 // load external modules
 import {web_components } from '/_lib/web_components/web_components.mjs' ; // class that allows dynamic loading of web_components
+import {format         } from '/_lib/format/_.mjs'       ; // static class that formats data
 const {sfc_dialog    } = await import(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-dialog/_.mjs` );  
 const {sfc_login     } = await import(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-login/_.mjs`  );  
 
@@ -13,7 +14,8 @@ export class app_light { // synergy.SFCKnox.org web site
 
 constructor() {  // app_light - client side
 	// load minimal things that application needs
-
+	this.format = format;  // give other modules access to format static class
+	
 	// add one dialog and login.  Not all applications need login, but most do and it is small
 	document.body.innerHTML += "<sfc-dialog></sfc-dialog> <sfc-login></sfc-login>";
 
@@ -25,6 +27,7 @@ constructor() {  // app_light - client side
 
 	this.sfc_dialog = document.querySelector("sfc-dialog");  //
 	this.sfc_login  = document.querySelector("sfc-login" );  //
+	this.web_components = new web_components(     );  // create map
 }
 
 
