@@ -188,7 +188,7 @@ display(        // sfc_table_class - client-side
     // display full table
     this.tags.filtered = this.getModel().get_PK();
   }
-  this.paging.rowMax = this.tags.filtered.length;
+  this.paging.rowMax = this.tags.filtered.length;  // do I need to subtract 1?
   this.paging.row    = 0;
 
   // fill in empty table
@@ -413,8 +413,6 @@ display_format( // sfc_table_class - client-side
   if (value !== undefined && value !== null) {
     // there is some data, so format by type
     switch (this.model.get_field(field_name,"type") ) { 
-    case "html" :  html = value                                           ; break;
-
     case "date" :  
       const d = new Date(value[0],value[1]-1, value[2]);
       html = `${this.format.getISO(d)}`                                   ; break;
@@ -423,6 +421,7 @@ display_format( // sfc_table_class - client-side
 
     case "money"     : html = `${this.format.money(value)}`; align="right"; break;
 
+    case "text" : case "textarea" : case "html" :
     default          : html = value                           ; break;
     }
   }
@@ -748,7 +747,8 @@ first( /// sfc_table_class - client-side
 
 last( /// sfc_table_class - client-side
 ){  // last page
-  this.paging.row = parseInt(this.paging.rowMax/this.paging.lines) * this.paging.lines;
+ // this.paging.row = parseInt(this.paging.rowMax/this.paging.lines) * this.paging.lines;
+  this.paging.row = parseInt((this.paging.rowMax-1)/this.paging.lines) * this.paging.lines;
   return this.display_data();
 
 
