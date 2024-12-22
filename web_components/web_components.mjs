@@ -37,6 +37,8 @@ constructor() {  // web_components - client side
 async check(  // web_components - client side
 	dom // check for any unload web componets is dom section
 ){
+	if (dom.querySelectorAll === undefined) return;  // feels like there should be a better way to prevent error
+
 	const elements = dom.querySelectorAll('*');
 	for(let i=0; i<elements.length; i++) {
 		const node      = elements[i];
@@ -62,7 +64,7 @@ async observe(mutaions) {  // web_components - client side
 		for(let ii=0; ii<nodes.length; ii++) {
 			// custom component not loaded
 			const node = nodes[ii];
-			await this.load(node);
+			await this.check(node);
 		}
 	}
 }

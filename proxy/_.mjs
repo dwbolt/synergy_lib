@@ -194,10 +194,13 @@ static async getText(url) {   // proxyClass - client - side
         let t = await  f.text();
         return t;
       } else {
-        alert(`proxyClass.getText error: url = ${url}  status = ${f.status}`);
+        //alert(`proxyClass.getText error: url = ${url}  status = ${f.status}`);
+        app.sfc_dialog.show_error( `url=${url}   <br>status= ${f.status}` );
       }
     } catch (e) {
-      alert("getText" + e);
+      app.sfc_dialog.show_error( `url=${url}   <br>error= ${e}` );
+      //alert("getText" + e);
+
     }
 }
 
