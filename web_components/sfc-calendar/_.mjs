@@ -542,9 +542,9 @@ calendar_create(  // calendar_class  client-side
       let add="";
       if ( this.login_status) {
         // user calendar, so allow adding new event
-        add =`<a data-create="${app.format.getISO(start)}" class="pointer">+</a><br>`
+        add =`<a class="pointer">+</a><br>`
       }
-      let html = `<b>${m}-${d} ${add}</b><br>`;
+      let html = `<b data-create="${app.format.getISO(start)}">${m}-${d} ${add}</b><br>`;
 
       // loop for all events for day [m][d]
       let eventList = this.events[m][d].pks.sort(this.sort.bind(this));   // list of pks
@@ -604,7 +604,7 @@ class_apply(
   for(let r=0; r<rows; r++) {
    for (let c=0; c<7; c++) {   // columns are 0 to 7 where 0 is sunday
     const div  = div_data[c].data[r];
-    const a    = div.querySelector("a");
+    const a    = div.querySelector("b");  // is the first element for event data
     if (a) { 
       // found <a> tag
     const date = a.getAttribute("data-create");  // <a data-create="2024-10-27" class="pointer">+</a>
