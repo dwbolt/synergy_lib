@@ -123,7 +123,7 @@ event_display(  // calendar_class - client-side
   let link = "",description="";
 
   if (event.url !== undefined) {
-    link = `<a href="${event.url}" target="_blank">More Info</a>`
+    link = `<a href="${event.url}" onclick="app.sfc_dialog.close()" target="_blank">More Info</a> <br>will show in new window/tab <br>will close dialog`
   }
   if (event.description !== undefined) {
     description = event.description;

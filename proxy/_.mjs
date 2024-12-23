@@ -123,9 +123,17 @@ static async RESTdelete(   // proxyClass - client - side
 ///////////////////////////////----------------------  replace these with rest api
 
 static async postJSON(   // proxyClass - client - side
-   json // json messege to send
+   json // json messege to send, 
   ,url = window.location.href // server, default to current server
 ) {
+  let body;
+
+  if (typeof(json) === "string") {
+    body = json;  // json has already been convert to string
+  } else {
+    body = JSON.stringify(json);  // still a json object, so convert to string, will only work if all nodes elemnts like number, string, boolen, array
+  }
+
   // Default options are marked with *
   const response = await fetch(url, {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
