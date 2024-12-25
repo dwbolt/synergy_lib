@@ -92,7 +92,7 @@ async show_login(     // sfc_login - client side
 ){
 	this.set("body",`
 <p>
-The login feature is in beta testing.  We hope to make it production by the end of 2024.
+The login feature is in beta testing.  We hope to make it production in the first quarter of 2025.
 </p>
 
 <p id="form"></p>

@@ -66,8 +66,8 @@ async url_copy(   // appClass - client side
 help = undefined
 ){
 	if (help) {
-		app.sfc_dialog.set("title",`<b>What the "Share Page" menu selction does</b>`);
-		app.sfc_dialog.set("body",`<p>The url for the internal web page is shown in the URL area.  It is also copied to your clipboard.  Now if want to past the link into an email or other document you can.</p> <p>You will notice as you change pages the URL does not change.  This is becase the site is written as Single Page App (SPA).  The advantage is the is is faster since only the things that change are loaded and cached.  You will also notice that when you revisit a page it will load faster.  This is because data is cashed and your browser does not need to goto the server.</p>`);
+		app.sfc_dialog.set("title",`<b>Share Page</b>`);
+		app.sfc_dialog.set("body",`<p>The internal URL is shown in the URL area and is also copied to your clipboard.  You can now paste the link into an email or other document.</p> <p>You will notice as you change pages the URL does not change.  This is becase the site is written as Single Page App (SPA).  This creates faster page loads since only changes are loaded and cached.  You will also notice that when you revisit a page it will load faster than the first time you visited the page.</p>`);
 		app.sfc_dialog.show_modal();
 		return;
 	}

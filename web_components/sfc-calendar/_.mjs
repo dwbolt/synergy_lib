@@ -98,11 +98,15 @@ year // to display calander for
 
 click(event){// calendar_class - client-side
   // user clicked inside the table, see if they clicke on a link
-  let data;
+  let data,data_parent;
   let data_list = ["data-create","data-event_id","data-edit"];
   for(let i=0; i<data_list.length; i++) {
     let attribute=data_list[i];
-    data = event.target.getAttribute(attribute);
+    data        = event.target.getAttribute(attribute);
+    data_parent = event.target.parentElement.getAttribute(attribute);
+    if (data === null) {
+      data = data_parent;  // event_create was moved to parent element
+    }
     if (data !== null) {
       switch (attribute) {
       case "data-create"  : this.edit.event_create(data); break;

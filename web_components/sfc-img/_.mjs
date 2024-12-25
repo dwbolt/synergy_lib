@@ -7,45 +7,70 @@ constructor() {  // sfc_dialog - client side
 	// add content to shadow dom
 	
 	if (this.innerHTML==="") {
-		// show defaul img
+		// let user know that an image was specifted
 		this.shadow.innerHTML =  `
 		<div style="float:right;width:320px; height:200px;">
 		Image not specified
 		</div>
 		   `
 	} else {
-		this.key  = this.innerHTML;  // used to access detailed info on pictures
-		const obj = app.page_json["sfc-img"][this.key];
-
-
-		let next,previous;
-		if (obj.length === 1) {
-			// only one picture, no need for next previous buttons;
-			next     = "";
-			previous = "";
-		} else {
-			next     = "<button>Next</button>";
-			previous = "<button>Previous</button>";
-		}
-
-		let url  = import.meta.url;   // chage it to url for css
-		url = url.slice(0, url.length-3) + "css"
-
-		this.shadow.innerHTML =  `
-		<link rel="stylesheet" href="${url}" />
-		<div>
-		<img id="img" src="${obj[0][0]}"><br/>
-		${previous} ${obj[0][1]} ${next}
-		</div>`
+		this.key     = this.innerHTML;  // used to access detailed info on pictures
+		this.obj     = app.page_json["sfc-img"][this.key];
+		this.picture = 0;
+		this.image_set();
+		this.shadow.addEventListener('click', this.event_click.bind(this));
 	}
-
-//  this.shadow.getElementById('close').addEventListener('click', this.close.bind(this));
-//	this.dialog = this.shadow.getElementById('dialog');
 }
 
 
-connectedCallback() { // sfc_dialog - client side
-	// create a shadow dom                           
+image_set() {
+	let buttons;
+	if (this.obj.length === 1) {
+		// only one picture, no need for next previous buttons;
+		buttons = ""
+	} else {
+		buttons = `<button> < </button> ${this.picture+1}/${this.obj.length} <button> > </button>`;
+	}
+	
+	let url  = import.meta.url;   // chage it to url for css
+	url = url.slice(0, url.length-3) + "css"
+	
+	this.shadow.innerHTML =  `
+	<link rel="stylesheet" href="${url}" />
+	<div>
+	<img id="img" src="${this.obj[this.picture][0]}"><br/>
+	       ${this.obj[this.picture][1]} ${buttons}
+	</div>`
+	
+
+}
+
+
+event_click(event) { // sfc_dialog - client side
+	// process next, prev button
+	const button = event.target.innerText.toLowerCase();
+	switch (button) {
+		case ">":
+			this.picture++;                            // goto next picture
+			if (this.obj.length <= this.picture) {
+				// index too big so wrap
+				this.picture = 0;
+			}
+			this.image_set();
+			break;
+	
+		case "<":
+			this.picture--;                            // goto next picture
+			if (this.picture<0) {
+				// index too small so wrap to last picture
+				this.picture = this.obj.length -1;
+			}
+			this.image_set();
+			break;
+
+		default:
+			break;
+	}       
 }
 
 
