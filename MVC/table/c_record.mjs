@@ -382,8 +382,10 @@ cancel(){ // client side sfc_record_class - for a page
 }
 
 
-recordDuplicate(){// client side sfc_record_class - for a page
-  alert("recordDuplicate from memery, not implemented yet")
+duplicate(){// client side sfc_record_class - for a page
+  // new record, copy values from existing record. add a new record with same values expect pk, enter edit mode
+  this.new();
+  debugger;  // now init 
 }
 
 
