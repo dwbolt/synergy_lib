@@ -868,11 +868,10 @@ header_set() {   // table_class - client-side
   for(let i=0; i<select.length; i++) {
     let field = fields[select[i]];
     if (field === undefined) {
-      alert(`file="table_module.js"
-method="header_set"
+      app.sfc_dialog.show_error( `
 select[i] = "${select[i]}"
-this.dir="${this.dir}"
-msg="select field does not exist in field meta data"`)
+this.dir  = "${this.dir}"
+msg       = "select field does not exist in field meta data"`);
     } else {
       this.meta.header.push(field.header); 
     }

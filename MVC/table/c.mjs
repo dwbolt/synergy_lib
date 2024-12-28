@@ -747,7 +747,6 @@ first( /// sfc_table_class - client-side
 
 last( /// sfc_table_class - client-side
 ){  // last page
- // this.paging.row = parseInt(this.paging.rowMax/this.paging.lines) * this.paging.lines;
   this.paging.row = parseInt((this.paging.rowMax-1)/this.paging.lines) * this.paging.lines;
   return this.display_data();
 

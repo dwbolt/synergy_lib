@@ -384,8 +384,20 @@ cancel(){ // client side sfc_record_class - for a page
 
 duplicate(){// client side sfc_record_class - for a page
   // new record, copy values from existing record. add a new record with same values expect pk, enter edit mode
+  
+  
+  const dup    = this.table.get_object(this.#primary_key_value); // get values of record to duplicate
+
+  const fields = Object.keys(dup);                               // get array of field_names
   this.new();
-  debugger;  // now init 
+
+  for(let i=0; i<fields.length;  i++){
+    const field_name = fields[i];
+    if ( ["pk","_relations"].find( (element) => element === field_name ) === undefined) {  
+      // skip dup for pk,  need to change pk to a meta data field _pk.  then just not dup any meta data
+      this.shadow.getElementById(field_name).value = dup[field_name];  // copy value
+    }
+  }
 }
 
 

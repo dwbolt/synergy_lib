@@ -4,7 +4,10 @@
   }
   
   dialog {
-	max-width: 500px;
-	border-radius: 10px;
-	z-index: 10;
+  resize: both;      /* allow user to resize dialog*/
+  width: 50rem;      /* default to abe about 50 charagers wide */
+  overflow: auto;    /* ?? */
+
+	border-radius: 10px;  /* round corners*/
+	z-index: 10;          /* should make dialog be on top and visible*/
   }
