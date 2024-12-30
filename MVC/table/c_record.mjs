@@ -117,8 +117,8 @@ show(  // client side sfc_record_class - for a page
     this.table_viewer.display_format(this.value[i], this.#primary_key_value, select[i]);
   }
 
-  if (this.show_custom) {
-    this.show_custom(this);
+  for (let i=0; i<this.show_custom.length; i++) {
+    this.show_custom[i](this);   // process custom code
   }
 }
 

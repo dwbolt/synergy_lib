@@ -146,20 +146,10 @@ record_show(  // sfc_table_class - client-side
 
       event.target.setAttribute("class","link selected");   // add selected class to what the user clicked on
       this.record_sfc.table_set(this.model);  
-      debugger
       this.record_sfc.show(data);                           // get sfc-record accociated with table & dislay record clicked on
-      //if (this.record_show_custom) this.record_show_custom(event); 
-      //app.pages.sfc_record_relations.show(); // this will cause buggs, 
   } 
 }
 
-/*
-record_show_custom(event) {
-   if (this.relations) {
-      this.relations.show(this.record_sfc);
-   }
-}
-*/
 
 delete_row(   // sfc_table_class - client-side
   key
