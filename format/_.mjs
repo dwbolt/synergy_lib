@@ -180,6 +180,14 @@ static getDaysOfWeek(
   return str.slice(2);  // trim leading ", "
 }
 
+static undefined_2_blank(value){
+  if (value === undefined || value === null) {
+    return ""
+  } else {
+    return value;
+  }
+}
+
 
 static obj2string( // formatClass - client-side
   obj,level=0  // to convert to string with each attribute on a newline - will make debugging saved json easy to read, each new attribute is on a seperate line, with intetion

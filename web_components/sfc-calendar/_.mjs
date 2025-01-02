@@ -233,23 +233,29 @@ next( // calendar_class - client-side
 }
 
 
-prev( // calendar_class - client-side
-) { //next page
-  // next (day, weeks, month, year)
-  const selected  = this.table_view.shadow.getElementById("months");  // where the user selects day, weeks, year, a month
+async prev( // calendar_class - client-sides
+) {
+  let selected  = this.table_view.shadow.getElementById("months");  // where the user selects day, weeks, year, a month
   const time_unit = selected.value;
   switch (time_unit) {
     case "weeks":
       if (this.table_view.prev() === false) {
-        // at start of year, so goto prevous year
-        this.main(--this.year);
+        const rows_per_page = parseInt(this.table_view.shadow.getElementById("rows_per_page").value);  // move value to new year
+        await this.main(--this.year); // at start of year, so goto prevous year
+        this.table_view.shadow.getElementById("rows_per_page").value = rows_per_page;
+        this.table_view.paging.row  = this.table.meta.PK_max -  rows_per_page + 1 ;
+        this.table_view.display_data();  // now display last weeks
       }
       break;
   
     default:
       // assume month, move to previous  month
       if (this.month_chosen(-1)=== false) {
-        this.main(--this.year);
+        // moving previous year faild, so move to previous year
+        await this.main(--this.year);  // move to previous year
+        selected  = this.table_view.shadow.getElementById("months");
+        selected.value = "11"; // change value to december
+        selected.dispatchEvent( new Event("change") );  // simulate user 
       }
       break;
   }
@@ -268,6 +274,10 @@ month_chosen(  // calendar_class  client-side
 
   if (typeof(change) === "number") {
     selected.selectedIndex += change;
+    if ( selected.selectedIndex < 1 || 12 < selected.selectedIndex) {
+      // outside of year, so return false;
+      return false;
+    }
   }
 
   const month     = parseInt(selected.value);
