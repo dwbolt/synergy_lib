@@ -1,13 +1,13 @@
 const {table_views    } = await app.load("MVC/table/c_views.mjs"); 
 
-export class sfc_table_class  extends HTMLElement { // sfc_table_class - client-side 
+export class sfc_table  extends HTMLElement { // sfc_table - client-side 
 
 /*
 <sfc-table><sfc-table>  - table viewer web component - has aspects of controler & viewer, looking at splitting and refactor
 */
 
 
-constructor(   // sfc_table_class - client-side
+constructor(   // sfc_table - client-side
   // constructor is called when the element is displayed
 ) {
 	super();  // call parent constructor HTMLElement
@@ -27,8 +27,6 @@ constructor(   // sfc_table_class - client-side
 
   this.tag         = null;  // name of tag to display if null, display entire table
   this.tags        = {}     // each attribute contains a list of indexes into this.model.json.rows these are a subset of the table rows
-
-  this.selected    = [];    // not sure this is still used, list of rows the user has selected for, (delete, copy, edit, make list)
 
   this.paging        = {}     // store paging states
   this.paging.lines  = 10;    // number of lines per page
@@ -64,7 +62,7 @@ import(`${app.lib}/format/_.mjs`).then(({ format }) => {this.format = format;})
 }
 
 
-init(  // sfc_table_class - client-sid
+init(  // sfc_table - client-sid
 ){
   this.views  = this.shadow.getElementById('views');
   this.shadow.getElementById('table').addEventListener('click', this.record_show.bind(this) );
@@ -133,7 +131,7 @@ async css_add(path) { // calendar_class  client-side
 }
 
 
-record_show(  // sfc_table_class - client-side
+record_show(  // sfc_table - client-side
   event
 ){
   const data = event.target.getAttribute("data-pk");   // get pk of record to dislplay
@@ -151,7 +149,7 @@ record_show(  // sfc_table_class - client-side
 }
 
 
-delete_row(   // sfc_table_class - client-side
+delete_row(   // sfc_table - client-side
   key
 ) {
   this.getModel().delete_row(key);
@@ -159,14 +157,14 @@ delete_row(   // sfc_table_class - client-side
 }
 
 
-set_hidden(  // sfc_table_class - client-side
+set_hidden(  // sfc_table - client-side
   value  // true -> hide; false -> show
   ){
   this.shadow.hidden = value;
 }
 
 
-display(        // sfc_table_class - client-side
+display(        // sfc_table - client-side
   // display table - for first time
   rowArray // optional rowarray, display if passed
 ) {
@@ -190,7 +188,7 @@ display(        // sfc_table_class - client-side
 }
 
 
-display_intersection(  // sfc_table_class - client-side 
+display_intersection(  // sfc_table - client-side 
 ){
   const DOM    = document.getElementById(`${this.DOMid}__intersection`);  // get DOM to fill with select values
   const fields = this.groupby_fields.selected();                          // fields to intersect search
@@ -215,7 +213,7 @@ display_intersection(  // sfc_table_class - client-side
 }
 
 
-change_page_size(  // sfc_table_class - client-side
+change_page_size(  // sfc_table - client-side
   e  // event
   ) {
   this.change_number_lines(e.target.value );
@@ -250,7 +248,7 @@ rows_displayed(
 }
 
 
-// sfc_table_class - client-side
+// sfc_table - client-side
 setStatusLineData(   value) {this.statusLineData      = value;}
 setSearchVisible(    value) {this.searchVisible       = value;}
 setLineNumberVisible(value) {this.line_number_visible = value;}
@@ -258,7 +256,7 @@ setRowNumberVisible( value) {this.rowNumberVisible    = value;}
 setFooter(           value) {this.footer              = value;}
 
 
-displayTagSelected( // sfc_table_class - client-side
+displayTagSelected( // sfc_table - client-side
   // user slected a tag to display
   e  // points to dropdown holding tags for table
 ) { // user selected a tags list to display
@@ -266,7 +264,7 @@ displayTagSelected( // sfc_table_class - client-side
 }
 
 
-// sfc_table_class - client-side
+// sfc_table - client-side
 displayTag(
   name  // points to dropdown holding tags for table
 ) { // user selected a tags list to display
@@ -307,7 +305,7 @@ searchf(
 }
 
 
-display_data(){   // sfc_table_class - client-side
+display_data(){   // sfc_table - client-side
   // assume grid is already built, just fill it with data
   // return true  -> there was     data to display
   // return false -> there was not data to display
@@ -393,36 +391,43 @@ display_data(){   // sfc_table_class - client-side
 }
 
 
-display_format( // sfc_table_class - client-side
+display_format( // sfc_table - client-side
    element     // div tag data will be displayed in
-  ,pk          // orig field value
+  ,pk          // orig field value, if undifined assume header, do not replace value
   ,field_name  // column number
 ){
   let html  = ""                              ; // default value is blank
+
   let align,value;                            ; // default is align left
   value = this.model.get_value(pk,field_name ); // get value from table 
-
-  if (value !== undefined && value !== null) {
-    // there is some data, so format by type
-    switch (this.model.get_field(field_name,"type") ) { 
-    case "date" :  
-      const d = new Date(value[0],value[1]-1, value[2]);
-      html = `${this.format.getISO(d)}`                                   ; break;
-
-    case "integer": case "float": case "pk": html = value; align="right"; break;
-
-    case "money"     : html = `${this.format.money(value)}`; align="right"; break;
-
-    case "text" : case "textarea" : case "html" :
-    default          : html = value                           ; break;
-    }
+  if (value === undefined || value === null) {
+    value = "";
   }
-  element.innerHTML           = html ; // display transfored value
+
+  // there is some data, so format by type
+  switch (this.model.get_field(field_name,"type") ) { 
+  case "date" :  
+    const d = new Date(value[0],value[1]-1, value[2]);
+    html = `${this.format.getISO(d)}`                                   ; break;
+
+  case "integer": case "float": case "pk": html = value; align="right"; break;
+
+  case "money"     : html = `${this.format.money(value)}`; align="right"; break;
+
+  case "text" : case "textarea" : case "html" :
+  default          : html = value                           ; break;
+  }
+
+  if (pk !== undefined) {
+    // assume we are formating rather than data rather than header
+    element.innerHTML           = html ; // display transfored value
+  }
+
   element.style["text-align"] = align; // asssume set to "right" or undefined -> left
 }
 
 
-genTags(){ // sfc_table_class - client-side
+genTags(){ // sfc_table - client-side
   // delisplay the tags so user can choose which to view
   let options="";
   Object.keys(this.tags).forEach((item, i) => {
@@ -436,7 +441,7 @@ ${options}
 }
 
 
-statusLine(   // sfc_table_class - client-side
+statusLine(   // sfc_table - client-side
 ){
   let html = "";
   const e_l = [];
@@ -498,7 +503,7 @@ statusLine(   // sfc_table_class - client-side
 }
 
 
-views_toggle() {  // sfc_table_class - client-side
+views_toggle() {  // sfc_table - client-side
   if (this.views.style.display === "none") {
     this.views.style.display  = "flex";
   } else { 
@@ -507,7 +512,7 @@ views_toggle() {  // sfc_table_class - client-side
 }
 
 
-// sfc_table_class - client-side  --- deprecate
+// sfc_table - client-side  --- deprecate
 setModel( // let class know what data it will be displaying/using
   db      // database object that table is in
   ,name   // name of table
@@ -549,8 +554,11 @@ this.elements_grid    = {  // is rebuilt when web component is attached to new m
   const line = (this.line_number_visible ? 1 : 0 ); 
   if (start_over) {
     this.elements_grid   = {};  // wipe out existing grid
-    this.select = [];  
-    this.select = this.select.concat( this.model.meta_get("select") ); // protection of select array should happen in model
+    if (this.select.length === 0) {
+      // get default field selection from model
+      this.select = this.select.concat( this.model.meta_get("select") ); // protection of select array should happen in model
+    }
+
     let width = "";
     if  (this.line_number_visible) {
       width += "50px "
@@ -607,6 +615,7 @@ this.elements_grid    = {  // is rebuilt when web component is attached to new m
     for (c=0; c<this.select.length; c++) {
       field_name = this.select[c];
       div = this.elements_grid[field_name].header ;
+      this.display_format(div,undefined,field_name);
       if (field_name === "pk") {
         div.style["text-align"]  = "right";
       }
@@ -681,7 +690,7 @@ call stack=${Error().stack}
 
 
 
-genRows( // sfc_table_class - client-side
+genRows( // sfc_table - client-side
 // creating text file to save
 ) {
   let txt="";
@@ -696,7 +705,7 @@ genRows( // sfc_table_class - client-side
 }
 
 
-field(  // sfc_table_class - client-side
+field(  // sfc_table - client-side
   fieldA  // create the field attribute from the fieldA
   ) {
   if (fieldA) {
@@ -711,14 +720,14 @@ field(  // sfc_table_class - client-side
 }
 
 
-next( // sfc_table_class - client-side
+next( // sfc_table - client-side
 ) { //next page
   this.paging.row = this.paging.row + this.paging.lines;
   return this.display_data();
 }
 
 
-prev( /// sfc_table_class - client-side
+prev( /// sfc_table - client-side
 ) { // previous page
   this.paging.row = this.paging.row - this.paging.lines;
   /*
@@ -730,30 +739,30 @@ prev( /// sfc_table_class - client-side
 }
 
 
-first( /// sfc_table_class - client-side
+first( /// sfc_table - client-side
 ){  // first page
   this.paging.row = 0;
   return this.display_data();
 }
 
 
-last( /// sfc_table_class - client-side
+last( /// sfc_table - client-side
 ){  // last page
   this.paging.row = parseInt((this.paging.rowMax-1)/this.paging.lines) * this.paging.lines;
   return this.display_data();
 
 
-} // end sfc_table_class - client-side //  end
+} // end sfc_table - client-side //  end
 
 
 } // end class
 
 
-customElements.define("sfc-table", sfc_table_class); // tie class to custom web component
+customElements.define("sfc-table", sfc_table); // tie class to custom web component
 
 
 /*  do not think this is used
-setJSON(  // sfc_table_class - client-side
+setJSON(  // sfc_table - client-side
   j
   ) {
   // replace place holder of new table with data from loaded file
@@ -765,7 +774,7 @@ setJSON(  // sfc_table_class - client-side
 
 
 /*
-setDom( // sfc_table_class - client-side
+setDom( // sfc_table - client-side
   // this is used in the display() method
   element //  2022-04-16 need more doc, not sure this is still used
   ,value  //
@@ -775,7 +784,7 @@ setDom( // sfc_table_class - client-side
 */
 
 /*
-unique( // sfc_table_class - client-side
+unique( // sfc_table - client-side
   // return all the unique values in a table for the given field
   s_field
   ) {
@@ -793,7 +802,7 @@ unique( // sfc_table_class - client-side
   */
 
 /*
-total( // sfc_table_class - client-side
+total( // sfc_table - client-side
   // add error checking for non-numbers
   col  // column to total
 ) {
@@ -806,7 +815,7 @@ total( // sfc_table_class - client-side
   } else if (typeof(col) === "string") {
     f = this.model.json.field[col];
   } else {
-    alert(`error in: sfc_table_class.total(), col=${col}`);
+    alert(`error in: sfc_table.total(), col=${col}`);
   }
 
   // decide if entire table will be totaled or list of rows
@@ -826,7 +835,7 @@ total( // sfc_table_class - client-side
 }
 
 
-f(  // sfc_table_class - client-side
+f(  // sfc_table - client-side
   fieldName
   ) {
   return this.model.json.field[fieldName];
@@ -836,7 +845,7 @@ f(  // sfc_table_class - client-side
 
 /*
 
-displayFooter(){  // sfc_table_class - client-side
+displayFooter(){  // sfc_table - client-side
   // put agg functions here
   // add empty columns for lineNum and rowNum if they are being displayed
   let html    = "";
@@ -864,7 +873,7 @@ displayFooter(){  // sfc_table_class - client-side
 }
 
 
-groupBy_toggle(// sfc_table_class - client-side
+groupBy_toggle(// sfc_table - client-side
 ){
   // toggle group_by_div
   const div = document.getElementById("group_by");
@@ -872,7 +881,7 @@ groupBy_toggle(// sfc_table_class - client-side
 }
 
 
-getTableDom(// sfc_table_class - client-side
+getTableDom(// sfc_table - client-side
 ){
   const e=document.getElementById(this.DOMid);     // dom element where table is displayed
   const table =     e.children[0]; // should be table - brittle code
