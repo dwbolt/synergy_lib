@@ -320,7 +320,7 @@ createDate(  // calendar_class  client-side
         year = this.year;
       }
       return new Date(year   ,event.repeat_end_date[1]-1  , event.repeat_end_date[2]  , event.repeat_end_date[3]+ parseInt(timeDuration[0]) 
-      , event.repeat_end_date[4] - offset + parseInt(timeDuration[1]) );
+      , event.repeat_end_date[4] - offset + parseInt(parseInt(timeDuration[0][1]) );
     }
     break;
 
@@ -425,11 +425,24 @@ one_add(  // calendar_class  client-side
 weekly_add( // calendar_class  client-side
   event  // event
 ) {
+  if (this.year < event.dateStart[0] ) {
+    // this event starts after this.year so nothing to do
+    return;
+  }
+
   // walk the daysOffset, first entry should be 0;  we assume
   // repeat_details [0->sunday,2->tuesday ...] document structure ?
   const gmt = this.GMT[event.pk];
+  let date;
   event.repeat_details.forEach((day,i) => {  // walk each day in the week we are repeating
-    let date =  new Date(this.year, gmt.start.getMonth(), gmt.start.getDate(),gmt.start.getHours(),gmt.start.getMinutes());  // create a copy of start date, for caleneder year
+    if (event.dateStart[0] === this.year) {
+      // event starts in this year
+      date =  new Date(this.year, gmt.start.getMonth(), gmt.start.getDate(),gmt.start.getHours(),gmt.start.getMinutes());  // create a copy of start date, for caleneder year
+    } else {
+      // event started in previous year, so start january 1, 
+      date =  new Date(this.year, 0, 1, gmt.start.getHours(),gmt.start.getMinutes());  // create a copy of start date, for caleneder year
+    }
+
     if (day < date.getDay()) {
       date.setDate(date.getDate() + 7 - date.getDay());   // add days to date to get to Sunday
     }
