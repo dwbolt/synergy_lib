@@ -319,8 +319,8 @@ createDate(  // calendar_class  client-side
     // for some reason JSON.strigify([,1])  -> "[null,1]"
         year = this.year;
       }
-      return new Date(year   ,event.repeat_end_date[1]-1  , event.repeat_end_date[2]  , event.repeat_end_date[3]+ parseInt(timeDuration[0]) 
-      , event.repeat_end_date[4] - offset + parseInt(parseInt(timeDuration[0][1]) );
+      return new Date(year ,event.repeat_end_date[1]-1, event.repeat_end_date[2], event.repeat_end_date[3]+ parseInt(timeDuration[0])
+      ,event.repeat_end_date[4] - offset + parseInt(timeDuration[0][1]) );
     }
     break;
 

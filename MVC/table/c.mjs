@@ -407,8 +407,12 @@ display_format( // sfc_table - client-side
   // there is some data, so format by type
   switch (this.model.get_field(field_name,"type") ) { 
   case "date" :  
-    const d = new Date(value[0],value[1]-1, value[2]);
-    html = `${this.format.getISO(d)}`                                   ; break;
+    if (3 <= value.length) {
+      // refactor code, assume format header
+      const d = new Date(value[0],value[1]-1, value[2]);
+      html = `${this.format.getISO(d)}`     
+    }
+   ; break;
 
   case "integer": case "float": case "pk": html = value; align="right"; break;
 
