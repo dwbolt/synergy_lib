@@ -545,15 +545,13 @@ async create(  // table_class - client-side
   name,      // name of table
   meta_name  // name of structure
   ) {
-
+debugger
   // get temple meta of table
   let url       = `/_lib/db/tables_meta/${meta_name}.json`;
   let msg = await proxy.RESTget(url);
   if (!msg.ok) {
-    alert(`file="table_module.js"
-method="create"
-url="${url}"
-RESTget failed`);
+    app.sfc_dialog.show_error(`create of table "${name}" failed.  could not find url="${url}"`);
+    debugger;
     return;
   }
 
@@ -561,11 +559,8 @@ RESTget failed`);
   this.meta = JSON.parse(msg.value);                       
   msg = await proxy.RESTpost(msg.value, this.url_meta);
   if (!msg.success) {
-    alert(`file="table_module.js"
-method="create"
-this.url_meta="${this.url}"
-RESTpost failed`
-);
+    app.sfc_dialog.show_error(`create of table "${name}" failed.  could not save url="${this.url_meta}"`);
+    debugger;
   }
 
   return msg;
