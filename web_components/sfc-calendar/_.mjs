@@ -53,13 +53,24 @@ async init() {  // calendar_class  client-side
     this.edit = new calendar_edit_class(this)                   ; // class uses popup in table web component
   } else if (msg.status === 404) {
     // user calendar database not found, give user the option to creat it
-    alert("do you want to create table")
-
+    app.sfc_dialog.set("title","<b>Calendar database not found</b>");
+    app.sfc_dialog.set("body",`trying to load ${this.table_urls[0]}<br> for user: ${app.sfc_login.user_display()}`);
+    app.sfc_dialog.set("buttons",`<button id="create">Create Calendar Table</button>`);
+    app.sfc_dialog.addEventListener("create",'click', this.database_relations_start.bind(this));
+    app.sfc_dialog.show_modal();
+    debugger;
+    return;
   } else {
     // error not handled, load method should have done alert
+    app.sfc_dialog.show_error(`tried to load calendar at: ${this.table_urls[0]}<br> msg.status=${msg.status}<br>`);
+    debugger;
+    return;
   }
   await  app.web_components.check(this.shadow);  // add web componengs
   this.table_view.callback_add("display_data","end", this.class_apply.bind(this) );   // set class of each day after display
+
+  // capture click events in the table div
+  this.table_view.shadow.getElementById("table").addEventListener("click" , this.click.bind(this));
 }
 
 
@@ -90,9 +101,6 @@ year // to display calander for
     // display calendar
     this.calendar_display();
   }
-
-  // add capther click events in the table div
-  this.table_view.shadow.getElementById("table").addEventListener("click" , this.click.bind(this));
 }
 
 
@@ -320,7 +328,7 @@ createDate(  // calendar_class  client-side
         year = this.year;
       }
       return new Date(year ,event.repeat_end_date[1]-1, event.repeat_end_date[2], event.repeat_end_date[3]+ parseInt(timeDuration[0])
-      ,event.repeat_end_date[4] - offset + parseInt(timeDuration[0][1]) );
+      ,event.repeat_end_date[4] - offset + parseInt(timeDuration[1]) );
     }
     break;
 
@@ -464,16 +472,21 @@ weekly_add( // calendar_class  client-side
 }
 
 
-monthly_add (  // calendar_class  client-side
+monthly_add(  // calendar_class  client-side
 event // event record from calendar table
 ) {            // year, month, day, hour, minue, seconds, millisec
   const year_start = new Date(this.year, 0, 1, 0, 0 ,0 ,0);  // start of year we are creating calendar for
   const year_end   = new Date(new Date(this.year+1,0)-1  );  // end of the year of the callander we are displaying
-  if (this.GMT[event.pk].end < year_start    ) {return    ;} // event ended before start of year, event not part of this.year calendar
-  if (year_end < this.GMT[event.pk].row_start) {return    ;} // event starts after this year    , event not part of this.year calendar     
+  if (this.GMT[event.pk].repeat_end < year_start) {return    ;} // event ended before start of year, event not part of this.year calendar
+  if (year_end  <   this.GMT[event.pk].row_start) {return    ;} // event starts after this year    , event not part of this.year calendar     
 
   // event has some days in this year
-  const event_start = this.GMT[event.pk].start;
+  let event_start = this.GMT[event.pk].start;
+  while (event_start.getFullYear() < year_start.getFullYear()) {
+    event_start = new Date(event_start.getFullYear(), event_start.getMonth()+ event.repeat_inc, event_start.getDate(), event_start.getHours(), event_start.getMinutes()); 
+    // add  event.repeat_inc until we get into current year
+  }
+
   // walk to months to the end of the year
   for ( let months = 0; months<12; months++) {
     const month_start =          new Date(this.year, months  , 1)    ; // start of month
