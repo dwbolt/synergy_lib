@@ -197,7 +197,7 @@ display_intersection(  // sfc_table - client-side
 
   for (var i=0; i<  fields.length; i++) {
     // add selection and file with values
-    html += `<input  id="${this.DOMid}_${f[i]}_search” type=“text” onchange="alert('change')"><br>`;
+    html += `<input  id="${this.DOMid}_${f[i]}_search” type=“text” onchange="app.sfc_dialog.show_error('change')"><br>`;
     html += `<div id="${this.DOMid}_${fields[i]}" style="display:grid; grid-template-columns:100px 600px;">`
     html += `<div><b>Count</b></div><div><b>${fields[i]}</b></div>` // header
     let unique_values = this.model.get_unique_values(fields[i]);
@@ -680,18 +680,13 @@ column_add(field_name) {
 }
 
 
-getModel(){
+getModel(){  // sfc_table - client-side
   if (this.model) {
     return this.model;// will be table class
   } else {
-alert(`
-this.model=${this.model}
-
-call stack=${Error().stack}
-`);
+    app.sfc_dialog.show_error(`case not handled<br> ${typeof(this.model)}`);
   }
 }  
-
 
 
 genRows( // sfc_table - client-side
@@ -819,7 +814,7 @@ total( // sfc_table - client-side
   } else if (typeof(col) === "string") {
     f = this.model.json.field[col];
   } else {
-    alert(`error in: sfc_table.total(), col=${col}`);
+    app.sfc_dialog.show_error(`error in: sfc_table.total(), col=${col}`);
   }
 
   // decide if entire table will be totaled or list of rows

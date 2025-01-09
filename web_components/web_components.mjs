@@ -95,7 +95,7 @@ async load(  // web_components - client side
 		// try to import web component
 		await import(path);
 	} catch(err){
-		alert(`error importing ${tag_name}  error=${err}`);
+		app.sfc_dialog.show_error(`error importing<br> path="${path}"  error=${err}`);
 	}
 }
 	

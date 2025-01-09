@@ -17,6 +17,7 @@ static weekNumber(   // formatClass - client-side
     return str[number-1];
 }
 
+
 static padZero(    // formatClass - client-side
    number  // number to convert to string with leading zeros
   ,length  // total length of string
@@ -26,14 +27,8 @@ static padZero(    // formatClass - client-side
   if (typeof(number) === "number") {
     str   = number.toString();
   } else {
-    alert(`
-file="_.mjs"
-method="padZero"
-typeof(number) ="${typeof(number)}"
-number=${number}
-errow, nember should be of type number
-      `)
-      str="0";  // 
+    app.sfc_dialog.show_error( `number should be of type number<br> typeof(number): "${typeof(number)}"` );
+    str="0";  // create default value;
   }
 
   while (str.length<length) {
@@ -220,11 +215,11 @@ static obj2string( // formatClass - client-side
 
       str ="{\n " + str.substring(2) + "}\n";  // replace leading \n, with \n
     } else {
-      alert(`error: formatClass.obj2string() - typeof(obj)=${typeof(obj)}`);
+      app.sfc_dialog.show_error( `case not handled, typeof(obj)=${typeof(obj)}` );
       str = obj.toString();
     }
   }  catch(err) {
-    alert(`error: formatClass.obj2string() - error=${err},level=${level}, obj=${obj}`)
+    app.sfc_dialog.show_error(`error=${err}<br> level=${level}<br> obj=${obj}<br>`)
   }
 
   return str;

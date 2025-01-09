@@ -40,11 +40,7 @@ async load(  // dbClass - client-side
   const msg     = await proxy.getJSONwithError(this.url_meta);
   if(msg.status === 404){
     //error
-    alert(`file="db_module.js"
-method="load"
-missing file url="${this.url_meta}"
-creating from template
-`);
+    app.sfc_dialog.show_error(`missing file<br> url="${this.url_meta}"`);
     return;
   } else {
     this.meta = msg.json;
@@ -107,16 +103,14 @@ async new(  // dbClass - client-side
 }
 
 
-async meta_save(){
+async meta_save(){  // dbClass - client-side  
   let    msg = await proxy.RESTpost(JSON.stringify(this.meta), this.url_meta );
   if (!msg.success) {
-    alert(`in file="db_module.js"
-method="meta_save"
-this.url_meta="${this.url_meta}"
-RESTpost failed`);
+    app.sfc_dialog.show_error(`save failed<br> this.url_meta="${this.url_meta}"`);
   }
   return msg;
 }
+
 
 loadLocal( // dbClass - client-side   -- should be able to share code here
   buffer
@@ -187,7 +181,7 @@ async table_merge(      // dbClass - client-side
   // save table
   let msg = await this.tables[table_name].merge();
   if (!msg.success) {
-    alert("save faild table_merge")
+    app.sfc_dialog.show_error("save failed table_merge")
   }
   // uppdate and save database meta data if it is a new table
 /*  if ( this.meta.tables[table_name]  ==  undefined) {
@@ -195,7 +189,7 @@ async table_merge(      // dbClass - client-side
   }*/
   msg = await proxy.RESTpost(JSON.stringify(this.meta), `${this.dir}/_meta.json`);
   if (!msg.success) {
-    alert("save faild table_merge")
+    app.sfc_dialog.show_error("save faild table_merge")
   }
 }
 

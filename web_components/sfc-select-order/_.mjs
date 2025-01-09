@@ -71,10 +71,10 @@ toggle(  // sfc_select_order - client side
 ) {
 	let element;
 	switch (id) {
-	case "multi" : this.multi = !this.multi; this.multi_display()   ; return;
-	case "button": element= this.shadow.getElementById("button_box"); break ;
-	case "narrow": element= this.shadow.getElementById(id)          ; break ;
-	default      : alert(`error id=${id} case not handdled`)        ; return;
+	case "multi" : this.multi = !this.multi; this.multi_display()              ; return;
+	case "button": element= this.shadow.getElementById("button_box")           ; break ;
+	case "narrow": element= this.shadow.getElementById(id)                     ; break ;
+	default      : app.sfc_dialog.show_error(`unhandled case<br> id=${id}<br>`); return;
 	}
 	element.hidden = !element.hidden;
 }
@@ -212,7 +212,7 @@ choices_click(event){  // sfc_select_order - client side
 
 
 choices_click_custom(event) {
-	alert("for muli=false the developer needs to overide this method")
+	app.sfc_dialog.show_error("for muli=false the developer needs to overide this method")
 }
 
 
@@ -322,7 +322,7 @@ choices_move(event) {  // sfc_select_order - client side
 		break;
 
 	default:
-		alert(`event.target.id=${event.target.id}  case not handled - choices_move`)
+		app.sfc_dialog.show_error(`unhandled case<br> event.target.id=${event.target.id}`)
 		return;
 	}
 	this.choices_html();

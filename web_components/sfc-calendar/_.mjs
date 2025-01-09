@@ -63,7 +63,6 @@ async init() {  // calendar_class  client-side
   } else {
     // error not handled, load method should have done alert
     app.sfc_dialog.show_error(`tried to load calendar at: ${this.table_urls[0]}<br> msg.status=${msg.status}<br>`);
-    debugger;
     return;
   }
   await  app.web_components.check(this.shadow);  // add web componengs
@@ -334,7 +333,7 @@ createDate(  // calendar_class  client-side
 
   default:
     // error
-    alert(`error, file="calendar_module.js, method="createDate", type="${type}"`)
+    app.sfc_dialog.show_error(`case not handled<br> type="${type}"`)
   }
 }
   
@@ -389,7 +388,7 @@ event
     try {
       this.monthly_add(event)
     } catch (error) {
-      alert(error + new Error().stack);
+      app.sfc_dialog.show_error(`monthly_add failed<br> event=${event} error="${error}"`);
     }
 
     break;
@@ -397,7 +396,7 @@ event
     this.one_add(event);
     break;
   default:
-      alert(`in calendar_class.event_add: repeat=${event.repeat}  pk=${event.pk}`);
+    app.sfc_dialog.show_error(`case not handled<br> repeat=${event.repeat}  event=${event}`);
   }
 }
 

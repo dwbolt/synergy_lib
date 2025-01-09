@@ -71,7 +71,7 @@ pk  // string
 ) {
   if (! await app.sfc_login.getStatus()) {
     // not on user calendar
-    alert('Error, not on user calendar');
+    app.sfc_dialog.show_error('logged to edit events');
     return;
   }
   this.pk = pk;  // remember of future methods
@@ -139,7 +139,7 @@ async processServerRefresh( // calendar_edit_class  client-side
   }
 
   if (!resp.success) {
-    alert(`Error resp="${JSON.stringify(resp)}"`);
+    app.sfc_dialog.show_error( `calendar save failed<br> msg="${JSON.stringify(resp)}"`); // may need todo more formating
   } else {
     this.windowActive = false;  // what does this do?
     app.page_display_url( app.url_json_get() );  // redisplay data, so we can see changes made on calendar
@@ -300,11 +300,8 @@ data2form_repeat(   // calendar_edit_class  client-side
     }
     break;
 
-  case "yearly":
-    break;
-
-  default:
-    alert(`error in calendar_edit_class method="data2form" repeat="${edge.repeat}" `);
+  case "yearly":  break;
+  default: app.sfc_dialog.show_error(`unhandled case<br> repeat="${record.repeat}" `);
   }
 
   // set repeat end data, use time from dateEnd
@@ -328,22 +325,24 @@ set_weekly_days(  // calendar_edit_class  client-side
 }
 
 
+/* this does not seem to be called
 validateForm(
     // This function makes sure that all the necessary fields of pop up form are filled in before the user can submit or save data
   ) {
+  let bol = true;
   if (this.shadow.getElementById("name").value == "") {
-    alert('Name of event not filled in');
-    this.setCanSubmit(false);
+    app.sfc_dialog.show_error('Name of event not filled in');
+    bol = false;
   }
 
   if ((this.shadow.getElementById("repeat").value == "monthly" || this.shadow.getElementById("repeat").value == "weekly") && this.shadow.getElementById("endDateInput").value == "") {
-    alert('End date of event not filled in');
-    this.setCanSubmit(false);
+    app.sfc_dialog.show_error('End date of event not filled in');
+    bol = false;
   }
 
-  this.setCanSubmit(true);
+  this.setCanSubmit(bol);
 }
-  
+*/
 
 getDate(// calendar_edit_class  client-side
   DOMname // 
@@ -443,18 +442,9 @@ form2data_repeat(g){  // calendar_edit_class  client-side
     }
     break;
 
-  case "yearly":
-    break;
-
-  case "never":
-    // was already init for this case
-    break;
-
-  default:
-    // error
-    alert(`file="calendarEdit_module.js"
-method="form2data_repeat"
-repeat="${g.repeat}"`);
+  case "yearly": break;
+  case "never" : break;  // was already init for this case
+  default      :  app.sfc_dialog.show_error(`unhandled case<br> repeat="${g.repeat}"`);
   }
 }
 
@@ -512,9 +502,7 @@ renderEndDateSelector(  // calendar_edit_class  client-side
     this.shadow.getElementById("monthly_repeat").hidden = true;
     break;
 
-  default:
-    // error
-    alert(`error case not handeled in calendarEditModuel.js method=renderEndDateSelector repeat=${repeat}`);
+  default: app.sfc_dialog.show_error(`unhandled case<br> repeat=${repeat}`);
   }
 }
 

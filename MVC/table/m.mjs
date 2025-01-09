@@ -69,9 +69,7 @@ set_value(  // table_class - client-side
       
     default:
       // code block
-      alert(`file="table_module.js"
-method="set_value" 
-meta_field.location="${meta_field.location}"`);
+      app.sfc_dialog.show_error(`case meta_field?.location: ${meta_field?.location} is not handles`);
       return;
   }
 }
@@ -191,15 +189,10 @@ get_value(  // table_class - client-side
       
     default:
       // code block
-      alert(`
-field = ${field}
-meta_field.location = ${meta_field.location}
-
-stack = ${new Error().stack}
-`);
+      app.sfc_dialog.show_error(`meta_field.location: ${meta_field.location}`);
+      break;
   }
 }
-
 
 
 value2string(  // table_class - client-side
@@ -217,24 +210,16 @@ value2string(  // table_class - client-side
     case "string":
       break; // no chages need
     default: 
-      alert(`file="table_module.js"
-method="value2string"
-type="${type}"
-value="${value}"`);
+      app.sfc_dialog.show_error(`case type="${type}" not handled`);
   }
   return value;
 }
 
 
-
-
-
 get_unique_values(// table_class - client-side
   field_name
 ){
-  alert(`file="table_module.js
-method="get_unique_values"
-msg="depricated"`)
+  app.sfc_dialog.show_error(`method get_unique_values is depricated `);
 /*
   if (!this.#json.unique_values            )  {
     // init if needed
@@ -270,9 +255,8 @@ get_unique_pks(// table_class - client-side
   field_name
   ,value
 ){
-  alert(`file="table_module.js
-  method="get_unique_pks"
-  msg="depricated"`);
+  app.sfc_dialog.show_error(`method get_unique_pks() is deprecated`);
+  debugger;
   // return list of pks that have
   //return this.#json.unique_values[field_name][value];
 }
@@ -296,20 +280,18 @@ add_column_value( // table_class - client-side
 
 check_pk(// table_class - client-side
   pk  // make sure pk is a number
-  ){  
+  ){
   let pk_num = pk;
   if (typeof(pk_num)==="string"){
     pk_num = Number.parseInt(pk_num)
   } else if (typeof(pk_num)!="number") {
-alert(`file="table_module"
-method="check_pk"
-typeof(pk_num)="${typeof(pk_num)}"`);
-  return;
+    app.sfc_dialog.show_error(`pk_num is not a number typeof(pk_num)="${typeof(pk_num)}"`);
+    return;
   }
 
   if (this.columns.pk === undefined) {
     // init the primary key column
-    this.columns.pk = {}
+    this.columns.pk = {};
   }
   
   if (this.columns.pk[pk] === undefined) {
@@ -318,11 +300,7 @@ typeof(pk_num)="${typeof(pk_num)}"`);
     if (this.meta.PK_max <= pk_num) {
       this.meta.PK_max = pk_num;   // this should always be the case
     } else {
-      alert(`file="tabe_module.js
-method="check_pk"
-pk = "${pk}"
-this.meta.PK_max="${this.meta.PK_max}"
-this.url_meta="${this.url_meta}"`);
+      app.sfc_dialog.show_error(`pk_num=${pk_num}  <br>this.meta.PK_max=${this.meta.PK_max } <br>this.url_meta="${this.url_meta}`);
     }
   }
 }
@@ -379,8 +357,11 @@ async load(  // table_class - client-side
 
   // load table meta data
   const msg = await proxy.getJSONwithError(this.url_meta);
-  if (msg.status === 200){
+  if (       msg.status === 200){
     this.meta = msg.json;
+  } else if (msg.status === 404) { 
+    // does not exist, so create it
+    
   } else if (0<= status_array.find( 
     (element) => element === msg.status )) {
     // calling function will handle error
@@ -388,13 +369,9 @@ async load(  // table_class - client-side
   } else {
     // calling funtions is not handleing error,
     this.meta = {}
-    alert(`
-file="table_module.js"
-method="load"
-url="${this.url_meta}"
-msg=${JSON.stringify(msg)}`);
+    app.sfc_dialog.show_error(`error not being handled <br>url="${this.url_meta}" <br>msg=${JSON.stringify(msg)}`);
     this.readonly = true;
-    //return;  not sure what code should do, need to test  
+    return; // not sure what code should do, need to test  
   }
 
   // load columns
@@ -405,11 +382,7 @@ msg=${JSON.stringify(msg)}`);
     if (msg_col.status === 200){
       this.columns = msg_col.json;
     } else {
-      alert(`
-  file="table_module.js"
-  method="load"
-  url="${this.url_columns}"
-  msg=${JSON.stringify(msg)}`);
+      app.sfc_dialog.show_error(`load failed url="${this.url_columns}"<br>  msg=${JSON.stringify(msg)}`);
       this.readonly = true;
       return msg_col;
     }
@@ -430,10 +403,7 @@ async apply_changes(log){ // table_class - client-side
   if (log === undefined) {
    msg     = await proxy.RESTget(this.url_changes);                            
     if (!msg.ok) {
-      alert(`
-error file="table_module.js"
-method="apply_changes"
-msg="${JSON.stringify(msg)}"`);
+      app.sfc_dialog.show_error(`loading change file failed msg="${JSON.stringify(msg)}`);
       return;  // nothing todo since change file not loaded
     }
     log =msg.value;
@@ -449,12 +419,7 @@ msg="${JSON.stringify(msg)}"`);
       str = log.slice(start,end)
       obj = JSON.parse(str);
     } catch (error) {
-      alert(`
-file="table_module.js"
-method="apply_changes"
-"str"="${str}"
-JSON.parse(str) failed
-`);
+      app.sfc_dialog.show_error(`JSON.parse(str) failed "str"="${str}"`);
     }
 
     if (Array.isArray(obj)) {
@@ -486,26 +451,15 @@ JSON.parse(str) failed
             delete this.columns.pk[obj.pk];
           } else {
             // 
-            alert(`
-file="table_module.js"
-method="apply_changes"
-object.command="${object.command}"
-object.pk="${object.pk}"
-error="not a valid "object.pk"`);
+            app.sfc_dialog.show_error(`this.columns.pk[obj.pk] not available to detete pk = {obj.pk} `);
           }
           break;
-      
-        default:
-          alert(`
-file="table_module.js"
-method="apply_changes"
-object.command="${object.command}"
-object.pk="${object.pk}"
-error="not a valid command"`);
-          break;
-      } 
-    }
 
+        default:
+          app.sfc_dialog.show_error(`command not supported object.command="${object.command}`);
+          break;
+      }
+    }
     start = end+1;
   }
 }
@@ -545,9 +499,8 @@ async create(  // table_class - client-side
   name,      // name of table
   meta_name  // name of structure
   ) {
-debugger
   // get temple meta of table
-  let url       = `/_lib/db/tables_meta/${meta_name}.json`;
+  let url       = `/_lib/MVC/table/tables_meta/${meta_name}.json`;
   let msg = await proxy.RESTget(url);
   if (!msg.ok) {
     app.sfc_dialog.show_error(`create of table "${name}" failed.  could not find url="${url}"`);
@@ -585,23 +538,20 @@ get_object( // table_class - client-side
         } else {
           value = this.columns[field_name][id];  // maybe undefined
           if ( "string pk json text textarea float integer date-time date".includes(field.type) ) {
-             // value is already set, do not want to trigger the alert below
+             // value is already set nothing todo
           } else if (field.type === "money") {
             if (value !== undefined) {
-            // convert pennies to  $xx,xxx.xx
+              // convert pennies to  $xx,xxx.xx
             }
           } else {
-            alert(`file="table_module"
-method="get_object"
-field.type="${field.type}"
-field_name="${field_name}"`);
+            app.sfc_dialog.show_error(`field.type="${field.type}" <br>field_name="${field_name}"`);
           }
         }
         break;
 
       default:
-        // code block
-        alert(`error: class="table_class" method="get_object" location="${location}"`)
+        app.sfc_dialog.show_error(`case not handled field.location=${field.location}`);
+        break;
     }
 
     if (value !== undefined) {
@@ -633,21 +583,16 @@ get_object_display( // table_class - client-side
         } else {
           value = this.columns[field_name][id];  // maybe undefined
           if ( "string pk json text textarea float integer date-time date".includes(field.type) ) {
-             // value is already set, do not want to trigger the alert below
+             // value is already set, do not want to trigger error below
           } else {
-            alert(`file="table_module"
-method="get_object_display"
-field.type="${field.type}"
-field_name="${field_name}"`);
+            app.sfc_dialog.show_error(`case not handled field.location=${field.location}`);
           }
         }
         break;
 
       default:
-        // code block
-        alert(`file="table_module.js"
-method="get_object_display"
-field.location="${field.location}"`);
+        app.sfc_dialog.show_error(`case not handled field.type=${field.type}`);
+        break;
     }
 
     if (value !== undefined) {
@@ -664,8 +609,7 @@ field.location="${field.location}"`);
 PK_get( // table_class - client-side
   key  // primary key, return row
   ){
-    alert(`file="table_module.js"
-method="PK_get is depricated"`);
+    app.sfc_dialog.show_error(`method PK_get() is deprecated`);
 }
 
 
@@ -687,7 +631,6 @@ async save( // table_class - client-side
   for(var i=0; i< fields.length; i++) {
     let field = fields[i];
     let edited_value   = record[field];                    // from edit form
-    //let current_value  = this.get_value_relation(record.pk,field);  // from table memory - convert to string for compare 
     let current_value  = this.get_value(record.pk,field);  // from table memory - convert to string for compare 
 
     // update change log
@@ -727,11 +670,7 @@ async change_log_patch(  // table_class - client-side
   const msg  = await proxy.RESTpatch( nsj, this.url_changes);
   if (!msg.success) {
     // save did not work
-    alert(`
-file="table_module.js"
-method="change_log_patch"
-url="${this.url_changes}"
-msg=${msg.message}`);
+    app.sfc_dialog.show_error(`update change log failed<br> url="${this.url_changes}"<br> msg=${msg.message}`);
   };
 
   return msg; // was set to new value if null;
@@ -743,6 +682,7 @@ msg=${msg.message}`);
 async merge( // table_class - client-side
 dir
 ){
+  // needs refactor,  should rename old columns file and change files, so history is preserved *****************
   if (dir != undefined) {
     this.url_set(dir);
   }
@@ -751,10 +691,7 @@ dir
   let msg  = await proxy.RESTpost( JSON.stringify(this.columns), this.url_columns);
   if (!msg.success) {
     // save did not work
-    alert(`file="table_module.js" 
-method="merge"
-this.url_changes="${this.url_changes}"
-REST.post failed`);
+    app.sfc_dialog.show_error(`save columns failed<br> this.url_changes="${this.url_changes}"<br> `);
   return msg;
   };
 
@@ -762,14 +699,12 @@ REST.post failed`);
   msg  = await proxy.RESTpost("", this.url_changes);
   if (!msg.success) {
     // save did not work
-    alert(`file="table_module.js"
-method="merge"
-this.url_changes="${this.url_changes}"
-RESTpost failed`);
+    app.sfc_dialog.show_error(`empty change file failed<br> this.url_changes="${this.url_changes}"<br> `);
   };
 
   // save meta data 
   msg  = await this.meta_save();
+  // needs error processing
 
   return msg;
 }
@@ -779,12 +714,9 @@ async meta_save(){
   // save meta data 
   let msg  = await proxy.RESTpost(JSON.stringify(this.meta), this.url_meta);
   if(!msg.success) {
-    alert(`file="table_module.js"
-      method="merge"
-      this.url_changes="${this.url_meta}"
-      RESTpost failed`);
-  }
+    app.sfc_dialog.show_error(`meta_save failed<br> this.url_changes="${this.url_meta}"<br> `);
   return msg;
+  }
 }
 
 
@@ -799,14 +731,12 @@ async delete(record){// table_class - client-side
       `{"pk":"${record.pk}", "command":"delete", "date":"${new Date().toISOString()}" }\n`, this.url_changes);
     if (!msg.success) {
       // delete did not work
-      alert(`
-file="table_module.js"
-method="delete"
-url="${this.url_changes}"
-msg=${msg.message}`);}
+      app.sfc_dialog.show_error(`delete failed<br> url="${this.url_changes}"<br>  msg=${msg.message}<br>`);
+    }
   } else {
     // delete table
     msg = await proxy.RESTdelete(this.dir );
+    // need error processing
   }
 
   return msg;
@@ -824,11 +754,7 @@ get_field( // table_class - client-side
     field_name  = i;
   } else {
     //error
-    alert(`
-      type(i) === =${type(i)}
-      
-      call stack=${Error().stack}
-      `);
+    app.sfc_dialog.show_error(`case not handled <br> type(i) === =${type(i)}<br>`);
     return null;
   }
   
@@ -838,7 +764,7 @@ get_field( // table_class - client-side
   } else {
     return value;
   }
-  }
+}
 
 
  get_column(  // table_class - client-side
@@ -884,11 +810,7 @@ async header_make(
     const field_name = select[i];
     let field = fields[field_name];
     if (field === undefined) {
-      alert(`file="table_module.js"
-method="header_make"
-select[i] = "${select[i]}"
-this.dir="${this.dir}"
-msg="select field does not exist in field meta data"`)
+      app.sfc_dialog.show_error(`select[i] = "field undefined <br> field_name: ${field_name}"<br> `);
     } else {
       const value = this.get_value(pk, field_name);
       if (field.header !== "PK") {
@@ -935,18 +857,6 @@ genCSVrow( // table_class - client-side
   return  line.slice(0, line.length-1) +"\r\n";     // get rid of trailing comma
 }
 
-
-/*
-getColumnFormat(i) { // table_class - client-side
-  alert(`file="table_module.js
-method="getColumnFormat"
-msg="method deprecated"`);
-return false;
-  //let f = this.#json.columnFormat[i];
-  if (f === undefined) return "";
-  return f;
-}
-*/
 
 //getField()       {return this.meta.field         ;} // table_class - client-side
 
@@ -1083,7 +993,7 @@ select(   // table_class - client-side
         a.push(i);
       }
     }  catch(err) {
-      alert(`table_class.select error=${err}`)
+      app.sfc_dialog.show_error(`table_class.select error=${err}`)
     }
   });
   return a;
@@ -1096,45 +1006,6 @@ filter(  // table_class - client-side
   f  // f is boolean function, returns true if we want the row included in the list
 ) {
   return this.#json.rows.filter(f);
-}
-*/
-
-/*
-get_value_relation(  // table_class - client-side
-// returns display value for both relation fields and non-relation fields
-pk
-,field
-) {
-  let value = this.get_value(pk,field);
-  if (this.meta_get("fields")[field].location === "relation") {        // 2024-07-30  not sure this is still used dwb
-    // value is an array of PK, convert to human readable
-    let r_value="";
-    for(var i=0; i<value.length; i++){
-      let pkr=value[i]; // relation pk
-      let relation = this.db.getTable("relations").get_object(pkr);  // get relation object 
-      if        (relation.table_1 === this.name && relation.pk_1 === pk) {
-        // related to table 2
-        r_value += this.format_values(2, relation);
-      } else if (relation.table_2 === this.name && relation.pk_2 === pk) {
-        // related to table 1
-        r_value += this.format_values(1, relation);
-      } else {
-        // error
-        alert(`
-error file="table_module.js" 
-method="get_value_relation" 
-pk="${pk}" 
-this.name="${this.name}" 
-relationn=${JSON.stringify(relation)}
-`);
-      }
-    }
-    value = r_value;
-  } else {
-    value = this.value2string(value);
-  }
-
-  return value;
 }
 */
 

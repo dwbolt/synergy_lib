@@ -63,7 +63,7 @@ click(  // sfc_record_class - client-side
   } else if (method==="stack") {
      app.page.stack_push(this); // hardcoded do not like this, stack should not be an part of this component
   } else {
-    alert(`method=${method} is not a valid`)
+    app.sfc_dialog.show_error(`case not handled<br> method=${method} `)
   }
 }
 
@@ -218,13 +218,7 @@ form_write(  // client side sfc_record_class - for a page
         case "date-time": this.shadow.getElementById(field_name).valueAsDate =  new Date(value[0],value[1]-1,value[2]); 
                           this.shadow.getElementById(`${field_name}_time`).value  =  
                                                `${app.format.padZero(value[3],2)}:${app.format.padZero(value[4],2)}`; break;
-        default        : alert(`
-file="/db/table/c_record.mjs"
-method="form_write"
-field_name=${field_name}
-type="${type}"
-no case for type
-`);
+        default        : app.sfc_dialog.show_error(`case not handled<br> type="${type}"<br> field_name="${field_name}"`);
         }}
     }
 }
@@ -271,9 +265,7 @@ async save( // client side sfc_record_class - for a page
     this.show();          // display record with new data
     } else {
       // error
-      alert(`file="/db/table/c_record.mjs"
-method="save"
-msg.message="${msg.message}"`);
+      app.sfc_dialog.show_error(`case not handled<br> msg.message="${msg.message}"`);
     }
   }
 
@@ -338,11 +330,7 @@ form_value( // client side sfc_record_class
   case "json"    : value = JSON.parse(value);break;
   case "boolean" : value = document.getElementById(`${dom}`).checked          ; break;
 
-  default        : alert(`file="/db/table/c_record.mjs"
-methed="form_value"
-field.type="${field.type}"
-fields_name="${fields_name}"
-case not handled`);
+  default        : app.sfc_dialog.show_errort(`case not handled<br> field.type="${field.type}"<br> fields_name="${fields_name}"`);
   }
 
   return value;

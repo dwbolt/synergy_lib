@@ -161,17 +161,10 @@ static async getJSON(  // proxyClass - client - side
         let j = await  f.json();
         return j;
       } else {
-        alert(`${new Error().stack}`)
-        alert(`proxyClass.getJSON error: 
-url = ${url}  
-status = ${f.status}`);
+        app.sfc_dialog.show_error(`fetch failed<br> url = ${url}<br>  f = ${f}`);
       }
     } catch (e) {
-      alert(`${new Error().stack}`)
-      alert(`proxyClass.getJSON 
-error: url = ${url}  
-error = ${e}`);
-      alert("getJSON" + e);
+      app.sfc_dialog.show_error(`error<br> url = ${url}<br>  error = ${e}` );
     }
 }
 
@@ -202,13 +195,10 @@ static async getText(url) {   // proxyClass - client - side
         let t = await  f.text();
         return t;
       } else {
-        //alert(`proxyClass.getText error: url = ${url}  status = ${f.status}`);
         app.sfc_dialog.show_error( `url=${url}   <br>status= ${f.status}` );
       }
     } catch (e) {
       app.sfc_dialog.show_error( `url=${url}   <br>error= ${e}` );
-      //alert("getText" + e);
-
     }
 }
 

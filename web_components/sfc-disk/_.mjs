@@ -42,7 +42,7 @@ constructor() {  // sfc_disk - client side
 async folder_new(){// sfc_disk - client side
 	const folder_name = this.shadow.getElementById("file_name").value.trim();  // get ride of leading and trailing white space
 	if (folder_name==="") {
-		alert("Input folder name to create");
+		app.sfc_dialog.show_error("Input folder name to create");
 		return;
 	}
 
@@ -89,7 +89,7 @@ async main(
 	const status = await proxy.postJSON(JSON.stringify(msg));  // {msg: true, files:[[file_name, stat]]
 	// stat.isDirectory, stat.isSymbolicLink()
 	if (!status.msg) {
-		alert("error");
+		app.sfc_dialog.show_error(`server failed to process<br> msg="${msg}"<br> status="${status}"`);
 		return;
 	}
 

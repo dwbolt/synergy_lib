@@ -64,10 +64,8 @@ async button_press(   // class page_ - client side
 	if ( ( -1 < button_index) && (button_index < this.json.buttons.length) ) {
 		list = this.json.buttons[button_index].list;
 	} else if (this.json.buttons.length === 0){
-		alert(`error - file="app_module_24-08"
-method="display"
-button_index=${button_index}`);
-return;
+		app.sfc_dialog.show_error(`case not handled<br> button_index=${button_index}`);
+		return;
 	}
 
 	// walk list, build html

@@ -159,7 +159,7 @@ async page_load(   // appClass - client side
 	app.page_json          = await proxy.getJSON(`${url_dir}_.json`);
 	app.page_json.url_dir  = url_dir;    // remember where the json was loaded from
 
-	if        (app.page_json.module === undefined) {
+	if        (app.page_json.module === undefined || app.page_json.module === false) {
 		// used base class of page_
 		const page_module = new page_(url_dir);
 		await page_module.init(app.page_json);
@@ -172,7 +172,7 @@ async page_load(   // appClass - client side
 		document.head.appendChild(element);
 		// loaded module must 
 	} else {
-		alert("error, file='app_24-08' method='page_load'")
+		app.sfc_dialog.show_error( `case not handled, app.page_json.module: ${app.page_json.module}` );
 	}
 }
 
@@ -242,20 +242,15 @@ hide(dom) {  // appClass - client side
 
 
 style_display(   // appClass - client side
-	domid,value
+	domid
+	,value
 ) {
-	// similar to show, hideå
+	// similar to show, hide
 	const element = document.getElementById(domid);
 
 	switch (value) {
-		case true:
-			element.style.display = 'block';
-			break;
-
-		case false:
-			element.style.display = 'none';
-			break;
-
+		case true : element.style.display = 'block'; break;
+		case false: element.style.display = 'none' ; break;
 		case "toggle":
 			if (element.style.display === "none") {
 				element.style.display = 'block'
@@ -265,12 +260,7 @@ style_display(   // appClass - client side
 			break;
 
 		default:
-			alert(`
-file="app_24-03.js"
-method="style_display"
-domid=${domid}
-value="${value}"
-`);
+			app.sfc_dialog.show_error( `case not handled<br>  domid=${domid}<br> value="${value}"` );
 			break;
 	}
 }
@@ -293,7 +283,7 @@ test_harness(){
 		    b = this.test_window.document.getElementById('next');
 		    b.addEventListener( 'click', this.test_harness_next.bind(this,+1) );
 	} else {
-		alert("window not created")
+		app.sfc_dialog.show_error( `"window not created` );
 	}
   }
 

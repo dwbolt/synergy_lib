@@ -35,7 +35,7 @@ set(id,html){
 	} else {
 		const element = this.shadow.getElementById(id);
 		if (element === null) {
-			this.show_error();
+			this.show_error(`element is null`);
 		} else {
 			element.innerHTML = html;
 		}
@@ -77,16 +77,15 @@ close(){ // sfc_dialog- client side
 
 
 async show_error(error_msg_client){
-	const msg_client = ` 
-	client msg: ${error_msg_client} <br>
-	<br>
-	${new Error().stack}
-	`;	
+	let stack = new Error().stack;  // replace all newlines with <br> so it will display as html
+
+	const msg_client = `client msg: ${error_msg_client} <br><br>${stack.replaceAll("\n","<br>")}`;	
 
 	// show user error message
 	this.set("title","<h2>Client Side Error</h2>");
 	this.set("body",`Will try to save the following error message on the server<br>${msg_client}`);
 	this.show_modal();
+	debugger;
 
 	// save client error on server
 	const msg = {
@@ -97,7 +96,7 @@ async show_error(error_msg_client){
 
 	const serverResp = await proxy.postJSON(JSON.stringify(msg));    // wait for server to log client error
 	if (!msg.ok) {
-		alert("save of error was not successfull")
+		app.sfc_dialog.show_error("saving error to server failed")
 	}
 }
 
