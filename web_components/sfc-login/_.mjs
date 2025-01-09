@@ -151,7 +151,7 @@ async user_add() {// loginClass - client side
 	  // user added
 	  app.sfc_dialog.set("title","User was sucessfully Added/changed");
 	  app.sfc_dialog.set("title","User was sucessfully Added/changed");
-	  app.sfc_dialog.sjh0w;
+	  app.sfc_dialog.show_modal();
 	} else {
 	  // user was not added
 	  app.sfc_dialog.show_error(`User add Failed<br> msg=${JSON.stringify(serverResp)}`);

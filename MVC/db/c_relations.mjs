@@ -40,7 +40,7 @@ db_set( // sfc_record_relations_class - client side
 	table_1  // from selected record 
 	,pk_1   
 	) {
-	  const body = document.getElementById(`stack_record`).shadow_by_id("body");
+	  const body = this.stack.shadow_by_id("body");  //const body = document.getElementById(`stack_record`).shadow_by_id("body");
 	  if (0 === body.innerHTML.length) {
 		return; // there is nothing in the stack, so nothing to do;
 	  }

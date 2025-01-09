@@ -91,12 +91,13 @@ show(  // client side sfc_record_class - for a page
   }
 
   // create shell
-  const  select = this.table_viewer.select;  // get list of field name to display
+  //const  select = this.table_viewer.select;  // get list of field name to display  from view - not sure which is right
+  const  select = this.table.meta_get("select");     // get list of field name to display  from model, get arround bug
+
   const body   = this.shadow.getElementById("body");
   const fields = this.table.meta_get("fields");
   if (body.innerHTML.length === 0) {
     this.value = [];
-    const  select = this.table_viewer.select;  // get list of field name to display
     for (let i=0; i<select.length; i++) {
       let d;
       // dispaly line number
