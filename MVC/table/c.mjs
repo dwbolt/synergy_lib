@@ -143,7 +143,8 @@ record_show(  // sfc_table - client-side
       }
 
       event.target.setAttribute("class","link selected");   // add selected class to what the user clicked on
-      this.record_sfc.table_set(this.model);  
+      this.record_sfc.table_set(this.model);                // let it know the model
+      this.record_sfc.table_viewer_set(this);               // let it know the table views so it can formate
       this.record_sfc.show(data);                           // get sfc-record accociated with table & dislay record clicked on
   } 
 }

@@ -482,7 +482,7 @@ event // event record from calendar table
   // event has some days in this year
   let event_start = this.GMT[event.pk].start;
   while (event_start.getFullYear() < year_start.getFullYear()) {
-    event_start = new Date(event_start.getFullYear(), event_start.getMonth()+ event.repeat_inc, event_start.getDate(), event_start.getHours(), event_start.getMinutes()); 
+    event_start = new Date(event_start.getFullYear(), event_start.getMonth()+ Number.parseInt(event.repeat_inc), event_start.getDate(), event_start.getHours(), event_start.getMinutes()); 
     // add  event.repeat_inc until we get into current year
   }
 
