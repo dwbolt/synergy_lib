@@ -71,18 +71,19 @@ async button_press(   // class page_ - client side
 	// walk list, build html
 	for(var i=0; i<list.length; i++) {
 		let color = app.css.button_colors[(i+button_index) % app.css.button_colors.length];
-		html += `<div id="${list[i]}" class="row" style="background-color: var(${color}_fill);  ">`
-		if ( this.json.html && this.json.html[list[i]]) {
+		let node_name = list[i];
+		html += `<div id="${node_name}" class="row" style="background-color: var(${color}_fill);  ">`
+		if ( this.json.html?.[node_name] ) {
 			// use html in already loaded json file
-			html += `${this.json.html[list[i]]}`;
-		}
-		if ( this.json.load && this.json.load[list[i]] ) {
+			html += `${this.json.html[node_name]}`;
+		} else if ( this.json?.load[node_name] ) {
 			// load html from file
-			let msg =  await proxy.RESTget(`${this.json.url_dir}${this.json.load[list[i]]}` );
+			let msg =  await proxy.RESTget(`${this.json.url_dir}${this.json.load[node_name]}` );
 			if (msg.ok) {
 				html += msg.value;
 			} else {
-				debugger
+				html += `node not loaded ${node_name}`;
+				debugger;
 			}
 		}
 		html += "</div>"

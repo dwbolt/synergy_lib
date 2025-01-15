@@ -35,20 +35,11 @@ async parse_CSV(  // csvClass: client-side
    file          // file in memory to be parser
   ,DOMid         // DOMid  -> (optional) place to put status of current row being parsed
 ) {
+  debugger
   this.csv        = file;     //  file in memory to parse
   this.DOM        = document.getElementById(DOMid);
 
   this.valueStart = 0;        // index into csv  where column parse starts
-
-  /*
-  // see if end_of_line is "\r\n" or "\n"
-  if ( -1 === this.csv.indexOf("\r\n", this.valueStart)) {   // not a perfect test
-    // assume end of line is "\n"n
-    this.end_of_line = "\n";
-  } else {
-    this.end_of_line = "\r\n";
-  }
-*/
   this.end_of_line = "\n";
 
   if (! (this.csv.slice(this.csv.length-this.end_of_line.length) ===  this.end_of_line)) {
@@ -111,7 +102,7 @@ async parse_for_one_second(){   // csvClass: client-side
   let row_counts = "";
   const counts = Object.keys(this.line_count);
   for(let i = 0; i<counts.length; i++) {
-    row_counts += `number of fields = ${counts[i]} - number of lines ${this.line_count[counts[i]].length}\n`
+    row_counts += `number of fields = ${counts[i]} - number of lines ${this.line_count[counts[i]].length}\n ${this.line_count[counts[i]]}\n\n`
   }
   this.DOM.innerHTML = `${this.row} rows parsed total
 ${this.row - this.row_old} rows parsed this time slice 
@@ -152,16 +143,20 @@ parseQuote() {  // csvClass: client-side
   let value = "";  // walk a chartact at a time
   let more = true;
   while(more)  {
-    let next_1   = this.csv.slice(this.valueStart, this.valueStart+1);
-    let next_2   = this.csv.slice(this.valueStart, this.valueStart+2);
-    let next_EOL = this.csv.slice(this.valueStart, this.valueStart+1+this.end_of_line.length);
-
-    if         (next_2 === '",') {
+    let next_1 = this.csv.slice(this.valueStart, this.valueStart+1);
+    let next_2 = this.csv.slice(this.valueStart, this.valueStart+2);
+    let next_3 = this.csv.slice(this.valueStart, this.valueStart+3);
+ 
+    if        (next_2 === '",') {
       more = false;         // done parsing value
       this.valueStart += 2;
-    } else if  (next_EOL === `"${this.end_of_line}`)  {
+    } else if (next_2==='"\n') {
       more = false;         // done parsing value
-      this.valueStart += 1+this.end_of_line.length;
+      this.valueStart += 2;
+      this.new_line = true;
+    } else if  (next_3 === `"\r\n`)  {
+      more = false;         // done parsing value
+      this.valueStart += 3;
       this.new_line = true;
     } else if ( next_2 === '""' ){
       value += '"';
