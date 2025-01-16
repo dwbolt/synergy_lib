@@ -16,7 +16,7 @@ constructor(   // sfc_table - client-side
   this.select = [];  // array of fileds to display
   this.pks    = [];  // array pks that point to data to be disaplay
 
-  this.searchVisible       = true; // display boxes to put search criteria in
+  this.searchVisible       = false; // display boxes to put search criteria in
   this.line_number_visible = true;
   this.header_visible      = true;
 
