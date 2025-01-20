@@ -232,7 +232,7 @@ async login_out(  // sfc_login - client side
 		if (typeof(this.loginFalse) === "function") {
 			this.loginFalse();  // call application login false function
 		} else {
-			alapp.sfc_dialog.show_error('Loggin Failed<br>');
+			app.sfc_dialog.show_error('Loggin Failed<br>Check "user name" and password and try again.  <br>Contact David if problem persists.');
 		}
 	}
   }

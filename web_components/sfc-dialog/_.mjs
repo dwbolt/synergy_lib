@@ -79,11 +79,11 @@ close(){ // sfc_dialog- client side
 async show_error(error_msg_client){
 	let stack = new Error().stack;  // replace all newlines with <br> so it will display as html
 
-	const msg_client = `client msg: ${error_msg_client} <br><br>${stack.replaceAll("\n","<br>")}`;	
+	const msg_client = `<b>error:</b> ${error_msg_client} <br><br>Stack Trace ${stack.replaceAll("\n","<br>")}`;	
 
 	// show user error message
 	this.set("title","<h2>Client Side Error</h2>");
-	this.set("body",`Will try to save the following error message on the server<br>${msg_client}`);
+	this.set("body",msg_client);
 	this.show_modal();
 	debugger;
 
