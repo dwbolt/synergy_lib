@@ -135,12 +135,16 @@ this.shadow.getElementById("user_add").addEventListener('click', this.user_add.b
 
 async user_add() {// loginClass - client side
 	// process server responce
+	const name_user  = this.shadow.getElementById("user_name" ).value;
+	const name_first = this.shadow.getElementById("nameFirst" ).value;
+	const name_last  = this.shadow.getElementById("nameLast"  ).value;
+
 	const msg = {
 		"server"      : "web"
-		,"msg"        : "addUser"
-		,"user"       : this.shadow.getElementById("user_name" ).value
-		,"nameFirst"  : this.shadow.getElementById("nameFirst").value
-		,"nameLast"   : this.shadow.getElementById("nameLast" ).value
+		,"msg"        : "user_add"
+		,"user"       : name_user
+		,"nameFirst"  : name_first
+		,"nameLast"   : name_last
 		,"email"      : this.shadow.getElementById("email"    ).value
 		,"phone"      : this.shadow.getElementById("phone"    ).value
 		,"pwd"        : this.shadow.getElementById("password" ).value
@@ -149,8 +153,8 @@ async user_add() {// loginClass - client side
 	const serverResp = await proxy.postJSON(JSON.stringify(msg));
 	if (serverResp.msg) {
 	  // user added
-	  app.sfc_dialog.set("title","User was sucessfully Added/changed");
-	  app.sfc_dialog.set("title","User was sucessfully Added/changed");
+	  app.sfc_dialog.set("title","<b>Add User</b>");
+	  app.sfc_dialog.set("body" ,`User: ${name_user} <br>First Name: ${name_first} <br>Last Name: ${name_last}`);
 	  app.sfc_dialog.show_modal();
 	} else {
 	  // user was not added
