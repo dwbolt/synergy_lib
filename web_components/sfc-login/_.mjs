@@ -24,7 +24,7 @@ async pwd_change() { // sfc_login - client side
   
 	if (pwdNew != pwdNew2) {
 	  // make sure new passwords match
-	  app.sfc_dialog.show_error("new passwords do not match, password NOT changed")
+	  this.show_error("new passwords do not match, password NOT changed")
 	  return;
 	}
   
@@ -40,12 +40,12 @@ async pwd_change() { // sfc_login - client side
 	const serverResp = await proxy.postJSON(msg);
 	if (serverResp.msg) {
 	  // password changed
-	  app.sfc_dialog.set("title","<h2>Sucess</h2>");  //do I want to log this as an error
-	  app.sfc_dialog.set("body",`Password changed`);
-	  app.sfc_dialog.show_modal();
+	  this.set("title","<h2>Sucess</h2>");  //do I want to log this as an error
+	  this.set("body",`Password changed`);
+	  this.show_modal();
 	} else {
 	  // password was not changed
-	  app.sfc_dialog.show_error(`passward change failed<br> serverResp: ${JSON.stringify(serverResp)}`);
+	  this.show_error(`passward change failed<br> serverResp: ${JSON.stringify(serverResp)}`);
 	}
   }
 
@@ -153,12 +153,12 @@ async user_add() {// loginClass - client side
 	const serverResp = await proxy.postJSON(JSON.stringify(msg));
 	if (serverResp.msg) {
 	  // user added
-	  app.sfc_dialog.set("title","<b>Add User</b>");
-	  app.sfc_dialog.set("body" ,`User: ${name_user} <br>First Name: ${name_first} <br>Last Name: ${name_last}`);
-	  app.sfc_dialog.show_modal();
+	  this.set("title","<b>Add User</b>");
+	  this.set("body" ,`User: ${name_user} <br>First Name: ${name_first} <br>Last Name: ${name_last}`);
+	  this.show_modal();
 	} else {
 	  // user was not added
-	  app.sfc_dialog.show_error(`User add Failed<br> msg=${JSON.stringify(serverResp)}`);
+	  this.show_error(`User add Failed<br> msg=${JSON.stringify(serverResp)}`);
 	}
 }
 
@@ -200,9 +200,9 @@ async login_out(  // sfc_login - client side
 	if (0 === user.length) {b+= "user name is missing<br>"}
 	if (0 ===  pwd.length) {b+= "password is missing<br>"}
 	if ( 0 < b.length ) {
-		app.sfc_dialog.set("title",`<b>Missing information</b>`);
-		app.sfc_dialog.set("body",`${b}`);
-		app.sfc_dialog.show_modal();
+		this.set("title",`<b>Missing information</b>`);
+		this.set("body",`${b}`);
+		this.show_modal();
 		return;
 	}
   
@@ -236,7 +236,7 @@ async login_out(  // sfc_login - client side
 		if (typeof(this.loginFalse) === "function") {
 			this.loginFalse();  // call application login false function
 		} else {
-			app.sfc_dialog.show_error('Loggin Failed<br>Check "user name" and password and try again.  <br>Contact David if problem persists.');
+			this.show_error('Loggin Failed<br>Check "user name" and password and try again.  <br>Contact David if problem persists.');
 		}
 	}
   }
