@@ -1,6 +1,7 @@
 import  {proxy          } from '/_lib/proxy/_.mjs'        ; // static class that makes async webcalls
 import  {format         } from '/_lib/format/_.mjs'       ; // static class that formats data
 import  {page_          } from '/_lib/UX/page_.mjs'       ; // 
+import  {table_class    } from '/_lib/MVC/table/m.mjs'    ; // 
 import  {web_components } from '/_lib/web_components/web_components.mjs' ; // class that allows dynamic loading of web_components
 
 export class app_spa { // synergy.SFCKnox.org web site
@@ -72,20 +73,8 @@ help = undefined
 		return;
 	}
 
-	// copy the url and page info so a user can get back do the page
-//	this.sfc_dialog.set("title","<h1>Copied URL to clipboard</h1>");
-
 	// set text of dialog
 	const url = this.url_get();
-	/*
-	this.sfc_dialog.set("body",`
-<p>"${url}" <br><br>has been copied to your clip board. You may now paste it to an email or other document.</p> 
-<p>Sustainable Future Center implements their web information as Single Page Apps (SPA).  
-This means faster reponse times and less network trafic between your browser and the server.  
-You will notice that as you change pages, the url does not change.  The url that has been copied to your clipboard allows you to get back quickly to page you are on.</p>
-
-<p>After close the dialog, your brwoser will <p>`);
- */
 	await navigator.clipboard.writeText(url);  // copy url to clipboard
 	//this.sfc_dialog.show_modal();              // show dialog
 
@@ -157,6 +146,20 @@ async page_load(   // appClass - client side
 ) {
 	// load page json - it has or points to resources to display page
 	app.page_json          = await proxy.getJSON(`${url_dir}_.json`);
+
+	if (await app.sfc_login.getStatus()) {
+		// user is loged in, so show any edits they have done to the page
+		// see if they have a synergy table for web
+		const table = new table_class(); 
+		const msg = await table.load("/users/databases/synergy/web");
+		if (msg.status === 200) {
+			// edit table loaded, see if there is a change
+			debugger
+		} else {
+			// did not load edit table, ok not all will have edits
+		}
+	}
+
 	app.page_json.url_dir  = url_dir;    // remember where the json was loaded from
 
 	if        (app.page_json.module === undefined || app.page_json.module === false) {

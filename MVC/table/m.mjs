@@ -179,18 +179,10 @@ get_value(  // table_class - client-side
     return this.columns[field]?.[pk];
   }
 
-  switch(meta_field.location) {
-    case "column":
-      if (this.columns[field]) {
-        return this.columns[field][pk];  // still may return undefined
-      } else {
-        return undefined;
-      }
-      
-    default:
-      // code block
-      app.sfc_dialog.show_error(`meta_field.location: ${meta_field.location}`);
-      break;
+  if (this.columns[field]) {
+    return this.columns[field][pk];  // still may return undefined
+  } else {
+    return undefined;
   }
 }
 
@@ -451,7 +443,7 @@ async apply_changes(log){ // table_class - client-side
             delete this.columns.pk[obj.pk];
           } else {
             // 
-            app.sfc_dialog.show_error(`this.columns.pk[obj.pk] not available to detete pk = {obj.pk} `);
+            app.sfc_dialog.show_error(`delete failed: ${JSON.stringify(obj)} `);
           }
           break;
 
@@ -530,28 +522,21 @@ get_object( // table_class - client-side
   for(let i=0; i<select.length ;i++){
     const field_name = select[i];
     const field      = this.meta.fields[field_name];
-    switch(field.location) {
-      case "column":
-        // data is in column
-        if (this.columns[field_name] === undefined) {
-          value = undefined;
-        } else {
-          value = this.columns[field_name][id];  // maybe undefined
-          if ( "string pk json text textarea float integer date-time date".includes(field.type) ) {
-             // value is already set nothing todo
-          } else if (field.type === "money") {
-            if (value !== undefined) {
-              // convert pennies to  $xx,xxx.xx
-            }
-          } else {
-            app.sfc_dialog.show_error(`field.type="${field.type}" <br>field_name="${field_name}"`);
-          }
-        }
-        break;
 
-      default:
-        app.sfc_dialog.show_error(`case not handled field.location=${field.location}`);
-        break;
+    // data is in column
+    if (this.columns[field_name] === undefined) {
+      value = undefined;
+    } else {
+      value = this.columns[field_name][id];  // maybe undefined
+      if ( "string pk json text html textarea float integer date-time date".includes(field.type) ) {
+          // value is already set nothing todo
+      } else if (field.type === "money") {
+        if (value !== undefined) {
+          // convert pennies to  $xx,xxx.xx
+        }
+      } else {
+        app.sfc_dialog.show_error(`field.type="${field.type}" <br>field_name="${field_name}"`);
+      }
     }
 
     if (value !== undefined) {
