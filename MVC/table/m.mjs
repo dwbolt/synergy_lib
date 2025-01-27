@@ -119,47 +119,52 @@ return pk_a;
 
 
 search( // sfc_table_class - client-side
-  critera  // [[field_name, value_min,searh_type_min, search_type_max optional, value_max optional],...]  
+  critera  // array of search critera [[field_name, search_type, search_param1...],...]  
 ) {
+  if (0 === critera.length) {
+    return this.get_PK();  // empty search critera so return everything
+  }
+
   let s_pks =[];  // return array of pks that match search critera
   let pks;        // array of pks to search
 
-  if (0 < critera.length) {
-    for(let i=0; i<critera.length; i++) {
-      // get search criteria
-      const cr           = critera[i];
-      const field_name   = cr[0];
-      const search_value = cr[1];
-      if (i===0) {
-        // first filter, start with the entire database
-        pks = this.get_PK();
-      } else {
-        // narrow sections with preview selections
-        pks = s_pks.slice();  // make a copy of
-        s_pks =[];
-      }
+  for(let i=0; i<critera.length; i++) {
+    // get search criteria
+    const cr            = critera[i];
+    const field_name    = cr[0];
+    const search_type   = cr[1];
+    const search_param1 = cr[2];
 
-      // all the values of the column
-      for(let ii=0; ii<pks.length; ii++){
-        let field_value  = this.get_value(pks[ii],field_name); 
-        if (field_value) {
-          // field_value is defined, so see if it matches search criteria
-          let push=false;
-          if (typeof(field_value) ==="number" ){field_value = field_value.toString();}  // this is not right, numbers need special processing
-          field_value = field_value.toLowerCase();
-          switch (cr[2]) {
-            case "begin"   : if (search_value  === field_value.substring(0,search_value.length)) {push = true} break;
-            case "contains": if (field_value.includes(search_value))                             {push = true} break;
-            default: break;
-          }
-          if (push) {
-            s_pks.push(pks[ii]);  // found a match, push the primary key
-          } 
+    if (i===0) {
+      // first filter, start with the entire database
+      pks = this.get_PK();
+    } else {
+      // narrow sections with preview selections
+      pks = s_pks.slice();  // now only search the rows that have matched previous search terms
+      s_pks =[];
+    }
+
+    // all the values of the column
+    for(let ii=0; ii<pks.length; ii++){
+      let field_value  = this.get_value(pks[ii],field_name); 
+      if (field_value) {
+        // field_value is defined, so see if it matches search criteria
+        let push=false;
+        if (typeof(field_value) ==="number" ){field_value = field_value.toString();}  // this is not right, numbers need special processing
+        field_value = field_value.toLowerCase();
+        switch (search_type) {
+          case "begin"   : if (search_param1  === field_value.substring(0,search_param1.length)) {push = true} break;
+          case "contains": if (field_value.includes(search_param1))                              {push = true} break;
+          case "equal"   : if (field_value === search_param1)                                    {push = true} break;
+          default: app.sfc_dialog.show_error(`case not handled, search_type="${search_type}"`); break;
         }
+        if (push) {
+          s_pks.push(pks[ii]);  // found a match, push the primary key
+        } 
       }
     }
-  }   // do I need an else here?
-  
+  }
+
   return s_pks;
 }
 
@@ -173,17 +178,7 @@ get_value(  // table_class - client-side
     return undefined;
   }
   
-  const meta_field = this.meta.fields[field];
-  if (meta_field === undefined) {
-    // assume data is stored in column, // not tested well, put in to support csv import
-    return this.columns[field]?.[pk];
-  }
-
-  if (this.columns[field]) {
-    return this.columns[field][pk];  // still may return undefined
-  } else {
-    return undefined;
-  }
+  return this.columns[field]?.[pk];   // may return undefined
 }
 
 
@@ -341,8 +336,8 @@ url_set(  // table_class - client-side
 
 
 async load(  // table_class - client-side
-  dir        // location of table to load
-  ,status_array = []// 
+  dir                 // location of table to load
+  ,status_array = [] // list of error calling routine will handle
   ) {
   this.url_set(dir);
   this.readonly = false;
@@ -351,9 +346,6 @@ async load(  // table_class - client-side
   const msg = await proxy.getJSONwithError(this.url_meta);
   if (       msg.status === 200){
     this.meta = msg.json;
-  } else if (msg.status === 404) { 
-    // does not exist, so create it
-    
   } else if (0<= status_array.find( 
     (element) => element === msg.status )) {
     // calling function will handle error
@@ -515,6 +507,12 @@ async create(  // table_class - client-side
 get_object( // table_class - client-side
   id        // primary key of row/object
   ){ 
+
+  if (this.columns.pk[id] === undefined) {
+    // object for pk either does not exixt or has been deleted
+    return undefined;
+  }
+
   // 
   let object = {}, value;
   const select = this.meta.select;  // list of object attributes 

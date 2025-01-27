@@ -542,12 +542,12 @@ set_model( // let class know what data it will be displaying/using
 
 
 grid_create(
-  start_over = false
+  start_over = false  // true mean wipe out exisitng grid
 ){
 /*
 this.elements_grid    = {  // is rebuilt when web component is attached to new model
   "field_name_?" : {
-        "search" : {}  // points to a div tag that will hold user input for search
+        "search" : {}  // points to a div tag that will hold user input for search, not currently used
       , "header" : []  // points to a div tag that will hold display header for column
       , "data"   : []  // each array item points to div tag that hold data for that row 
     }
@@ -568,6 +568,7 @@ this.elements_grid    = {  // is rebuilt when web component is attached to new m
     if  (this.line_number_visible) {
       width += "50px "
     }
+
     for (let i=0; i<this.select.length; i++) {
       const field_name = this.select[i];
       let v = this.model.meta_get("fields")[field_name].width;
@@ -590,11 +591,12 @@ this.elements_grid    = {  // is rebuilt when web component is attached to new m
     field_name = this.select[c];
     this.column_add(field_name); 
   }
+
   if (this.line_number_visible) {
     this.column_add("_line_number");   // place to display line number so user can click to get more detail about a record in the table
   }
 
-  this.table.innerHTML = "";  // get ride of all divs in grid display
+  this.table.innerHTML = "";  // get rid of all divs in grid display
 
   // attach div's in this.elements_grid to this.table so they can be displayed
   if (this.searchVisible ) {
@@ -685,7 +687,7 @@ getModel(){  // sfc_table - client-side
   if (this.model) {
     return this.model;// will be table class
   } else {
-    app.sfc_dialog.show_error(`case not handled<br> ${typeof(this.model)}`);
+    app.sfc_dialog.show_error(`method getModel<br> this.model = ${typeof(this.model)}`);
   }
 }  
 

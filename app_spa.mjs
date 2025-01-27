@@ -29,10 +29,13 @@ async main() { // appClass - client side
 	await this.web_components.check(document.body       );  // load any unload web components in body
 	await this.web_components.observer_create(          );  // create observer
 	await this.web_components.observer_add(document.body);  // observe changes in the body tab
-	
+
 	// remember to app dialog and login
 	this.sfc_dialog  = document.querySelector("sfc-dialog"); // assume only one
 	this.sfc_login   = document.querySelector("sfc-login" ); // assume only one
+
+	// update longin status
+	await this.sfc_login.login_status_update();  // let user know if they are already logined in
 
 	// should just be called once when a new spa (single page app) is load
 	this.pages   = {}  // contians pointers to page class as they are loaded
@@ -50,9 +53,6 @@ async main() { // appClass - client side
 		}
 		await this.page_display(page);
 	}
-
-	// update longin status
-	this.sfc_login.login_status_update();  // let user know if they are already logined in
 }
 
 
@@ -146,21 +146,8 @@ async page_load(   // appClass - client side
 ) {
 	// load page json - it has or points to resources to display page
 	app.page_json          = await proxy.getJSON(`${url_dir}_.json`);
-
-	if (await app.sfc_login.getStatus()) {
-		// user is loged in, so show any edits they have done to the page
-		// see if they have a synergy table for web
-		const table = new table_class(); 
-		const msg = await table.load("/users/databases/synergy/web");
-		if (msg.status === 200) {
-			// edit table loaded, see if there is a change
-			debugger
-		} else {
-			// did not load edit table, ok not all will have edits
-		}
-	}
-
 	app.page_json.url_dir  = url_dir;    // remember where the json was loaded from
+	await this.draft_version(); // will update the json with draft changes
 
 	if        (app.page_json.module === undefined || app.page_json.module === false) {
 		// used base class of page_
@@ -180,7 +167,36 @@ async page_load(   // appClass - client side
 }
 
 
-load_contact(element) {
+async draft_version(){  // appClass - client side
+	// will update the json with draft changes from user database, every user can have a draft version of a page
+	if ( ! await app.sfc_login.getStatus()) {
+		// must be logged in to see draft version
+		return;
+	}
+
+	// user is loged in, so show any edits they have done to the page
+	const table = new table_class(); 
+	const msg = await table.load("/users/databases/synergy/web",[404]); // do not worry if table does not exist, just no custom version
+	if (msg.status === 200) {
+		// we have loaded their synergy table for web
+		// get a list of edits for this page;
+		const pks = table.search([ ["host", "equal", window.location.hostname], ["path","equal",app.page_json.url_dir] ]);
+		for (let i=0; i<pks.length; i++) {
+			const obj = table.get_object(pks[i]);
+			if (obj !== undefined) {
+				const attriutes = obj.attribute.split(".");  // path to attribut to change
+				let att = app.page_json;  // starting point
+				for (let ii=0; ii<attriutes.length-1; ii++) {
+					att = att[attriutes[ii]];
+				}
+				att[ attriutes[attriutes.length-1] ] = `<b class="blink" style="color: red;">DRAFT</b><br><br>${obj.value}`;
+			}
+		}
+	}
+}
+
+
+load_contact(element) {  // appClass - client side
 	element.innerHTML = "load contact html"
 }
 
