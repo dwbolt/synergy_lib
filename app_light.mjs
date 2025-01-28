@@ -12,22 +12,20 @@ export class app_light { // synergy.SFCKnox.org web site
  */
 
 
-constructor() {  // app_light - client side
+constructor(domain) {  // app_light - client side
+	this.lib  = `${domain}_lib/`   // get local of _lib 
 	// load minimal things that application needs
 	this.format = format;  // give other modules access to format static class
 	
 	// add one dialog and login.  Not all applications need login, but most do and it is small
 	document.body.innerHTML += "<sfc-dialog></sfc-dialog> <sfc-login></sfc-login>";
 
-	// get local of _lib 
-	const host = window.location.hostname.split(".");
-	if      ( host[0].includes("_local") ) { this.lib = `https://synergy_local.sfcknox.org/_lib`;} // use _lib on local      server
-	else if ( host[0].includes("_beta" ) ) { this.lib =  `https://synergy_beta.sfcknox.org/_lib`;} // use _lib on beta       server
-	else                                   { this.lib =       `https://synergy.sfcknox.org/_lib`;} // use _lib on production server
-
 	this.sfc_dialog = document.querySelector("sfc-dialog");  //
 	this.sfc_login  = document.querySelector("sfc-login" );  //
-	this.web_components = new web_components(     );  // create map
+}
+
+async main() {
+	this.web_components = new web_components();
 }
 
 

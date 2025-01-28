@@ -1,0 +1,17 @@
+{
+"structure": "default"
+,"version" : "0.1.0"
+,"comment" : "default struct that you can build on."
+
+,"fields":{
+     "pk"       : {"header":"PK"       , "type":"pk"      }
+    ,"host"     : {"header":"Host"     , "type":"text"    ,  "help":"eg. sfcknox.org"}
+    ,"path"     : {"header":"Path"     , "type":"text"    ,  "help": "eg. "}
+    ,"attribute": {"header":"attribute", "type":"text"    ,  "help":"html.do"}
+    ,"value"    : {"header":"Value"     , "type":"textarea",  "help":"code will know type based on attribute name"}
+    ,"comment"  : {"header":"Comment"  , "type":"textarea",  "help":"changes or purpose"}
+}
+
+,"select":["pk", "host", "path", "attribute", "value", "comment"]
+,"PK_max":0
+}

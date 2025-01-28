@@ -58,7 +58,7 @@ constructor(   // sfc_table - client-side
 
 this.table = this.shadow.getElementById("table");
 this.shadow.getElementById("search_tab").style.display    = "flex";  // show search
-import(`${app.lib}/format/_.mjs`).then(({ format }) => {this.format = format;})
+//import(`${app.lib}/format/_.mjs`).then(({ format }) => {this.format = format;})
 }
 
 
@@ -411,13 +411,13 @@ display_format( // sfc_table - client-side
     if (3 <= value.length) {
       // refactor code, assume format header
       const d = new Date(value[0],value[1]-1, value[2]);
-      html = `${this.format.getISO(d)}`     
+      html = `${app.format.getISO(d)}`     
     }
    ; break;
 
   case "integer": case "float": case "pk": html = value; align="right"; break;
 
-  case "money"     : html = `${this.format.money(value)}`; align="right"; break;
+  case "money"     : html = `${app.format.money(value)}`; align="right"; break;
 
   case "text" : case "textarea" : case "html" :
   default          : html = value                           ; break;

@@ -7,15 +7,9 @@ import  {web_components } from '/_lib/web_components/web_components.mjs' ; // cl
 export class app_spa { // synergy.SFCKnox.org web site
 
 
-constructor() {  // appClass - client side
+constructor(domain) {  // appClass - client side
+	this.lib  = `${domain}_lib/`   // get local of _lib 
 	this.urlParams   = new URLSearchParams( window.location.search );
-
-	// get local of _lib 
-	const host = window.location.hostname.split(".");
-	if      ( host[0].includes("local") ) { this.lib = `https://synergy_local.sfcknox.org/_lib`;} // use _lib on local      server
-	else if ( host[0].includes("beta" ) ) { this.lib =  `https://synergy_beta.sfcknox.org/_lib`;} // use _lib on beta       server
-	else                                  { this.lib =       `https://synergy.sfcknox.org/_lib`;} // use _lib on production server
-
 	this.format = format;  // give other modules access to format static class
 }
 

@@ -11,25 +11,26 @@ https://chatgpt.com/c/674f1bef-b588-800b-ab8b-2c1a42c863e2
 
 constructor() {  // web_components - client side
 	// get local of _lib 
+	/*
 	const host = window.location.hostname.split(".");
 	if      ( host[0].includes("local") ) { this.lib = `https://synergy_local.sfcknox.org/_lib`;} // use _lib on local      server
 	else if ( host[0].includes("beta" ) ) { this.lib =  `https://synergy_beta.sfcknox.org/_lib`;} // use _lib on beta       server
 	else                                  { this.lib =       `https://synergy.sfcknox.org/_lib`;} // use _lib on production server
-
+*/
 	this.map = {
-		"sfc-html"          : `${this.lib}/web_components/sfc-html/_.mjs`
-		,"sfc-img"          : `${this.lib}/web_components/sfc-img/_.mjs`  
-		,"sfc-urls"         : `${this.lib}/web_components/sfc-urls/_.mjs` 
-		,"sfc-dialog"       : `${this.lib}/web_components/sfc-dialog/_.mjs` 
-		,"sfc-login"        : `${this.lib}/web_components/sfc-login/_.mjs`
+		"sfc-html"          : `${app.lib}web_components/sfc-html/_.mjs`
+		,"sfc-img"          : `${app.lib}web_components/sfc-img/_.mjs`  
+		,"sfc-urls"         : `${app.lib}web_components/sfc-urls/_.mjs` 
+		,"sfc-dialog"       : `${app.lib}web_components/sfc-dialog/_.mjs` 
+		,"sfc-login"        : `${app.lib}web_components/sfc-login/_.mjs`
 
-		,"sfc-table"        : `${this.lib}/MVC/table/c.mjs`
-		,"sfc-record"       : `${this.lib}/MVC/table/c_record.mjs`
+		,"sfc-table"        : `${app.lib}MVC/table/c.mjs`
+		,"sfc-record"       : `${app.lib}MVC/table/c_record.mjs`
 
-		,"sfc-graph-v"      : `${this.lib}/MVC/graph/v.mjs`
-		,"sfc-graph-node-v" : `${this.lib}/MVC/graph/node/v.mjs`
+		,"sfc-graph-v"      : `${app.lib}MVC/graph/v.mjs`
+		,"sfc-graph-node-v" : `${app.lib}MVC/graph/node/v.mjs`
 
-		,"sfc-not-mapped"   : `${this.lib}/web_components/sfc-not-mapped/_.mjs`
+		,"sfc-not-mapped"   : `${app.lib}web_components/sfc-not-mapped/_.mjs`
 	}
 }
 
