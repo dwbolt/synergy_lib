@@ -18,19 +18,20 @@ constructor() {  // web_components - client side
 	else                                  { this.lib =       `https://synergy.sfcknox.org/_lib`;} // use _lib on production server
 */
 	this.map = {
-		"sfc-html"          : `${app.lib}web_components/sfc-html/_.mjs`
-		,"sfc-img"          : `${app.lib}web_components/sfc-img/_.mjs`  
-		,"sfc-urls"         : `${app.lib}web_components/sfc-urls/_.mjs` 
+		 "sfc-calendar"     : `${app.lib}web_components/sfc-calendar/_.mjs` 
 		,"sfc-dialog"       : `${app.lib}web_components/sfc-dialog/_.mjs` 
-		,"sfc-login"        : `${app.lib}web_components/sfc-login/_.mjs`
+		,"sfc-disk"         : `${app.lib}web_components/sfc-disk/_.mjs`
+		,"sfc-html"         : `${app.lib}web_components/sfc-html/_.mjs`
+		,"sfc-img"          : `${app.lib}web_components/sfc-img/_.mjs`  
+		,"sfc-login"        : `${app.lib}web_components/sfc-login/_.mjs`  
+		,"sfc-not-mapped"   : `${app.lib}web_components/sfc-not-mapped/_.mjs`
+		,"sfc-select-order" : `${app.lib}web_components/sfc-select-order/_.mjs`
+		,"sfc-urls"         : `${app.lib}web_components/sfc-urls/_.mjs` 
 
 		,"sfc-table"        : `${app.lib}MVC/table/c.mjs`
 		,"sfc-record"       : `${app.lib}MVC/table/c_record.mjs`
-
 		,"sfc-graph-v"      : `${app.lib}MVC/graph/v.mjs`
 		,"sfc-graph-node-v" : `${app.lib}MVC/graph/node/v.mjs`
-
-		,"sfc-not-mapped"   : `${app.lib}web_components/sfc-not-mapped/_.mjs`
 	}
 }
 

@@ -33,9 +33,6 @@ constructor() {  // sfc_nav_tree - client side
 }
 
 
-
-
-
 html_add(  // sfc_nav_tree- client side
 	html    // html for menu
 	){

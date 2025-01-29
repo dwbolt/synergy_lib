@@ -10,10 +10,15 @@
 <sfc-disk></sfc-disk>
 
 </body></html>
-<script>let app ={};  // create one global variable</script>
 
-<script type="module">                         ;  // assume running in synergy domain
-const {sfc_disk} = await import(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-disk/_.mjs` );  // import <sfc-disk> code
+<script>let app;  // create one global variable</script>
+
+<script type="module">                            // assume running in synergy domain
+import {app_light} from "/_lib/app_light.mjs"  ;  // light weight app, no menues
+app = new app_light(window.location.origin+"/");  // create instance and asign to only global variable
+await app.main();                                 // create map
+await app.web_components.check(document.body       ); // load any unload web components in body
+//const {sfc_disk} = await import(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-disk/_.mjs` );  // import <sfc-disk> code
 
 //  see if url is specifed with url param
 let url  = new URLSearchParams( window.location.search ).get("url");

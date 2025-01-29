@@ -164,7 +164,7 @@ async click(
 
 } // end sfc_disk
 
-const {sfc_nav_tree} = await import(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-nav-tree/_.mjs` );
+//const {sfc_nav_tree} = await import(`${app.lib}web_components/sfc-nav-tree/m.mjs` );
 
 
 customElements.define("sfc-disk", sfc_disk); // tie class to custom web component
