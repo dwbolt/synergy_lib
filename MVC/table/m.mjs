@@ -698,8 +698,8 @@ async meta_save(){
   let msg  = await proxy.RESTpost(JSON.stringify(this.meta), this.url_meta);
   if(!msg.success) {
     app.sfc_dialog.show_error(`meta_save failed<br> this.url_changes="${this.url_meta}"<br> `);
-  return msg;
   }
+  return msg;
 }
 
 

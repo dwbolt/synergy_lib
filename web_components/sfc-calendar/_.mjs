@@ -77,7 +77,7 @@ async main( // calendar_class  client-side
 year // to display calander for
 ) {
   // load calendar css
-  await this.table_view.css_add(`${new URL(import.meta.url).origin}/_lib/web_components/sfc-calendar/_.css` );
+  await this.table_view.css_add(`${app.lib}web_components/sfc-calendar/_.css` );
 
   if (year) {
     this.year = year;  // year of calendar to display - default is current year

@@ -58,7 +58,6 @@ constructor(   // sfc_table - client-side
 
 this.table = this.shadow.getElementById("table");
 this.shadow.getElementById("search_tab").style.display    = "flex";  // show search
-//import(`${app.lib}/format/_.mjs`).then(({ format }) => {this.format = format;})
 }
 
 
@@ -311,39 +310,44 @@ display_data(){   // sfc_table - client-side
   // return true  -> there was     data to display
   // return false -> there was not data to display
 
+  /*
   if (this.paging.row < 0 || this.tags[this.tag].length <= this.paging.row) {
     // we have gone outside bounds of data,  nothing to display
     return false;
   }
-
+*/
   // fill grid with data from model
   for(let r=0; r<this.paging.lines; r++) {       // walk rows
     // get pk or row to display
     const index = r+this.paging.row;             // index into array of pks to display
-    let pk;                                      // pk is undefined
+    let div, pk;                                      // pk is undefined
     if (0 <= index && index<this.tags[this.tag].length) {
       // is data for next row, 
       pk = this.tags[this.tag][index];     // pk points to data we want to display
-    } /*else {
-      return false;// past last row or before
-    }*/
-  
+    } else {
+      pk = undefined; // should blank all the remaining data
+    }
 
+    if (this.line_number_visible ) {
+      div =this.elements_grid["_line_number"].data[r];
+      if (pk === undefined) {
+        div.innerHTML = "";
+      } else {
+        div.innerHTML = `${r+1}`;
+        div.style["text-align"]  = "right" ; // asssume set to "right" or undefined -> left
+        div.setAttribute("class"  , "link"); // show blue underline like a url to click on
+        div.setAttribute("data-pk",  pk   ); // 
+      }
+    }
+    
     for(let c=0; c<this.select.length; c++) {    // walk columns in row
       // display columns in row
       const field_name = this.select[c];         // get field_name
       let   div =this.elements_grid[field_name].data[r];
-      this.display_format(div, pk, field_name);
-      if (this.line_number_visible) {
-        div =this.elements_grid["_line_number"].data[r];
-        if (pk === undefined) {
-          div.innerHTML = "";
-        } else {
-          div.innerHTML = `${r+1}`;
-          div.style["text-align"]  = "right" ; // asssume set to "right" or undefined -> left
-          div.setAttribute("class"  , "link"); // show blue underline like a url to click on
-          div.setAttribute("data-pk",  pk   ); // 
-        }
+      if (pk === undefined) {
+        div.innerHTML = ""
+      } else {
+        this.display_format(div, pk, field_name);
       }
     }
   }

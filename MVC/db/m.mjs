@@ -179,7 +179,6 @@ async table_merge(      // dbClass - client-side
   table_name   //
 ) {
   // save table
-  debugger
   let msg = await this.tables[table_name].merge();
   if (!msg.success) {
     app.sfc_dialog.show_error("save failed table_merge")
@@ -192,6 +191,7 @@ async table_merge(      // dbClass - client-side
   if (!msg.success) {
     app.sfc_dialog.show_error("save faild table_merge")
   }
+  return msg;
 }
 
 

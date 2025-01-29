@@ -67,7 +67,7 @@ async parse_for_one_second(){   // csvClass: client-side
   //while ( this.valueStart <this.csv.length && (new Date() - this.display) < 1000  ) {  //if there is more to parse and a second has not passed, continue 
   let row;
   while ( -1 < this.valueStart && this.valueStart < this.csv.length ) {  //if there is more to parse and a second has not passed, continue 
-    this.parse_value();   
+    this.parse_value();   // this.value will be set
     // we got a value, so add it the record
     this.column++;
     let col   = this.column.toString();

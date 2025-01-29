@@ -53,7 +53,7 @@ async main() { // appClass - client side
 async load(// app_light - client side
 	path // to module to load
 ){
-	return await import(`${this.lib}/${path}`);  
+	return await import(`${this.lib}${path}`);  
 }
 
 
@@ -183,7 +183,7 @@ async draft_version(){  // appClass - client side
 				for (let ii=0; ii<attriutes.length-1; ii++) {
 					att = att[attriutes[ii]];
 				}
-				att[ attriutes[attriutes.length-1] ] = `<b class="blink" style="color: red;">DRAFT</b><br><br>${obj.value}`;
+				att[ attriutes[attriutes.length-1] ] = `<b class="blink">DRAFT</b> path = "${obj.path}" Attribute = "${obj.attribute}" <br><br>${obj.value}`;
 			}
 		}
 	}
