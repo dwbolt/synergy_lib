@@ -114,8 +114,7 @@ get(   // sfc_select_order - client side
 }
 
 
-choices_html(  	
-
+choices_html(  	// sfc_select_order - client side
 ){
 // array has changed - rebuild choices html
 	let html = "";
@@ -124,7 +123,7 @@ choices_html(
 	for(let i=0; i<this.choices_array.length; i++) {
 		if ( !selected.includes(i.toString()) ) {   // only add things not already selected
 			let display       = this.choices_array[i][0]; // what users sees in list box
-		    let display_lower = display.toLowerCase(   ); // convert to lower case for compare
+		    let display_lower = display.toLowerCase(); // convert to lower case for compare
 			if (display_lower.includes(value_lower) ) {   // only add things that meet narrow search criteria                
 				let sel = "" // 
 				html += `<option value="${i}" ${sel}>${display}</option>`; // store choice in object

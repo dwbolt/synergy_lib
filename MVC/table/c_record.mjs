@@ -16,7 +16,7 @@ constructor( // sfc_record_class - client-side
   this.shadow.innerHTML =  `
   <p id="title"></p>
 
-  <div id="body" style="display: grid; grid-template-columns: auto auto 300px;"></div>
+  <div id="body" style="display: grid; column-gap: 10px; grid-template-columns: max-content max-content 300px;"></div>
   
   <div id='buttons'> 
   <button>New</button>
@@ -33,7 +33,7 @@ constructor( // sfc_record_class - client-side
   <button>Cancel</button>
   </div>`
 
- this. buttonsShow(""); // hide all the buttons
+ this. buttonsShow(" New "); // hide all the buttons
 
   this.shadow.getElementById("buttons").addEventListener('click', this.click.bind(this));
 }
@@ -42,7 +42,8 @@ constructor( // sfc_record_class - client-side
 table_viewer_set(  // sfc_record_class - client-side
   viewer
 ){
-  this.table_viewer = viewer;
+  this.table_viewer = viewer;               // remember table viewer
+  this.table        = viewer.model;         // remember model with table viewer
 }
 
 
@@ -95,22 +96,23 @@ show(  // client side sfc_record_class - for a page
   }
 
   // create shell
-  //const  select = this.table_viewer.select;  // get list of field name to display  from view - not sure which is right
-  const  select = this.table.meta_get("select");     // get list of field name to display  from model, get arround bug
+  if (this.select === undefined) {
+    this.select = this.table.meta_get("select");     // get list of field name to display  from model, get arround bug
+  }
 
   const body   = this.shadow.getElementById("body");
   const fields = this.table.meta_get("fields");
 
   body.innerHTML = "";  // start over, edit maybe showing
   this.value = [];
-  for (let i=0; i<select.length; i++) {
+  for (let i=0; i<this.select.length; i++) {
     let d;
     // dispaly line number
     d = document.createElement("div"); body.appendChild(d);  d.innerHTML   = i+1;
     d.setAttribute("style"  , "text-align:right; margin-right:10px;");
 
     // display header name
-    d = document.createElement("div"); body.appendChild(d);  d.innerHTML   = fields[select[i]].header;
+    d = document.createElement("div"); body.appendChild(d);  d.innerHTML   = fields[this.select[i]].header;
 
     // create space for and rember location of value
     d = document.createElement("div"); body.appendChild(d);  this.value[i] = d;
@@ -118,8 +120,8 @@ show(  // client side sfc_record_class - for a page
 
   // recordShow Fields
   this.shadow.getElementById("title").innerHTML = `<div><b>Table:</b>  ${this.table.name} <b>PK:</b> ${this.#primary_key_value}</div>`;
-  for(var i=0; i<select.length; i++) {
-    this.table_viewer.display_format(this.value[i], this.#primary_key_value, select[i]);
+  for(var i=0; i<this.select.length; i++) {
+    this.table_viewer.display_format(this.value[i], this.#primary_key_value, this.select[i]);
   }
 
   for (let i=0; i<this.show_custom.length; i++) {
@@ -147,12 +149,11 @@ buttonsShow( // client side sfc_record_class - for a page
 form_create( // client side sfc_record_class - for a page
    element // id 
   ,fields_meta
-  ,fields_list
 ){
   // add html
   let html = ``;
-  for(let i=0; i<fields_list.length; i++) {
-      html += this.form_add(fields_meta, fields_list[i],i);
+  for(let i=0; i<this.select.length; i++) {
+      html += this.form_add(fields_meta, this.select[i],i);
   }
   element.innerHTML = html;
 
@@ -200,10 +201,9 @@ money_validate(
 form_write(  // client side sfc_record_class - for a page
     obj
     ,fields_meta
-    ,fields_list
 ){
-  for(let i=0; i<fields_list.length; i++) {
-    let field_name = fields_list[i];
+  for(let i=0; i<this.select.length; i++) {
+    let field_name = this.select[i];
     let value = obj?.[field_name];
     let type = fields_meta[field_name].type;
     
@@ -231,11 +231,13 @@ form_write(  // client side sfc_record_class - for a page
 edit(){ // client side sfc_record_class - for a page
   const element    = this.shadow.getElementById("body");
   const fields     = this.table.meta_get("fields");
-  const field_list = this.table.meta_get("select");
+  if (this.select === undefined) {
+    this.select = this.table.meta_get("select");
+  }
 
-  this.form_create(element, fields, field_list  );  // create empty form
+  this.form_create(element, fields);  // create empty form
   const obj = this.table.get_object(this.#primary_key_value);  // get object from table
-  this.form_write(obj,      fields, field_list  );  // load form with values
+  this.form_write(obj,      fields);  // load form with values
 
   if (this.#primary_key_value  === undefined ) {
     this.buttonsShow("Add Cancel");  // adding new record

@@ -133,7 +133,7 @@ search( // sfc_table_class - client-side
     const cr            = critera[i];
     const field_name    = cr[0];
     const search_type   = cr[1];
-    const search_param1 = cr[2];
+    const search_param1 = cr[2].toLowerCase();  
 
     if (i===0) {
       // first filter, start with the entire database

@@ -74,7 +74,7 @@ async parse_for_one_second(){   // csvClass: client-side
     if (this.row === 0 ) {
       // add column to table meta data
       this.select.push(col); // show the field
-      this.fields[col] = {"header":col, "type": "string", "location":"column"}  // some maybe numbers, bool or other.
+      this.fields[col] = {"header":col, "type": "text", "location":"column"}  // some maybe numbers, bool or other.
     }
 
     if (! (this.value === undefined) ) {

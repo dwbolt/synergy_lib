@@ -16,11 +16,23 @@ user_display(){  // sfc_login - client side
 }
 
 
+form_pwd_change(){
+	this.e_form.innerHTML =  `
+<input id='user_name'                    > Username:           <br/>
+<input id='password'      type="password"> Password Old:        <br/>
+<input id='password_new'  type="password"> Password New:        <br/>
+<input id='password_new2' type="password"> Password New verify: <br/>
+<button id="password_change">Save Changed Passord</button>
+<p id='msg'></p>`;
+
+this.shadow.getElementById("password_change").addEventListener('click', this.pwd_change.bind(this));
+}
+
 async pwd_change() { // sfc_login - client side
-	const user     = this.shadow.getElementById("user_name").value;
-	const pwd      = this.shadow.getElementById("password").value;
-	const pwdNew   = this.shadow.getElementById("passwordNew").value;
-	const pwdNew2  = this.shadow.getElementById("passwordNew2").value;
+	const user     = this.shadow.getElementById("user_name"    ).value;
+	const pwd      = this.shadow.getElementById("password"     ).value;
+	const pwdNew   = this.shadow.getElementById("password_new" ).value;
+	const pwdNew2  = this.shadow.getElementById("password_new2").value;
   
 	if (pwdNew != pwdNew2) {
 	  // make sure new passwords match
@@ -110,16 +122,16 @@ The login feature is in beta testing.  We hope to make it production in the firs
 	this.e_msg        = this.shadow.getElementById("msg");
 
 	// add eventListners for buttons
-	this.e_login_out  = this.shadow.getElementById("login_out" );  this.e_login_out.addEventListener('click',     this.login_out.bind( this));
-	this.e_pwd_change = this.shadow.getElementById("pwd_change"); this.e_pwd_change.addEventListener('click',    this.pwd_change.bind( this));
-	this.e_new        = this.shadow.getElementById("new"       );        this.e_new.addEventListener('click', this.user_new_form.bind( this));
+	this.e_login_out  = this.shadow.getElementById("login_out" );  this.e_login_out.addEventListener('click',       this.login_out.bind( this));
+	this.e_pwd_change = this.shadow.getElementById("pwd_change"); this.e_pwd_change.addEventListener('click', this.form_pwd_change.bind( this));
+	this.e_new        = this.shadow.getElementById("new"       );        this.e_new.addEventListener('click',   this.form_user_new.bind( this));
 
 	await this.login_status_update();
 	this.show_modal();
 }
 
 
-user_new_form(){
+form_user_new(){
 	this.e_form.innerHTML =  `
 Username:     <input id='user_name'  > <br/>
 First Name:   <input id='nameFirst'  > <br/>
