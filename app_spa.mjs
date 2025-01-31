@@ -183,7 +183,16 @@ async draft_version(){  // appClass - client side
 				for (let ii=0; ii<attriutes.length-1; ii++) {
 					att = att[attriutes[ii]];
 				}
-				att[ attriutes[attriutes.length-1] ] = `<b class="blink">DRAFT</b> path = "${obj.path}" Attribute = "${obj.attribute}" <br><br>${obj.value}`;
+				if (obj.type === "json") {
+					try {
+						att[ attriutes[attriutes.length-1] ] = JSON.parse(obj.value);		
+					} catch (error) {
+						app.sfc_dialog.show_error(`json parse error on: ${obj.value}`);
+					}
+				} else {
+					// assume typle is html
+					att[ attriutes[attriutes.length-1] ] = `status: <b class="blink">${obj.status}</b> path = "${obj.path}" Attribute = "${obj.attribute}" <br><br>${obj.value}`;
+				}
 			}
 		}
 	}

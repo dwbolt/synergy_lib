@@ -85,6 +85,9 @@ async button_press(   // class page_ - client side
 				html += `node not loaded ${node_name}`;
 				debugger;
 			}
+		} else {
+			// missing the node so put dummy info in page
+			html += `node name = ${node_name} <p>should be in editor or load or html</p>`
 		}
 		html += "</div>"
 	}
