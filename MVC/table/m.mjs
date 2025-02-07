@@ -285,9 +285,8 @@ check_pk(// table_class - client-side
     // new pk, so add it
     this.columns.pk[pk]= pk;
     if (this.meta.PK_max <= pk_num) {
-      this.meta.PK_max = pk_num;   // this should always be the case
-    } else {
-      app.sfc_dialog.show_error(`pk_num=${pk_num}  <br>this.meta.PK_max=${this.meta.PK_max } <br>this.url_meta="${this.url_meta}`);
+      // adding a new pk so incerase max
+      this.meta.PK_max = pk_num;   
     }
   }
 }
