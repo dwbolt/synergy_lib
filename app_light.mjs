@@ -16,7 +16,7 @@ constructor(domain) {  // app_light - client side
 	this.lib  = `${domain}_lib/`   // get local of _lib 
 	// load minimal things that application needs
 	this.format = format;  // give other modules access to format static class
-	
+
 	// add one dialog and login.  Not all applications need login, but most do and it is small
 	document.body.innerHTML += "<sfc-dialog></sfc-dialog> <sfc-login></sfc-login>";
 
@@ -32,7 +32,7 @@ async main() {
 async load(// app_light - client side
 path // to module to load
 ){
-	return await import(`${this.lib}/${path}`);  
+	return await import(`${this.lib}${path}`);  
 }
 
 } // end app_light
