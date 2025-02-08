@@ -1,4 +1,4 @@
-export class graph { // web component
+export class sfc_tree { // web component
 
 /*
 tree structure - implement with graph
@@ -30,6 +30,10 @@ id1: {
 
 constructor() {  // sfc_nav_tree - client side
 	// constructor is called when the element is displayed
+	this.tree = {
+		meta: {note_root: undefined}
+		,edges: {}
+	}
 }
 
 

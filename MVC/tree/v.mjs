@@ -1,4 +1,4 @@
-export class sfc_tree extends HTMLElement { // <sfc-tree>  web component
+export class sfc_nave_tree extends HTMLElement { // <sfc-tree>  web component
 
 /*
 similar to a column view of a file system

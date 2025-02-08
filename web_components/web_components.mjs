@@ -24,6 +24,7 @@ constructor() {  // web_components - client side
 		,"sfc-html"         : `${app.lib}web_components/sfc-html/_.mjs`
 		,"sfc-img"          : `${app.lib}web_components/sfc-img/_.mjs`  
 		,"sfc-login"        : `${app.lib}web_components/sfc-login/_.mjs`  
+		,"sfc_nav_tree"     : `${app.lib}web_components/sfc_nav_tree/_.mjs`
 		,"sfc-not-mapped"   : `${app.lib}web_components/sfc-not-mapped/_.mjs`
 		,"sfc-select-order" : `${app.lib}web_components/sfc-select-order/_.mjs`
 		,"sfc-urls"         : `${app.lib}web_components/sfc-urls/_.mjs` 
