@@ -70,7 +70,6 @@ help = undefined
 	// set text of dialog
 	const url = this.url_get();
 	await navigator.clipboard.writeText(url);  // copy url to clipboard
-	//this.sfc_dialog.show_modal();              // show dialog
 
 	window.location.href =  url;               // go to url
 }

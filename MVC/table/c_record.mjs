@@ -27,6 +27,7 @@ constructor( // sfc_record_class - client-side
   <button>Delete</button> 
   <button>Save</button>  &nbsp - &nbsp
 
+  <button>JSON</button>
   <button>Stack</button> &nbsp - &nbsp
   
   <button>Clear</button>
@@ -59,7 +60,7 @@ click(  // sfc_record_class - client-side
 ){
   // user clicked on a button,  lower case of button name is method to execute
   const method = event.target.innerHTML.toLowerCase();
-  if (" new duplicate edit delete save clear cancel ".includes(method) ) {
+  if (" new duplicate edit delete save clear cancel json".includes(method) ) {
     this[method]();
   } else if (method==="add") {
     this.save(); // add and save use the same code, the value pk=undefined for add
@@ -76,7 +77,41 @@ shadow_by_id( // sfc_record_class - client-side
 ){
   return this.shadow.getElementById(id);
 }
-  
+
+
+async json(){  // client side sfc_record_class - for a page
+  // put json form of record in user clipboard so it can be pased elsewhere
+
+  let obj = "{\n";  // start json 
+  let delimiter = ""
+  for(let i=0; i<this.select.length; i++) {
+    const field_name = this.select[i];
+    let value = this.table.get_value(this.#primary_key_value, field_name) ;
+
+    if (value !== undefined) {        // only add for defined values
+      // convert value to construct json representation
+      switch ( typeof(value) ) {
+        case "number": 
+        case "boolean": 
+        break;
+      
+        default: value = `"${value}"`; break;
+      }
+
+      obj += `${delimiter}"${field_name}":`; // add field name
+      obj +=  value + "\n"; // add field value & new line
+      if (delimiter === "") {
+        // justed add first value, need to add , to seperate more values
+        delimiter += ","; //
+      }
+    }
+  }
+
+  obj += "}\n"  // end json
+  await navigator.clipboard.writeText(obj);  // copy json string to clipboard
+  debugger
+}
+
 
 show(  // client side sfc_record_class - for a page
   pk // primary key to show
@@ -89,7 +124,7 @@ show(  // client side sfc_record_class - for a page
     // user clicked on elemnt, remember primary key for other record methodes
     this.#primary_key_value = pk; 
     // show buttons
-    this.buttonsShow("New Duplicate Edit Delete Stack Clear");
+    this.buttonsShow("New Duplicate Edit Delete JSON Stack Clear");
   } else {
     // added a new record
     this.buttonsShow("Edit New Clear");
