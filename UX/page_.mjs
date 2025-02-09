@@ -44,8 +44,13 @@ display_buttons(    // class page_ - client side
 		let button = buttons[i];
 		if (typeof(button.value) === "string") {
 			// display button if button.value is defined
+			let hook_post="";
+			if (button.hook_post) {
+				// allow for method to run after button is pushed and data displayed
+				hook_post = button.hook_post;
+			}
 			let color = app.css.button_colors[i % app.css.button_colors.length];
-			html +=  `<button  class="button" onclick="app.button_press(${i})" 
+			html +=  `<button  class="button" onclick="app.button_press(${i});${hook_post}" 
 			style="background-color: var(${color}_fill); border-color: var(${color}_border);">${button.value}</button>`
 
 		}
