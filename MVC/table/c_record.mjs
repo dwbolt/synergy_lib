@@ -1,6 +1,6 @@
 // <sfc-record> web component.  Displays one table record. allows add,edit,delete and moveing to stack
 
-export class sfc_record_class extends HTMLElement { // sfc_record_class - client-side
+export class sfc_record_class extends HTMLElement  {    // <sfc-record>     - client-side
 
 #primary_key_value  // can these be moved from tableUxClass
 
