@@ -56,7 +56,12 @@ async init() {  // calendar_class  client-side
     app.sfc_dialog.set("title","<b>Calendar database not found</b>");
     app.sfc_dialog.set("body",`trying to load ${this.table_urls[0]}<br> for user: ${app.sfc_login.user_display()}`);
     app.sfc_dialog.set("buttons",`<button id="create">Create Calendar Table</button>`);
-    app.sfc_dialog.addEventListener("create",'click', this.database_relations_start.bind(this));
+
+    if (this.database_relations_start) {
+      // seems like ahack - refactor at some point, calendar starting failing
+      app.sfc_dialog.addEventListener("create",'click', this.database_relations_start.bind(this));
+    }
+
     app.sfc_dialog.show_modal();
     debugger;
     return;
