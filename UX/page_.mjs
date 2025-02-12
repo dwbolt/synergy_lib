@@ -5,17 +5,34 @@ import {proxy} from '/_lib/proxy/_.mjs' ;
 export class page_ { // sfcknox2/pages/home
 
 constructor(  // class page_ - client side
-	url
+	url // directory where _.json file is and optional _.mjs
 ){ 
-	this.dir_url = url; // name of page
+	if (url) {
+		this.dir_url = url; // name of page for backward compatibily
+		debugger;
+		alert(`see about delete url=${url}`);  // I think this can be depricated
+
+	} else {
+		this.dir_url =	app.page_json.url_dir;
+	}
 }
 
 
 async init(         // class page_ - client side
 	json  // page difintion
 ) {
-	this.json    = json   ; // define page resources
+	if (json) {
+		this.json    = json   ; // save page resources
+		debugger;
+		alert(`see about delete json in init`);  // I think this can be depricated
+	} else {
+		this.json = app.page_json;
+	}
+
 	await this.display();
+	await app.web_components.check(document.body);  // load any unload web components in body
+ 
+	return this  // allow chaining
 }
 
 
@@ -25,6 +42,7 @@ async display(     // class page_ - client side
 	this.display_buttons();
 	await this.button_press(0); // display the first list/button
 	app.page = this;            // remember the page displayed
+
 }
 
 
@@ -98,6 +116,12 @@ async button_press(   // class page_ - client side
 	}
 
 	document.getElementById("main").innerHTML = html;  // display HTML
+
+	// run method associated with button
+	const method = this.json.buttons[button_index].method;
+	if (method) {
+		await this[method]();
+	}
 }
 
 }   // end class page_ - client side

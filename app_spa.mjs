@@ -138,15 +138,13 @@ async page_load(   // appClass - client side
 	url_dir
 ) {
 	// load page json - it has or points to resources to display page
-	app.page_json          = await proxy.getJSON(`${url_dir}_.json`);
+	app.page_json          = await proxy.getJSON(`${url_dir}_.json`); // load json for page
 	app.page_json.url_dir  = url_dir;    // remember where the json was loaded from
 	await this.draft_version(); // will update the json with draft changes
 
 	if        (app.page_json.module === undefined || app.page_json.module === false) {
 		// used base class of page_
-		const page_module = new page_(url_dir);
-		await page_module.init(app.page_json);
-		return page_module;
+		return await new page_().init();
 	} else if (app.page_json.module === true) {
 		// load custom page module from same directory as _.json
 		let element  = document.createElement('script');

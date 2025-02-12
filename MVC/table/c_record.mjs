@@ -159,9 +159,10 @@ show(  // client side sfc_record_class - for a page
     this.table_viewer.display_format(this.value[i], this.#primary_key_value, this.select[i]);
   }
 
+  /*
   for (let i=0; i<this.show_custom.length; i++) {
     this.show_custom[i](this);   // process custom code
-  }
+  }*/
 }
 
 
@@ -206,6 +207,7 @@ form_add( // client side sfc_record_class - for a page
   ,field_name
   ,i
 ){
+  // adding a field to be edited or added
   const field=fields_meta[field_name]
   let html = `<div>${i}</div> <div>${field.header}</div>`
   switch (field.type) {
@@ -220,6 +222,7 @@ form_add( // client side sfc_record_class - for a page
   case "float"    : return `${html} <div><input    id="${field_name}" type="number"  > </div>`;
   case "date"     : return `${html} <div><input    id="${field_name}" type="date"    > </div>`;
   case "date-time": return `${html} <div><input    id="${field_name}" type="date"    > <input id="${field_name}_time" type="time"> </div>`;
+  case "time"     : return `${html} <div><input    id="${field_name}" type="time"> </div>`;
   case "boolean"  : return `${html} <div><input    id="${field_name}" type="checkbox"></div>`;
   case "relation" : return `${html} <div><relation needs work`;
 
@@ -237,6 +240,7 @@ form_write(  // client side sfc_record_class - for a page
     obj
     ,fields_meta
 ){
+  // filling in form field from 
   for(let i=0; i<this.select.length; i++) {
     let field_name = this.select[i];
     let value = obj?.[field_name];
@@ -257,6 +261,7 @@ form_write(  // client side sfc_record_class - for a page
       case "date-time": this.shadow.getElementById(field_name).valueAsDate =  new Date(value[0],value[1]-1,value[2]); 
                         this.shadow.getElementById(`${field_name}_time`).value  =  
                                               `${app.format.padZero(value[3],2)}:${app.format.padZero(value[4],2)}`; break;
+      case "time"     : this.shadow.getElementById(field_name).value       = `${app.format.padZero(value[0],2)}:${app.format.padZero(value[1],2)}`; break;
       default        : app.sfc_dialog.show_error(`case not handled<br> type="${type}"<br> field_name="${field_name}"`);
     }
   }}
@@ -314,7 +319,8 @@ async save( // client side sfc_record_class - for a page
 form_read( // client side sfc_record_class - for a page
 ){
   const obj         = {};
-  const fields_list = this.table.meta_get("select");
+  //const fields_list = this.table.meta_get("select");
+  const fields_list = this.select;
   const fields_meta = this.table.meta_get("fields");
 
   for(let i=0; i<fields_list.length; i++) {
@@ -367,6 +373,11 @@ form_value( // client side sfc_record_class
         value = [ parseInt(date[0]), parseInt(date[1]), parseInt(date[2]), parseInt(time[0]), parseInt(time[1])];
       }
       break;
+
+  case "time" :
+    time = this.shadow.getElementById(`${dom}`).value.split(":");
+    value = [time[0],time[1]]; // military time
+    break;
 
   case "json"    : value = JSON.parse(value);break;
   case "boolean" : value = document.getElementById(`${dom}`).checked          ; break;

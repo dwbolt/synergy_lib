@@ -418,6 +418,14 @@ display_format( // sfc_table - client-side
       html = `${app.format.getISO(d)}`     
     }
    ; break;
+  
+   case "time" :  
+   if (Array.isArray(value)) {
+     // [hours, minues] military time
+     const d = new Date(value[0],value[1]-1, value[2]);
+     html = `${app.format.padZero(value[0],2)}:${app.format.padZero(value[1],2)}`     
+   }
+  ; break;
 
   case "integer": case "float": case "pk": html = value; align="right"; break;
 

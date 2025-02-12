@@ -23,6 +23,15 @@ static padZero(    // formatClass - client-side
   ,length  // total length of string
 ) {
   let str;
+  switch (typeof(number)) {
+  case "null":
+  case "undefined": str=""; break;
+  case "number"   : str   = number.toString(); break;
+  case "string"   : str   = number; break;
+  default         : str="";     app.sfc_dialog.show_error( `number should be of type number<br> typeof(number): "${typeof(number)}"`); break;
+  // create default value;break;
+  }
+  /*
   if (number === null) {number = 0;}
   if (typeof(number) === "number") {
     str   = number.toString();
@@ -30,7 +39,7 @@ static padZero(    // formatClass - client-side
     app.sfc_dialog.show_error( `number should be of type number<br> typeof(number): "${typeof(number)}"` );
     str="0";  // create default value;
   }
-
+*/
   while (str.length<length) {
     str = "0" + str;
   }
