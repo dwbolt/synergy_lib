@@ -40,9 +40,8 @@ async display(     // class page_ - client side
 ){
 	this.display_header();
 	this.display_buttons();
-	await this.button_press(0); // display the first list/button
 	app.page = this;            // remember the page displayed
-
+	await this.button_press(0); // display the first list/button
 }
 
 

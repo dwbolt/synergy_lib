@@ -5,15 +5,18 @@
 
 
 ,"fields":{
-     "pk"           : {"header":"PK"         , "type":"pk"  ,  "location":"column"}
-
-    ,"label"        : {"header":"Label"      , "type":"text",  "location":"column", "help":"facebook, linkedin, website, etc"}
-    ,"display"      : {"header":"Display"    , "type":"text",  "location":"column"}
-    ,"url"          : {"header":"URL"        , "type":"text",  "location":"column"}
-    ,"target"       : {"header":"taget"      , "type":"text",  "location":"column", "help":"_blank, _self,_parent, _top, framename"}
-
-    ,"comment"   : {"header":"Comment"    , "type":"textarea",  "location":"column"}
+     "pk"          : {"header":"PK"         , "type":"pk"}
+    ,"label"       : {"header":"Label"      , "type":"text",  "help":"facebook, linkedin, website, etc"}
+    ,"protocol"    : {"header":"Protocol"   , "type":"text",  "help":"https:// , ftp://  file://" }
+    ,"domain"      : {"header":"Domain"     , "type":"text",  "help":"sfcKnox.org ..." }
+    ,"port"        : {"header":"Port"       , "type":"text",  "help":"default 80 for HTTP and 443 for HTTPS" }
+    ,"path"        : {"header":"Path"       , "type":"text",  "help":"url to external resource"}
+    ,"query"       : {"header":"Query"      , "type":"text",  "help":"u=pages/team/"}
+    ,"target"      : {"header":"Target"     , "type":"text",  "help":"_blank, _self,_parent, _top, framename"}
+    ,"meta"        : {"header":"Meta"       , "type":"json",  "help":"extra data used by web componet"}
+    ,"comment"     : {"header":"Comment"    , "type":"textarea"}
 }
-,"select":["pk","label","display","url","target","comment"]
+
+,"select":["pk","label","protocol","domain","port","path","query","target","comment"]
 ,"PK_max":0
 }
