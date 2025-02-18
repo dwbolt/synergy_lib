@@ -73,7 +73,8 @@ async login_status_update(       // sfc_login - client side
 	}
 
 	// get login State
-	if (await this.getStatus()) {
+	const status = await this.getStatus();  // took it out of if statment to make it easier to debut
+	if (status) {
 	  // logged in
 	  login_status.innerHTML = this.user_display();
 	  logInOut                  = "Log Out";
