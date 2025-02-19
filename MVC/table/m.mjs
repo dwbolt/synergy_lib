@@ -492,7 +492,7 @@ async create(  // table_class - client-side
   }
 
   // save meta data fro table
-  this.meta = JSON.parse(msg.value);                       
+  //this.meta = JSON.parse(msg.value);                       
   msg = await proxy.RESTpost(msg.value, this.url_meta);
   if (!msg.success) {
     app.sfc_dialog.show_error(`create of table "${name}" failed.  could not save url="${this.url_meta}"`);
