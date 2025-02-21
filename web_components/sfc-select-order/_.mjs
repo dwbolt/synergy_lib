@@ -79,6 +79,9 @@ toggle(  // sfc_select_order - client side
 	element.hidden = !element.hidden;
 }
 
+hide(id) {
+	this.shadow.getElementById(id).hidden = true;
+}
 
 multi_set(   // sfc_select_order - client side
 	value

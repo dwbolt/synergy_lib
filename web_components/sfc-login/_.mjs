@@ -68,18 +68,21 @@ async login_status_update(       // sfc_login - client side
 	const login_status = document.getElementById("login_status");
 
 	if (login_status === null || login_status === undefined) {
-		// need to  find bug, this should not happen, for now just prevent error
+		// need to find bug, this should not happen, for now just prevent error
+		app.sfc_dialog.show_error( `case not handled, login_status= ${login_status}` );
+		debugger
 		return;
 	}
 
 	// get login State
-	const status = await this.getStatus();  // took it out of if statment to make it easier to debut
+	const status = await this.getStatus();  // took it out of if statment to make it easier to debug
+	app.nav_menu_update(status);
 	if (status) {
 	  // logged in
 	  login_status.innerHTML = this.user_display();
 	  logInOut                  = "Log Out";
 	  loginState                = `Logged in: ${this.user_display()}`;
-	  if (this.e_pwd_change) {this.e_pwd_change.hidden = false;}            	// conside refactor, do not like all the testing before setting a value.
+	  if (this.e_pwd_change) {this.e_pwd_change.hidden = false;}      // conside refactor, do not like all the testing before setting a value.
 	  if (this.e_new       ) {       this.e_new.hidden = false;}
 	} else {
 	  // logged out

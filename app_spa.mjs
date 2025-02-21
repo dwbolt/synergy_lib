@@ -13,6 +13,11 @@ constructor(domain) {  // appClass - client side
 	this.format = format;  // give other modules access to format static class
 }
 
+async nav_menu_update(){
+	debugger
+	// for apps that change menu if logged, this method needs to be over ridden
+}
+
 
 async main() { // appClass - client side
 	// add one dialog and login.  Not all applications need login, but most do and it is small

@@ -542,10 +542,11 @@ setModel( // let class know what data it will be displaying/using
 
 set_model( // let class know what data it will be displaying/using
    table  // table object 
-  ,name   // name of table
+//  ,name   // name of table
 ) {
   this.model      = table;  // is of class table_class
-  this.tableName  = name;   // string
+  //this.tableName  = name;   // string
+  this.tableName  = this.model.name;   // string
   
   this.table_views  = new table_views(this);
   this.shadow.getElementById("search").selected_custom = this.table_views.search_create.bind( this.table_views );

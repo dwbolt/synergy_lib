@@ -1,5 +1,5 @@
 import {table_class } from '/_lib/MVC/table/m.mjs'  ; 
-import {proxy       } from '/_lib/proxy/_.mjs'      ;
+import {proxy       } from '/_lib/proxy/_.mjs'         ;
 
 
 class dbClass {  
@@ -50,17 +50,12 @@ async load(  // dbClass - client-side
   // walk through table data, load and make the table class objects
   const table_names = Object.keys(this.meta.tables);
   for (let i=0; i<table_names.length; i++) {
-    const table                 = new table_class(); // create table model
-    const table_name            = table_names[i]   ; // get the name of the table
-    this.tables[table_name ]    = table            ;  // add table to database
-    let table_url               = this.meta.tables[table_names[i]].location; 
-    if (table_url === undefined) {
-      // assume location is a subdirectory of database
-      table_url = `${this.dir}/${table_name}`
-    }
-    await table.load(table_url); // load table
-    table.set_db(this)         ; // allow tables to get to other tables in the database
-    table.set_name(table_name) ; // allow table to know it's database name
+    const table                 = new table_class();       // create
+    this.tables[table_names[i]] = table;  // add table to database
+    const table_url             = this.meta.tables[table_names[i]].location;
+    await table.load(table_url);          // load
+    table.set_db(this);                   // allow tables to get to other tables in the database
+    table.set_name(table_names[i]);       // allow table to know it's database name
   }
 }
 
@@ -78,7 +73,6 @@ async table_delete(table_name){
 
   delete this.meta.tables[table_name];  // delete table from meta data
   await this.meta_save()                // save updated meta data
-  
 }
 
 
