@@ -8,9 +8,10 @@ export class app_spa { // synergy.SFCKnox.org web site
 
 
 constructor(domain) {  // appClass - client side
-	this.lib  = `${domain}_lib/`   // get local of _lib 
+	this.lib         = `${domain}_lib/`   // get local of _lib 
 	this.urlParams   = new URLSearchParams( window.location.search );
-	this.format = format;  // give other modules access to format static class
+	this.format      = format;  // give other modules access to format static class
+	this.edit        = false;  // show draft mode and allow ediot
 }
 
 async nav_menu_update(){
@@ -130,7 +131,8 @@ url = ""  // url to json file for page
 	}
 
 	// load page module code if not already loaded
-	if (this.pages[this.page_url_dir] === undefined) {
+	if (this.pages[this.page_url_dir] === undefined || this.edit) {
+		// if page is not loaded or were are in edit mode then reload page
 		this.pages[this.page_url_dir] = await this.page_load(this.page_url_dir);
 	} else {
 		// page already loaded
@@ -165,10 +167,14 @@ async page_load(   // appClass - client side
 
 async draft_version(){  // appClass - client side
 	// will update the json with draft changes from user database, every user can have a draft version of a page
-	if ( ! await app.sfc_login.getStatus()) {
-		// must be logged in to see draft version
+	if ( sessionStorage.getItem("edit_mode") !== "true") {
+		// edit mode must be true to see draft version
 		return;
 	}
+
+	if ( !(await app.sfc_login.login_force( this.draft_version.bind(this) )) ) {
+		return; // login was not successfull, nothing todo
+  	}
 
 	// user is loged in, so show any edits they have done to the page
 	const table = new table_class(); 
