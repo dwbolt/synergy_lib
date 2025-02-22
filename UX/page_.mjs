@@ -19,7 +19,7 @@ constructor(  // class page_ - client side
 
 
 async init(         // class page_ - client side
-	json  // page difintion
+	json  // page defintion
 ) {
 	if (json) {
 		this.json    = json   ; // save page resources

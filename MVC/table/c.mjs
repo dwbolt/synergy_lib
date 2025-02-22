@@ -1,10 +1,14 @@
+/*
+<sfc-table></sfc-table>   web component.  Displays one table. Allow search, sort, etc
+
+table viewer web component - has aspects of controler & viewer, looking at splitting and refactor
+*/
+
+
 const {table_views    } = await app.load("MVC/table/c_views.mjs"); 
 
 export class sfc_table  extends HTMLElement { // sfc_table - client-side 
 
-/*
-<sfc-table><sfc-table>  - table viewer web component - has aspects of controler & viewer, looking at splitting and refactor
-*/
 
 
 constructor(   // sfc_table - client-side
